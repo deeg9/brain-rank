@@ -26,14 +26,17 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Model Setup
-**Goal**: TRIBE v2 is cloned, installed, and producing raw output for a test video on a local GPU
+**Goal**: TRIBE v2 is cloned, installed, and producing raw output for a test video on a remote GPU
 **Depends on**: Nothing (first phase)
 **Requirements**: MODL-01, MODL-02
 **Success Criteria** (what must be TRUE):
   1. TRIBE v2 repository is cloned and all dependencies (including neuralset, neuraltrain) install without errors in a clean environment
   2. Running TRIBE v2 on a 60-second test video produces output without crashing
   3. Raw output tensor shape and format are visible and logged
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Create scripts for installation verification, remote setup, and inference testing
+- [ ] 01-02-PLAN.md — Execute on remote GPU, verify output, document raw output format
 
 ### Phase 2: Output Mapping
 **Goal**: The raw cortical vertex output is fully understood and a vertex-to-region mapping is defined for NeuroCut's target constructs
@@ -137,7 +140,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Model Setup | 0/0 | Not started | - |
+| 1. Model Setup | 0/2 | Planning complete | - |
 | 2. Output Mapping | 0/0 | Not started | - |
 | 3. Model Validation | 0/0 | Not started | - |
 | 4. Container Foundation | 0/0 | Not started | - |
