@@ -95,44 +95,44 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODL-01 | Phase ? | Pending |
-| MODL-02 | Phase ? | Pending |
-| MODL-03 | Phase ? | Pending |
-| MODL-04 | Phase ? | Pending |
-| MODL-05 | Phase ? | Pending |
-| MODL-06 | Phase ? | Pending |
-| MODL-07 | Phase ? | Pending |
-| CNTR-01 | Phase ? | Pending |
-| CNTR-02 | Phase ? | Pending |
-| CNTR-03 | Phase ? | Pending |
-| CNTR-04 | Phase ? | Pending |
-| CNTR-05 | Phase ? | Pending |
-| CNTR-06 | Phase ? | Pending |
-| HDLR-01 | Phase ? | Pending |
-| HDLR-02 | Phase ? | Pending |
-| HDLR-03 | Phase ? | Pending |
-| HDLR-04 | Phase ? | Pending |
-| HDLR-05 | Phase ? | Pending |
-| HDLR-06 | Phase ? | Pending |
-| HDLR-07 | Phase ? | Pending |
-| HDLR-08 | Phase ? | Pending |
-| HDLR-09 | Phase ? | Pending |
-| DEPL-01 | Phase ? | Pending |
-| DEPL-02 | Phase ? | Pending |
-| DEPL-03 | Phase ? | Pending |
-| DEPL-04 | Phase ? | Pending |
-| DEPL-05 | Phase ? | Pending |
-| DEPL-06 | Phase ? | Pending |
-| PROD-01 | Phase ? | Pending |
-| PROD-02 | Phase ? | Pending |
-| PROD-03 | Phase ? | Pending |
-| PROD-04 | Phase ? | Pending |
+| MODL-01 | Phase 1 | Pending |
+| MODL-02 | Phase 1 | Pending |
+| MODL-03 | Phase 2 | Pending |
+| MODL-04 | Phase 2 | Pending |
+| MODL-05 | Phase 3 | Pending |
+| MODL-06 | Phase 2 | Pending |
+| MODL-07 | Phase 3 | Pending |
+| CNTR-01 | Phase 4 | Pending |
+| CNTR-02 | Phase 4 | Pending |
+| CNTR-03 | Phase 4 | Pending |
+| CNTR-04 | Phase 5 | Pending |
+| CNTR-05 | Phase 5 | Pending |
+| CNTR-06 | Phase 5 | Pending |
+| HDLR-01 | Phase 6 | Pending |
+| HDLR-02 | Phase 6 | Pending |
+| HDLR-03 | Phase 6 | Pending |
+| HDLR-04 | Phase 6 | Pending |
+| HDLR-05 | Phase 7 | Pending |
+| HDLR-06 | Phase 7 | Pending |
+| HDLR-07 | Phase 7 | Pending |
+| HDLR-08 | Phase 7 | Pending |
+| HDLR-09 | Phase 7 | Pending |
+| DEPL-01 | Phase 8 | Pending |
+| DEPL-02 | Phase 8 | Pending |
+| DEPL-03 | Phase 8 | Pending |
+| DEPL-04 | Phase 8 | Pending |
+| DEPL-05 | Phase 9 | Pending |
+| DEPL-06 | Phase 9 | Pending |
+| PROD-01 | Phase 10 | Pending |
+| PROD-02 | Phase 10 | Pending |
+| PROD-03 | Phase 10 | Pending |
+| PROD-04 | Phase 10 | Pending |
 
 **Coverage:**
 - v1 requirements: 32 total
-- Mapped to phases: 0
-- Unmapped: 32
+- Mapped to phases: 32
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-07*
-*Last updated: 2026-04-07 after initial definition*
+*Last updated: 2026-04-07 after roadmap creation*
