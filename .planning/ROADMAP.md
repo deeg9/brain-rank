@@ -59,10 +59,10 @@ Plans:
   1. Running two videos with visibly different engagement levels produces measurably different activation scores in the mapped regions
   2. Inference time for a 60-second video on the local GPU is measured and documented
   3. A go/no-go decision on model viability is recorded based on differentiation quality
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 03-01-PLAN.md — Create validation script, setup script, and run on GPU pod (checkpoint)
-- [ ] 03-02-PLAN.md — Analyze results, write validation report and inference benchmarks
+- [x] 03-01-PLAN.md — Create validation script, setup script, and run on GPU pod (checkpoint)
+- [x] 03-02-PLAN.md — Analyze results, write validation report and inference benchmarks
 
 ### Phase 4: Container Foundation
 **Goal**: A Docker image builds successfully with CUDA, Python 3.11, PyTorch, all TRIBE v2 dependencies, and gated model access
@@ -148,7 +148,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 |-------|----------------|--------|-----------|
 | 1. Model Setup | 2/2 | Complete    | 2026-04-08 |
 | 2. Output Mapping | 2/2 | Complete    | 2026-04-08 |
-| 3. Model Validation | 0/2 | Planning complete | - |
+| 3. Model Validation | 1/2 | In Progress|  |
 | 4. Container Foundation | 0/0 | Not started | - |
 | 5. Container Verification | 0/0 | Not started | - |
 | 6. Handler Core | 0/0 | Not started | - |
