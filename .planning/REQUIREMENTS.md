@@ -19,9 +19,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Containerization
 
-- [ ] **CNTR-01**: Dockerfile built on nvidia/cuda:12.4.1-runtime with Python 3.11 and PyTorch 2.6.0
-- [ ] **CNTR-02**: All TRIBE v2 dependencies resolved in container (including neuralset, neuraltrain, WhisperX if required)
-- [ ] **CNTR-03**: Gated model access (LLaMA 3.2) works in container via HF_TOKEN environment variable
+- [x] **CNTR-01**: Dockerfile built on nvidia/cuda:12.4.1-runtime with Python 3.11 and PyTorch 2.6.0
+- [x] **CNTR-02**: All TRIBE v2 dependencies resolved in container (including neuralset, neuraltrain, WhisperX if required)
+- [x] **CNTR-03**: Gated model access (LLaMA 3.2) works in container via HF_TOKEN environment variable
 - [ ] **CNTR-04**: Full model load (all sub-models) succeeds in container and torch.cuda.is_available() returns True
 - [ ] **CNTR-05**: Docker image size documented and optimized (target: under 15 GB excluding model weights)
 - [ ] **CNTR-06**: Model weights strategy decided and implemented (bake into image vs network volume)
@@ -102,9 +102,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MODL-05 | Phase 3 | Complete |
 | MODL-06 | Phase 2 | Complete |
 | MODL-07 | Phase 3 | Complete |
-| CNTR-01 | Phase 4 | Pending |
-| CNTR-02 | Phase 4 | Pending |
-| CNTR-03 | Phase 4 | Pending |
+| CNTR-01 | Phase 4 | Complete |
+| CNTR-02 | Phase 4 | Complete |
+| CNTR-03 | Phase 4 | Complete |
 | CNTR-04 | Phase 5 | Pending |
 | CNTR-05 | Phase 5 | Pending |
 | CNTR-06 | Phase 5 | Pending |

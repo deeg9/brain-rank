@@ -74,7 +74,7 @@ Plans:
   3. HF_TOKEN environment variable enables download of gated models (LLaMA 3.2) inside the container
 **Plans:** 1 plan
 Plans:
-- [ ] 04-01-PLAN.md — Dockerfile, .dockerignore, and container verification script
+- [x] 04-01-PLAN.md — Dockerfile, .dockerignore, and container verification script
 
 ### Phase 5: Container Verification
 **Goal**: The container loads all models on GPU and the image is optimized for RunPod deployment
