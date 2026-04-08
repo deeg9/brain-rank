@@ -46,7 +46,10 @@ Plans:
   1. The 20,484 cortical vertex output format is documented with temporal resolution and data types
   2. A vertex-to-region mapping exists that assigns vertices to attention, reward, emotional processing, and social cognition regions
   3. The 5-second hemodynamic delay is accounted for in temporal alignment between video segments and activation data
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Core region mapping module (constants, regions, atlas, scoring, temporal) with tests
+- [ ] 02-02-PLAN.md — Pre-computed masks, validation script, and mapping documentation
 
 ### Phase 3: Model Validation
 **Goal**: TRIBE v2 output meaningfully differentiates between video content types, and local inference time is known
@@ -141,7 +144,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Model Setup | 2/2 | Complete    | 2026-04-08 |
-| 2. Output Mapping | 0/0 | Not started | - |
+| 2. Output Mapping | 0/2 | Planning complete | - |
 | 3. Model Validation | 0/0 | Not started | - |
 | 4. Container Foundation | 0/0 | Not started | - |
 | 5. Container Verification | 0/0 | Not started | - |
