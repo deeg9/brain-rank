@@ -33,9 +33,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. TRIBE v2 repository is cloned and all dependencies (including neuralset, neuraltrain) install without errors in a clean environment
   2. Running TRIBE v2 on a 60-second test video produces output without crashing
   3. Raw output tensor shape and format are visible and logged
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 01-01-PLAN.md — Create scripts for installation verification, remote setup, and inference testing
+- [x] 01-01-PLAN.md — Create scripts for installation verification, remote setup, and inference testing
 - [ ] 01-02-PLAN.md — Execute on remote GPU, verify output, document raw output format
 
 ### Phase 2: Output Mapping
@@ -140,7 +140,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Model Setup | 0/2 | Planning complete | - |
+| 1. Model Setup | 1/2 | In Progress|  |
 | 2. Output Mapping | 0/0 | Not started | - |
 | 3. Model Validation | 0/0 | Not started | - |
 | 4. Container Foundation | 0/0 | Not started | - |
