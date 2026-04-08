@@ -12,7 +12,7 @@ This roadmap delivers a containerized RunPod serverless worker that runs TRIBE v
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Model Setup** - Clone TRIBE v2, install dependencies, run first inference locally
+- [x] **Phase 1: Model Setup** - Clone TRIBE v2, install dependencies, run first inference locally (completed 2026-04-08)
 - [ ] **Phase 2: Output Mapping** - Understand raw vertex output and define vertex-to-region mapping
 - [ ] **Phase 3: Model Validation** - Confirm model differentiates content and benchmark local inference
 - [ ] **Phase 4: Container Foundation** - Build Dockerfile with all dependencies and gated model access
@@ -33,10 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. TRIBE v2 repository is cloned and all dependencies (including neuralset, neuraltrain) install without errors in a clean environment
   2. Running TRIBE v2 on a 60-second test video produces output without crashing
   3. Raw output tensor shape and format are visible and logged
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 01-01-PLAN.md — Create scripts for installation verification, remote setup, and inference testing
-- [ ] 01-02-PLAN.md — Execute on remote GPU, verify output, document raw output format
+- [x] 01-02-PLAN.md — Execute on remote GPU, verify output, document raw output format
 
 ### Phase 2: Output Mapping
 **Goal**: The raw cortical vertex output is fully understood and a vertex-to-region mapping is defined for NeuroCut's target constructs
@@ -140,7 +140,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Model Setup | 1/2 | In Progress|  |
+| 1. Model Setup | 2/2 | Complete    | 2026-04-08 |
 | 2. Output Mapping | 0/0 | Not started | - |
 | 3. Model Validation | 0/0 | Not started | - |
 | 4. Container Foundation | 0/0 | Not started | - |
