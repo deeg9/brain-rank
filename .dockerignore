@@ -1,0 +1,37 @@
+# Version control
+.git/
+.github/
+.gitignore
+
+# Planning and documentation (not needed at runtime)
+.planning/
+docs/
+*.md
+
+# Development environment
+.venv/
+.env
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Test data (not needed in container)
+test_videos/
+
+# Setup scripts (not needed in container — install is baked into Dockerfile)
+scripts/setup_remote.sh
+scripts/setup_validation.sh
+scripts/verify_install.py
+
+# Validation data (Phase 3 artifacts, not needed at runtime)
+data/validation_comparison.json
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
