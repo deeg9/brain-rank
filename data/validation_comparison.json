@@ -1,0 +1,75 @@
+{
+  "high_engagement": {
+    "video": "high_engagement.mp4",
+    "n_segments": 60,
+    "n_aligned_segments": 55,
+    "timing": {
+      "events_extract_s": 78.12,
+      "inference_s": 699.5,
+      "total_s": 777.62,
+      "model_load_s": 2.27
+    },
+    "region_means": {
+      "attention": 0.179749,
+      "reward": 0.053654,
+      "emotional_processing": 0.062469,
+      "social_cognition": 0.061616
+    }
+  },
+  "low_engagement": {
+    "video": "low_engagement.mp4",
+    "n_segments": 61,
+    "n_aligned_segments": 56,
+    "timing": {
+      "events_extract_s": 51.25,
+      "inference_s": 593.64,
+      "total_s": 644.88,
+      "model_load_s": 2.27
+    },
+    "region_means": {
+      "attention": 0.071112,
+      "reward": 0.024658,
+      "emotional_processing": 0.036156,
+      "social_cognition": 0.007818
+    }
+  },
+  "comparison": {
+    "per_region": {
+      "attention": {
+        "high_mean": 0.179749,
+        "low_mean": 0.071112,
+        "diff": 0.108637,
+        "cohens_d": 1.0179,
+        "interpretation": "large"
+      },
+      "reward": {
+        "high_mean": 0.053654,
+        "low_mean": 0.024658,
+        "diff": 0.028996,
+        "cohens_d": 0.7522,
+        "interpretation": "medium"
+      },
+      "emotional_processing": {
+        "high_mean": 0.062469,
+        "low_mean": 0.036156,
+        "diff": 0.026313,
+        "cohens_d": 0.3966,
+        "interpretation": "small"
+      },
+      "social_cognition": {
+        "high_mean": 0.061616,
+        "low_mean": 0.007818,
+        "diff": 0.053799,
+        "cohens_d": 0.6453,
+        "interpretation": "medium"
+      }
+    },
+    "overall_differentiation": true,
+    "differentiation_summary": "4 of 4 regions show |Cohen's d| >= 0.2. Model differentiates engagement levels."
+  },
+  "gpu": {
+    "name": "NVIDIA A40",
+    "vram_peak_gb": 10.88
+  },
+  "timestamp": "2026-04-08T23:06:48Z"
+}
