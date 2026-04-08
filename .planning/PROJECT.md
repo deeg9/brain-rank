@@ -12,18 +12,19 @@ Send a video URL to a RunPod endpoint and get back per-segment brain activation 
 
 ### Validated
 
-(None yet — ship to validate)
+- Locate and clone the TRIBE v2 model from Meta/facebookresearch — Phase 1
+- Get TRIBE v2 running on GPU and producing output for a 60-second video — Phase 1
+- Measure and document inference time per 60-second video on RunPod GPU — Phase 1 (759s total, 679s inference on A40)
 
 ### Active
 
-- [ ] Locate and clone the TRIBE v2 model from Meta/facebookresearch
-- [ ] Get TRIBE v2 running locally and producing output for a 60-second video
+- [ ] Understand TRIBE v2's actual output format and map it to the NeuroCut schema
 - [ ] Understand TRIBE v2's actual output format and map it to the NeuroCut schema
 - [ ] Containerize TRIBE v2 as a RunPod serverless worker (Dockerfile, handler)
 - [ ] Set up RunPod account and deploy the containerized worker as a serverless endpoint
 - [ ] Worker accepts a video URL, downloads it, runs inference, returns JSON scores
 - [ ] Output includes both raw model output and a mapped version (2-second windows with activation, arousal, valence, region breakdown)
-- [ ] Measure and document inference time per 60-second video on RunPod GPU
+- [ ] Measure and document inference time per 60-second video on RunPod GPU (partially done in Phase 1: 759s on A40)
 - [ ] End-to-end test: send video URL to RunPod endpoint, receive JSON scores back
 
 ### Out of Scope
@@ -78,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-07 after initialization*
+*Last updated: 2026-04-08 after Phase 1 completion*
