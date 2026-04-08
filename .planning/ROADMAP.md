@@ -13,7 +13,7 @@ This roadmap delivers a containerized RunPod serverless worker that runs TRIBE v
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Model Setup** - Clone TRIBE v2, install dependencies, run first inference locally (completed 2026-04-08)
-- [ ] **Phase 2: Output Mapping** - Understand raw vertex output and define vertex-to-region mapping
+- [x] **Phase 2: Output Mapping** - Understand raw vertex output and define vertex-to-region mapping (completed 2026-04-08)
 - [ ] **Phase 3: Model Validation** - Confirm model differentiates content and benchmark local inference
 - [ ] **Phase 4: Container Foundation** - Build Dockerfile with all dependencies and gated model access
 - [ ] **Phase 5: Container Verification** - Full model load in container, image optimization, weights strategy
@@ -46,7 +46,7 @@ Plans:
   1. The 20,484 cortical vertex output format is documented with temporal resolution and data types
   2. A vertex-to-region mapping exists that assigns vertices to attention, reward, emotional processing, and social cognition regions
   3. The 5-second hemodynamic delay is accounted for in temporal alignment between video segments and activation data
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 02-01-PLAN.md — Core region mapping module (constants, regions, atlas, scoring, temporal) with tests
 - [x] 02-02-PLAN.md — Pre-computed masks, validation script, and mapping documentation
@@ -144,7 +144,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Model Setup | 2/2 | Complete    | 2026-04-08 |
-| 2. Output Mapping | 0/2 | Planning complete | - |
+| 2. Output Mapping | 2/2 | Complete    | 2026-04-08 |
 | 3. Model Validation | 0/0 | Not started | - |
 | 4. Container Foundation | 0/0 | Not started | - |
 | 5. Container Verification | 0/0 | Not started | - |
