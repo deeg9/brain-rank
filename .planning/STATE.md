@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Roadmap created, ready to plan Phase 1
-last_updated: "2026-04-08T20:52:18.924Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-08T21:29:48.677Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 10
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
   percent: 100
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: --
 
 *Updated after each plan completion*
+| Phase 02 P02 | 3min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -60,7 +61,9 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- None yet.
+-
+
+- [Phase 02]: Pre-computed masks saved as .npz for Docker runtime (no nilearn dependency at inference time)
 
 ### Pending Todos
 
@@ -74,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07
-Stopped at: Roadmap created, ready to plan Phase 1
+Last session: 2026-04-08T21:29:48.675Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

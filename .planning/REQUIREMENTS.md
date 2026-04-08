@@ -11,10 +11,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **MODL-01**: TRIBE v2 cloned from facebookresearch/tribev2 and dependencies installed in a clean environment
 - [ ] **MODL-02**: TRIBE v2 runs locally on a GPU and produces output for a 60-second test video
-- [ ] **MODL-03**: Raw TRIBE v2 output format (20,484 cortical vertices per timestep) is documented and understood
-- [ ] **MODL-04**: Vertex-to-region mapping defined for target brain regions (attention, reward, emotional processing, social cognition)
+- [x] **MODL-03**: Raw TRIBE v2 output format (20,484 cortical vertices per timestep) is documented and understood
+- [x] **MODL-04**: Vertex-to-region mapping defined for target brain regions (attention, reward, emotional processing, social cognition)
 - [ ] **MODL-05**: Output meaningfully differentiates between high-engagement and low-engagement video segments
-- [ ] **MODL-06**: Hemodynamic delay (5-second offset) accounted for in temporal alignment
+- [x] **MODL-06**: Hemodynamic delay (5-second offset) accounted for in temporal alignment
 - [ ] **MODL-07**: Inference time measured and documented for a 60-second video on target GPU
 
 ### Containerization
@@ -97,10 +97,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | MODL-01 | Phase 1 | Pending |
 | MODL-02 | Phase 1 | Pending |
-| MODL-03 | Phase 2 | Pending |
-| MODL-04 | Phase 2 | Pending |
+| MODL-03 | Phase 2 | Complete |
+| MODL-04 | Phase 2 | Complete |
 | MODL-05 | Phase 3 | Pending |
-| MODL-06 | Phase 2 | Pending |
+| MODL-06 | Phase 2 | Complete |
 | MODL-07 | Phase 3 | Pending |
 | CNTR-01 | Phase 4 | Pending |
 | CNTR-02 | Phase 4 | Pending |

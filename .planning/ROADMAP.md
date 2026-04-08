@@ -48,8 +48,8 @@ Plans:
   3. The 5-second hemodynamic delay is accounted for in temporal alignment between video segments and activation data
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Core region mapping module (constants, regions, atlas, scoring, temporal) with tests
-- [ ] 02-02-PLAN.md — Pre-computed masks, validation script, and mapping documentation
+- [x] 02-01-PLAN.md — Core region mapping module (constants, regions, atlas, scoring, temporal) with tests
+- [x] 02-02-PLAN.md — Pre-computed masks, validation script, and mapping documentation
 
 ### Phase 3: Model Validation
 **Goal**: TRIBE v2 output meaningfully differentiates between video content types, and local inference time is known
