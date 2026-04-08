@@ -1,0 +1,43 @@
+{
+  "gpu_name": "NVIDIA A40",
+  "gpu_vram_gb": 47.6,
+  "predictions_shape": [
+    61,
+    20484
+  ],
+  "predictions_dtype": "float32",
+  "predictions_min": -1.484795,
+  "predictions_max": 1.804504,
+  "predictions_mean": 0.093898,
+  "predictions_std": 0.228966,
+  "predictions_is_numpy": true,
+  "predictions_is_tensor": false,
+  "n_segments": 61,
+  "events_shape": [
+    2,
+    13
+  ],
+  "events_columns": [
+    "type",
+    "start",
+    "duration",
+    "timeline",
+    "subject",
+    "session",
+    "task",
+    "run",
+    "filepath",
+    "frequency",
+    "offset",
+    "stop",
+    "context"
+  ],
+  "model_load_s": 2.21,
+  "events_extract_s": 77.16,
+  "inference_s": 679.62,
+  "total_s": 758.99,
+  "max_vram_allocated_gb": 11.16,
+  "max_vram_reserved_gb": 13.63,
+  "video_path": "test_videos/test_clean.mp4",
+  "timestamp": "2026-04-08T20:36:15Z"
+}
