@@ -84,9 +84,9 @@ Plans:
   1. All sub-models load inside the container and torch.cuda.is_available() returns True
   2. Docker image size is documented and under 15 GB (excluding model weights)
   3. Model weights strategy (baked into image vs network volume) is decided and implemented
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 05-01-PLAN.md — Create build/verify script and report template
+- [x] 05-01-PLAN.md — Create build/verify script and report template
 - [ ] 05-02-PLAN.md — Build Docker image on RunPod GPU pod, run verification, document results
 
 ### Phase 6: Handler Core
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. Output Mapping | 2/2 | Complete    | 2026-04-08 |
 | 3. Model Validation | 2/2 | Complete    | 2026-04-08 |
 | 4. Container Foundation | 1/1 | Complete    | 2026-04-08 |
-| 5. Container Verification | 0/2 | Planned | - |
+| 5. Container Verification | 1/2 | In Progress|  |
 | 6. Handler Core | 0/0 | Not started | - |
 | 7. Handler Inference and Output | 0/0 | Not started | - |
 | 8. RunPod Deployment | 0/0 | Not started | - |
