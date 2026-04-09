@@ -41,9 +41,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Deployment
 
 - [ ] **DEPL-01**: RunPod account created with API key configured
-- [ ] **DEPL-02**: Docker image pushed to container registry accessible by RunPod
-- [ ] **DEPL-03**: RunPod serverless endpoint created and configured (GPU tier, timeout, scaling)
-- [ ] **DEPL-04**: Async endpoint (/run + status polling) used instead of sync (/runsync) to avoid 90s timeout
+- [x] **DEPL-02**: Docker image pushed to container registry accessible by RunPod
+- [x] **DEPL-03**: RunPod serverless endpoint created and configured (GPU tier, timeout, scaling)
+- [x] **DEPL-04**: Async endpoint (/run + status polling) used instead of sync (/runsync) to avoid 90s timeout
 - [ ] **DEPL-05**: End-to-end test passes: send video URL to RunPod endpoint, receive JSON scores back
 - [ ] **DEPL-06**: Inference time, cold start time, and VRAM usage measured on RunPod GPU
 
@@ -118,9 +118,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HDLR-08 | Phase 7 | Complete |
 | HDLR-09 | Phase 7 | Complete |
 | DEPL-01 | Phase 8 | Pending |
-| DEPL-02 | Phase 8 | Pending |
-| DEPL-03 | Phase 8 | Pending |
-| DEPL-04 | Phase 8 | Pending |
+| DEPL-02 | Phase 8 | Complete |
+| DEPL-03 | Phase 8 | Complete |
+| DEPL-04 | Phase 8 | Complete |
 | DEPL-05 | Phase 9 | Pending |
 | DEPL-06 | Phase 9 | Pending |
 | PROD-01 | Phase 10 | Pending |

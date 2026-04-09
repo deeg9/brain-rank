@@ -129,7 +129,7 @@ Plans:
   4. Endpoint uses async pattern (/run + status polling) instead of sync (/runsync)
 **Plans:** 2 plans
 Plans:
-- [ ] 08-01-PLAN.md — Deployment scripts (build+push, async test client) and deployment guide
+- [x] 08-01-PLAN.md — Deployment scripts (build+push, async test client) and deployment guide
 - [ ] 08-02-PLAN.md — Docker build, image push, RunPod endpoint creation (human action)
 
 ### Phase 9: End-to-End Validation
