@@ -24,3 +24,20 @@
 - Async endpoint pattern (/run + polling) due to 12+ min inference
 - Pre-computed brain region masks (no nilearn at runtime)
 - CC BY-NC-4.0 license — non-commercial validation only
+
+### v1.1: UI Audit & Consolidation (2026-04-09)
+
+**Goal:** Analyze 13 Google Stitch-generated UI screens, consolidate duplicates, identify gaps, and produce a Stitch brief for final UI generation.
+
+**Phases:** 4 phases, all complete
+11. Screen Audit — 13 Stitch variants consolidated into 5 canonical screen specs
+12. Component Catalog — 26 components, design tokens, 27 interaction patterns cataloged
+13. Gap Analysis — 10 missing screens, states for all 15 screens, responsive specs
+14. Stitch Brief — 1098-line consolidated brief for Google Stitch
+
+**Key outcomes:**
+- 13 exploratory Stitch screens consolidated to 5 canonical screens
+- 10 missing screens identified and specced (auth, settings, errors, profile, empty state)
+- Two Stitch briefs produced, both sent to Google Stitch
+- 15 production-ready HTML screens received back from Stitch (batches 2+3)
+- Complete design system documented (Neural Architect theme, tonal layering, Space Grotesk + Inter)
