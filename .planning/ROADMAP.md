@@ -101,7 +101,7 @@ Plans:
 **Plans:** 1/2 plans executed
 Plans:
 - [x] 06-01-PLAN.md — Input/output schema (Pydantic) and singleton model loader
-- [ ] 06-02-PLAN.md — Video fetcher with SSRF prevention, handler entry point, Dockerfile CMD update
+- [x] 06-02-PLAN.md — Video fetcher with SSRF prevention, handler entry point, Dockerfile CMD update
 
 ### Phase 7: Handler Inference and Output
 **Goal**: The handler runs TRIBE v2 inference, maps output to NeuroCut schema, handles errors, cleans up temp files, and logs every step

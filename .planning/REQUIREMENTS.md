@@ -28,10 +28,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Handler
 
-- [ ] **HDLR-01**: RunPod handler function accepts job input with video URL and returns structured JSON
+- [x] **HDLR-01**: RunPod handler function accepts job input with video URL and returns structured JSON
 - [x] **HDLR-02**: Model loaded at module level (once at container start), reused across all jobs
 - [x] **HDLR-03**: Input validation rejects requests missing video URL or with invalid parameters
-- [ ] **HDLR-04**: Video downloaded from URL to temp storage with size limit enforcement
+- [x] **HDLR-04**: Video downloaded from URL to temp storage with size limit enforcement
 - [ ] **HDLR-05**: TRIBE v2 inference runs on downloaded video and produces per-segment scores
 - [ ] **HDLR-06**: Output includes both raw TRIBE v2 data and mapped NeuroCut schema (2-second windows with activation, arousal, valence, region breakdown)
 - [ ] **HDLR-07**: Structured error responses returned for validation, download, and inference failures
@@ -108,10 +108,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CNTR-04 | Phase 5 | Pending |
 | CNTR-05 | Phase 5 | Complete |
 | CNTR-06 | Phase 5 | Complete |
-| HDLR-01 | Phase 6 | Pending |
+| HDLR-01 | Phase 6 | Complete |
 | HDLR-02 | Phase 6 | Complete |
 | HDLR-03 | Phase 6 | Complete |
-| HDLR-04 | Phase 6 | Pending |
+| HDLR-04 | Phase 6 | Complete |
 | HDLR-05 | Phase 7 | Pending |
 | HDLR-06 | Phase 7 | Pending |
 | HDLR-07 | Phase 7 | Pending |
