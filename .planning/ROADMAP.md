@@ -173,7 +173,9 @@ Plans:
   1. Missing screens are identified and specced (auth, settings, billing, errors, onboarding, profile) with layout sketches and component references from the catalog
   2. Missing states are documented per canonical screen (loading, empty, error, disabled) with expected content and transitions
   3. Missing responsive behaviors are documented (mobile, tablet breakpoints) with layout adaptation notes per canonical screen
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 13-01-PLAN.md — Missing screens, states, and responsive behaviors
 **UI hint**: yes
 
 ### Phase 14: Stitch Brief
@@ -207,5 +209,5 @@ Phases 11-14: Phase 11 -> 12 -> 13 -> 14
 | 10. Production Hardening | v1.0 | 0/0 | Complete | 2026-04-09 |
 | 11. Screen Audit | v1.1 | 3/3 | Complete    | 2026-04-09 |
 | 12. Component Catalog | v1.1 | 2/2 | Complete    | 2026-04-09 |
-| 13. Gap Analysis | v1.1 | 0/0 | Not started | - |
+| 13. Gap Analysis | v1.1 | 0/1 | Not started | - |
 | 14. Stitch Brief | v1.1 | 0/0 | Not started | - |
