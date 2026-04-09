@@ -250,9 +250,10 @@ Plans:
   3. Refreshing the browser preserves the logged-in session (no re-login required)
   4. Visiting any protected route while logged out redirects to the login page
   5. Login and signup screens match the Stitch reference (dark theme, neural-gradient CTA button)
-**Plans:** 1 plan
+**Plans:** 2 plans
 Plans:
-- [x] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 17-01-PLAN.md — Login + signup pages with Supabase auth server actions
+- [ ] 17-02-PLAN.md — Route protection middleware + onboarding welcome page
 **UI hint**: yes
 
 ### Phase 18: Upload & Processing
@@ -362,7 +363,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
 | 16. Backend Foundation | v2.0 | 1/1 | Complete    | 2026-04-09 |
-| 17. Authentication Flow | v2.0 | 0/? | Not started | - |
+| 17. Authentication Flow | v2.0 | 0/2 | Planned | - |
 | 18. Upload & Processing | v2.0 | 0/? | Not started | - |
 | 19. API Integration | v2.0 | 0/? | Not started | - |
 | 20. Results Display | v2.0 | 0/? | Not started | - |
