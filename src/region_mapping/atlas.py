@@ -12,7 +12,6 @@ fsaverage5 surface mesh, not in MNI volumetric space.
 import logging
 
 import numpy as np
-from nilearn.datasets import fetch_atlas_surf_destrieux
 
 from .constants import N_VERTICES, HEMISPHERE_SIZE
 from .regions import REGION_DEFINITIONS
@@ -43,6 +42,7 @@ def build_region_masks(region_definitions=None):
     if region_definitions is None:
         region_definitions = REGION_DEFINITIONS
 
+    from nilearn.datasets import fetch_atlas_surf_destrieux
     atlas = fetch_atlas_surf_destrieux()
     labels = atlas["labels"]
     map_left = atlas["map_left"]    # shape (10242,)
