@@ -116,7 +116,7 @@ Plans:
 **Plans:** 2 plans
 Plans:
 - [x] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
-- [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
+- [x] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ### Phase 8: RunPod Deployment
 **Goal**: The containerized worker is deployed to RunPod as a live serverless endpoint
@@ -129,7 +129,7 @@ Plans:
   4. Endpoint uses async pattern (/run + status polling) instead of sync (/runsync)
 **Plans:** 2 plans
 Plans:
-- [ ] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
+- [x] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
 - [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ### Phase 9: End-to-End Validation
