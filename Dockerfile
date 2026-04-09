@@ -85,5 +85,5 @@ COPY src/ /app/src/
 COPY data/region_masks.npz /app/data/region_masks.npz
 COPY scripts/verify_container.py /app/scripts/verify_container.py
 
-# ---------- Default command (Phase 6 replaces with handler) ----------
-CMD ["python", "-u", "scripts/verify_container.py"]
+# ---------- Entry point ----------
+CMD ["python", "-u", "src/handler.py"]
