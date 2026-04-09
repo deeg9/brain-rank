@@ -221,11 +221,11 @@ Plans:
   2. Core UI components (buttons, inputs, cards, sidebar, top bar) render and match Stitch reference screens
   3. All 15 routes exist with correct layout assignment (app shell with sidebar for dashboard pages, full-screen for auth pages)
   4. Navigating between routes shows the correct layout wrapper and placeholder content
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
-- [ ] 15-01-PLAN.md — Project init + Tailwind config with NeuroCut design tokens
-- [ ] 15-02-PLAN.md — Layout components (Sidebar, TopBar, AppShell, AuthLayout)
-- [ ] 15-03-PLAN.md — Route stubs (15 routes) + shared UI components (7 components)
+- [x] 15-01-PLAN.md — Project init + Tailwind config with NeuroCut design tokens
+- [x] 15-02-PLAN.md — Layout components (Sidebar, TopBar, AppShell, AuthLayout)
+- [x] 15-03-PLAN.md — Route stubs (15 routes) + shared UI components (7 components)
 **UI hint**: yes
 
 ### Phase 16: Backend Foundation
@@ -344,7 +344,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 12. Component Catalog | v1.1 | 2/2 | Complete | 2026-04-09 |
 | 13. Gap Analysis | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
-| 15. Scaffold & Design System | v2.0 | 0/3 | Planned | - |
+| 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
 | 16. Backend Foundation | v2.0 | 0/? | Not started | - |
 | 17. Authentication Flow | v2.0 | 0/? | Not started | - |
 | 18. Upload & Processing | v2.0 | 0/? | Not started | - |
