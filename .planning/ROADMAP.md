@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Container Verification** - Full model load in container, image optimization, weights strategy (completed 2026-04-09)
 - [x] **Phase 6: Handler Core** - RunPod handler entry point with input validation and video download (completed 2026-04-09)
 - [x] **Phase 7: Handler Inference and Output** - Wire inference, output mapping, error handling, cleanup, logging (completed 2026-04-09)
-- [ ] **Phase 8: RunPod Deployment** - Account setup, image push, endpoint creation, async config
+- [x] **Phase 8: RunPod Deployment** - Account setup, image push, endpoint creation, async config (completed 2026-04-09)
 - [ ] **Phase 9: End-to-End Validation** - Full pipeline test and performance benchmarking on RunPod
 - [ ] **Phase 10: Production Hardening** - Progress updates, timing, duration validation, timeout tuning
 
@@ -127,7 +127,7 @@ Plans:
   2. Docker image is pushed to a container registry accessible by RunPod
   3. RunPod serverless endpoint is created with appropriate GPU tier, timeout, and scaling config
   4. Endpoint uses async pattern (/run + status polling) instead of sync (/runsync)
-**Plans:** 2 plans
+**Plans:** 1/2 plans complete
 Plans:
 - [x] 08-01-PLAN.md — Deployment scripts (build+push, async test client) and deployment guide
 - [ ] 08-02-PLAN.md — Docker build, image push, RunPod endpoint creation (human action)
@@ -173,6 +173,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Container Verification | 2/2 | Complete    | 2026-04-09 |
 | 6. Handler Core | 2/2 | Complete    | 2026-04-09 |
 | 7. Handler Inference and Output | 2/2 | Complete    | 2026-04-09 |
-| 8. RunPod Deployment | 0/2 | Planned | - |
+| 8. RunPod Deployment | 1/2 | Complete    | 2026-04-09 |
 | 9. End-to-End Validation | 0/0 | Not started | - |
 | 10. Production Hardening | 0/0 | Not started | - |
