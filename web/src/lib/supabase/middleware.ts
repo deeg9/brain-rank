@@ -32,7 +32,38 @@ export async function updateSession(request: NextRequest) {
   // Do not run code between createServerClient and supabase.auth.getUser().
   // A simple mistake could make it very hard to debug issues with users being
   // randomly logged out.
-  await supabase.auth.getUser()
+
+  // IMPORTANT: Use getUser() for server-side session validation (T-17-05).
+  // Do NOT use getSession() which trusts the JWT without verification.
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Define route sets for redirect logic
+  const publicRoutes = ['/login', '/signup']
+  const isPublicRoute = publicRoutes.some(route =>
+    request.nextUrl.pathname.startsWith(route)
+  )
+  const isWelcomePage = request.nextUrl.pathname === '/welcome'
+
+  // AUTH-04: Unauthenticated users on protected routes -> redirect to /login
+  if (!user && !isPublicRoute && !isWelcomePage) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Unauthenticated users on /welcome -> redirect to /login
+  if (!user && isWelcomePage) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Authenticated users on auth pages -> redirect to /dashboard
+  if (user && isPublicRoute) {
+    const dashboardUrl = request.nextUrl.clone()
+    dashboardUrl.pathname = '/dashboard'
+    return NextResponse.redirect(dashboardUrl)
+  }
 
   return supabaseResponse
 }
