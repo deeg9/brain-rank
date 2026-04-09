@@ -1,77 +1,54 @@
-# Requirements: NeuroCut Inference Pipeline
+# Requirements: NeuroCut UI Audit & Consolidation
 
-**Defined:** 2026-04-07
-**Core Value:** Send a video URL to a RunPod endpoint and get back per-segment brain activation scores as JSON
+**Defined:** 2026-04-09
+**Core Value:** Consolidate 13 Stitch-generated UI screens into a canonical set and produce a clear brief for final UI generation
 
-## v1 Requirements
+## v1.1 Requirements
 
-Requirements for initial release. Each maps to roadmap phases.
+Requirements for this milestone. Each maps to roadmap phases.
 
-### Model Validation
+### Screen Audit
 
-- [ ] **MODL-01**: TRIBE v2 cloned from facebookresearch/tribev2 and dependencies installed in a clean environment
-- [ ] **MODL-02**: TRIBE v2 runs locally on a GPU and produces output for a 60-second test video
-- [x] **MODL-03**: Raw TRIBE v2 output format (20,484 cortical vertices per timestep) is documented and understood
-- [x] **MODL-04**: Vertex-to-region mapping defined for target brain regions (attention, reward, emotional processing, social cognition)
-- [x] **MODL-05**: Output meaningfully differentiates between high-engagement and low-engagement video segments
-- [x] **MODL-06**: Hemodynamic delay (5-second offset) accounted for in temporal alignment
-- [x] **MODL-07**: Inference time measured and documented for a 60-second video on target GPU
+- [ ] **AUDT-01**: Upload flow consolidated from 2 variants into 1 canonical screen spec
+- [ ] **AUDT-02**: Processing flow consolidated from 2 variants into 1 canonical screen spec
+- [ ] **AUDT-03**: Results flow consolidated from 6+ variants into canonical screen set (comparison view + single video detail)
+- [ ] **AUDT-04**: Dashboard flow consolidated from 2 variants into 1 canonical screen spec
+- [ ] **AUDT-05**: Each canonical screen documents: layout, components, interactions, states, and data requirements
 
-### Containerization
+### Component Catalog
 
-- [x] **CNTR-01**: Dockerfile built on nvidia/cuda:12.4.1-runtime with Python 3.11 and PyTorch 2.6.0
-- [x] **CNTR-02**: All TRIBE v2 dependencies resolved in container (including neuralset, neuraltrain, WhisperX if required)
-- [x] **CNTR-03**: Gated model access (LLaMA 3.2) works in container via HF_TOKEN environment variable
-- [ ] **CNTR-04**: Full model load (all sub-models) succeeds in container and torch.cuda.is_available() returns True
-- [x] **CNTR-05**: Docker image size documented and optimized (target: under 15 GB excluding model weights)
-- [x] **CNTR-06**: Model weights strategy decided and implemented (bake into image vs network volume)
+- [ ] **COMP-01**: Shared components cataloged (nav sidebar, top bar, video player, timeline, metric cards, tags)
+- [ ] **COMP-02**: Design tokens documented (colors, typography, spacing, elevation from DESIGN.md)
+- [ ] **COMP-03**: Interaction patterns documented (timeline scrubbing, playback sync, keyboard shortcuts)
 
-### Handler
+### Gap Analysis
 
-- [x] **HDLR-01**: RunPod handler function accepts job input with video URL and returns structured JSON
-- [x] **HDLR-02**: Model loaded at module level (once at container start), reused across all jobs
-- [x] **HDLR-03**: Input validation rejects requests missing video URL or with invalid parameters
-- [x] **HDLR-04**: Video downloaded from URL to temp storage with size limit enforcement
-- [x] **HDLR-05**: TRIBE v2 inference runs on downloaded video and produces per-segment scores
-- [x] **HDLR-06**: Output includes both raw TRIBE v2 data and mapped NeuroCut schema (2-second windows with activation, arousal, valence, region breakdown)
-- [x] **HDLR-07**: Structured error responses returned for validation, download, and inference failures
-- [x] **HDLR-08**: Temp files cleaned up after every job (video files, extracted frames, audio)
-- [x] **HDLR-09**: Logging with job ID and processing stage at every step
+- [ ] **GAPS-01**: Missing screens identified with specs (auth, settings, billing, errors, onboarding, profile)
+- [ ] **GAPS-02**: Missing states identified per screen (loading, empty, error, disabled)
+- [ ] **GAPS-03**: Missing responsive behaviors documented (mobile, tablet breakpoints)
 
-### Deployment
+### Stitch Brief
 
-- [ ] **DEPL-01**: RunPod account created with API key configured
-- [x] **DEPL-02**: Docker image pushed to container registry accessible by RunPod
-- [x] **DEPL-03**: RunPod serverless endpoint created and configured (GPU tier, timeout, scaling)
-- [x] **DEPL-04**: Async endpoint (/run + status polling) used instead of sync (/runsync) to avoid 90s timeout
-- [ ] **DEPL-05**: End-to-end test passes: send video URL to RunPod endpoint, receive JSON scores back
-- [ ] **DEPL-06**: Inference time, cold start time, and VRAM usage measured on RunPod GPU
-
-### Production Hardening
-
-- [ ] **PROD-01**: Progress updates sent during processing via runpod.serverless.progress_update()
-- [ ] **PROD-02**: Stage-level timing included in response (download_ms, preprocess_ms, inference_ms, postprocess_ms, total_ms)
-- [ ] **PROD-03**: Video duration validation rejects videos exceeding maximum length before processing
-- [ ] **PROD-04**: Execution timeout configured appropriately based on benchmarked inference time
+- [ ] **BRIEF-01**: Consolidated Stitch brief produced with canonical screens + gap screens
+- [ ] **BRIEF-02**: Brief includes optimization notes (what to keep, what to change, what to add)
+- [ ] **BRIEF-03**: Brief references design system tokens for consistency
 
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
 
-### Cold Start Optimization
+### UI Implementation
 
-- **COLD-01**: Model weights cached on RunPod network volume for faster cold starts
-- **COLD-02**: Docker image optimized with multi-stage build to minimize pull time
+- **IMPL-01**: Frontend codebase scaffolded (Next.js, Tailwind, design tokens)
+- **IMPL-02**: Canonical screens implemented from Stitch output
+- **IMPL-03**: API integration with RunPod inference endpoint
+- **IMPL-04**: Auth and user management
 
-### Worker Reliability
+### Backend Scaffolding
 
-- **RELY-01**: Worker refresh between jobs if memory leaks detected
-- **RELY-02**: Configurable inference parameters (segment_duration, output_format)
-
-### Multiple Video Support
-
-- **MULT-01**: A/B comparison mode processing two videos per job
-- **MULT-02**: Summary comparison output (overall, hook, retention, peak moment per video)
+- **BACK-01**: Supabase setup (auth, database, storage)
+- **BACK-02**: R2/S3 for video storage with presigned URLs
+- **BACK-03**: Credit system and Stripe integration
 
 ## Out of Scope
 
@@ -79,15 +56,11 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Frontend/UI | Deferred to future milestone — inference validation first |
-| Backend scaffolding (Supabase, R2, Stripe) | Deferred to future milestone |
-| Authentication/authorization in worker | RunPod handles auth via API keys |
-| Video upload to worker | RunPod has 10MB payload limit; URL-based input only |
-| Result storage in cloud (S3/R2) | Worker returns JSON; caller handles storage |
-| Streaming/async handler | Batch inference; no intermediate results to stream |
-| Concurrent job handling | GPU-bound; one job per worker, scale horizontally |
-| Webhook callbacks | RunPod supports webhooks natively; no worker code needed |
-| Credit system / payments | Future milestone |
+| Writing frontend code | This milestone produces specs/briefs only |
+| Backend implementation | Deferred to future milestone |
+| Design system creation | Using existing DESIGN.md from Stitch; catalog only |
+| A/B comparison UX | Only single video analysis in v1 inference |
+| Mobile app | Web-first |
 
 ## Traceability
 
@@ -95,44 +68,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MODL-01 | Phase 1 | Pending |
-| MODL-02 | Phase 1 | Pending |
-| MODL-03 | Phase 2 | Complete |
-| MODL-04 | Phase 2 | Complete |
-| MODL-05 | Phase 3 | Complete |
-| MODL-06 | Phase 2 | Complete |
-| MODL-07 | Phase 3 | Complete |
-| CNTR-01 | Phase 4 | Complete |
-| CNTR-02 | Phase 4 | Complete |
-| CNTR-03 | Phase 4 | Complete |
-| CNTR-04 | Phase 5 | Pending |
-| CNTR-05 | Phase 5 | Complete |
-| CNTR-06 | Phase 5 | Complete |
-| HDLR-01 | Phase 6 | Complete |
-| HDLR-02 | Phase 6 | Complete |
-| HDLR-03 | Phase 6 | Complete |
-| HDLR-04 | Phase 6 | Complete |
-| HDLR-05 | Phase 7 | Complete |
-| HDLR-06 | Phase 7 | Complete |
-| HDLR-07 | Phase 7 | Complete |
-| HDLR-08 | Phase 7 | Complete |
-| HDLR-09 | Phase 7 | Complete |
-| DEPL-01 | Phase 8 | Pending |
-| DEPL-02 | Phase 8 | Complete |
-| DEPL-03 | Phase 8 | Complete |
-| DEPL-04 | Phase 8 | Complete |
-| DEPL-05 | Phase 9 | Pending |
-| DEPL-06 | Phase 9 | Pending |
-| PROD-01 | Phase 10 | Pending |
-| PROD-02 | Phase 10 | Pending |
-| PROD-03 | Phase 10 | Pending |
-| PROD-04 | Phase 10 | Pending |
+| AUDT-01 | — | Pending |
+| AUDT-02 | — | Pending |
+| AUDT-03 | — | Pending |
+| AUDT-04 | — | Pending |
+| AUDT-05 | — | Pending |
+| COMP-01 | — | Pending |
+| COMP-02 | — | Pending |
+| COMP-03 | — | Pending |
+| GAPS-01 | — | Pending |
+| GAPS-02 | — | Pending |
+| GAPS-03 | — | Pending |
+| BRIEF-01 | — | Pending |
+| BRIEF-02 | — | Pending |
+| BRIEF-03 | — | Pending |
 
 **Coverage:**
-- v1 requirements: 32 total
-- Mapped to phases: 32
-- Unmapped: 0
+- v1.1 requirements: 14 total
+- Mapped to phases: 0
+- Unmapped: 14
 
 ---
-*Requirements defined: 2026-04-07*
-*Last updated: 2026-04-07 after roadmap creation*
+*Requirements defined: 2026-04-09*
+*Last updated: 2026-04-09 after initial definition*
