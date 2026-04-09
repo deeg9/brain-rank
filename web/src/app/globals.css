@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+@theme {
+  /* NeuroCut Color Tokens — extracted from Stitch HTML reference screens */
+  --color-surface: #0e0e10;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #131315;
+  --color-surface-container: #19191c;
+  --color-surface-container-high: #1f1f22;
+  --color-surface-container-highest: #262528;
+  --color-surface-bright: #2c2c2f;
+  --color-surface-variant: #262528;
+  --color-surface-dim: #0e0e10;
+  --color-surface-tint: #ba9eff;
+  --color-background: #0e0e10;
+
+  --color-primary: #ba9eff;
+  --color-primary-dim: #ac91f1;
+  --color-primary-fixed: #ba9eff;
+  --color-primary-fixed-dim: #ac91f1;
+  --color-primary-container: #ac91f1;
+  --color-on-primary: #371975;
+  --color-on-primary-container: #2b0569;
+  --color-on-primary-fixed: #1b004a;
+  --color-on-primary-fixed-variant: #40247e;
+  --color-inverse-primary: #694fa9;
+
+  --color-secondary: #5af8fb;
+  --color-secondary-dim: #46eaed;
+  --color-secondary-fixed: #5af8fb;
+  --color-secondary-fixed-dim: #46eaed;
+  --color-secondary-container: #00696b;
+  --color-on-secondary: #005b5d;
+  --color-on-secondary-container: #d9ffff;
+  --color-on-secondary-fixed: #004748;
+  --color-on-secondary-fixed-variant: #006668;
+
+  --color-tertiary: #e8ffef;
+  --color-tertiary-dim: #8df0c0;
+  --color-tertiary-fixed: #9bffce;
+  --color-tertiary-fixed-dim: #8df0c0;
+  --color-tertiary-container: #9bffce;
+  --color-on-tertiary: #006d4a;
+  --color-on-tertiary-container: #006444;
+  --color-on-tertiary-fixed: #004f35;
+  --color-on-tertiary-fixed-variant: #006f4c;
+
+  --color-error: #ff6e84;
+  --color-error-dim: #d73357;
+  --color-error-container: #a70138;
+  --color-on-error: #490013;
+  --color-on-error-container: #ffb2b9;
+
+  --color-on-surface: #f9f5f8;
+  --color-on-surface-variant: #adaaad;
+  --color-on-background: #f9f5f8;
+  --color-inverse-on-surface: #565557;
+  --color-inverse-surface: #fcf8fb;
+
+  --color-outline: #767577;
+  --color-outline-variant: #48474a;
+
+  /* Font Families */
+  --font-headline: var(--font-space-grotesk), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-label: var(--font-inter), sans-serif;
+
+  /* Border Radius */
+  --radius: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Custom Utility Classes — from Stitch reference screens */
+@utility neural-gradient {
+  background: linear-gradient(135deg, #ba9eff, #8455ef);
+}
+
+@utility glass-surface {
+  background: rgba(44, 44, 47, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+@utility ambient-glow {
+  box-shadow: 0 0 60px -10px rgba(0, 0, 0, 0.4);
+}
+
+@utility ghost-border {
+  outline: 1px solid rgba(72, 71, 74, 0.15);
+}
+
+/* Material Symbols Outlined */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Custom scrollbar matching Stitch */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0e0e10;
+}
+::-webkit-scrollbar-thumb {
+  background: #262528;
+  border-radius: 10px;
+}
+
+/* Selection colors */
+::selection {
+  background-color: rgba(186, 158, 255, 0.3);
+}
