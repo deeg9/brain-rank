@@ -113,7 +113,10 @@ Plans:
   3. Validation, download, and inference failures return structured error responses with error type and message
   4. All temp files (video, extracted frames, audio) are cleaned up after every job
   5. Every processing step is logged with job ID and stage name
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
+- [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ### Phase 8: RunPod Deployment
 **Goal**: The containerized worker is deployed to RunPod as a live serverless endpoint
@@ -124,7 +127,10 @@ Plans:
   2. Docker image is pushed to a container registry accessible by RunPod
   3. RunPod serverless endpoint is created with appropriate GPU tier, timeout, and scaling config
   4. Endpoint uses async pattern (/run + status polling) instead of sync (/runsync)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
+- [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ### Phase 9: End-to-End Validation
 **Goal**: A video URL sent to the live RunPod endpoint returns correct JSON scores, and performance is benchmarked
@@ -134,7 +140,10 @@ Plans:
   1. Sending a video URL to the RunPod endpoint returns a complete JSON response with per-segment activation scores
   2. Inference time, cold start time, and VRAM usage are measured and documented for a 60-second video on RunPod GPU
   3. Response format matches the NeuroCut schema defined in Phase 2
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
+- [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ### Phase 10: Production Hardening
 **Goal**: The worker reports progress during processing, includes detailed timing, validates input duration, and has appropriate timeouts
@@ -145,7 +154,10 @@ Plans:
   2. Response includes stage-level timing breakdown (download_ms, preprocess_ms, inference_ms, postprocess_ms, total_ms)
   3. Videos exceeding maximum allowed duration are rejected before any GPU processing begins
   4. Execution timeout is configured based on benchmarked inference time from Phase 9
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
+- [ ] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
 
 ## Progress
 
@@ -160,7 +172,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 4. Container Foundation | 1/1 | Complete    | 2026-04-08 |
 | 5. Container Verification | 2/2 | Complete    | 2026-04-09 |
 | 6. Handler Core | 2/2 | Complete    | 2026-04-09 |
-| 7. Handler Inference and Output | 0/0 | Not started | - |
+| 7. Handler Inference and Output | 0/2 | Planning complete | - |
 | 8. RunPod Deployment | 0/0 | Not started | - |
 | 9. End-to-End Validation | 0/0 | Not started | - |
 | 10. Production Hardening | 0/0 | Not started | - |
