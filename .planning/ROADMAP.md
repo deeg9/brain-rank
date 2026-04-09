@@ -129,8 +129,8 @@ Plans:
   4. Endpoint uses async pattern (/run + status polling) instead of sync (/runsync)
 **Plans:** 2 plans
 Plans:
-- [x] 07-01-PLAN.md — Inference wrapper (inference.py) and postprocessor (postprocessor.py)
-- [x] 07-02-PLAN.md — Wire full pipeline into handler.py with error handling and cleanup
+- [ ] 08-01-PLAN.md — Deployment scripts (build+push, async test client) and deployment guide
+- [ ] 08-02-PLAN.md — Docker build, image push, RunPod endpoint creation (human action)
 
 ### Phase 9: End-to-End Validation
 **Goal**: A video URL sent to the live RunPod endpoint returns correct JSON scores, and performance is benchmarked
@@ -173,6 +173,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Container Verification | 2/2 | Complete    | 2026-04-09 |
 | 6. Handler Core | 2/2 | Complete    | 2026-04-09 |
 | 7. Handler Inference and Output | 2/2 | Complete    | 2026-04-09 |
-| 8. RunPod Deployment | 0/0 | Not started | - |
+| 8. RunPod Deployment | 0/2 | Planned | - |
 | 9. End-to-End Validation | 0/0 | Not started | - |
 | 10. Production Hardening | 0/0 | Not started | - |
