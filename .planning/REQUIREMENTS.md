@@ -32,11 +32,11 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **HDLR-02**: Model loaded at module level (once at container start), reused across all jobs
 - [x] **HDLR-03**: Input validation rejects requests missing video URL or with invalid parameters
 - [x] **HDLR-04**: Video downloaded from URL to temp storage with size limit enforcement
-- [ ] **HDLR-05**: TRIBE v2 inference runs on downloaded video and produces per-segment scores
-- [ ] **HDLR-06**: Output includes both raw TRIBE v2 data and mapped NeuroCut schema (2-second windows with activation, arousal, valence, region breakdown)
+- [x] **HDLR-05**: TRIBE v2 inference runs on downloaded video and produces per-segment scores
+- [x] **HDLR-06**: Output includes both raw TRIBE v2 data and mapped NeuroCut schema (2-second windows with activation, arousal, valence, region breakdown)
 - [ ] **HDLR-07**: Structured error responses returned for validation, download, and inference failures
 - [ ] **HDLR-08**: Temp files cleaned up after every job (video files, extracted frames, audio)
-- [ ] **HDLR-09**: Logging with job ID and processing stage at every step
+- [x] **HDLR-09**: Logging with job ID and processing stage at every step
 
 ### Deployment
 
@@ -112,11 +112,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HDLR-02 | Phase 6 | Complete |
 | HDLR-03 | Phase 6 | Complete |
 | HDLR-04 | Phase 6 | Complete |
-| HDLR-05 | Phase 7 | Pending |
-| HDLR-06 | Phase 7 | Pending |
+| HDLR-05 | Phase 7 | Complete |
+| HDLR-06 | Phase 7 | Complete |
 | HDLR-07 | Phase 7 | Pending |
 | HDLR-08 | Phase 7 | Pending |
-| HDLR-09 | Phase 7 | Pending |
+| HDLR-09 | Phase 7 | Complete |
 | DEPL-01 | Phase 8 | Pending |
 | DEPL-02 | Phase 8 | Pending |
 | DEPL-03 | Phase 8 | Pending |
