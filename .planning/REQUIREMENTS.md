@@ -1,93 +1,137 @@
-# Requirements: NeuroCut UI Audit & Consolidation
+# Requirements: NeuroCut Frontend Implementation
 
 **Defined:** 2026-04-09
-**Core Value:** Consolidate 13 Stitch-generated UI screens into a canonical set and produce a clear brief for final UI generation
+**Core Value:** Content creators upload a video and get per-segment neural engagement scores
 
-## v1.1 Requirements
+## v2.0 Requirements
 
-Requirements for this milestone. Each maps to roadmap phases.
+### Project Setup
 
-### Screen Audit
+- [ ] **SETUP-01**: Next.js project initialized with TypeScript, Tailwind CSS, and NeuroCut design tokens
+- [ ] **SETUP-02**: Design system components built (buttons, inputs, cards, sidebar, top bar) matching Stitch output
+- [ ] **SETUP-03**: App routing structure matches the 15 screens with proper layouts (app shell vs full-screen)
 
-- [ ] **AUDT-01**: Upload flow consolidated from 2 variants into 1 canonical screen spec
-- [ ] **AUDT-02**: Processing flow consolidated from 2 variants into 1 canonical screen spec
-- [ ] **AUDT-03**: Results flow consolidated from 6+ variants into canonical screen set (comparison view + single video detail)
-- [ ] **AUDT-04**: Dashboard flow consolidated from 2 variants into 1 canonical screen spec
-- [ ] **AUDT-05**: Each canonical screen documents: layout, components, interactions, states, and data requirements
+### Authentication
 
-### Component Catalog
+- [ ] **AUTH-01**: User can sign up with email and password
+- [ ] **AUTH-02**: User can log in with email and password
+- [ ] **AUTH-03**: User session persists across browser refresh
+- [ ] **AUTH-04**: Unauthenticated users are redirected to login
+- [ ] **AUTH-05**: New users see the onboarding welcome screen after first signup
 
-- [ ] **COMP-01**: Shared components cataloged (nav sidebar, top bar, video player, timeline, metric cards, tags)
-- [ ] **COMP-02**: Design tokens documented (colors, typography, spacing, elevation from DESIGN.md)
-- [ ] **COMP-03**: Interaction patterns documented (timeline scrubbing, playback sync, keyboard shortcuts)
+### Video Upload
 
-### Gap Analysis
+- [ ] **UPLD-01**: User can drag-and-drop or browse to upload a video file
+- [ ] **UPLD-02**: Upload shows estimated credit cost before confirming
+- [ ] **UPLD-03**: Video is uploaded to cloud storage and a URL is passed to the RunPod endpoint
 
-- [ ] **GAPS-01**: Missing screens identified with specs (auth, settings, billing, errors, onboarding, profile)
-- [ ] **GAPS-02**: Missing states identified per screen (loading, empty, error, disabled)
-- [ ] **GAPS-03**: Missing responsive behaviors documented (mobile, tablet breakpoints)
+### Processing
 
-### Stitch Brief
+- [ ] **PROC-01**: Processing screen shows real-time progress by polling RunPod /status endpoint
+- [ ] **PROC-02**: Progress displays current stage (uploading, analyzing audio, encoding, predicting)
+- [ ] **PROC-03**: User can navigate away and return to check processing status
+- [ ] **PROC-04**: Processing failure shows error state with retry option
 
-- [ ] **BRIEF-01**: Consolidated Stitch brief produced with canonical screens + gap screens
-- [ ] **BRIEF-02**: Brief includes optimization notes (what to keep, what to change, what to add)
-- [ ] **BRIEF-03**: Brief references design system tokens for consistency
+### Results
 
-## v2 Requirements
+- [ ] **RSLT-01**: Results Overview shows overall score, hook score, retention, peak moment from API response
+- [ ] **RSLT-02**: Results Overview shows neural activation timeline visualization
+- [ ] **RSLT-03**: Results Detail shows per-region breakdown (attention, reward, emotional, social)
+- [ ] **RSLT-04**: Results Detail shows segment-level data with timestamps
+- [ ] **RSLT-05**: User can export results as JSON
 
-Deferred to future release. Tracked but not in current roadmap.
+### Dashboard
 
-### UI Implementation
+- [ ] **DASH-01**: Dashboard lists all past analyses with scores and timestamps
+- [ ] **DASH-02**: User can click a past analysis to view its results
+- [ ] **DASH-03**: Empty state shows onboarding prompt when no analyses exist
 
-- **IMPL-01**: Frontend codebase scaffolded (Next.js, Tailwind, design tokens)
-- **IMPL-02**: Canonical screens implemented from Stitch output
-- **IMPL-03**: API integration with RunPod inference endpoint
-- **IMPL-04**: Auth and user management
+### Settings & Profile
 
-### Backend Scaffolding
+- [ ] **SETT-01**: Settings page shows account info (display name, email)
+- [ ] **SETT-02**: Settings page has notification toggles
+- [ ] **SETT-03**: Billing page shows credit balance and mock purchase options
+- [ ] **SETT-04**: Profile page shows user info and aggregate analysis stats
 
-- **BACK-01**: Supabase setup (auth, database, storage)
-- **BACK-02**: R2/S3 for video storage with presigned URLs
-- **BACK-03**: Credit system and Stripe integration
+### Backend
+
+- [ ] **BACK-01**: Supabase project set up with auth (email/password)
+- [ ] **BACK-02**: Database schema for jobs (id, user_id, video_url, status, results, timestamps)
+- [ ] **BACK-03**: API route proxies inference requests to RunPod (hides API key from client)
+- [ ] **BACK-04**: API route polls RunPod status and updates job record
+
+### Error Handling
+
+- [ ] **ERR-01**: 404 page displayed for unknown routes
+- [ ] **ERR-02**: 500 error page displayed for server errors
+- [ ] **ERR-03**: Offline state detected and displayed with retry
+
+## v3.0 Requirements
+
+Deferred to future release.
+
+- **PAY-01**: Real Stripe integration for credit purchases
+- **AB-01**: A/B comparison mode processing two videos
+- **COLLAB-01**: Team sharing and collaboration features
+- **PDF-01**: PDF report generation and download
+- **MOBILE-01**: Mobile-responsive optimization pass
 
 ## Out of Scope
 
-Explicitly excluded. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| Writing frontend code | This milestone produces specs/briefs only |
-| Backend implementation | Deferred to future milestone |
-| Design system creation | Using existing DESIGN.md from Stitch; catalog only |
-| A/B comparison UX | Only single video analysis in v1 inference |
+| Real payment processing | Mock billing UI for v2.0, Stripe deferred to v3.0 |
+| A/B video comparison | Single video only, multi-video deferred |
 | Mobile app | Web-first |
+| Real-time collaboration | Complexity, not core value |
+| PDF reports | Deferred to v3.0 |
+| OAuth (Google, GitHub) | Email/password sufficient for v2.0 |
+| Video player with frame scrub | Placeholder player, full player deferred |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDT-01 | Phase 11 | Pending |
-| AUDT-02 | Phase 11 | Pending |
-| AUDT-03 | Phase 11 | Pending |
-| AUDT-04 | Phase 11 | Pending |
-| AUDT-05 | Phase 11 | Pending |
-| COMP-01 | Phase 12 | Pending |
-| COMP-02 | Phase 12 | Pending |
-| COMP-03 | Phase 12 | Pending |
-| GAPS-01 | Phase 13 | Pending |
-| GAPS-02 | Phase 13 | Pending |
-| GAPS-03 | Phase 13 | Pending |
-| BRIEF-01 | Phase 14 | Pending |
-| BRIEF-02 | Phase 14 | Pending |
-| BRIEF-03 | Phase 14 | Pending |
+| SETUP-01 | — | Pending |
+| SETUP-02 | — | Pending |
+| SETUP-03 | — | Pending |
+| AUTH-01 | — | Pending |
+| AUTH-02 | — | Pending |
+| AUTH-03 | — | Pending |
+| AUTH-04 | — | Pending |
+| AUTH-05 | — | Pending |
+| UPLD-01 | — | Pending |
+| UPLD-02 | — | Pending |
+| UPLD-03 | — | Pending |
+| PROC-01 | — | Pending |
+| PROC-02 | — | Pending |
+| PROC-03 | — | Pending |
+| PROC-04 | — | Pending |
+| RSLT-01 | — | Pending |
+| RSLT-02 | — | Pending |
+| RSLT-03 | — | Pending |
+| RSLT-04 | — | Pending |
+| RSLT-05 | — | Pending |
+| DASH-01 | — | Pending |
+| DASH-02 | — | Pending |
+| DASH-03 | — | Pending |
+| SETT-01 | — | Pending |
+| SETT-02 | — | Pending |
+| SETT-03 | — | Pending |
+| SETT-04 | — | Pending |
+| BACK-01 | — | Pending |
+| BACK-02 | — | Pending |
+| BACK-03 | — | Pending |
+| BACK-04 | — | Pending |
+| ERR-01 | — | Pending |
+| ERR-02 | — | Pending |
+| ERR-03 | — | Pending |
 
 **Coverage:**
-- v1.1 requirements: 14 total
-- Mapped to phases: 14
-- Unmapped: 0
+- v2.0 requirements: 34 total
+- Mapped to phases: 0
+- Unmapped: 34
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after roadmap creation*
+*Last updated: 2026-04-09 after initial definition*
