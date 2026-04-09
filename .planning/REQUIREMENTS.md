@@ -68,26 +68,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDT-01 | — | Pending |
-| AUDT-02 | — | Pending |
-| AUDT-03 | — | Pending |
-| AUDT-04 | — | Pending |
-| AUDT-05 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| GAPS-01 | — | Pending |
-| GAPS-02 | — | Pending |
-| GAPS-03 | — | Pending |
-| BRIEF-01 | — | Pending |
-| BRIEF-02 | — | Pending |
-| BRIEF-03 | — | Pending |
+| AUDT-01 | Phase 11 | Pending |
+| AUDT-02 | Phase 11 | Pending |
+| AUDT-03 | Phase 11 | Pending |
+| AUDT-04 | Phase 11 | Pending |
+| AUDT-05 | Phase 11 | Pending |
+| COMP-01 | Phase 12 | Pending |
+| COMP-02 | Phase 12 | Pending |
+| COMP-03 | Phase 12 | Pending |
+| GAPS-01 | Phase 13 | Pending |
+| GAPS-02 | Phase 13 | Pending |
+| GAPS-03 | Phase 13 | Pending |
+| BRIEF-01 | Phase 14 | Pending |
+| BRIEF-02 | Phase 14 | Pending |
+| BRIEF-03 | Phase 14 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 14 total
-- Mapped to phases: 0
-- Unmapped: 14
+- Mapped to phases: 14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after initial definition*
+*Last updated: 2026-04-09 after roadmap creation*
