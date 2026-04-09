@@ -236,7 +236,9 @@ Plans:
   1. Supabase project is live with email/password auth enabled and returns valid session tokens
   2. Database has a jobs table with columns for id, user_id, video_url, status, results, and timestamps
   3. Row-level security ensures users can only read/write their own job records
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 
 ### Phase 17: Authentication Flow
 **Goal**: Users can create accounts, log in, stay logged in, and get redirected appropriately
@@ -248,7 +250,9 @@ Plans:
   3. Refreshing the browser preserves the logged-in session (no re-login required)
   4. Visiting any protected route while logged out redirects to the login page
   5. Login and signup screens match the Stitch reference (dark theme, neural-gradient CTA button)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 18: Upload & Processing
@@ -261,7 +265,9 @@ Plans:
   3. Processing screen shows live progress with stage labels (uploading, analyzing audio, encoding, predicting) by polling job status
   4. User can navigate away from the processing screen and return to see current progress
   5. If processing fails, user sees an error state with a retry button
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 19: API Integration
@@ -272,7 +278,9 @@ Plans:
   1. A Next.js API route accepts inference requests from the client and proxies them to RunPod (API key stays server-side)
   2. A Next.js API route polls RunPod /status/{job_id} and updates the job record in Supabase with current status and results
   3. The client never sees the RunPod API key in network requests or client-side code
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 
 ### Phase 20: Results Display
 **Goal**: Users can view comprehensive neural activation results for their analyzed video
@@ -284,7 +292,9 @@ Plans:
   3. Results Detail page shows per-region breakdown (attention, reward, emotional processing, social cognition) with visual indicators
   4. Segment-level data table shows timestamps with corresponding activation scores
   5. User can export the full results as a downloadable JSON file
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 21: Dashboard
@@ -295,7 +305,9 @@ Plans:
   1. Dashboard lists all past analyses for the logged-in user with scores and timestamps
   2. Clicking a past analysis navigates to its results page with full data
   3. A user with no analyses sees an empty state with a prompt to upload their first video
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 22: Settings & Profile
@@ -307,7 +319,9 @@ Plans:
   2. Settings page has working notification toggle switches (state persists across page loads)
   3. Billing page shows a mock credit balance and mock purchase options (no real payment processing)
   4. Profile page shows user info and aggregate stats (total analyses, average score)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 23: Error Handling
@@ -318,7 +332,9 @@ Plans:
   1. Navigating to a non-existent route shows a styled 404 page with navigation back to dashboard
   2. Server errors display a styled 500 error page with a retry option
   3. Losing network connectivity shows an offline indicator with automatic retry when connection returns
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ## Progress
@@ -345,7 +361,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 13. Gap Analysis | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
-| 16. Backend Foundation | v2.0 | 0/? | Not started | - |
+| 16. Backend Foundation | v2.0 | 0/1 | Planning complete | - |
 | 17. Authentication Flow | v2.0 | 0/? | Not started | - |
 | 18. Upload & Processing | v2.0 | 0/? | Not started | - |
 | 19. API Integration | v2.0 | 0/? | Not started | - |
