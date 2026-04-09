@@ -236,9 +236,9 @@ Plans:
   1. Supabase project is live with email/password auth enabled and returns valid session tokens
   2. Database has a jobs table with columns for id, user_id, video_url, status, results, and timestamps
   3. Row-level security ensures users can only read/write their own job records
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [x] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 
 ### Phase 17: Authentication Flow
 **Goal**: Users can create accounts, log in, stay logged in, and get redirected appropriately
@@ -252,7 +252,7 @@ Plans:
   5. Login and signup screens match the Stitch reference (dark theme, neural-gradient CTA button)
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [x] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
 **UI hint**: yes
 
 ### Phase 18: Upload & Processing
@@ -361,7 +361,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 13. Gap Analysis | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
-| 16. Backend Foundation | v2.0 | 0/1 | Planning complete | - |
+| 16. Backend Foundation | v2.0 | 1/1 | Complete    | 2026-04-09 |
 | 17. Authentication Flow | v2.0 | 0/? | Not started | - |
 | 18. Upload & Processing | v2.0 | 0/? | Not started | - |
 | 19. API Integration | v2.0 | 0/? | Not started | - |
