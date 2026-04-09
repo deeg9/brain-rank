@@ -4,14 +4,14 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-09T01:04:55.646Z"
-last_activity: 2026-04-09
+last_updated: "2026-04-09T01:14:30.038Z"
+last_activity: 2026-04-09 -- Phase 6 planning complete
 progress:
   total_phases: 10
   completed_phases: 5
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 11
+  completed_plans: 10
+  percent: 91
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** Send a video URL to a RunPod endpoint and get back per-segment brain activation scores as JSON
-**Current focus:** Phase 5: Container Verification
+**Current focus:** Phase 6: Handler Core
 
 ## Current Position
 
 Phase: 6 of 10 (handler core)
-Plan: Not started
+Plan: 1 of 2 complete
 Status: Executing
-Last activity: 2026-04-09
+Last activity: 2026-04-09 -- Completed 06-01-PLAN.md
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 91%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 89%
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
 | Phase 04-01 P01 | 2min | 2 tasks | 3 files |
 | Phase 05-01 P01 | 2min | 2 tasks | 2 files |
+| Phase 06-01 P01 | 1min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,9 @@ Recent decisions affecting current work:
 - [Phase 04]: Install order encoded as PyTorch -> TRIBE v2 -> uv -> spaCy -> RunPod SDK to prevent dependency conflicts
 - [Phase 04]: uv installed instead of whisperx directly — TRIBE v2 uses uvx for WhisperX at runtime
 - [Phase 05]: HF_TOKEN presence-checked only, never echoed in build script (T-05-01 mitigation)
+- [Phase 06]: str type for video_url (not HttpUrl) to avoid RunPod serialization issues
+- [Phase 06]: Lazy tribev2 import inside get_model() to allow schema tests without GPU
+- [Phase 06]: Fail-fast model loading -- no exception handling, crashes container on failure
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08T23:43:05Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-09T01:13:50Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
