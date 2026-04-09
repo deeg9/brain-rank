@@ -159,10 +159,10 @@ Plans:
   1. Every shared component (nav sidebar, top bar, video player, timeline, metric cards, tags) is cataloged with props, variants, and usage locations across canonical screens
   2. Design tokens (colors, typography, spacing, elevation) are documented in a structured format extracted from DESIGN.md and validated against actual Stitch screen usage
   3. Interaction patterns (timeline scrubbing, playback sync, keyboard shortcuts) are documented with expected behaviors and edge cases
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 12-01-PLAN.md — Shared components catalog and design tokens
-- [ ] 12-02-PLAN.md — Interaction patterns reference
+- [x] 12-01-PLAN.md — Shared components catalog and design tokens
+- [x] 12-02-PLAN.md — Interaction patterns reference
 **UI hint**: yes
 
 ### Phase 13: Gap Analysis
@@ -206,6 +206,6 @@ Phases 11-14: Phase 11 -> 12 -> 13 -> 14
 | 9. End-to-End Validation | v1.0 | 0/0 | Complete | 2026-04-09 |
 | 10. Production Hardening | v1.0 | 0/0 | Complete | 2026-04-09 |
 | 11. Screen Audit | v1.1 | 3/3 | Complete    | 2026-04-09 |
-| 12. Component Catalog | v1.1 | 0/2 | Not started | - |
+| 12. Component Catalog | v1.1 | 2/2 | Complete    | 2026-04-09 |
 | 13. Gap Analysis | v1.1 | 0/0 | Not started | - |
 | 14. Stitch Brief | v1.1 | 0/0 | Not started | - |
