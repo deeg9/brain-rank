@@ -17,10 +17,10 @@ from pathlib import Path
 
 import numpy as np
 
-from schema import OutputSchema, Segment, RegionScores, Summary
-from region_mapping.temporal import align_to_stimulus
-from region_mapping.scoring import compute_region_scores
-from region_mapping.constants import SEGMENT_DURATION_S
+from src.schema import OutputSchema, Segment, RegionScores, Summary
+from src.region_mapping.temporal import align_to_stimulus
+from src.region_mapping.scoring import compute_region_scores
+from src.region_mapping.constants import SEGMENT_DURATION_S
 
 logger = logging.getLogger("neurocut.postprocessor")
 
