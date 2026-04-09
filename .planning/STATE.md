@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: UI Audit & Consolidation
-status: planning
-stopped_at: Roadmap created for v1.1, ready to plan Phase 11
-last_updated: "2026-04-09T20:58:05.958Z"
+milestone: v2.0
+milestone_name: Frontend Implementation
+status: defining_requirements
+stopped_at: null
+last_updated: "2026-04-09"
 last_activity: 2026-04-09
 progress:
-  total_phases: 14
-  completed_phases: 4
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -20,35 +20,25 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-09)
 
-**Core value:** Send a video URL to a RunPod endpoint and get back per-segment brain activation scores as JSON
-**Current focus:** Phase 11 - Screen Audit (v1.1 UI Audit & Consolidation)
+**Core value:** Content creators upload a video and get per-segment neural engagement scores
+**Current focus:** Defining requirements for frontend implementation
 
 ## Current Position
 
-Phase: 14 of 14 (stitch brief)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-04-09
-
-Progress: [##########..........] 71% (10/14 phases)
-
-## Performance Metrics
-
-**Velocity:**
-
-- Total plans completed: 23 (v1.0)
-- Average duration: --
-- Total execution time: -- hours
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-09 — Milestone v2.0 started
 
 ## Accumulated Context
 
 ### Decisions
 
-- [v1.0]: All 10 inference pipeline phases complete
-- [v1.0]: RunPod async endpoint pattern validated
-- [v1.0]: 12+ min inference time drives async UX requirement
-- [v1.1]: Google Stitch UI screens need audit/consolidation before implementation
-- [v1.1]: 4-phase structure: Audit -> Catalog -> Gaps -> Brief (requirements-driven)
+- [v1.0]: RunPod async endpoint validated (POST /run, poll /status)
+- [v1.0]: 12+ min inference time — async UX required
+- [v1.1]: 15 Stitch screens received (10 batch 2 + 5 batch 3)
+- [v1.1]: Design system: tonal layering, neural-gradient, Space Grotesk + Inter
+- [v2.0]: Next.js + Supabase stack (pending validation)
 
 ### Pending Todos
 
@@ -56,12 +46,13 @@ None yet.
 
 ### Blockers/Concerns
 
-- 13 Stitch screens have significant overlap — need to consolidate to canonical set
-- Some flows may be missing (auth, settings, error states, credit purchase)
-- Stitch UI files are external at /Users/deeg/Downloads/NeuroCutStitchUI/
+- Supabase setup needed (auth, database, storage)
+- RunPod API key management for frontend→backend→RunPod flow
+- Video upload storage (R2/S3 or Supabase Storage)
+- Credit system is UI-only for v2.0 (no real payments)
 
 ## Session Continuity
 
 Last session: 2026-04-09
-Stopped at: Roadmap created for v1.1, ready to plan Phase 11
+Stopped at: Milestone v2.0 setup
 Resume file: None
