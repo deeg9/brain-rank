@@ -3,12 +3,13 @@
 ## Milestones
 
 - ✅ **v1.0 Inference Pipeline** - Phases 1-10 (shipped 2026-04-09)
-- 🚧 **v1.1 UI Audit & Consolidation** - Phases 11-14 (in progress)
+- ✅ **v1.1 UI Audit & Consolidation** - Phases 11-14 (shipped 2026-04-09)
+- 🚧 **v2.0 Frontend Implementation** - Phases 15-23 (in progress)
 
 ## Phases
 
 <details>
-<summary>v1.0 Inference Pipeline (Phases 1-10) - SHIPPED 2026-04-09</summary>
+<summary>✅ v1.0 Inference Pipeline (Phases 1-10) - SHIPPED 2026-04-09</summary>
 
 - [x] **Phase 1: Model Setup** - Clone TRIBE v2, install dependencies, run first inference locally (completed 2026-04-08)
 - [x] **Phase 2: Output Mapping** - Understand raw vertex output and define vertex-to-region mapping (completed 2026-04-08)
@@ -23,14 +24,29 @@
 
 </details>
 
-### v1.1 UI Audit & Consolidation (SHIPPED 2026-04-09)
-
-**Milestone Goal:** Consolidate 13 Stitch-generated UI screens into a canonical set and produce a Stitch brief for final UI generation.
+<details>
+<summary>✅ v1.1 UI Audit & Consolidation (Phases 11-14) - SHIPPED 2026-04-09</summary>
 
 - [x] **Phase 11: Screen Audit** - Consolidate all 4 flows from 13 Stitch screens into canonical screen specs (completed 2026-04-09)
 - [x] **Phase 12: Component Catalog** - Extract shared components, design tokens, and interaction patterns (completed 2026-04-09)
 - [x] **Phase 13: Gap Analysis** - Identify missing screens, states, and responsive behaviors (completed 2026-04-09)
 - [x] **Phase 14: Stitch Brief** - Produce consolidated brief for final Stitch UI generation (completed 2026-04-09)
+
+</details>
+
+### 🚧 v2.0 Frontend Implementation (In Progress)
+
+**Milestone Goal:** Build the NeuroCut web app from 15 Stitch-generated screens, wire it to the live RunPod inference endpoint, and ship a working product.
+
+- [ ] **Phase 15: Project Scaffold & Design System** - Next.js app with design tokens, reusable components, and routing
+- [ ] **Phase 16: Backend Foundation** - Supabase auth and database schema for jobs
+- [ ] **Phase 17: Authentication Flow** - Login, signup, session persistence, route protection, onboarding
+- [ ] **Phase 18: Upload & Processing** - Video upload UI, cloud storage, processing screen with status polling
+- [ ] **Phase 19: API Integration** - RunPod proxy routes and job status management
+- [ ] **Phase 20: Results Display** - Neural activation results with timeline, region breakdown, and export
+- [ ] **Phase 21: Dashboard** - Job history list, navigation to past results, empty state
+- [ ] **Phase 22: Settings & Profile** - Account settings, notifications, billing page, profile with stats
+- [ ] **Phase 23: Error Handling** - 404, 500, and offline error pages
 
 ## Phase Details
 
@@ -134,6 +150,9 @@ Plans:
 
 </details>
 
+<details>
+<summary>v1.1 UI Audit & Consolidation - Phase Details (SHIPPED)</summary>
+
 ### Phase 11: Screen Audit
 **Goal**: Every user flow has exactly one canonical screen spec with no duplicates or ambiguity
 **Depends on**: Nothing (first phase of v1.1)
@@ -146,9 +165,9 @@ Plans:
   5. A canonical screen index exists listing every screen with its source Stitch files and consolidation rationale
 **Plans:** 3/3 plans complete
 Plans:
-- [x] 11-01-PLAN.md — Upload and Processing canonical specs
-- [x] 11-02-PLAN.md — Results Overview and Results Detail canonical specs
-- [x] 11-03-PLAN.md — Dashboard canonical spec and screen index
+- [x] 11-01-PLAN.md
+- [x] 11-02-PLAN.md
+- [x] 11-03-PLAN.md
 **UI hint**: yes
 
 ### Phase 12: Component Catalog
@@ -161,8 +180,8 @@ Plans:
   3. Interaction patterns (timeline scrubbing, playback sync, keyboard shortcuts) are documented with expected behaviors and edge cases
 **Plans:** 2/2 plans complete
 Plans:
-- [x] 12-01-PLAN.md — Shared components catalog and design tokens
-- [x] 12-02-PLAN.md — Interaction patterns reference
+- [x] 12-01-PLAN.md
+- [x] 12-02-PLAN.md
 **UI hint**: yes
 
 ### Phase 13: Gap Analysis
@@ -175,7 +194,7 @@ Plans:
   3. Missing responsive behaviors are documented (mobile, tablet breakpoints) with layout adaptation notes per canonical screen
 **Plans:** 1/1 plans complete
 Plans:
-- [x] 13-01-PLAN.md — Missing screens, states, and responsive behaviors
+- [x] 13-01-PLAN.md
 **UI hint**: yes
 
 ### Phase 14: Stitch Brief
@@ -188,14 +207,122 @@ Plans:
   3. Brief references design system tokens throughout for visual consistency across generated screens
 **Plans:** 1/1 plans complete
 Plans:
-- [x] 14-01-PLAN.md — Consolidated Stitch brief from all ui-specs sources
+- [x] 14-01-PLAN.md
+**UI hint**: yes
+
+</details>
+
+### Phase 15: Project Scaffold & Design System
+**Goal**: Developers have a working Next.js project with all design system components and routing in place, ready for feature implementation
+**Depends on**: Phase 14 (Stitch screens and UI specs exist)
+**Requirements**: SETUP-01, SETUP-02, SETUP-03
+**Success Criteria** (what must be TRUE):
+  1. Next.js app runs locally with TypeScript, Tailwind CSS, and NeuroCut design tokens (dark theme, Space Grotesk + Inter, neural-gradient palette)
+  2. Core UI components (buttons, inputs, cards, sidebar, top bar) render and match Stitch reference screens
+  3. All 15 routes exist with correct layout assignment (app shell with sidebar for dashboard pages, full-screen for auth pages)
+  4. Navigating between routes shows the correct layout wrapper and placeholder content
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 16: Backend Foundation
+**Goal**: Supabase is configured with working auth and a database schema that can store analysis jobs
+**Depends on**: Phase 15
+**Requirements**: BACK-01, BACK-02
+**Success Criteria** (what must be TRUE):
+  1. Supabase project is live with email/password auth enabled and returns valid session tokens
+  2. Database has a jobs table with columns for id, user_id, video_url, status, results, and timestamps
+  3. Row-level security ensures users can only read/write their own job records
+**Plans**: TBD
+
+### Phase 17: Authentication Flow
+**Goal**: Users can create accounts, log in, stay logged in, and get redirected appropriately
+**Depends on**: Phase 16
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05
+**Success Criteria** (what must be TRUE):
+  1. User can sign up with email/password and lands on the onboarding welcome screen
+  2. User can log in with email/password and lands on the dashboard
+  3. Refreshing the browser preserves the logged-in session (no re-login required)
+  4. Visiting any protected route while logged out redirects to the login page
+  5. Login and signup screens match the Stitch reference (dark theme, neural-gradient CTA button)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 18: Upload & Processing
+**Goal**: Users can upload a video and watch processing progress in real time
+**Depends on**: Phase 17, Phase 19 (API routes needed for actual processing -- can build UI with mocks first)
+**Requirements**: UPLD-01, UPLD-02, UPLD-03, PROC-01, PROC-02, PROC-03, PROC-04
+**Success Criteria** (what must be TRUE):
+  1. User can drag-and-drop or browse to select a video file, and sees estimated credit cost before confirming
+  2. After confirming, the video uploads to cloud storage and a job record is created in the database
+  3. Processing screen shows live progress with stage labels (uploading, analyzing audio, encoding, predicting) by polling job status
+  4. User can navigate away from the processing screen and return to see current progress
+  5. If processing fails, user sees an error state with a retry button
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 19: API Integration
+**Goal**: The frontend can trigger RunPod inference and track job status without exposing API keys
+**Depends on**: Phase 16
+**Requirements**: BACK-03, BACK-04
+**Success Criteria** (what must be TRUE):
+  1. A Next.js API route accepts inference requests from the client and proxies them to RunPod (API key stays server-side)
+  2. A Next.js API route polls RunPod /status/{job_id} and updates the job record in Supabase with current status and results
+  3. The client never sees the RunPod API key in network requests or client-side code
+**Plans**: TBD
+
+### Phase 20: Results Display
+**Goal**: Users can view comprehensive neural activation results for their analyzed video
+**Depends on**: Phase 19 (needs real data from RunPod), Phase 18 (processing flow creates jobs)
+**Requirements**: RSLT-01, RSLT-02, RSLT-03, RSLT-04, RSLT-05
+**Success Criteria** (what must be TRUE):
+  1. Results Overview page shows overall score, hook score, retention percentage, and peak moment derived from API response
+  2. A neural activation timeline visualization displays engagement over time with identifiable peaks and valleys
+  3. Results Detail page shows per-region breakdown (attention, reward, emotional processing, social cognition) with visual indicators
+  4. Segment-level data table shows timestamps with corresponding activation scores
+  5. User can export the full results as a downloadable JSON file
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 21: Dashboard
+**Goal**: Users can see and access all their past analyses from a central hub
+**Depends on**: Phase 17 (needs auth), Phase 16 (needs job records)
+**Requirements**: DASH-01, DASH-02, DASH-03
+**Success Criteria** (what must be TRUE):
+  1. Dashboard lists all past analyses for the logged-in user with scores and timestamps
+  2. Clicking a past analysis navigates to its results page with full data
+  3. A user with no analyses sees an empty state with a prompt to upload their first video
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 22: Settings & Profile
+**Goal**: Users can manage their account settings, view billing info, and see their profile
+**Depends on**: Phase 17 (needs auth)
+**Requirements**: SETT-01, SETT-02, SETT-03, SETT-04
+**Success Criteria** (what must be TRUE):
+  1. Settings page displays the user's display name and email
+  2. Settings page has working notification toggle switches (state persists across page loads)
+  3. Billing page shows a mock credit balance and mock purchase options (no real payment processing)
+  4. Profile page shows user info and aggregate stats (total analyses, average score)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 23: Error Handling
+**Goal**: The app handles error states gracefully with appropriate feedback
+**Depends on**: Phase 15 (needs routing and layout)
+**Requirements**: ERR-01, ERR-02, ERR-03
+**Success Criteria** (what must be TRUE):
+  1. Navigating to a non-existent route shows a styled 404 page with navigation back to dashboard
+  2. Server errors display a styled 500 error page with a retry option
+  3. Losing network connectivity shows an offline indicator with automatic retry when connection returns
+**Plans**: TBD
 **UI hint**: yes
 
 ## Progress
 
 **Execution Order:**
 Phases 1-10: Complete (v1.0)
-Phases 11-14: Phase 11 -> 12 -> 13 -> 14
+Phases 11-14: Complete (v1.1)
+Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -209,7 +336,16 @@ Phases 11-14: Phase 11 -> 12 -> 13 -> 14
 | 8. RunPod Deployment | v1.0 | 1/2 | Complete | 2026-04-09 |
 | 9. End-to-End Validation | v1.0 | 0/0 | Complete | 2026-04-09 |
 | 10. Production Hardening | v1.0 | 0/0 | Complete | 2026-04-09 |
-| 11. Screen Audit | v1.1 | 3/3 | Complete    | 2026-04-09 |
-| 12. Component Catalog | v1.1 | 2/2 | Complete    | 2026-04-09 |
-| 13. Gap Analysis | v1.1 | 1/1 | Complete    | 2026-04-09 |
-| 14. Stitch Brief | v1.1 | 1/1 | Complete    | 2026-04-09 |
+| 11. Screen Audit | v1.1 | 3/3 | Complete | 2026-04-09 |
+| 12. Component Catalog | v1.1 | 2/2 | Complete | 2026-04-09 |
+| 13. Gap Analysis | v1.1 | 1/1 | Complete | 2026-04-09 |
+| 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
+| 15. Scaffold & Design System | v2.0 | 0/? | Not started | - |
+| 16. Backend Foundation | v2.0 | 0/? | Not started | - |
+| 17. Authentication Flow | v2.0 | 0/? | Not started | - |
+| 18. Upload & Processing | v2.0 | 0/? | Not started | - |
+| 19. API Integration | v2.0 | 0/? | Not started | - |
+| 20. Results Display | v2.0 | 0/? | Not started | - |
+| 21. Dashboard | v2.0 | 0/? | Not started | - |
+| 22. Settings & Profile | v2.0 | 0/? | Not started | - |
+| 23. Error Handling | v2.0 | 0/? | Not started | - |

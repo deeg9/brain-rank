@@ -92,46 +92,46 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | — | Pending |
-| SETUP-02 | — | Pending |
-| SETUP-03 | — | Pending |
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| UPLD-01 | — | Pending |
-| UPLD-02 | — | Pending |
-| UPLD-03 | — | Pending |
-| PROC-01 | — | Pending |
-| PROC-02 | — | Pending |
-| PROC-03 | — | Pending |
-| PROC-04 | — | Pending |
-| RSLT-01 | — | Pending |
-| RSLT-02 | — | Pending |
-| RSLT-03 | — | Pending |
-| RSLT-04 | — | Pending |
-| RSLT-05 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| SETT-01 | — | Pending |
-| SETT-02 | — | Pending |
-| SETT-03 | — | Pending |
-| SETT-04 | — | Pending |
-| BACK-01 | — | Pending |
-| BACK-02 | — | Pending |
-| BACK-03 | — | Pending |
-| BACK-04 | — | Pending |
-| ERR-01 | — | Pending |
-| ERR-02 | — | Pending |
-| ERR-03 | — | Pending |
+| SETUP-01 | Phase 15 | Pending |
+| SETUP-02 | Phase 15 | Pending |
+| SETUP-03 | Phase 15 | Pending |
+| AUTH-01 | Phase 17 | Pending |
+| AUTH-02 | Phase 17 | Pending |
+| AUTH-03 | Phase 17 | Pending |
+| AUTH-04 | Phase 17 | Pending |
+| AUTH-05 | Phase 17 | Pending |
+| UPLD-01 | Phase 18 | Pending |
+| UPLD-02 | Phase 18 | Pending |
+| UPLD-03 | Phase 18 | Pending |
+| PROC-01 | Phase 18 | Pending |
+| PROC-02 | Phase 18 | Pending |
+| PROC-03 | Phase 18 | Pending |
+| PROC-04 | Phase 18 | Pending |
+| RSLT-01 | Phase 20 | Pending |
+| RSLT-02 | Phase 20 | Pending |
+| RSLT-03 | Phase 20 | Pending |
+| RSLT-04 | Phase 20 | Pending |
+| RSLT-05 | Phase 20 | Pending |
+| DASH-01 | Phase 21 | Pending |
+| DASH-02 | Phase 21 | Pending |
+| DASH-03 | Phase 21 | Pending |
+| SETT-01 | Phase 22 | Pending |
+| SETT-02 | Phase 22 | Pending |
+| SETT-03 | Phase 22 | Pending |
+| SETT-04 | Phase 22 | Pending |
+| BACK-01 | Phase 16 | Pending |
+| BACK-02 | Phase 16 | Pending |
+| BACK-03 | Phase 19 | Pending |
+| BACK-04 | Phase 19 | Pending |
+| ERR-01 | Phase 23 | Pending |
+| ERR-02 | Phase 23 | Pending |
+| ERR-03 | Phase 23 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 34 total
-- Mapped to phases: 0
-- Unmapped: 34
+- Mapped to phases: 34
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after initial definition*
+*Last updated: 2026-04-09 after roadmap creation*
