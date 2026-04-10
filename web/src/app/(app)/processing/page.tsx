@@ -267,7 +267,7 @@ function ProcessingContent() {
       </div>
 
       {/* Processing Glass Panel */}
-      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-6 relative overflow-hidden">
+      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-6 relative overflow-hidden glow-primary">
         {/* File info + progress percentage */}
         <div className="flex justify-between items-center relative z-10">
           <div className="flex items-center gap-3">
@@ -296,7 +296,7 @@ function ProcessingContent() {
         {/* Progress Bar */}
         <div className="h-4 w-full bg-surface-container-lowest rounded-full overflow-hidden p-1">
           <div
-            className="h-full neural-gradient rounded-full shadow-glow transition-all duration-1000 ease-out"
+            className="h-full neural-gradient rounded-full shadow-[0_0_12px_-2px_rgba(186,158,255,0.4)] transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -322,9 +322,9 @@ function ProcessingContent() {
             <h3 className="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">
               Inference Engine Logs
             </h3>
-            <span className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb]" />
+            <span className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb] animate-glow-pulse" />
           </div>
-          <div className="bg-surface-container-lowest rounded-lg p-4 flex-1 font-mono text-[10px] text-primary-dim/70 space-y-1 overflow-y-auto">
+          <div className="bg-surface-container-lowest rounded-lg p-4 flex-1 font-mono text-[10px] text-primary-dim/70 space-y-1 overflow-y-auto border-l-2 border-primary/30">
             {logs.map((line, i) => (
               <p
                 key={i}
@@ -339,7 +339,7 @@ function ProcessingContent() {
         </div>
 
         {/* VRAM Load Card */}
-        <div className="col-span-12 md:col-span-4 bg-surface-container-high rounded-xl p-8 flex flex-col justify-between items-start">
+        <div className="col-span-12 md:col-span-4 glass-surface rounded-xl p-8 flex flex-col justify-between items-start">
           <div className="space-y-4 w-full">
             <div className="flex items-center justify-between">
               <span className="material-symbols-outlined text-secondary-fixed text-3xl">
