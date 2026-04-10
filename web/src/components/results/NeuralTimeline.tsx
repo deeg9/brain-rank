@@ -8,6 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
   ResponsiveContainer,
 } from 'recharts';
 import { type SegmentData, type SegmentRegionScores } from '@/components/results/SegmentTable';
@@ -77,9 +78,11 @@ interface SingleTrackProps {
   isLast: boolean;
   showTooltip: boolean;
   lookup: Map<number, { label: string; color: string; value: number }[]>;
+  currentTime?: number;
+  onSeek?: (time: number) => void;
 }
 
-function SingleTrack({ data, config, duration, isLast, showTooltip, lookup }: SingleTrackProps) {
+function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, currentTime, onSeek }: SingleTrackProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="w-20 shrink-0 text-right">
@@ -98,6 +101,12 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup }: Si
             syncId="neural-timeline"
             syncMethod="value"
             margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
+            onClick={(state) => {
+              if (state?.activeLabel !== undefined && onSeek) {
+                onSeek(Number(state.activeLabel));
+              }
+            }}
+            style={{ cursor: onSeek ? 'pointer' : undefined }}
           >
             <defs>
               <linearGradient id={config.gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -151,6 +160,14 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup }: Si
               activeDot={{ r: 3, fill: config.color, strokeWidth: 0 }}
               isAnimationActive={false}
             />
+            {currentTime !== undefined && (
+              <ReferenceLine
+                x={currentTime}
+                stroke="rgba(255, 255, 255, 0.8)"
+                strokeWidth={2}
+                ifOverflow="extendDomain"
+              />
+            )}
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -161,9 +178,11 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup }: Si
 interface NeuralTimelineProps {
   segments: SegmentData[];
   duration: number;
+  currentTime?: number;
+  onSeek?: (time: number) => void;
 }
 
-export function NeuralTimeline({ segments, duration }: NeuralTimelineProps) {
+export function NeuralTimeline({ segments, duration, currentTime, onSeek }: NeuralTimelineProps) {
   const trackData = TRACK_CONFIG.map(config => ({
     ...config,
     data: toTimelineData(segments, config.key),
@@ -190,6 +209,8 @@ export function NeuralTimeline({ segments, duration }: NeuralTimelineProps) {
             isLast={index === TRACK_CONFIG.length - 1}
             showTooltip={index === 0}
             lookup={lookup}
+            currentTime={currentTime}
+            onSeek={onSeek}
           />
         ))}
       </div>
