@@ -69,6 +69,10 @@ Progress: [##############░░░░░░] 70% (14/23 phases complete across a
 - [v2.0]: Next.js + Supabase stack selected
 - [v2.0]: 9 phases (15-23) covering 34 requirements
 
+### Roadmap Evolution
+
+- Phase 24 added: Results Detail Multi-Track Neural Activation Timeline
+
 ### Pending Todos
 
 None yet.
