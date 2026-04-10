@@ -419,7 +419,7 @@ Plans:
   3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
 **Plans:** 1/1 plans complete
 Plans:
-- [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
+- [x] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
 
 ### Phase 29: Animated File Upload
@@ -463,7 +463,7 @@ Plans:
   2. The shader is adapted to the NeuroCut purple/cyan palette with neural-aesthetic lightning effects
   3. The hero section includes a call-to-action that navigates to the upload or signup flow
   4. The WebGL shader degrades gracefully on devices that do not support WebGL (shows a static fallback)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
@@ -591,7 +591,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 28. Sliding Number Counters | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 29. Animated File Upload | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 30. Wave Loader | v2.1 | 2/2 | Complete    | 2026-04-10 |
-| 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
+| 31. Hero Odyssey | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
