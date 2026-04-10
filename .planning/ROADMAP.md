@@ -500,7 +500,9 @@ Plans:
   1. The postprocessor quantizes 20,484 float32 vertex activations to uint8 and base64-encodes the result, reducing per-segment payload from ~80KB to ~28KB
   2. The frontend can decode the base64 string back to a typed array and map values to vertex colors without visible quantization artifacts
   3. Existing API consumers that do not read the vertex_data field continue to work unchanged
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
 
 ### Phase 35: Unified GLB Mesh Export
 **Goal**: A single GLB mesh file with exactly 20,484 vertices in fsaverage5 ordering exists for the frontend heatmap renderer
@@ -510,7 +512,9 @@ Plans:
   1. A Python script reads the fsaverage5 surface files and produces a GLB with 20,484 vertices whose indices match the TRIBE v2 output ordering
   2. The GLB loads in the existing react-three-fiber brain viewer and renders a recognizable cortical surface
   3. Vertex i in the decoded activation array corresponds to vertex i in the GLB mesh (no index remapping needed at runtime)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
 
 ### Phase 36: Cortical Heatmap Viewer
 **Goal**: Users can see per-vertex activation intensity painted directly on the 3D brain surface and switch between heatmap and region-blob views
@@ -522,7 +526,9 @@ Plans:
   3. User can select between at least 3 colormap options (Inferno, Plasma, Viridis) and the heatmap updates immediately
   4. Scrubbing the timeline updates the heatmap colors in real-time without perceptible lag
 **UI hint**: yes
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
 
 ### Phase 37: Arousal/Valence Display & Network Legend
 **Goal**: Users can see arousal and valence metrics and interact with all 9 functional networks on the results page
@@ -534,7 +540,9 @@ Plans:
   3. A color-coded legend lists all 9 functional networks with toggle switches that show/hide each network's activation on the brain viewer
   4. Toggling a network on highlights its vertices on the heatmap; toggling it off returns those vertices to the base color
 **UI hint**: yes
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
 
 ## Progress
 
