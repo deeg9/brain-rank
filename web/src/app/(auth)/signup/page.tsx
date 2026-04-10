@@ -1,22 +1,54 @@
 'use client'
 
+import { useState } from 'react'
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { Button, Input } from '@/components/ui'
 import { signup } from './actions'
 
+function getPasswordStrength(password: string) {
+  let score = 0
+  if (password.length >= 8) score++
+  if (/[A-Z]/.test(password)) score++
+  if (/[0-9]/.test(password)) score++
+  if (/[^A-Za-z0-9]/.test(password)) score++
+
+  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'] as const
+  const colors = [
+    '',
+    'bg-error',
+    'bg-[#f59e0b]',
+    'bg-[#eab308]',
+    'bg-tertiary-container',
+  ] as const
+  const textColors = [
+    '',
+    'text-error',
+    'text-[#f59e0b]',
+    'text-[#eab308]',
+    'text-tertiary-container',
+  ] as const
+
+  return { score, label: labels[score], color: colors[score], textColor: textColors[score] }
+}
+
 export default function SignupPage() {
+  const [password, setPassword] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+
   const [state, formAction, pending] = useActionState(
     async (_prevState: { error: string } | null, formData: FormData) => {
-      const password = formData.get('password') as string
+      const pw = formData.get('password') as string
       const confirm = formData.get('confirm-password') as string
-      if (password !== confirm) {
+      if (pw !== confirm) {
         return { error: 'Passwords do not match' }
       }
       return await signup(formData)
     },
     null
   )
+
+  const strength = getPasswordStrength(password)
 
   return (
     <div className="bg-surface-container-high rounded-xl p-10 ambient-glow">
@@ -42,13 +74,36 @@ export default function SignupPage() {
           required
         />
 
-        <Input
-          label="Password"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          required
-        />
+        <div>
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {password.length > 0 && (
+            <div className="mt-2 ml-1">
+              <div className="flex gap-1">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+                      i < strength.score
+                        ? strength.color
+                        : 'bg-surface-container-lowest'
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className={`text-xs mt-1 ${strength.textColor}`}>
+                {strength.label}
+              </p>
+            </div>
+          )}
+        </div>
 
         <Input
           label="Confirm Password"
@@ -58,7 +113,52 @@ export default function SignupPage() {
           required
         />
 
-        <Button variant="primary" size="lg" type="submit" loading={pending}>
+        <label className="flex items-start gap-3 cursor-pointer select-none">
+          <div className="relative mt-0.5">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="peer sr-only"
+            />
+            <div className="h-5 w-5 rounded bg-surface-container-lowest peer-checked:bg-primary transition-colors duration-200 flex items-center justify-center">
+              {termsAccepted && (
+                <svg
+                  className="h-3.5 w-3.5 text-on-primary"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-sm text-on-surface-variant leading-snug">
+            I agree to the{' '}
+            <Link href="#" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="#" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+              Privacy Policy
+            </Link>
+          </span>
+        </label>
+
+        <Button
+          variant="primary"
+          size="lg"
+          type="submit"
+          loading={pending}
+          disabled={!termsAccepted}
+          className={!termsAccepted ? 'opacity-50 cursor-not-allowed' : ''}
+        >
           Create Account
         </Button>
       </form>
