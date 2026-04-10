@@ -33,4 +33,9 @@ export const REGION_COLORS: Record<keyof SegmentRegionScores, string> = {
   reward: '#a78bfa',
   emotional_processing: '#f472b6',
   social_cognition: '#fbbf24',
+  visual_processing: '#4ade80',
+  auditory_processing: '#fb923c',
+  language_narrative: '#22d3ee',
+  default_mode: '#fb7185',
+  motion_processing: '#a3e635',
 };

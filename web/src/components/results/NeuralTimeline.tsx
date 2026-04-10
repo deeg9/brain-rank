@@ -19,6 +19,11 @@ const TRACK_CONFIG = [
   { key: 'reward' as const, label: 'Reward', color: '#a78bfa', gradientId: 'gradient-reward' },
   { key: 'emotional_processing' as const, label: 'Emotional Processing', color: '#f472b6', gradientId: 'gradient-emotional' },
   { key: 'social_cognition' as const, label: 'Social Cognition', color: '#fbbf24', gradientId: 'gradient-social' },
+  { key: 'visual_processing' as const, label: 'Visual Processing', color: '#4ade80', gradientId: 'gradient-visual' },
+  { key: 'auditory_processing' as const, label: 'Auditory Processing', color: '#fb923c', gradientId: 'gradient-auditory' },
+  { key: 'language_narrative' as const, label: 'Language / Narrative', color: '#22d3ee', gradientId: 'gradient-language' },
+  { key: 'default_mode' as const, label: 'Default Mode', color: '#fb7185', gradientId: 'gradient-default-mode' },
+  { key: 'motion_processing' as const, label: 'Motion Processing', color: '#a3e635', gradientId: 'gradient-motion' },
 ] satisfies { key: keyof SegmentRegionScores; label: string; color: string; gradientId: string }[];
 
 interface TimelinePoint {

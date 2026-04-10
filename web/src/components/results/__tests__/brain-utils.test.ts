@@ -2,13 +2,24 @@ import { describe, it, expect } from 'vitest';
 import { getRegionsAtTime, REGION_COLORS } from '../brain-utils';
 import type { SegmentData } from '@/components/results/SegmentTable';
 
-const makeSegment = (start: number, end: number, scores: { attention: number; reward: number; emotional_processing: number; social_cognition: number }): SegmentData => ({
+const makeSegment = (start: number, end: number, scores: {
+  attention: number; reward: number; emotional_processing: number; social_cognition: number;
+  visual_processing?: number; auditory_processing?: number; language_narrative?: number;
+  default_mode?: number; motion_processing?: number;
+}): SegmentData => ({
   start,
   end,
   activation_score: 0.5,
   arousal: 0.5,
   valence: 0.5,
-  regions: scores,
+  regions: {
+    visual_processing: 0,
+    auditory_processing: 0,
+    language_narrative: 0,
+    default_mode: 0,
+    motion_processing: 0,
+    ...scores,
+  },
 });
 
 const seg1 = makeSegment(0, 5, { attention: 0.8, reward: 0.3, emotional_processing: 0.5, social_cognition: 0.2 });
@@ -43,11 +54,15 @@ describe('getRegionsAtTime', () => {
     expect(result).toEqual(seg3.regions);
   });
 
-  it('REGION_COLORS contains all four region keys with hex color strings', () => {
-    expect(REGION_COLORS).toHaveProperty('attention');
-    expect(REGION_COLORS).toHaveProperty('reward');
-    expect(REGION_COLORS).toHaveProperty('emotional_processing');
-    expect(REGION_COLORS).toHaveProperty('social_cognition');
+  it('REGION_COLORS contains all nine region keys with hex color strings', () => {
+    const expectedKeys = [
+      'attention', 'reward', 'emotional_processing', 'social_cognition',
+      'visual_processing', 'auditory_processing', 'language_narrative',
+      'default_mode', 'motion_processing',
+    ];
+    for (const key of expectedKeys) {
+      expect(REGION_COLORS).toHaveProperty(key);
+    }
     for (const color of Object.values(REGION_COLORS)) {
       expect(color).toMatch(/^#[0-9a-fA-F]{6}$/);
     }

@@ -8,6 +8,11 @@ const REGION_DISPLAY = [
   { key: 'reward' as const, label: 'RWD', color: '#a78bfa' },
   { key: 'emotional_processing' as const, label: 'EMO', color: '#f472b6' },
   { key: 'social_cognition' as const, label: 'SOC', color: '#fbbf24' },
+  { key: 'visual_processing' as const, label: 'VIS', color: '#4ade80' },
+  { key: 'auditory_processing' as const, label: 'AUD', color: '#fb923c' },
+  { key: 'language_narrative' as const, label: 'LNG', color: '#22d3ee' },
+  { key: 'default_mode' as const, label: 'DMN', color: '#fb7185' },
+  { key: 'motion_processing' as const, label: 'MOT', color: '#a3e635' },
 ] satisfies { key: keyof SegmentRegionScores; label: string; color: string }[];
 
 function getRegionsAtTime(segments: SegmentData[], time: number): SegmentRegionScores | null {

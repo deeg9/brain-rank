@@ -5,6 +5,11 @@ export interface SegmentRegionScores {
   reward: number;
   emotional_processing: number;
   social_cognition: number;
+  visual_processing: number;
+  auditory_processing: number;
+  language_narrative: number;
+  default_mode: number;
+  motion_processing: number;
 }
 
 export interface SegmentData {
@@ -36,6 +41,11 @@ function getTopRegion(regions: SegmentRegionScores): {
     { name: "Reward", value: regions.reward, color: "bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim" },
     { name: "Emotional", value: regions.emotional_processing, color: "bg-secondary/10 text-secondary" },
     { name: "Social", value: regions.social_cognition, color: "bg-on-surface-variant/10 text-on-surface-variant" },
+    { name: "Visual", value: regions.visual_processing, color: "bg-green-500/10 text-green-400" },
+    { name: "Auditory", value: regions.auditory_processing, color: "bg-orange-500/10 text-orange-400" },
+    { name: "Language", value: regions.language_narrative, color: "bg-cyan-500/10 text-cyan-400" },
+    { name: "Default Mode", value: regions.default_mode, color: "bg-rose-500/10 text-rose-400" },
+    { name: "Motion", value: regions.motion_processing, color: "bg-lime-500/10 text-lime-400" },
   ];
   const top = entries.reduce((a, b) => (b.value > a.value ? b : a));
   return { name: top.name, color: top.color };
