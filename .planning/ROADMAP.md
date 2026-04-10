@@ -528,7 +528,7 @@ Plans:
 **UI hint**: yes
 **Plans:** 1 plan
 Plans:
-- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
+- [ ] 36-01-PLAN.md — Per-vertex heatmap mesh, colormap utility, dual view mode toggle
 
 ### Phase 37: Arousal/Valence Display & Network Legend
 **Goal**: Users can see arousal and valence metrics and interact with all 9 functional networks on the results page
