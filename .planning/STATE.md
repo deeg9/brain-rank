@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Frontend Implementation
-status: executing
-stopped_at: Phase 25 context gathered
-last_updated: "2026-04-10T05:43:06.707Z"
-last_activity: "2026-04-10 - Completed quick task 260409-sd7: Add robust_normalize to postprocessor and update web UI grading"
+milestone: v2.1
+milestone_name: 21st.dev Component Integration
+status: defining_requirements
+stopped_at: null
+last_updated: "2026-04-10"
+last_activity: "2026-04-10 - Milestone v2.1 started"
 progress:
-  total_phases: 25
-  completed_phases: 10
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-09)
+See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Phase 18 — Upload & Processing
+**Current focus:** Defining requirements for v2.1
 
 ## Current Position
 
-Phase: 23
-Plan: Not started
-Status: Executing Phase 18
-Last activity: 2026-04-10 - Completed quick task 260409-sd7: Add robust_normalize to postprocessor and update web UI grading
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-10 — Milestone v2.1 started
 
-Progress: [##############░░░░░░] 70% (14/23 phases complete across all milestones)
+Progress: Not started
 
 ## Performance Metrics
 

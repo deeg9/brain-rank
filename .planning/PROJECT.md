@@ -8,19 +8,15 @@ A web app that lets content creators upload videos and get brain-activation-base
 
 Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out, so creators can re-edit for maximum impact.
 
-## Current Milestone: v2.0 Frontend Implementation
+## Current Milestone: v2.1 21st.dev Component Integration
 
-**Goal:** Build the NeuroCut web app from 15 Stitch-generated screens, wire it to the live RunPod inference endpoint, and ship a working product.
+**Goal:** Integrate 4 premium animated components from 21st.dev into the NeuroCut web app, adapted to the existing dark/neural design system, to elevate the UI with polished animations and interactions.
 
 **Target features:**
-- Next.js app with all 15 screens
-- Auth (login, signup, onboarding)
-- Video upload + async processing with status polling
-- Results display with neural activation timeline and metrics
-- Dashboard with job history
-- Settings, billing, profile
-- API integration with RunPod endpoint
-- Error states (404, 500, offline)
+- Sliding Number — Spring-animated score counters on results page (replaces static numbers)
+- File Upload — Drag-and-drop upload zone with progress bars and video thumbnails (upgrades /upload)
+- Wave Loader — Neural signal wave animation for /processing wait state
+- Hero Odyssey — WebGL lightning shader hero section for marketing/welcome landing page
 
 ## Requirements
 
@@ -36,15 +32,12 @@ Content creators upload a video and get per-segment neural engagement scores —
 
 ### Active
 
-- [ ] Next.js project scaffolded with design system
-- [ ] Auth flow (login, signup, onboarding)
-- [ ] Video upload and async processing UI
-- [ ] Results display with neural metrics
-- [ ] Dashboard with job history
-- [ ] Settings, billing, profile pages
-- [ ] Backend (Supabase for auth, job storage)
-- [ ] RunPod API integration
-- [ ] Error handling (404, 500, offline)
+- [ ] Framer Motion dependency installed and configured
+- [ ] Sliding Number component for animated brain activation scores on results page
+- [ ] Drag-and-drop file upload with progress bars and video thumbnails on upload page
+- [ ] Wave Loader animation for processing wait state
+- [ ] WebGL lightning shader hero section for marketing/welcome page
+- [ ] All components adapted to NeuroCut design system (palette, glass surfaces, glow effects)
 
 ### Out of Scope
 
@@ -100,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-09 after v2.0 milestone start*
+*Last updated: 2026-04-10 after v2.1 milestone start*
