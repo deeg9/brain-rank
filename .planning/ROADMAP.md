@@ -266,10 +266,10 @@ Plans:
   3. Processing screen shows live progress with stage labels (uploading, analyzing audio, encoding, predicting) by polling job status
   4. User can navigate away from the processing screen and return to see current progress
   5. If processing fails, user sees an error state with a retry button
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 18-01-PLAN.md — Upload page with drag-drop, file validation, Supabase Storage upload, job creation
-- [ ] 18-02-PLAN.md — Processing page with status polling, progress bar, stage indicators, error/retry
+- [x] 18-01-PLAN.md — Upload page with drag-drop, file validation, Supabase Storage upload, job creation
+- [x] 18-02-PLAN.md — Processing page with status polling, progress bar, stage indicators, error/retry
 
 **UI hint**: yes
 
@@ -366,7 +366,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
 | 16. Backend Foundation | v2.0 | 1/1 | Complete    | 2026-04-09 |
 | 17. Authentication Flow | v2.0 | 2/2 | Complete    | 2026-04-09 |
-| 18. Upload & Processing | v2.0 | 0/2 | Planned | - |
+| 18. Upload & Processing | v2.0 | 2/2 | Complete    | 2026-04-10 |
 | 19. API Integration | v2.0 | 0/1 | Planned | - |
 | 20. Results Display | v2.0 | 0/1 | Not started | - |
 | 21. Dashboard | v2.0 | 0/1 | Not started | - |
