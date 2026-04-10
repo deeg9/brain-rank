@@ -17,6 +17,12 @@ function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "f
   }
 }
 
+const VIDEO_THUMBS = [
+  "/illustrations/thumb-neural-flow.png",
+  "/illustrations/thumb-social-hook.png",
+  "/illustrations/thumb-editorial-cut.png",
+];
+
 function extractFilename(videoUrl: string): string {
   try {
     const url = new URL(videoUrl);
@@ -96,28 +102,28 @@ export default async function DashboardPage() {
 
       {/* Quick Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-primary">
+        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-primary hover:glow-primary transition-all duration-300">
           <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
             Total Analyses
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold">{jobList.length}</span>
+            <span className="text-4xl font-headline font-bold animate-score-in">{jobList.length}</span>
           </div>
         </div>
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-secondary">
+        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-secondary hover:glow-primary transition-all duration-300">
           <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
             Credits Remaining
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold">250</span>
+            <span className="text-4xl font-headline font-bold animate-score-in">250</span>
           </div>
         </div>
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-tertiary-fixed-dim">
+        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-tertiary-fixed-dim hover:glow-primary transition-all duration-300">
           <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
             Avg Neural Score
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold">{avgScore}</span>
+            <span className="text-4xl font-headline font-bold animate-score-in">{avgScore}</span>
           </div>
         </div>
       </section>
@@ -129,18 +135,24 @@ export default async function DashboardPage() {
             <h3 className="font-headline text-xl font-bold">Recent Projects</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {jobList.map((job: Job) => {
+            {jobList.map((job: Job, index: number) => {
               const filename = extractFilename(job.video_url);
               const score = extractScore(job.results);
-              const initial = filename.charAt(0).toUpperCase();
+              const thumb = VIDEO_THUMBS[index % VIDEO_THUMBS.length];
 
               return (
-                <Card key={job.id} hover className="overflow-hidden">
+                <Card key={job.id} hover className="overflow-hidden group">
                   <div className="flex flex-col md:flex-row">
-                    {/* Thumbnail placeholder */}
-                    <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-surface-container-lowest flex items-center justify-center">
-                      <span className="text-5xl font-headline font-bold text-on-surface-variant/30">
-                        {initial}
+                    {/* Video thumbnail */}
+                    <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-surface-container-lowest">
+                      <img
+                        src={thumb}
+                        alt={filename}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <span className="material-symbols-outlined absolute bottom-3 right-3 text-on-surface opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        download
                       </span>
                     </div>
                     {/* Content */}
