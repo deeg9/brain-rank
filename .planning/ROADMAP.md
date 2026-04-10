@@ -309,9 +309,9 @@ Plans:
   1. Dashboard lists all past analyses for the logged-in user with scores and timestamps
   2. Clicking a past analysis navigates to its results page with full data
   3. A user with no analyses sees an empty state with a prompt to upload their first video
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 21-01-PLAN.md — Dashboard job list, empty state, navigation to results
+- [x] 21-01-PLAN.md — Dashboard job list, empty state, navigation to results
 **UI hint**: yes
 
 ### Phase 22: Settings & Profile
@@ -323,9 +323,9 @@ Plans:
   2. Settings page has working notification toggle switches (state persists across page loads)
   3. Billing page shows a mock credit balance and mock purchase options (no real payment processing)
   4. Profile page shows user info and aggregate stats (total analyses, average score)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 22-01-PLAN.md — Settings, billing, and profile pages
+- [x] 22-01-PLAN.md — Settings, billing, and profile pages
 **UI hint**: yes
 
 ### Phase 23: Error Handling
@@ -336,9 +336,9 @@ Plans:
   1. Navigating to a non-existent route shows a styled 404 page with navigation back to dashboard
   2. Server errors display a styled 500 error page with a retry option
   3. Losing network connectivity shows an offline indicator with automatic retry when connection returns
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 23-01-PLAN.md — 404, 500, and offline error pages
+- [x] 23-01-PLAN.md — 404, 500, and offline error pages
 **UI hint**: yes
 
 ## Progress
@@ -370,6 +370,6 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 18. Upload & Processing | v2.0 | 2/2 | Complete    | 2026-04-10 |
 | 19. API Integration | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 20. Results Display | v2.0 | 2/2 | Complete    | 2026-04-10 |
-| 21. Dashboard | v2.0 | 0/1 | Not started | - |
-| 22. Settings & Profile | v2.0 | 0/1 | Not started | - |
-| 23. Error Handling | v2.0 | 0/1 | Not started | - |
+| 21. Dashboard | v2.0 | 1/1 | Complete    | 2026-04-10 |
+| 22. Settings & Profile | v2.0 | 1/1 | Complete    | 2026-04-10 |
+| 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
