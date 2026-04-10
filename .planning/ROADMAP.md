@@ -448,10 +448,10 @@ Plans:
   5. Live status pulse dots replace static indicators with ping animation throughout the page
   6. A neural wave loader animation runs during the predicting stage, evoking EEG/neural signal aesthetic
   7. All animations run at 60fps, respect the NeuroCut purple/cyan palette, and coexist with existing status information
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 30-01-PLAN.md — Neural wave loader component
-- [ ] 30-02-PLAN.md — Gap closure: progress bar, stepper, log panel, VRAM card, pulse dots
+- [x] 30-02-PLAN.md — Gap closure: progress bar, stepper, log panel, VRAM card, pulse dots
 **UI hint**: yes
 
 ### Phase 31: Hero Odyssey
@@ -590,7 +590,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
 | 28. Sliding Number Counters | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 29. Animated File Upload | v2.1 | 1/1 | Complete    | 2026-04-10 |
-| 30. Wave Loader | v2.1 | 0/1 | Planning | - |
+| 30. Wave Loader | v2.1 | 2/2 | Complete    | 2026-04-10 |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
