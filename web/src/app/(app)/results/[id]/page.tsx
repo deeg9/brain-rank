@@ -43,13 +43,6 @@ function extractFilename(url: string): string {
   }
 }
 
-function gradeFromScore(score: number): string {
-  if (score >= 0.9) return "S";
-  if (score >= 0.8) return "A";
-  if (score >= 0.7) return "B";
-  if (score >= 0.5) return "C";
-  return "D";
-}
 
 export default function ResultsDetailPage({ params }: Props) {
   const { id } = use(params);
@@ -192,7 +185,6 @@ export default function ResultsDetailPage({ params }: Props) {
         }
       : { attention: 0, reward: 0, emotional_processing: 0, social_cognition: 0 };
 
-  const grade = gradeFromScore(summary.overall);
   const filename = extractFilename(job.video_url);
 
   return (
@@ -221,71 +213,90 @@ export default function ResultsDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* Video Player Placeholder */}
-      <div className="bg-surface-container rounded-xl overflow-hidden">
-        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-          <div className="absolute inset-0 bg-surface-container-lowest flex items-center justify-center">
-            <div className="flex flex-col items-center gap-3 opacity-40">
-              <span className="material-symbols-outlined text-5xl text-on-surface">
-                play_circle
-              </span>
-              <span className="font-mono text-xs text-on-surface-variant">
-                {formatTimestamp(results.duration_seconds)}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* Video Player */}
+      <div className="bg-surface-container rounded-xl overflow-hidden flex justify-center">
+        <video
+          src={results.video_url}
+          controls
+          className="max-h-[400px] w-auto"
+          preload="metadata"
+        />
       </div>
 
       {/* Neural Activation Timeline */}
       <NeuralTimeline segments={segments} duration={results.duration_seconds} />
 
-      {/* Summary Score Cards */}
+      {/* Key Insights */}
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-12">
-          <div className="bg-surface-container rounded-xl p-8 flex items-center justify-between">
-            <div>
-              <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                Synthesized Score
-              </p>
-              <h4 className="font-headline text-3xl font-black italic">
-                {grade}-GRADE
-              </h4>
-            </div>
-            <div className="w-16 h-16 rounded-full border-4 border-tertiary-fixed flex items-center justify-center">
-              <span className="font-headline text-2xl font-black text-tertiary-fixed">
-                {Math.round(summary.overall * 100)}%
-              </span>
+          <div className="bg-surface-container rounded-xl p-8 glow-primary-lg animate-glow-pulse">
+            <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">
+              Key Insights
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-tertiary-fixed text-lg mt-0.5">insights</span>
+                <p className="text-on-surface">
+                  Peak engagement at <span className="font-bold text-primary">{summary.peak_second}s</span> — {Math.round(summary.peak_score * 100)}% activation
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-secondary text-lg mt-0.5">
+                  {summary.retention_score > summary.hook_score ? "trending_up" : "trending_down"}
+                </span>
+                <p className="text-on-surface">
+                  {summary.retention_score > summary.hook_score
+                    ? "Retention is stronger than hook — viewers who stay get more engaged"
+                    : "Hook is stronger than retention — strong opening, consider strengthening the ending"}
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-lg mt-0.5">group</span>
+                <p className="text-on-surface">
+                  {(() => {
+                    const topRegion = Object.entries(avgRegions).sort(([,a], [,b]) => b - a)[0];
+                    const labels: Record<string, string> = {
+                      attention: "Attention (Focus) dominates — content holds visual/auditory focus",
+                      reward: "Reward (Motivation) dominates — content triggers dopamine response",
+                      emotional_processing: "Emotional Processing dominates — content evokes strong emotional response",
+                      social_cognition: "Social Cognition dominates — content triggers social/relational processing",
+                    };
+                    return labels[topRegion[0]] || "Balanced regional activation";
+                  })()}
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Summary Stat Cards */}
-        <Card className="col-span-4 p-6">
+        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Hook Score
+            Hook Strength
           </p>
-          <p className="font-headline text-3xl font-bold text-secondary">
+          <p className="font-headline text-3xl font-bold text-secondary animate-score-in">
             {Math.round(summary.hook_score * 100)}%
           </p>
+          <p className="text-on-surface-variant text-xs mt-1">First 10s activation</p>
         </Card>
-        <Card className="col-span-4 p-6">
+        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
             Retention
           </p>
-          <p className="font-headline text-3xl font-bold text-tertiary-fixed">
+          <p className="font-headline text-3xl font-bold text-tertiary-fixed animate-score-in">
             {Math.round(summary.retention_score * 100)}%
           </p>
+          <p className="text-on-surface-variant text-xs mt-1">Last 10s activation</p>
         </Card>
-        <Card className="col-span-4 p-6">
+        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
             Peak Moment
           </p>
-          <p className="font-headline text-3xl font-bold text-primary">
+          <p className="font-headline text-3xl font-bold text-primary animate-score-in">
             {summary.peak_second}s
           </p>
           <p className="text-on-surface-variant text-xs mt-1">
-            Score: {Math.round(summary.peak_score * 100)}%
+            {Math.round(summary.peak_score * 100)}% activation
           </p>
         </Card>
       </div>

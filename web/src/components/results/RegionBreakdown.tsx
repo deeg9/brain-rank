@@ -61,9 +61,9 @@ export function RegionBreakdown({ regions }: RegionBreakdownProps) {
                   {pct}%
                 </span>
               </div>
-              <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden transition-all duration-500">
                 <div
-                  className={`h-full ${region.barColor} rounded-full`}
+                  className={`h-full ${region.barColor} rounded-full animate-bar-fill`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
