@@ -116,6 +116,25 @@ function StageItem({
   );
 }
 
+/* ---------- Animated number display ---------- */
+function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { damping: 30, stiffness: 80 });
+  const display = useTransform(springValue, (v) => v.toFixed(1));
+  const [displayText, setDisplayText] = React.useState("0.0");
+
+  React.useEffect(() => {
+    motionValue.set(value);
+  }, [value, motionValue]);
+
+  React.useEffect(() => {
+    const unsubscribe = display.on("change", (v) => setDisplayText(v));
+    return unsubscribe;
+  }, [display]);
+
+  return <>{displayText}{suffix}</>;
+}
+
 /* ---------- Main processing content ---------- */
 function ProcessingContent() {
   const searchParams = useSearchParams();
@@ -372,33 +391,69 @@ function ProcessingContent() {
       {/* Bottom Grid */}
       <div className="grid grid-cols-12 gap-6">
         {/* Inference Engine Logs */}
-        <div className="col-span-12 md:col-span-8 bg-surface-container-high rounded-xl p-6 h-64 flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">
-              Inference Engine Logs
-            </h3>
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75 animate-ping" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb]" />
-            </span>
+        <div className="col-span-12 md:col-span-8 bg-surface-container-high rounded-xl overflow-hidden h-64 flex flex-col">
+          {/* Terminal chrome header */}
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-container border-b border-outline-variant/10">
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+              <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+              <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+            </div>
+            <div className="flex-1 flex items-center justify-between ml-3">
+              <h3 className="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">
+                Inference Engine Logs
+              </h3>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75 animate-ping" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb]" />
+              </span>
+            </div>
           </div>
-          <div className="bg-surface-container-lowest rounded-lg p-4 flex-1 font-mono text-[10px] text-primary-dim/70 space-y-1 overflow-y-auto border-l-2 border-primary/30">
-            {logs.map((line, i) => (
-              <p
-                key={i}
-                className={
-                  line.includes("ENCODING_PASS") ? "text-secondary" : ""
-                }
-              >
-                {line}
-              </p>
-            ))}
+          {/* Log content with fade gradients */}
+          <div className="relative flex-1 overflow-hidden">
+            {/* Top fade */}
+            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-surface-container-lowest to-transparent z-10 pointer-events-none" />
+            {/* Bottom fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-surface-container-lowest to-transparent z-10 pointer-events-none" />
+            <div className="bg-surface-container-lowest p-4 h-full font-mono text-[10px] space-y-1 overflow-y-auto border-l-2 border-primary/30">
+              <AnimatePresence mode="popLayout">
+                {logs.map((line, i) => (
+                  <motion.p
+                    key={`${line}-${i}`}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 30 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                    className={
+                      line.includes("COMPLETE")
+                        ? "text-tertiary-fixed"
+                        : line.includes("ENCODING")
+                          ? "text-secondary"
+                          : line.includes("DETECTION") || line.includes("SPIKE")
+                            ? "text-amber-400"
+                            : "text-primary-dim/70"
+                    }
+                  >
+                    {line}
+                  </motion.p>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 
         {/* VRAM Load Card */}
-        <div className="col-span-12 md:col-span-4 glass-surface rounded-xl p-8 flex flex-col justify-between items-start">
-          <div className="space-y-4 w-full">
+        <div className="col-span-12 md:col-span-4 glass-surface rounded-xl p-8 flex flex-col justify-between items-start relative overflow-hidden">
+          {/* Orbiting halo */}
+          <motion.div
+            className="absolute w-16 h-16 rounded-full bg-secondary/10 blur-xl pointer-events-none"
+            animate={{
+              top: ["10%", "70%", "70%", "10%", "10%"],
+              left: ["10%", "10%", "80%", "80%", "10%"],
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          />
+          <div className="space-y-4 w-full relative z-10">
             <div className="flex items-center justify-between">
               <span className="material-symbols-outlined text-secondary-fixed text-3xl">
                 memory
@@ -409,20 +464,28 @@ function ProcessingContent() {
             </div>
             <div className="space-y-1">
               <div className="text-4xl font-headline font-bold text-on-surface">
-                14.2 GB
+                <AnimatedNumber value={14.2} suffix=" GB" />
               </div>
               <div className="text-xs text-on-surface-variant font-mono">
                 Of 24.0 GB Available
               </div>
             </div>
           </div>
-          <div className="w-full space-y-2 mt-auto pt-6">
+          <div className="w-full space-y-2 mt-auto pt-6 relative z-10">
             <div className="flex justify-between text-[10px] uppercase font-bold text-on-surface-variant">
               <span>Load Intensity</span>
               <span>88%</span>
             </div>
             <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden">
-              <div className="h-full w-[88%] bg-secondary rounded-full" />
+              <div className="h-full w-[88%] bg-secondary rounded-full relative overflow-hidden">
+                <div
+                  className="absolute inset-0 animate-shimmer"
+                  style={{
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+                    width: "50%",
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
