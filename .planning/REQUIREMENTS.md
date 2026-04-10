@@ -32,7 +32,7 @@ Requirements for Enhanced Brain Analytics milestone. Each maps to roadmap phases
 ### Functional Networks
 
 - [x] **NET-01**: Pipeline maps 5 new functional networks (visual, auditory, language, default mode, motion) from Destrieux atlas parcels
-- [ ] **NET-02**: User can see and toggle all 9 functional networks on the brain viewer with color-coded legend
+- [x] **NET-02**: User can see and toggle all 9 functional networks on the brain viewer with color-coded legend
 
 ### Data Pipeline
 
@@ -42,8 +42,8 @@ Requirements for Enhanced Brain Analytics milestone. Each maps to roadmap phases
 
 ### Arousal/Valence
 
-- [ ] **AV-01**: User can see arousal and valence composite scores on the results page
-- [ ] **AV-02**: User can see a circumplex chart plotting arousal vs valence with quadrant labels
+- [x] **AV-01**: User can see arousal and valence composite scores on the results page
+- [x] **AV-02**: User can see a circumplex chart plotting arousal vs valence with quadrant labels
 
 ## Future Requirements
 
@@ -83,12 +83,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-02 | Phase 36 | Complete |
 | VIZ-03 | Phase 36 | Complete |
 | NET-01 | Phase 33 | Complete |
-| NET-02 | Phase 37 | Pending |
+| NET-02 | Phase 37 | Complete |
 | DATA-01 | Phase 34 | Complete |
 | DATA-02 | Phase 33 | Complete |
 | DATA-03 | Phase 35 | Complete |
-| AV-01 | Phase 37 | Pending |
-| AV-02 | Phase 37 | Pending |
+| AV-01 | Phase 37 | Complete |
+| AV-02 | Phase 37 | Complete |
 
 **Coverage:**
 - v2.1 requirements: 6 total (mapped)

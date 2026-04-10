@@ -540,9 +540,9 @@ Plans:
   3. A color-coded legend lists all 9 functional networks with toggle switches that show/hide each network's activation on the brain viewer
   4. Toggling a network on highlights its vertices on the heatmap; toggling it off returns those vertices to the base color
 **UI hint**: yes
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 37-01-PLAN.md — Arousal/valence metric cards, circumplex chart, 9-network legend verification
+- [x] 37-01-PLAN.md — Arousal/valence metric cards, circumplex chart, 9-network legend verification
 
 ## Progress
 
@@ -592,4 +592,4 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 35. Unified GLB Mesh Export | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
-| 37. Arousal/Valence & Network Legend | v2.2 | 0/0 | Not started | - |
+| 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete   | 2026-04-10 |
