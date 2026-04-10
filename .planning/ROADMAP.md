@@ -514,7 +514,7 @@ Plans:
   3. Vertex i in the decoded activation array corresponds to vertex i in the GLB mesh (no index remapping needed at runtime)
 **Plans:** 1 plan
 Plans:
-- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
+- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
 
 ### Phase 36: Cortical Heatmap Viewer
 **Goal**: Users can see per-vertex activation intensity painted directly on the 3D brain surface and switch between heatmap and region-blob views
@@ -528,7 +528,7 @@ Plans:
 **UI hint**: yes
 **Plans:** 1 plan
 Plans:
-- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
+- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
 
 ### Phase 37: Arousal/Valence Display & Network Legend
 **Goal**: Users can see arousal and valence metrics and interact with all 9 functional networks on the results page
@@ -542,7 +542,7 @@ Plans:
 **UI hint**: yes
 **Plans:** 1 plan
 Plans:
-- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
+- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
 
 ## Progress
 
