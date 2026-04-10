@@ -99,5 +99,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-10T05:43:06.703Z
-Stopped at: Phase 25 context gathered
-Resume file: .planning/phases/25-synced-video-player-and-neural-timeline-scrubber/25-CONTEXT.md
+Stopped at: Phase 25 executed — synced video player + timeline scrubber
+Resume file: .planning/phases/25-synced-video-player-and-neural-timeline-scrubber/25-01-PLAN.md
