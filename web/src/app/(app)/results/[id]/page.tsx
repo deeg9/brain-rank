@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui";
@@ -14,6 +14,16 @@ import type { Job } from "@/lib/database.types";
 const NeuralTimeline = dynamic(
   () => import("@/components/results/NeuralTimeline").then(m => m.NeuralTimeline),
   { ssr: false, loading: () => <Skeleton variant="card" className="h-96" /> }
+);
+
+const VideoPlayer = dynamic(
+  () => import("@/components/results/VideoPlayer").then(m => m.VideoPlayer),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
+);
+
+const RegionValuesBar = dynamic(
+  () => import("@/components/results/RegionValuesBar").then(m => m.RegionValuesBar),
+  { ssr: false }
 );
 
 interface ResultsData {
@@ -49,6 +59,32 @@ export default function ResultsDetailPage({ params }: Props) {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Video-timeline sync state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) {
+      setCurrentTime(videoRef.current.currentTime);
+    }
+  }, []);
+
+  const handleSeek = useCallback((time: number) => {
+    if (videoRef.current) {
+      const clamped = Math.max(0, Math.min(time, videoRef.current.duration || 0));
+      videoRef.current.currentTime = clamped;
+      setCurrentTime(clamped);
+    }
+  }, []);
+
+  const handleLoadedMetadata = useCallback(() => {
+    if (videoRef.current) {
+      setVideoDuration(videoRef.current.duration);
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchJob() {
@@ -214,17 +250,28 @@ export default function ResultsDetailPage({ params }: Props) {
       </div>
 
       {/* Video Player */}
-      <div className="bg-surface-container rounded-xl overflow-hidden flex justify-center">
-        <video
-          src={results.video_url}
-          controls
-          className="max-h-[400px] w-auto"
-          preload="metadata"
-        />
-      </div>
+      <VideoPlayer
+        src={results.video_url}
+        videoRef={videoRef}
+        currentTime={currentTime}
+        duration={videoDuration}
+        isPlaying={isPlaying}
+        onTimeUpdate={handleTimeUpdate}
+        onPlayStateChange={setIsPlaying}
+        onSeek={handleSeek}
+        onLoadedMetadata={handleLoadedMetadata}
+      />
+
+      {/* Real-time Region Values */}
+      <RegionValuesBar segments={segments} currentTime={currentTime} />
 
       {/* Neural Activation Timeline */}
-      <NeuralTimeline segments={segments} duration={results.duration_seconds} />
+      <NeuralTimeline
+        segments={segments}
+        duration={results.duration_seconds}
+        currentTime={currentTime}
+        onSeek={handleSeek}
+      />
 
       {/* Key Insights */}
       <div className="grid grid-cols-12 gap-6">
