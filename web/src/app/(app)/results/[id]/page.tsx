@@ -30,6 +30,11 @@ const RegionValuesBar = dynamic(
   { ssr: false }
 );
 
+const BrainViewer = dynamic(
+  () => import("@/components/results/BrainViewer").then(m => m.BrainViewer),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
+);
+
 interface ResultsData {
   video_url: string;
   duration_seconds: number;
@@ -302,16 +307,19 @@ export default function ResultsDetailPage({ params }: Props) {
       {/* Real-time Region Values */}
       <RegionValuesBar segments={segments} currentTime={currentTime} />
 
+      {/* 3D Brain Activation Map */}
+      <BrainViewer segments={segments} currentTime={currentTime} />
+
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-12 gap-6">
         <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Hook Strength
+            Overall Score
           </p>
           <p className="font-headline text-3xl font-bold text-secondary animate-score-in">
-            {Math.round(summary.hook_score * 100)}%
+            {Math.round(summary.overall * 100)}%
           </p>
-          <p className="text-on-surface-variant text-xs mt-1">First 10s activation</p>
+          <p className="text-on-surface-variant text-xs mt-1">Brain activation score</p>
         </Card>
         <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
@@ -320,7 +328,7 @@ export default function ResultsDetailPage({ params }: Props) {
           <p className="font-headline text-3xl font-bold text-tertiary-fixed animate-score-in">
             {Math.round(summary.retention_score * 100)}%
           </p>
-          <p className="text-on-surface-variant text-xs mt-1">Last 10s activation</p>
+          <p className="text-on-surface-variant text-xs mt-1">Sustained activation</p>
         </Card>
         <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
