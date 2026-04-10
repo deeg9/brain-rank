@@ -52,6 +52,12 @@ class RegionScores(BaseModel):
     reward: float
     emotional_processing: float
     social_cognition: float
+    # New networks (Phase 33) -- default 0.0 for backward compatibility
+    visual_processing: float = 0.0
+    auditory_processing: float = 0.0
+    language_narrative: float = 0.0
+    default_mode: float = 0.0
+    motion_processing: float = 0.0
 
 
 class Segment(BaseModel):

@@ -20,10 +20,15 @@ DTYPE: str = "float32"
 VALUE_RANGE_MIN: float = -1.48
 VALUE_RANGE_MAX: float = 1.80
 
-# Target brain regions for NeuroCut
+# Target brain regions for NeuroCut (9 functional networks)
 NEUROCUT_REGIONS: list = [
     "attention",
     "reward",
     "emotional_processing",
     "social_cognition",
+    "visual_processing",
+    "auditory_processing",
+    "language_narrative",
+    "default_mode",
+    "motion_processing",
 ]

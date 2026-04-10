@@ -26,9 +26,13 @@ def test_value_range():
 # --- Task 2: Region definitions tests ---
 
 def test_region_definitions_keys():
-    """MODL-04: REGION_DEFINITIONS has exactly 4 NeuroCut target regions."""
+    """MODL-04: REGION_DEFINITIONS has exactly 9 NeuroCut target regions."""
     from region_mapping.regions import REGION_DEFINITIONS
-    expected = {"attention", "reward", "emotional_processing", "social_cognition"}
+    expected = {
+        "attention", "reward", "emotional_processing", "social_cognition",
+        "visual_processing", "auditory_processing", "language_narrative",
+        "default_mode", "motion_processing",
+    }
     assert set(REGION_DEFINITIONS.keys()) == expected
 
 
@@ -59,12 +63,16 @@ def test_label_names_valid():
 
 
 def test_region_masks_valid():
-    """MODL-04: build_region_masks() returns dict with 4 keys, each bool ndarray (20484,) with sum > 0."""
+    """MODL-04: build_region_masks() returns dict with 9 keys, each bool ndarray (20484,) with sum > 0."""
     pytest.importorskip("nilearn")
     from region_mapping.atlas import build_region_masks
 
     masks = build_region_masks()
-    assert set(masks.keys()) == {"attention", "reward", "emotional_processing", "social_cognition"}
+    assert set(masks.keys()) == {
+        "attention", "reward", "emotional_processing", "social_cognition",
+        "visual_processing", "auditory_processing", "language_narrative",
+        "default_mode", "motion_processing",
+    }
 
     for region, mask in masks.items():
         assert mask.dtype == np.bool_, f"{region} mask dtype is {mask.dtype}, expected bool"
@@ -87,7 +95,7 @@ def test_hemisphere_ordering():
 # --- Task 2: Scoring tests ---
 
 def test_region_scores_shape(mock_predictions):
-    """MODL-04: compute_region_scores returns dict with 4 keys, each value shape (61,)."""
+    """MODL-04: compute_region_scores returns dict with 9 keys, each value shape (61,)."""
     pytest.importorskip("nilearn")
     from region_mapping.atlas import build_region_masks
     from region_mapping.scoring import compute_region_scores
@@ -95,7 +103,11 @@ def test_region_scores_shape(mock_predictions):
     masks = build_region_masks()
     scores = compute_region_scores(mock_predictions, masks)
 
-    assert set(scores.keys()) == {"attention", "reward", "emotional_processing", "social_cognition"}
+    assert set(scores.keys()) == {
+        "attention", "reward", "emotional_processing", "social_cognition",
+        "visual_processing", "auditory_processing", "language_narrative",
+        "default_mode", "motion_processing",
+    }
     for region, values in scores.items():
         assert values.shape == (61,), f"{region} scores shape is {values.shape}"
 
@@ -132,3 +144,28 @@ def test_hrf_alignment_values(mock_predictions):
     from region_mapping.temporal import align_to_stimulus
     aligned = align_to_stimulus(mock_predictions)
     np.testing.assert_array_equal(aligned[0], mock_predictions[5])
+
+
+# --- Phase 33: Network expansion tests ---
+
+def test_region_definitions_has_nine_networks():
+    """NET-01: REGION_DEFINITIONS contains exactly 9 functional networks."""
+    from region_mapping.regions import REGION_DEFINITIONS
+    assert len(REGION_DEFINITIONS) == 9
+
+
+def test_backward_compatibility_region_scores():
+    """DATA-02: Old 4-region payloads still parse with new defaults."""
+    from schema import RegionScores
+    old_payload = {
+        "attention": 0.5,
+        "reward": 0.3,
+        "emotional_processing": 0.4,
+        "social_cognition": 0.6,
+    }
+    scores = RegionScores(**old_payload)
+    assert scores.visual_processing == 0.0
+    assert scores.auditory_processing == 0.0
+    assert scores.language_narrative == 0.0
+    assert scores.default_mode == 0.0
+    assert scores.motion_processing == 0.0

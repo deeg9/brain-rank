@@ -152,12 +152,7 @@ def postprocess(
             activation_score=activation_score,
             arousal=arousal,
             valence=valence,
-            regions=RegionScores(
-                attention=region_vals["attention"],
-                reward=region_vals["reward"],
-                emotional_processing=region_vals["emotional_processing"],
-                social_cognition=region_vals["social_cognition"],
-            ),
+            regions=RegionScores(**region_vals),
         )
         output_segments.append(seg)
 
