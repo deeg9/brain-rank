@@ -488,9 +488,9 @@ Plans:
   1. The regions.py module defines vertex masks for 5 new functional networks (visual processing, auditory processing, language/narrative, default mode, motion processing) using Destrieux atlas parcels
   2. The API response schema includes all 9 functional network scores per segment while existing 4-region jobs still parse correctly without client changes
   3. Running inference on a test video returns scores for all 9 networks with plausible differentiation (not all identical values)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 33-01-PLAN.md — Add 5 new functional networks (backend + frontend) and update API schema
+- [x] 33-01-PLAN.md — Add 5 new functional networks (backend + frontend) and update API schema
 
 ### Phase 34: Vertex Data Pipeline
 **Goal**: Per-vertex activation data is transmitted efficiently as quantized uint8 base64-encoded payloads instead of raw float arrays
@@ -580,7 +580,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
-| 33. Functional Network Expansion | v2.2 | 0/0 | Not started | - |
+| 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 34. Vertex Data Pipeline | v2.2 | 0/0 | Not started | - |
 | 35. Unified GLB Mesh Export | v2.2 | 0/0 | Not started | - |
 | 36. Cortical Heatmap Viewer | v2.2 | 0/0 | Not started | - |

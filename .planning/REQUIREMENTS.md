@@ -31,13 +31,13 @@ Requirements for Enhanced Brain Analytics milestone. Each maps to roadmap phases
 
 ### Functional Networks
 
-- [ ] **NET-01**: Pipeline maps 5 new functional networks (visual, auditory, language, default mode, motion) from Destrieux atlas parcels
+- [x] **NET-01**: Pipeline maps 5 new functional networks (visual, auditory, language, default mode, motion) from Destrieux atlas parcels
 - [ ] **NET-02**: User can see and toggle all 9 functional networks on the brain viewer with color-coded legend
 
 ### Data Pipeline
 
 - [ ] **DATA-01**: Pipeline sends per-vertex activation data as quantized uint8 base64 to minimize payload size
-- [ ] **DATA-02**: API schema supports 9 functional network region scores while remaining backward-compatible with existing 4-region jobs
+- [x] **DATA-02**: API schema supports 9 functional network region scores while remaining backward-compatible with existing 4-region jobs
 - [ ] **DATA-03**: A unified GLB mesh with 20,484 vertices preserving fsaverage5 ordering exists for heatmap rendering
 
 ### Arousal/Valence
@@ -82,10 +82,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-01 | Phase 36 | Pending |
 | VIZ-02 | Phase 36 | Pending |
 | VIZ-03 | Phase 36 | Pending |
-| NET-01 | Phase 33 | Pending |
+| NET-01 | Phase 33 | Complete |
 | NET-02 | Phase 37 | Pending |
 | DATA-01 | Phase 34 | Pending |
-| DATA-02 | Phase 33 | Pending |
+| DATA-02 | Phase 33 | Complete |
 | DATA-03 | Phase 35 | Pending |
 | AV-01 | Phase 37 | Pending |
 | AV-02 | Phase 37 | Pending |
