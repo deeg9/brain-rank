@@ -9,6 +9,7 @@ import type { SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
 
 import { formatTimestamp } from "@/lib/results";
+import { SlidingNumber } from "@/components/ui/SlidingNumber";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import type { Job } from "@/lib/database.types";

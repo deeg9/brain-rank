@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui';
+import { SlidingNumber } from '@/components/ui/SlidingNumber';
 import { type BenchmarkResult, getTier } from '@/lib/benchmark';
 
 interface BenchmarkCardsProps {
@@ -57,7 +58,7 @@ export function BenchmarkCards({ benchmark }: BenchmarkCardsProps) {
 
             <div className="flex items-end gap-2 mb-1">
               <p className="font-headline text-2xl font-bold text-on-surface">
-                {Math.round(userScore * 100)}%
+                <SlidingNumber value={Math.round(userScore * 100)} suffix="%" />
               </p>
               <span className={`material-symbols-outlined text-lg ${deltaColor}`}>
                 {deltaIcon}

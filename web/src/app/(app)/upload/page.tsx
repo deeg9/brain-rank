@@ -1,117 +1,108 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Card } from "@/components/ui/Card";
+import {
+  AnimatedFileUpload,
+  type FileItem,
+} from "@/components/upload/AnimatedFileUpload";
 import { uploadVideo } from "@/lib/upload";
 import { createJob } from "./actions";
 
-const ACCEPTED_TYPES = [
-  "video/mp4",
-  "video/quicktime",
-  "video/x-msvideo",
-  "video/x-matroska",
-];
-const MAX_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
-
-function validateFile(file: File): { valid: boolean; error?: string } {
-  if (!ACCEPTED_TYPES.includes(file.type)) {
-    return {
-      valid: false,
-      error: "Unsupported format. Please upload MP4, MOV, AVI, or MKV.",
-    };
-  }
-  if (file.size > MAX_SIZE) {
-    return { valid: false, error: "File too large. Maximum size is 2GB." };
-  }
-  return { valid: true };
-}
-
-function formatSize(bytes: number): string {
-  if (bytes >= 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-  }
-  if (bytes >= 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-  return `${(bytes / 1024).toFixed(1)} KB`;
-}
-
 export default function UploadPage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [file, setFile] = useState<File | null>(null);
-  const [dragActive, setDragActive] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleFile(f: File) {
-    setError(null);
-    const result = validateFile(f);
-    if (!result.valid) {
-      setError(result.error ?? "Invalid file.");
-      setFile(null);
-      return;
-    }
-    setFile(f);
+  const handleFilesAdd = useCallback((incoming: File[]) => {
+    const newItems: FileItem[] = incoming.map((file) => ({
+      id: crypto.randomUUID(),
+      file,
+      progress: 0,
+      status: "pending" as const,
+    }));
+    setFiles((prev) => [...prev, ...newItems]);
+  }, []);
+
+  const handleFileRemove = useCallback((id: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  const handleThumbnailGenerated = useCallback(
+    (id: string, dataUrl: string) => {
+      setFiles((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, thumbnail: dataUrl } : f))
+      );
+    },
+    []
+  );
+
+  function updateFileProgress(id: string, progress: number) {
+    setFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, progress } : f))
+    );
   }
 
-  function handleDragEnter(e: React.DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(true);
-  }
-
-  function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-  }
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile) handleFile(droppedFile);
-  }
-
-  function handleBrowse() {
-    fileInputRef.current?.click();
-  }
-
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files?.[0];
-    if (selected) handleFile(selected);
-  }
-
-  function handleRemove() {
-    setFile(null);
-    setError(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  function updateFileStatus(
+    id: string,
+    status: FileItem["status"],
+    errorMsg?: string
+  ) {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id ? { ...f, status, error: errorMsg } : f
+      )
+    );
   }
 
   async function handleAnalyze() {
-    if (!file) return;
+    if (files.length === 0) return;
     setUploading(true);
     setError(null);
-    try {
-      const videoUrl = await uploadVideo(file);
-      const jobId = await createJob(videoUrl);
-      router.push(`/processing?jobId=${jobId}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-      setUploading(false);
+
+    let lastJobId: string | null = null;
+
+    for (const item of files) {
+      try {
+        updateFileStatus(item.id, "uploading");
+
+        // Simulate progress while uploading
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress = Math.min(progress + 5, 90);
+          updateFileProgress(item.id, progress);
+        }, 200);
+
+        const videoUrl = await uploadVideo(item.file);
+        clearInterval(interval);
+        updateFileProgress(item.id, 100);
+        updateFileStatus(item.id, "complete");
+
+        const jobId = await createJob(videoUrl);
+        lastJobId = jobId;
+      } catch (err) {
+        updateFileStatus(
+          item.id,
+          "error",
+          err instanceof Error ? err.message : "Upload failed."
+        );
+        setError(err instanceof Error ? err.message : "Upload failed.");
+        setUploading(false);
+        return;
+      }
+    }
+
+    if (lastJobId) {
+      router.push(`/processing?jobId=${lastJobId}`);
     }
   }
+
+  const totalCredits = files.length * 10;
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -121,84 +112,23 @@ export default function UploadPage() {
           Upload Analysis
         </h2>
         <p className="text-on-surface-variant font-body">
-          Supported formats: MP4, MOV, AVI, MKV.{" "}
+          Supported formats: MP4, WebM, MOV.{" "}
           <span className="text-primary-dim/80">Max 2GB, 30 min runtime.</span>
         </p>
       </header>
 
-      {/* Upload Drop Zone */}
-      <section className="relative group">
-        {file ? (
-          /* Selected file preview */
-          <div className="w-full rounded-xl bg-surface-container-high border-2 border-dashed border-primary-dim/50 p-12 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/40">
-                <span className="material-symbols-outlined text-3xl text-primary-dim">
-                  movie
-                </span>
-              </div>
-              <div>
-                <p className="font-headline font-semibold text-on-surface text-lg">
-                  {file.name}
-                </p>
-                <p className="text-on-surface-variant text-sm">
-                  {formatSize(file.size)}
-                </p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" onClick={handleRemove}>
-              Remove
-            </Button>
-          </div>
-        ) : (
-          /* Drop zone */
-          <div
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            className={`w-full h-80 rounded-xl bg-surface-container-high border-2 border-dashed flex flex-col items-center justify-center p-12 text-center transition-all dot-grid overflow-hidden ${
-              dragActive
-                ? "border-primary-dim/50"
-                : "border-outline-variant/30 hover:border-primary-dim/50"
-            }`}
-          >
-            {/* Inner glow */}
-            <div
-              className={`absolute inset-0 pointer-events-none bg-gradient-to-b from-primary-dim/5 to-transparent transition-opacity ${
-                dragActive
-                  ? "opacity-100"
-                  : "opacity-0 group-hover:opacity-100"
-              }`}
-            />
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-6 border border-outline-variant/40">
-                <span className="material-symbols-outlined text-3xl text-primary-dim">
-                  cloud_upload
-                </span>
-              </div>
-              <h3 className="text-xl font-headline font-semibold mb-2">
-                Drag video here or click to browse
-              </h3>
-              <p className="text-on-surface-variant text-sm mb-8">
-                Supported formats: MP4, MOV, AVI, MKV. Max 2GB, 30 min runtime.
-              </p>
-              <Button variant="secondary" size="md" onClick={handleBrowse}>
-                Browse Files
-              </Button>
-            </div>
-          </div>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="video/*"
-          className="hidden"
-          onChange={handleInputChange}
+      {/* Animated Upload Zone */}
+      <section>
+        <AnimatedFileUpload
+          files={files}
+          onFilesAdd={handleFilesAdd}
+          onFileRemove={handleFileRemove}
+          onThumbnailGenerated={handleThumbnailGenerated}
+          disabled={uploading}
         />
       </section>
 
-      {/* Validation error */}
+      {/* Error display */}
       {error && (
         <p className="text-error text-sm -mt-8">{error}</p>
       )}
@@ -215,7 +145,9 @@ export default function UploadPage() {
                 Estimated Cost
               </p>
               <p className="text-lg font-headline font-bold text-on-surface">
-                10 Credits
+                {files.length > 0
+                  ? `10 Credits x ${files.length} file${files.length === 1 ? "" : "s"} = ${totalCredits} Credits`
+                  : "10 Credits"}
               </p>
             </div>
           </div>
@@ -224,7 +156,7 @@ export default function UploadPage() {
             variant="primary"
             size="lg"
             loading={uploading}
-            disabled={!file || uploading}
+            disabled={files.length === 0 || uploading}
             onClick={handleAnalyze}
             className="!w-auto px-10 py-4"
           >

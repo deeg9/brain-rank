@@ -202,8 +202,10 @@ export default function ResultsPage() {
             label="Overall Score"
             value={Math.round(summary.overall * 100)}
             icon="analytics"
-            colorClass="text-on-surface animate-score-in"
+            colorClass="text-on-surface"
             className="glass-surface glow-primary-lg"
+            animate
+            numericValue={Math.round(summary.overall * 100)}
           />
           <div className="grid grid-cols-2 gap-4">
             <MetricCard
@@ -211,12 +213,17 @@ export default function ResultsPage() {
               value={Math.round(summary.hook_score * 100)}
               colorClass="text-secondary"
               className="p-5 glass-surface"
+              animate
+              numericValue={Math.round(summary.hook_score * 100)}
             />
             <MetricCard
               label="Retention"
               value={`${Math.round(summary.retention_score * 100)}%`}
               colorClass="text-tertiary-fixed-dim"
               className="p-5 glass-surface"
+              animate
+              numericValue={Math.round(summary.retention_score * 100)}
+              suffix="%"
             />
           </div>
           <MetricCard
