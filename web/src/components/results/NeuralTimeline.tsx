@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   AreaChart,
   Area,
@@ -183,6 +183,44 @@ interface NeuralTimelineProps {
 }
 
 export function NeuralTimeline({ segments, duration, currentTime, onSeek }: NeuralTimelineProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const getTimeFromMouseEvent = useCallback((e: React.MouseEvent | MouseEvent) => {
+    const container = containerRef.current;
+    if (!container || !onSeek) return;
+    // The chart area starts after the label column (w-20 = 80px) + gap (8px) + y-axis (32px)
+    const rect = container.getBoundingClientRect();
+    const chartLeft = 80 + 8 + 32; // label width + gap + y-axis
+    const chartRight = 8; // right margin
+    const chartWidth = rect.width - chartLeft - chartRight;
+    const x = e.clientX - rect.left - chartLeft;
+    const ratio = Math.max(0, Math.min(1, x / chartWidth));
+    return ratio * duration;
+  }, [duration, onSeek]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!onSeek) return;
+    isDragging.current = true;
+    const time = getTimeFromMouseEvent(e);
+    if (time !== undefined) onSeek(time);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const time = getTimeFromMouseEvent(e);
+      if (time !== undefined) onSeek(time);
+    };
+
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  }, [onSeek, getTimeFromMouseEvent]);
+
   const trackData = TRACK_CONFIG.map(config => ({
     ...config,
     data: toTimelineData(segments, config.key),
@@ -199,7 +237,12 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek }: Neur
         <h3 className="font-headline text-lg font-bold">Neural Activation Timeline</h3>
       </div>
 
-      <div className="space-y-1">
+      <div
+        ref={containerRef}
+        className="space-y-1 relative select-none"
+        style={{ cursor: onSeek ? 'crosshair' : undefined }}
+        onMouseDown={handleMouseDown}
+      >
         {trackData.map((track, index) => (
           <SingleTrack
             key={track.key}
