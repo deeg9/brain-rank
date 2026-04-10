@@ -1,67 +1,35 @@
 ---
 phase: 30-wave-loader
-verified: 2026-04-10T17:00:00Z
-status: gaps_found
-score: 2/7 must-haves verified
+verified: 2026-04-10T18:30:00Z
+status: human_needed
+score: 7/7 must-haves verified
 overrides_applied: 0
-gaps:
-  - truth: "Progress bar uses Framer Motion spring animation with a traveling shimmer/glow sweep effect"
-    status: failed
-    reason: "Progress bar still uses static CSS transition-all with no Framer Motion, no spring physics, no shimmer effect"
-    artifacts:
-      - path: "web/src/app/(app)/processing/page.tsx"
-        issue: "Progress bar at line 300-305 uses plain CSS transition, no motion.div or spring animation"
-    missing:
-      - "Replace static div with motion.div using spring transition for width animation"
-      - "Add CSS shimmer/glow sweep keyframe overlay on the progress bar"
-  - truth: "Pipeline stage stepper has connected lines, animated checkmarks, and a pulsing active indicator replacing the flat grid"
-    status: failed
-    reason: "Stage rendering is unchanged -- still a flat grid with static check_circle icons and animate-spin sync icon"
-    artifacts:
-      - path: "web/src/app/(app)/processing/page.tsx"
-        issue: "StageItem component (lines 38-80) uses static Material Symbols icons, no connected lines, no animated checkmarks, no pulsing indicator"
-    missing:
-      - "Horizontal stepper layout with connected line segments between steps"
-      - "Framer Motion animated checkmark icons for completed stages"
-      - "Pulsing ring border on active stage indicator"
-  - truth: "Inference log panel has terminal chrome (macOS dots), AnimatePresence line entries, color-coded prefixes, and top/bottom fade gradients"
-    status: failed
-    reason: "Log panel is unchanged -- no terminal chrome header, no AnimatePresence, minimal color coding (only ENCODING_PASS highlighted), no fade gradients"
-    artifacts:
-      - path: "web/src/app/(app)/processing/page.tsx"
-        issue: "Log panel (lines 323-341) has no macOS dot header, uses static p elements not motion elements, only one color condition"
-    missing:
-      - "Terminal chrome header with macOS-style red/yellow/green dots"
-      - "AnimatePresence with spring slide-in for new log entries"
-      - "Color-coded prefixes for COMPLETE, ENCODING, DETECTION/SPIKE lines"
-      - "Top and bottom fade gradients on the log scroll area"
-  - truth: "VRAM stat card has animated number counting, orbiting halo glow, and shimmer on the load intensity bar"
-    status: failed
-    reason: "VRAM card is unchanged -- static '14.2 GB' text, no animated counting, no orbiting halo, no shimmer on load bar"
-    artifacts:
-      - path: "web/src/app/(app)/processing/page.tsx"
-        issue: "VRAM card (lines 345-373) is entirely static with no Framer Motion elements"
-    missing:
-      - "useSpring + useTransform for animated number counting effect"
-      - "motion.div orbiting halo element around card edges"
-      - "Shimmer effect on load intensity progress bar"
-  - truth: "Live status pulse dots replace static indicators with ping animation throughout the page"
-    status: failed
-    reason: "Only one dot (log panel live indicator at line 329) has a glow effect. Footer dots and compute node badge have no ping animation."
-    artifacts:
-      - path: "web/src/app/(app)/processing/page.tsx"
-        issue: "Footer dots (line 389) are static div elements with no animate-ping pattern"
-    missing:
-      - "Replace all static dots with ping animation pattern (relative span with absolute animate-ping overlay)"
-      - "Add breathing glow animation to compute node badge"
+re_verification:
+  previous_status: gaps_found
+  previous_score: 2/7
+  gaps_closed:
+    - "Progress bar uses Framer Motion spring animation with a traveling shimmer/glow sweep effect"
+    - "Pipeline stage stepper has connected lines, animated checkmarks, and a pulsing active indicator replacing the flat grid"
+    - "Inference log panel has terminal chrome (macOS dots), AnimatePresence line entries, color-coded prefixes, and top/bottom fade gradients"
+    - "VRAM stat card has animated number counting, orbiting halo glow, and shimmer on the load intensity bar"
+    - "Live status pulse dots replace static indicators with ping animation throughout the page"
+  gaps_remaining: []
+  regressions: []
+human_verification:
+  - test: "Navigate to the processing page while a job is active. Observe all animations running simultaneously."
+    expected: "Wave loader bars animate smoothly, progress bar has visible shimmer sweep and growing glow, stepper shows animated checkmarks on completed steps with pulsing ring on active step, log entries slide in from left, VRAM number counts up smoothly, orbiting halo moves around the card, all dots pulse with ping animation, compute node badge has breathing glow."
+    why_human: "Animation smoothness, visual polish quality, and overall aesthetic coherence cannot be verified programmatically."
+  - test: "Open browser DevTools Performance tab while processing page is active with all animations running."
+    expected: "Frame rate stays at or near 60fps with no jank or excessive layout thrashing from simultaneous Framer Motion springs and CSS animations."
+    why_human: "Performance profiling under real concurrent animation load requires a running browser with DevTools."
 ---
 
 # Phase 30: Processing Page Premium Polish Verification Report
 
 **Phase Goal:** The processing page is elevated from functional to premium with animated progress bar, kinetic log stream, pipeline stepper with motion, VRAM stat card with glow effects, live pulse indicators, and a neural wave loader
-**Verified:** 2026-04-10T17:00:00Z
-**Status:** gaps_found
-**Re-verification:** No -- initial verification
+**Verified:** 2026-04-10T18:30:00Z
+**Status:** human_needed
+**Re-verification:** Yes -- after gap closure (5 gaps closed, 0 remaining, 0 regressions)
 
 ## Goal Achievement
 
@@ -69,15 +37,15 @@ gaps:
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | Progress bar uses Framer Motion spring animation with a traveling shimmer/glow sweep effect | FAILED | Progress bar at line 300 uses plain CSS transition-all, no motion.div or shimmer |
-| 2 | Pipeline stage stepper has connected lines, animated checkmarks, and a pulsing active indicator | FAILED | StageItem (lines 38-80) unchanged -- flat grid with static icons |
-| 3 | Inference log panel has terminal chrome, AnimatePresence entries, color-coded prefixes, fade gradients | FAILED | Log panel (lines 323-341) is static, no terminal chrome, no AnimatePresence |
-| 4 | VRAM stat card has animated number counting, orbiting halo glow, and shimmer | FAILED | VRAM card (lines 345-373) entirely static, no Framer Motion |
-| 5 | Live status pulse dots replace static indicators with ping animation | FAILED | Only log panel dot has glow; footer dots and compute badge are static |
-| 6 | Neural wave loader animation runs during processing, evoking EEG/neural signal aesthetic | VERIFIED | WaveLoader.tsx (47 lines) renders 10 animated bars with Framer Motion scaleY, alternating bg-primary/bg-secondary, integrated at lines 234 and 296 of processing page |
-| 7 | All animations run at 60fps, respect NeuroCut purple/cyan palette, coexist with existing status info | PARTIAL | WaveLoader uses correct palette and coexists with all existing elements; other 5 animation features not implemented so cannot fully assess |
+| 1 | Progress bar uses Framer Motion spring animation with a traveling shimmer/glow sweep effect | VERIFIED | Line 357-374: motion.div with spring (damping 10, stiffness 100, mass 0.75), animate-shimmer overlay, intensity-proportional boxShadow |
+| 2 | Pipeline stage stepper has connected lines, animated checkmarks, and a pulsing active indicator | VERIFIED | Lines 40-116: StageItem with motion.div spring-animated checkmarks (scale 0 to 1), pulsing ring (animate-ping) on active step, neural-gradient connecting lines with scaleX animation |
+| 3 | Inference log panel has terminal chrome, AnimatePresence entries, color-coded prefixes, fade gradients | VERIFIED | Lines 394-442: macOS dots (#ff5f57, #febc2e, #28c840), AnimatePresence mode="popLayout" with spring slide-in (x:-30), 4-tier color coding (COMPLETE=tertiary-fixed, ENCODING=secondary, DETECTION/SPIKE=amber-400, default=primary-dim/70), top+bottom fade gradients |
+| 4 | VRAM stat card has animated number counting, orbiting halo glow, and shimmer on load intensity bar | VERIFIED | Lines 120-136: AnimatedNumber using useMotionValue+useSpring+useTransform chain. Lines 447-455: orbiting halo motion.div on 10s loop. Lines 480-487: animate-shimmer on load intensity bar |
+| 5 | Live status pulse dots replace static indicators with ping animation throughout the page | VERIFIED | Line 83: stepper active step animate-ping ring. Lines 406-409: log panel live dot with animate-ping. Lines 507-509: footer dot with animate-ping. Line 313: compute node badge with animate-breathing-glow |
+| 6 | A neural wave loader animation runs during the predicting stage, evoking EEG/neural signal aesthetic | VERIFIED | WaveLoader.tsx: 47 lines, 10 bars with Framer Motion scaleY [0.3,1,0.3], alternating bg-primary/bg-secondary, staggered delays. Rendered at line 290 (loading state) and line 352 (active processing) |
+| 7 | All animations run at 60fps, respect the NeuroCut purple/cyan palette, and coexist with existing status information | VERIFIED | Colors use design system tokens (bg-primary=#ba9eff, bg-secondary=#5af8fb). All existing elements confirmed present: progress percentage (line 342), stage stepper (line 379), log panel, VRAM card, cancel button (line 501), polling logic unchanged. 60fps requires human verification. |
 
-**Score:** 2/7 truths verified (SC #6 verified, SC #7 partial -- counted as pass for WaveLoader portion only)
+**Score:** 7/7 truths verified
 
 ### Required Artifacts
 
@@ -85,17 +53,21 @@ gaps:
 |----------|----------|--------|---------|
 | `web/src/components/ui/WaveLoader.tsx` | Animated wave loader with Framer Motion | VERIFIED | 47 lines, exports WaveLoader, uses motion.div with scaleY animation, staggered delays, opacity depth gradient |
 | `web/src/components/ui/index.ts` | Re-export of WaveLoader | VERIFIED | Line 8: `export { WaveLoader } from "./WaveLoader"` |
-| `web/src/app/(app)/processing/page.tsx` | Processing page with WaveLoader integrated | VERIFIED | Imports WaveLoader (line 5), renders in loading state (line 234) and active processing state (line 296) |
+| `web/src/app/(app)/processing/page.tsx` | Processing page with all premium polish upgrades | VERIFIED | 534 lines, imports motion/AnimatePresence/useSpring/useTransform/useMotionValue, contains all 7 success criteria features |
+| `web/src/app/globals.css` | CSS shimmer and breathing-glow keyframes | VERIFIED | Lines 152-167: @keyframes shimmer and @keyframes breathing-glow with utility classes |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| processing/page.tsx | WaveLoader.tsx | import from @/components/ui | WIRED | Line 5: `import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui"` |
+| processing/page.tsx | WaveLoader.tsx | import from @/components/ui | WIRED | Line 6: destructured import alongside Button, StatusBadge, Skeleton |
+| processing/page.tsx | framer-motion | import motion, AnimatePresence, useSpring, useTransform, useMotionValue | WIRED | Line 5: all 5 exports imported and used throughout |
+| processing/page.tsx | @/lib/utils | import cn | WIRED | Line 7: cn used in StageItem for conditional class merging |
+| globals.css | processing/page.tsx | animate-shimmer, animate-breathing-glow classes | WIRED | Classes used at lines 313, 368, 482 in page; defined at lines 157, 166 in CSS |
 
 ### Data-Flow Trace (Level 4)
 
-WaveLoader is a purely presentational animation component with no dynamic data dependencies. Level 4 trace not applicable.
+All new elements are purely presentational animations with no dynamic data dependencies. The existing data flows (polling via fetchJobStatus, progress via getStageProgress) remain unchanged. No data disconnections introduced.
 
 ### Behavioral Spot-Checks
 
@@ -105,39 +77,33 @@ Step 7b: SKIPPED -- UI animation components cannot be tested without a running b
 
 | Requirement | Source Plan | Description | Status | Evidence |
 |-------------|------------|-------------|--------|----------|
-| COMP-03 | 30-01-PLAN.md | Processing page premium polish | PARTIAL | Only 1 of 6 planned upgrades (WaveLoader) was implemented |
+| COMP-03 | 30-01, 30-02 | Processing page premium polish | SATISFIED | All 7 success criteria verified: wave loader, animated progress bar, pipeline stepper, kinetic log stream, VRAM card effects, pulse dots, palette/coexistence |
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 |------|------|---------|----------|--------|
-| (none) | -- | -- | -- | No anti-patterns found in modified files |
+| (none) | -- | -- | -- | No anti-patterns found in any modified files |
 
 ### Human Verification Required
 
-### 1. WaveLoader Visual Quality
-**Test:** Navigate to the processing page while a job is active (or in loading state). Observe the wave animation.
-**Expected:** 10 vertical bars animate with a smooth wave propagation effect, alternating purple (#ba9eff) and cyan (#5af8fb) colors. Center bars should be slightly more opaque than edge bars. Animation should feel smooth and neural/EEG-like.
-**Why human:** Visual aesthetics and animation smoothness cannot be verified programmatically.
+### 1. Animation Quality and Coherence
+**Test:** Navigate to the processing page while a job is active. Observe all animations running simultaneously.
+**Expected:** Wave loader bars animate with smooth wave propagation, progress bar has visible shimmer sweep and growing glow shadow, stepper shows spring-animated checkmarks on completed steps with pulsing ring on active step, log entries slide in from left with spring physics, VRAM number counts up smoothly, orbiting halo drifts around the card, all dots pulse with ping animation, compute node badge has breathing glow.
+**Why human:** Animation smoothness, visual polish quality, and overall aesthetic coherence cannot be verified programmatically.
 
-### 2. WaveLoader Performance
-**Test:** Open browser DevTools performance tab while the processing page is active. Check for frame drops.
-**Expected:** Animation maintains 60fps with no jank or excessive paint operations.
-**Why human:** Performance profiling requires a running browser with DevTools.
+### 2. Animation Performance Under Load
+**Test:** Open browser DevTools Performance tab while the processing page is active with all animations running simultaneously.
+**Expected:** Frame rate stays at or near 60fps with no jank or excessive layout thrashing from simultaneous Framer Motion springs and CSS animations.
+**Why human:** Performance profiling under real concurrent animation load requires a running browser with DevTools.
 
 ### Gaps Summary
 
-Plan 01 only implemented 1 of the 7 roadmap success criteria for Phase 30. The WaveLoader component (SC #6) is fully implemented and properly wired. However, the following 5 premium polish features defined in the roadmap remain entirely unimplemented:
+All 5 previously identified gaps have been closed by plan 30-02. No new gaps found. No regressions detected in previously passing items (WaveLoader component, palette usage, existing status elements).
 
-1. **Animated progress bar** (SC #1) -- still uses static CSS transition
-2. **Pipeline stage stepper** (SC #2) -- still a flat grid with static icons
-3. **Kinetic log stream** (SC #3) -- no terminal chrome, no AnimatePresence, minimal color coding
-4. **VRAM stat card effects** (SC #4) -- entirely static, no animated counting or halo
-5. **Live pulse dots** (SC #5) -- only one dot has glow, rest are static
-
-These gaps represent the bulk of the phase's intended work. The phase goal of "elevating from functional to premium" is not yet achieved -- only one visual enhancement was added. Additional plans (30-02 through 30-06) are needed to complete the remaining success criteria.
+The phase goal of elevating the processing page from functional to premium is achieved at the code level. Human verification is needed only to confirm visual quality and animation performance.
 
 ---
 
-_Verified: 2026-04-10T17:00:00Z_
+_Verified: 2026-04-10T18:30:00Z_
 _Verifier: Claude (gsd-verifier)_
