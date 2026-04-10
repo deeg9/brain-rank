@@ -10,6 +10,7 @@ import { ExportButton } from "@/components/results/ExportButton";
 
 import { formatTimestamp } from "@/lib/results";
 import { SlidingNumber } from "@/components/ui/SlidingNumber";
+import { BenchmarkCards } from "@/components/results/BenchmarkCards";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import type { Job } from "@/lib/database.types";
@@ -315,6 +316,42 @@ export default function ResultsDetailPage({ params }: Props) {
         />
         <BrainViewer segments={segments} currentTime={currentTime} />
       </div>
+
+      {/* Summary Stat Cards */}
+      <div className="grid grid-cols-3 gap-6">
+        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
+          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
+            Hook Strength
+          </p>
+          <p className="font-headline text-3xl font-bold text-secondary">
+            <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
+          </p>
+          <p className="text-on-surface-variant text-xs mt-1">First 10s activation</p>
+        </Card>
+        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
+          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
+            Retention
+          </p>
+          <p className="font-headline text-3xl font-bold text-tertiary-fixed">
+            <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
+          </p>
+          <p className="text-on-surface-variant text-xs mt-1">Last 10s activation</p>
+        </Card>
+        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
+          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
+            Peak Moment
+          </p>
+          <p className="font-headline text-3xl font-bold text-primary">
+            <SlidingNumber value={summary.peak_second} suffix="s" />
+          </p>
+          <p className="text-on-surface-variant text-xs mt-1">
+            {Math.round(summary.peak_score * 100)}% activation
+          </p>
+        </Card>
+      </div>
+
+      {/* Benchmark Cards */}
+      <BenchmarkCards benchmark={benchmark} />
 
       {/* Arousal/Valence Display */}
       {(() => {
