@@ -361,6 +361,16 @@ Plans:
 Plans:
 - [ ] 25-01-PLAN.md — VideoPlayer component, NeuralTimeline playhead + click-to-seek, RegionValuesBar, parent state wiring
 
+### Phase 26: Research-Backed Neural Insights and Benchmark Engine
+
+**Goal:** Transform raw brain activation scores into actionable, research-backed insights with a benchmark engine, insights panel, annotated timeline, and comparison cards on the Results Detail page
+**Requirements**: RSLT-02, RSLT-03
+**Depends on:** Phase 25
+**Plans:** 1 plan
+
+Plans:
+- [ ] 26-01-PLAN.md — Benchmark engine, InsightsPanel, timeline annotations, BenchmarkCards, page wiring
+
 ## Progress
 
 **Execution Order:**
@@ -395,13 +405,4 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 24. Neural Timeline | v2.0 | 0/1 | Planning    | - |
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning    | - |
-
-### Phase 26: Research-Backed Neural Insights and Benchmark Engine
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 25
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 26 to break down)
+| 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning    | - |
