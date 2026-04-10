@@ -48,11 +48,28 @@ export function VideoPlayer({
     }
   }, [videoRef]);
 
-  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const fraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const progressRef = React.useRef<HTMLDivElement>(null);
+
+  const seekFromMouse = useCallback((clientX: number) => {
+    const bar = progressRef.current;
+    if (!bar) return;
+    const rect = bar.getBoundingClientRect();
+    const fraction = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     onSeek(fraction * duration);
   }, [duration, onSeek]);
+
+  const handleProgressMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    seekFromMouse(e.clientX);
+
+    const handleMouseMove = (e: MouseEvent) => seekFromMouse(e.clientX);
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  }, [seekFromMouse]);
 
   const toggleMute = useCallback(() => {
     if (videoRef.current) {
@@ -120,16 +137,17 @@ export function VideoPlayer({
         }`}
       >
         <div className="bg-gradient-to-t from-black/70 to-transparent pt-12 pb-4 px-4">
-          {/* Progress bar */}
+          {/* Progress bar — click and drag to scrub */}
           <div
-            className="h-1 bg-white/20 rounded-full cursor-pointer mb-3 group/progress hover:h-1.5 transition-all"
-            onClick={handleProgressClick}
+            ref={progressRef}
+            className="h-1.5 bg-white/20 rounded-full cursor-pointer mb-3 group/progress hover:h-2 transition-all select-none"
+            onMouseDown={handleProgressMouseDown}
           >
             <div
-              className="h-full bg-primary rounded-full relative"
+              className="h-full bg-primary rounded-full relative pointer-events-none"
               style={{ width: `${progressPercent}%` }}
             >
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity shadow-lg" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary rounded-full shadow-lg shadow-primary/30 scale-100" />
             </div>
           </div>
 
