@@ -2,12 +2,19 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { RegionBreakdown, type RegionScores } from "@/components/results/RegionBreakdown";
 import { SegmentTable, type SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
+import { formatTimestamp } from "@/lib/results";
 import type { Job } from "@/lib/database.types";
+
+const NeuralTimeline = dynamic(
+  () => import("@/components/results/NeuralTimeline").then(m => m.NeuralTimeline),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-96" /> }
+);
 
 interface ResultsData {
   video_url: string;
@@ -76,6 +83,8 @@ export default function ResultsDetailPage({ params }: Props) {
     return (
       <div className="space-y-6">
         <Skeleton variant="bar" className="h-8 w-64" />
+        <Skeleton variant="card" className="h-64" />
+        <Skeleton variant="card" className="h-96" />
         <Skeleton variant="card" />
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-5">
@@ -211,6 +220,25 @@ export default function ResultsDetailPage({ params }: Props) {
           filename={`neurocut-${id}.json`}
         />
       </div>
+
+      {/* Video Player Placeholder */}
+      <div className="bg-surface-container rounded-xl overflow-hidden">
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <div className="absolute inset-0 bg-surface-container-lowest flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3 opacity-40">
+              <span className="material-symbols-outlined text-5xl text-on-surface">
+                play_circle
+              </span>
+              <span className="font-mono text-xs text-on-surface-variant">
+                {formatTimestamp(results.duration_seconds)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Neural Activation Timeline */}
+      <NeuralTimeline segments={segments} duration={results.duration_seconds} />
 
       {/* Summary Score Cards */}
       <div className="grid grid-cols-12 gap-6">
