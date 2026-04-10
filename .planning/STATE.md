@@ -72,6 +72,7 @@ Progress: [##############░░░░░░] 70% (14/23 phases complete across a
 ### Roadmap Evolution
 
 - Phase 24 added: Results Detail Multi-Track Neural Activation Timeline
+- Phase 25 added: Synced Video Player and Neural Timeline Scrubber
 
 ### Pending Todos
 
