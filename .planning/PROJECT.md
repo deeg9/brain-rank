@@ -8,15 +8,14 @@ A web app that lets content creators upload videos and get brain-activation-base
 
 Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out, so creators can re-edit for maximum impact.
 
-## Current Milestone: v2.1 21st.dev Component Integration
+## Current Milestone: v2.2 Enhanced Brain Analytics
 
-**Goal:** Integrate 4 premium animated components from 21st.dev into the NeuroCut web app, adapted to the existing dark/neural design system, to elevate the UI with polished animations and interactions.
+**Goal:** Unlock the full 20,484-vertex brain data with per-vertex heatmaps, expand from 4 to 9+ functional networks, and surface arousal/valence metrics — making the results page scientifically richer and visually closer to Meta's own TRIBE v2 demo.
 
 **Target features:**
-- Sliding Number — Spring-animated score counters on results page (replaces static numbers)
-- File Upload — Drag-and-drop upload zone with progress bars and video thumbnails (upgrades /upload)
-- Wave Loader — Neural signal wave animation for /processing wait state
-- Hero Odyssey — WebGL lightning shader hero section for marketing/welcome landing page
+- Per-vertex cortical heatmap on 3D brain viewer (full spatial resolution instead of 4 colored blobs)
+- Additional functional networks: visual processing, auditory processing, language/narrative, default mode, motion processing
+- Arousal & valence composite metrics displayed on results page
 
 ## Requirements
 
@@ -32,12 +31,9 @@ Content creators upload a video and get per-segment neural engagement scores —
 
 ### Active
 
-- [ ] Framer Motion dependency installed and configured
-- [ ] Sliding Number component for animated brain activation scores on results page
-- [ ] Drag-and-drop file upload with progress bars and video thumbnails on upload page
-- [ ] Wave Loader animation for processing wait state
-- [ ] WebGL lightning shader hero section for marketing/welcome page
-- [ ] All components adapted to NeuroCut design system (palette, glass surfaces, glow effects)
+- [ ] Per-vertex cortical heatmap on 3D brain viewer using full 20,484-vertex data
+- [ ] Additional functional networks in region mapping (visual, auditory, language, default mode, motion)
+- [ ] Arousal & valence composite metrics displayed on results page
 
 ### Out of Scope
 
@@ -47,6 +43,9 @@ Content creators upload a video and get per-segment neural engagement scores —
 - Real-time collaboration features
 - PDF report generation
 - Video player with frame-level scrubbing — placeholder player for now
+- Virality score — unreliable heuristic, failed to identify actual viral video
+- Hook score — naive average of first 5 segments, doesn't measure hook quality
+- Retention score — naive average of last 5 segments, doesn't measure actual retention
 
 ## Context
 
@@ -93,4 +92,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-10 after v2.1 milestone start*
+*Last updated: 2026-04-10 after v2.2 milestone start*
