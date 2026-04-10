@@ -395,3 +395,13 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 24. Neural Timeline | v2.0 | 0/1 | Planning    | - |
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning    | - |
+
+### Phase 26: Research-Backed Neural Insights and Benchmark Engine
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 25
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 26 to break down)
