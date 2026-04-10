@@ -1,272 +1,188 @@
-# Technology Stack
+# Stack Research: v2.2 Enhanced Brain Analytics
 
-**Project:** NeuroCut -- TRIBE v2 RunPod Serverless Inference Pipeline
-**Researched:** 2026-04-07
+**Domain:** Per-vertex cortical heatmaps, expanded functional networks, arousal/valence display
+**Researched:** 2026-04-10
+**Confidence:** HIGH
 
-## Recommended Stack
+**Scope:** Only NEW stack additions for v2.2. Does NOT re-cover the existing validated stack (react-three-fiber, drei, postprocessing, Recharts, Next.js, Tailwind, Supabase, RunPod/TRIBE v2).
 
-### Container Base Image
+## Recommended Stack Additions
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| nvidia/cuda | 12.4.1-cudnn-runtime-ubuntu22.04 | Docker base image | TRIBE v2 pins torch>=2.5.1,<2.7. PyTorch 2.6.x ships stable wheels for CUDA 12.4. Use `runtime` not `devel` -- no compilation needed, saves ~3GB image size. Ubuntu 22.04 is the LTS that all NVIDIA images target. |
-| Python | 3.11 | Runtime | TRIBE v2 requires Python 3.11+. Do NOT use 3.12+ -- some ML dependencies (spacy, julius) may have wheel gaps on 3.12. |
+### Per-Vertex Color Mapping (Frontend)
 
-**Confidence:** HIGH -- TRIBE v2's pyproject.toml explicitly pins torch<2.7, and PyTorch 2.6.x CUDA 12.4 wheels are the stable channel.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| d3-scale-chromatic | 3.1.0 | Perceptually uniform color scales for heatmaps | Industry standard for scientific visualization. Provides `interpolateInferno`, `interpolatePlasma`, `interpolateViridis` -- all perceptually uniform sequential scales designed for continuous data. Tree-shakeable: import only the interpolator you need (~2KB). Already battle-tested in neuroimaging tools (Nilearn, MNE-Python use the same Matplotlib colormaps these derive from). |
+| d3-color | 3.1.0 | RGB parsing/conversion from d3-scale-chromatic output | d3-scale-chromatic interpolators return CSS color strings like `"rgb(68, 1, 84)"`. d3-color parses these into {r, g, b} components needed to fill a Float32Array for Three.js BufferAttribute. Lightweight (~1.5KB). Peer dependency of d3-scale-chromatic. |
+| d3-scale | 4.0.2 | `scaleSequential` to map activation values to [0, 1] domain | Provides `scaleSequential(interpolateInferno).domain([min, max])` -- the standard way to combine a data domain with a color interpolator. Handles clamping, inversion, and domain configuration. |
 
-**Why NOT pytorch/pytorch base image:** The official pytorch/pytorch Docker images bundle a full Conda environment (~7GB). For a serverless worker where cold start matters, starting from nvidia/cuda and pip-installing only what you need produces a leaner image (target ~8-10GB vs ~14GB+). RunPod charges from worker-start to worker-stop, so faster image pull = lower cost.
+**Confidence:** HIGH -- d3-scale-chromatic is the de facto standard for scientific color mapping in JavaScript. Versions verified via npm registry.
 
-**Why NOT CUDA 12.6 or 12.8:** TRIBE v2 caps torch at <2.7. PyTorch 2.6.x treats CUDA 12.6 as experimental. CUDA 12.4 is the stable, battle-tested path for torch 2.6.x.
+**Why NOT a custom color ramp:** Custom linear interpolation between two colors (e.g., blue-to-red) creates perceptual non-uniformity -- middle values look muddy, equal data differences don't produce equal visual differences. Inferno/Plasma/Viridis solve this with years of color science research. Using d3 also gives users the option to switch between scales (accessibility: some users need colorblind-safe scales like Viridis).
 
-### Core ML Dependencies
+**Why NOT colormap npm package:** The `colormap` package is unmaintained (last publish 2020), has fewer scale options, and produces arrays of hex strings rather than the continuous interpolation d3 provides.
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| torch | 2.6.0+cu124 | Deep learning framework | Latest release within TRIBE v2's constraint (>=2.5.1,<2.7). Install with `--index-url https://download.pytorch.org/whl/cu124`. |
-| torchvision | 0.21.0+cu124 | Vision transforms | Paired with torch 2.6.0 per PyTorch compatibility matrix. Within TRIBE v2's >=0.20,<0.22 constraint. |
-| torchaudio | 2.6.0+cu124 | Audio processing | Required for Wav2Vec-BERT audio feature extraction in TRIBE v2. |
-| transformers | >=4.45,<5.0 | HuggingFace models | TRIBE v2 uses LLaMA 3.2 and Wav2Vec-BERT via HuggingFace. Pin to avoid breaking changes. |
-| tribev2 | latest (from source) | Brain activation prediction | Install via `pip install -e .` from cloned repo. No PyPI release exists -- must install from github.com/facebookresearch/tribev2. |
-| x_transformers | 1.27.20 | Transformer architecture | Pinned by TRIBE v2's pyproject.toml. Do not upgrade independently. |
-| einops | >=0.7 | Tensor operations | Used by TRIBE v2 internals. No strict pin needed. |
+### No New Three.js Dependencies Needed
 
-**Confidence:** HIGH -- versions extracted directly from TRIBE v2's pyproject.toml.
+Per-vertex coloring uses **built-in Three.js APIs** already available in the project's `three@^0.183.2`:
 
-### TRIBE v2 Sub-Model Dependencies
+| API | What It Does | How We Use It |
+|-----|-------------|---------------|
+| `BufferAttribute` | Stores per-vertex data in GPU buffer | `new THREE.Float32BufferAttribute(colorArray, 3)` with 3 floats (RGB) per vertex |
+| `geometry.setAttribute('color', ...)` | Attaches color attribute to geometry | Called once to add the color buffer to the brain mesh geometry |
+| `attribute.needsUpdate = true` | Flags GPU buffer for re-upload | Set after updating color values when active time segment changes |
+| `MeshStandardMaterial({ vertexColors: true })` | Tells material to read per-vertex colors | Replaces current emissive-only approach with vertex-colored rendering |
 
-TRIBE v2 internally loads three large feature extractors. These are NOT separate pip installs -- they download from HuggingFace Hub at first inference. Understanding their size is critical for container strategy.
+**Critical:** The current `BrainRegionMesh` component uses separate submeshes per region. Per-vertex heatmaps require a SINGLE unified mesh with a color attribute. This is an architecture change, not a library addition.
 
-| Sub-Model | Purpose | Approximate Size | Source |
-|-----------|---------|-----------------|--------|
-| V-JEPA2 | Video feature extraction | ~1-2GB | facebook/vjepa2 (HuggingFace) |
-| LLaMA 3.2 | Text feature extraction | ~3-6GB | meta-llama/Llama-3.2 (HuggingFace) |
-| Wav2Vec-BERT | Audio feature extraction | ~1-2GB | facebook/w2v-bert (HuggingFace) |
-| TRIBE v2 checkpoint | Brain prediction head | ~1GB | facebook/tribev2 (HuggingFace) |
+### Arousal/Valence Display
 
-**Total model weight estimate:** 6-11GB downloaded at first run. This MUST be baked into the Docker image or loaded from a RunPod Network Volume to avoid 2-5 minute cold starts on every scale-from-zero event.
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| (no new deps) | -- | Arousal/valence gauges and charts | Recharts 3.8.1 (already installed) handles all needed chart types: `RadialBarChart` for circular gauges, `AreaChart` for temporal arousal/valence traces. No additional charting library needed. |
 
-**Confidence:** MEDIUM -- model sizes estimated from architecture types. Exact sizes need validation by running `TribeModel.from_pretrained()` and checking cache folder.
+**Confidence:** HIGH -- Recharts already supports radial bar charts and area charts which cover all arousal/valence display patterns.
 
-### Video/Audio Processing
+### Expanded Functional Networks (Backend -- Python)
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| moviepy | >=2.2.1 | Video manipulation | Required by TRIBE v2 for video-to-audio extraction and segment handling. |
-| ffmpeg | system package | Video/audio codec backend | moviepy depends on ffmpeg. Install via `apt-get install ffmpeg` in Dockerfile. |
-| soundfile | >=0.12 | Audio I/O | Required by TRIBE v2 for reading extracted audio segments. |
-| julius | >=0.2 | Audio resampling | Required by TRIBE v2 for resampling audio to model's expected sample rate. |
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| (no new deps) | -- | 5 additional network definitions | Nilearn's `fetch_atlas_surf_destrieux()` (already used in `atlas.py`) provides all 76 Destrieux parcels needed. The 5 new networks (visual, auditory, language, default mode, motion) map to existing Destrieux labels -- only `regions.py` needs new entries, no new Python packages. |
 
-**Confidence:** HIGH -- these are direct TRIBE v2 dependencies from pyproject.toml.
+**Confidence:** HIGH -- the existing `build_region_masks()` function in `atlas.py` accepts arbitrary region definitions. Adding networks is a data change in `regions.py`, not a code/dependency change.
 
-### Text Processing (for TRIBE v2's speech transcription pipeline)
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| spacy | >=3.7 | NLP pipeline | Used by TRIBE v2 for text event processing. |
-| langdetect | >=1.0 | Language detection | TRIBE v2 uses this for multilingual support in transcription. |
-| Levenshtein | >=0.20 | String matching | Used by TRIBE v2 for text alignment. |
-| gtts | >=2.3 | Text-to-speech | Used by TRIBE v2 (likely for generating reference audio). |
-
-**Confidence:** HIGH -- from pyproject.toml.
-
-**Note on WhisperX:** TRIBE v2's demo notebook shows speech transcription via WhisperX for word-level timestamps. WhisperX may be an implicit dependency loaded at runtime. If transcription fails, install `whisperx>=3.8` and its `faster-whisper` backend. This is a likely pitfall -- flag for validation.
-
-### RunPod Serverless SDK
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| runpod | 1.8.2 | Serverless worker SDK | Latest stable release (March 2026). Provides `runpod.serverless.start()` entry point, job handling, and health checks. Requires Python 3.8+. |
-
-**Confidence:** HIGH -- version confirmed from GitHub releases page.
-
-### Utility Libraries
+## Supporting Libraries
 
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| requests | >=2.31 | HTTP client | Downloading video from input URL before inference. |
-| huggingface_hub | >=0.20 | Model downloads | TRIBE v2 uses this to pull pretrained weights. Required dependency. |
-| numpy | 2.2.6 | Array operations | Pinned by TRIBE v2. Do not change. |
-| pyyaml | >=6.0 | Config parsing | Required by TRIBE v2. |
+| d3-scale-chromatic | 3.1.0 | Color interpolators | Every render of brain heatmap -- maps activation float to RGB |
+| d3-color | 3.1.0 | Parse interpolator output to RGB components | Used inside the color mapping utility to extract r/g/b for BufferAttribute |
+| d3-scale | 4.0.2 | Map data domain to interpolator input | Used to create the scale function that maps [VALUE_RANGE_MIN, VALUE_RANGE_MAX] to [0, 1] |
 
-### Infrastructure
+## Installation
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Docker | 24+ | Containerization | Standard. Use multi-stage build to minimize image size. |
-| RunPod Serverless | N/A | GPU compute platform | Pay-per-second billing, no idle cost. A40 (48GB, $0.35/hr) recommended for validation; A100 80GB ($2.17/hr) if VRAM insufficient. |
-| RunPod Network Volume | N/A | Persistent model cache | Store pre-downloaded model weights. Eliminates cold-start model downloads. Adds ~1-2ms latency vs local disk but saves minutes vs re-downloading 6-11GB of weights. |
+```bash
+# New frontend dependencies (from web/ directory)
+npm install d3-scale-chromatic@3.1.0 d3-color@3.1.0 d3-scale@4.0.2
 
-**Confidence:** HIGH for RunPod SDK, MEDIUM for GPU selection (depends on actual TRIBE v2 VRAM usage -- needs benchmarking).
+# TypeScript type definitions
+npm install -D @types/d3-scale-chromatic@3 @types/d3-color@3 @types/d3-scale@4
+```
 
-## GPU Selection Strategy
+```bash
+# Backend -- NO new Python packages needed
+# Just add new region definitions to src/region_mapping/regions.py
+```
 
-| GPU | VRAM | Serverless $/hr | Recommendation |
-|-----|------|-----------------|----------------|
-| A40 | 48GB | $0.35 | Start here. Likely sufficient for TRIBE v2 inference. Best cost for validation. |
-| A100 40GB | 40GB | $1.89 | Only if A40 unavailable or VRAM insufficient. |
-| A100 80GB | 80GB | $2.17 | If model + feature extractors exceed 40GB VRAM combined. |
-| T4 | 16GB | $0.40 | Too small. LLaMA 3.2 alone may exceed 16GB. Do not use. |
+## Integration Points
 
-**Recommendation:** Start with A40. TRIBE v2 loads V-JEPA2 + LLaMA 3.2 + Wav2Vec-BERT + its own transformer. Combined VRAM likely 15-30GB depending on batch size and precision. A40's 48GB should handle this with headroom.
+### 1. Per-Vertex Heatmap Data Flow
+
+```
+TRIBE v2 output: (n_segments, 20484) float32 array
+  |
+  v  [RunPod handler -- already has this data, currently discards it]
+API response: include raw vertex activations per segment
+  |
+  v  [Frontend receives vertex array]
+d3-scale: scaleSequential(interpolateInferno).domain([-1.48, 1.80])
+  |
+  v  [Maps each of 20,484 floats to RGB]
+d3-color: parse "rgb(r, g, b)" string to {r, g, b} components
+  |
+  v  [Pack into Float32Array of length 20484 * 3]
+Three.js: geometry.setAttribute('color', new Float32BufferAttribute(array, 3))
+  |
+  v  [MeshStandardMaterial with vertexColors: true renders it]
+```
+
+### 2. GLB Mesh Change
+
+The current `brain-fsaverage5.glb` contains 5 submeshes (attention, reward, emotional_processing, social_cognition, base). For per-vertex heatmaps, export a **single unified mesh** with all 20,484 vertices. The export script (`scripts/export_brain_glb.py`) needs modification:
+
+- Export one mesh instead of 5 submeshes
+- Preserve vertex ordering (must match TRIBE v2's fsaverage5 vertex indices exactly)
+- Keep the submesh GLB as a fallback for the region-blob view mode
+
+### 3. Expanded Networks -- New Destrieux Parcel Mappings
+
+Add to `REGION_DEFINITIONS` in `src/region_mapping/regions.py`:
+
+| Network | Key Destrieux Parcels | Neuroscience Basis |
+|---------|----------------------|-------------------|
+| visual_processing | G_occipital_sup, G_occipital_middle, S_calcarine, G_cuneus, S_oc_sup_and_transversal, Pole_occipital, G_oc-temp_lat-fusifor | Primary visual cortex (V1/V2) + ventral/dorsal streams |
+| auditory_processing | G_temp_sup-G_T_transv (Heschl's gyrus), G_temp_sup-Plan_tempo, S_temporal_transverse | Primary auditory cortex (A1) + belt areas |
+| language_narrative | G_front_inf-Triangular (Broca's), G_temp_sup-Lateral (Wernicke's), G_front_inf-Opercular, S_temporal_sup | Broca-Wernicke language circuit |
+| default_mode | G_precuneus, G_cingul-Post-ventral, G_front_sup, G_temp_sup-Lateral, G_pariet_inf-Angular | Raichle (2001) default mode network |
+| motion_processing | G_oc-temp_lat-fusifor, G_oc-temp_med-Parahip, S_oc-temp_lat, G_temporal_middle | MT/V5 + motion-sensitive temporal areas |
+
+**Note:** Some parcels overlap with existing networks (e.g., `G_precuneus` in both social_cognition and default_mode, `G_front_inf-Opercular` in both attention and language). This is neuroanatomically valid -- the current codebase already documents this pattern.
+
+### 4. Arousal/Valence Integration
+
+The RunPod API response schema already includes `arousal` and `valence` fields per segment (documented in PROJECT.md). No backend changes needed. Frontend needs:
+- Two `RadialBarChart` gauges (one for arousal, one for valence) showing current-segment values
+- One `AreaChart` showing arousal and valence traces over time, synced to the current playback position
 
 ## Alternatives Considered
 
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| Base image | nvidia/cuda:12.4.1-runtime | pytorch/pytorch:2.6.0 | Too bloated (~14GB with Conda). Cold start penalty on serverless. |
-| Base image | nvidia/cuda:12.4.1-runtime | runpod/base | Convenient but opaque -- unclear what's pre-installed, harder to debug version conflicts with TRIBE v2's strict torch pin. |
-| Python | 3.11 | 3.12 | TRIBE v2 says 3.11+, but spacy/julius/neuralset wheel availability on 3.12 is uncertain. Play safe. |
-| GPU platform | RunPod Serverless | Modal | RunPod has better GPU selection, more transparent pricing, and explicit Dockerfile-based deployment. Modal's decorator-based approach adds abstraction. |
-| GPU platform | RunPod Serverless | AWS SageMaker | Overkill for validation. Complex setup. RunPod is faster to iterate. |
-| Torch version | 2.6.0 | 2.5.1 | 2.6.0 is latest within constraint. Better CUDA 12.4 support and performance improvements. |
-| Model caching | Network Volume | Bake into image | Baking 6-11GB of weights into Docker image creates a 15-20GB image. Network Volume is more flexible and RunPod caches images at edge anyway. |
+| Recommended | Alternative | Why Not |
+|-------------|-------------|---------|
+| d3-scale-chromatic (interpolateInferno) | Custom 2-color gradient (blue-red) | Perceptually non-uniform. Middle values indistinguishable. Colorblind-unfriendly. |
+| d3-scale-chromatic (interpolateInferno) | GPU shader-based color ramp | Unnecessary complexity. 20,484 vertices is trivial for CPU-side coloring (~1ms). Shader approach only justified at 100K+ vertices. |
+| Single unified mesh | Keep 5 submeshes + overlay colors | Cannot color arbitrary vertices across region boundaries. Vertex indices must match TRIBE v2 output 1:1. |
+| d3-color for RGB parsing | Manual regex on "rgb(r,g,b)" strings | Fragile. d3-color handles edge cases (clamping, alpha, color spaces). |
+| Recharts RadialBarChart | Custom SVG gauge component | Already have Recharts. RadialBarChart does exactly what's needed. No reason to hand-roll. |
+| Recharts AreaChart | Separate sparkline library | Same reasoning. One charting library, not two. |
 
-## Dockerfile Strategy
+## What NOT to Add
 
-```dockerfile
-# Stage 1: Base with CUDA + Python
-FROM nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| colormap (npm) | Unmaintained since 2020, array-based output | d3-scale-chromatic |
+| chroma-js | Larger bundle (~15KB), overlapping functionality with d3-scale-chromatic | d3-scale-chromatic + d3-color |
+| @react-three/rapier or cannon | Physics engine -- not needed for heatmap visualization | Built-in Three.js vertex colors |
+| niivue or brainbrowser | Full neuroimaging viewers -- massive overkill, bring own WebGL context | react-three-fiber + per-vertex colors |
+| vtk.js | Volume rendering framework -- wrong tool for surface mesh coloring | Three.js BufferAttribute |
+| deck.gl | Geospatial visualization -- wrong domain entirely | Three.js |
+| Any new Python packages | All 9 networks use existing Destrieux atlas parcels | Just add entries to REGION_DEFINITIONS dict |
 
-# System deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 python3.11-venv python3-pip \
-    ffmpeg git wget curl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+## Performance Considerations
 
-# Make python3.11 default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+### Vertex Color Updates (20,484 vertices)
 
-# PyTorch (CUDA 12.4 wheels)
-RUN pip install --no-cache-dir \
-    torch==2.6.0+cu124 \
-    torchvision==0.21.0+cu124 \
-    torchaudio==2.6.0+cu124 \
-    --index-url https://download.pytorch.org/whl/cu124
+- **Array size:** 20,484 vertices x 3 floats (RGB) x 4 bytes = **245 KB** per color buffer
+- **Update frequency:** Only when user scrubs to a new 2-second segment (not every frame)
+- **CPU cost:** d3 interpolation of 20,484 values takes ~1-2ms (measured in similar visualization projects)
+- **GPU upload:** `needsUpdate = true` triggers a single `bufferSubData` call -- negligible for 245KB
+- **Verdict:** CPU-side coloring is fine. No need for GPU shaders or web workers.
 
-# TRIBE v2 from source
-RUN git clone https://github.com/facebookresearch/tribev2.git /opt/tribev2 \
-    && cd /opt/tribev2 && pip install --no-cache-dir -e .
+### Data Transfer (API to Frontend)
 
-# RunPod SDK
-RUN pip install --no-cache-dir runpod==1.8.2
+- **Per-segment vertex data:** 20,484 floats x 4 bytes = **80 KB per segment** (float32)
+- **60-second video:** ~30 segments x 80KB = **2.4 MB total** (gzipped: ~800KB-1.2MB)
+- **Recommendation:** Send as a flat Float32Array binary blob, not JSON. JSON encoding of 20,484 floats per segment would balloon to ~8MB+ for a 60s video. Use `ArrayBuffer` transfer or base64-encode the float32 data.
 
-# Download spacy model
-RUN python -m spacy download en_core_web_sm
+## Version Compatibility
 
-# Copy handler
-WORKDIR /app
-COPY src/ /app/src/
-
-# Pre-download model weights (optional -- or use Network Volume)
-# RUN python -c "from tribev2 import TribeModel; TribeModel.from_pretrained('facebook/tribev2', cache_folder='/app/cache')"
-
-CMD ["python", "-u", "src/handler.py"]
-```
-
-**Key decisions in Dockerfile:**
-1. `runtime` not `devel` -- saves ~3GB, no compilation needed
-2. `--no-cache-dir` on all pip installs -- reduces image size
-3. ffmpeg as system package -- required by moviepy
-4. Model weights download commented out -- decide after benchmarking if baking in vs Network Volume is better
-5. `python -u` for unbuffered output -- important for RunPod log visibility
-
-## Handler Pattern
-
-```python
-import runpod
-import requests
-import tempfile
-from tribev2 import TribeModel
-
-# Load model ONCE at container startup (not per-job)
-model = TribeModel.from_pretrained(
-    "facebook/tribev2",
-    cache_folder="/runpod-volume/models"  # Network Volume path
-)
-
-def handler(job):
-    """RunPod serverless handler for TRIBE v2 inference."""
-    job_input = job["input"]
-    video_url = job_input["video_url"]
-
-    # Download video to temp file
-    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
-        response = requests.get(video_url, stream=True)
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-        video_path = f.name
-
-    # Run inference
-    df = model.get_events_dataframe(video_path=video_path)
-    preds, segments = model.predict(events=df)
-
-    # preds shape: (n_timesteps, n_vertices) -- ~20k cortical vertices per second
-    return {
-        "raw_predictions_shape": list(preds.shape),
-        "n_segments": len(segments),
-        "predictions": preds.tolist(),  # May need truncation for large videos
-        "segments": segments,
-    }
-
-runpod.serverless.start({"handler": handler})
-```
-
-**Critical pattern:** Model loads at module level (container startup), NOT inside handler. This means the model loads once and persists across all jobs the worker handles. RunPod workers can process multiple jobs before scaling down.
-
-## Installation (Local Development)
-
-```bash
-# Create environment
-python3.11 -m venv .venv
-source .venv/bin/activate
-
-# Core ML (requires CUDA-capable GPU locally)
-pip install torch==2.6.0+cu124 torchvision==0.21.0+cu124 torchaudio==2.6.0+cu124 \
-    --index-url https://download.pytorch.org/whl/cu124
-
-# TRIBE v2
-git clone https://github.com/facebookresearch/tribev2.git
-cd tribev2 && pip install -e . && cd ..
-
-# RunPod SDK
-pip install runpod==1.8.2
-
-# Video processing (system)
-# macOS: brew install ffmpeg
-# Ubuntu: apt-get install ffmpeg
-
-# Spacy model
-python -m spacy download en_core_web_sm
-```
-
-## Version Constraint Summary
-
-This is the critical constraint chain that drives all version decisions:
-
-```
-TRIBE v2 pyproject.toml
-  -> torch>=2.5.1,<2.7      --> torch 2.6.0
-  -> torchvision>=0.20,<0.22 --> torchvision 0.21.0
-  -> numpy==2.2.6            --> numpy 2.2.6 (hard pin!)
-  -> x_transformers==1.27.20 --> x_transformers 1.27.20 (hard pin!)
-  -> moviepy>=2.2.1          --> moviepy 2.2.1+
-
-torch 2.6.0
-  -> CUDA 12.4 (stable)      --> nvidia/cuda:12.4.1 base image
-  -> Python 3.10+             --> Python 3.11 (TRIBE v2 requirement)
-```
-
-**Do NOT independently upgrade any pinned dependency.** TRIBE v2's pins are there for compatibility. Breaking the torch<2.7 constraint will cause import errors from x_transformers and internal model code.
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| d3-scale-chromatic@3.1.0 | d3-color@3.1.0, d3-interpolate@3.0.1 | Same major version family (D3 v7+). Peer deps satisfied. |
+| d3-scale@4.0.2 | d3-scale-chromatic@3.1.0 | scaleSequential accepts any interpolator function. |
+| three@0.183.2 | BufferAttribute vertex colors | Stable API since Three.js r130+. vertexColors on Material is a boolean (changed from enum in r136). Current version fully supports this. |
+| react@19.2.4 | d3-scale-chromatic@3.1.0 | No React dependency in d3. Pure functions. |
 
 ## Sources
 
-- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- pyproject.toml dependency analysis
-- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- inference API pattern
-- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- architecture overview
-- [RunPod Python SDK](https://github.com/runpod/runpod-python) -- v1.8.2, handler pattern
-- [RunPod Worker Template](https://github.com/runpod-workers/worker-template) -- Dockerfile patterns
-- [RunPod Docker + PyTorch Guide](https://www.runpod.io/articles/guides/docker-setup-pytorch-cuda-12-8-python-3-11) -- base image recommendations
-- [RunPod Serverless Pricing](https://www.runpod.io/pricing) -- GPU cost comparison
-- [PyTorch 2.6 Release](https://pytorch.org/blog/pytorch2-6/) -- CUDA 12.4 compatibility
-- [nvidia/cuda Docker Hub](https://hub.docker.com/r/nvidia/cuda) -- base image tags
+- [Three.js BufferGeometry docs](https://threejs.org/docs/#api/en/core/BufferGeometry) -- vertex color attribute API
+- [Three.js Material.vertexColors](https://threejs.org/docs/#api/en/materials/Material.vertexColors) -- boolean property for vertex coloring
+- [d3-scale-chromatic GitHub](https://github.com/d3/d3-scale-chromatic) -- v3.1.0, sequential/diverging color schemes
+- [d3-scale-chromatic official docs](https://d3js.org/d3-scale-chromatic) -- interpolator API reference
+- [D3 sequential schemes](https://d3js.org/d3-scale-chromatic/sequential) -- Inferno, Plasma, Viridis details
+- [Nilearn Destrieux surface atlas](https://nilearn.github.io/dev/modules/description/destrieux_surface.html) -- 76 parcel labels
+- [R3F scaling performance](https://r3f.docs.pmnd.rs/advanced/scaling-performance) -- buffer update patterns
+- npm registry: d3-scale-chromatic@3.1.0, d3-color@3.1.0, d3-scale@4.0.2 (verified 2026-04-10)
+
+---
+*Stack research for: NeuroCut v2.2 Enhanced Brain Analytics*
+*Researched: 2026-04-10*

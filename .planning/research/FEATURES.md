@@ -1,118 +1,134 @@
 # Feature Landscape
 
-**Domain:** RunPod serverless ML inference worker for video-processing (TRIBE v2 brain activation prediction)
-**Researched:** 2026-04-07
+**Domain:** Per-vertex brain heatmaps, functional network mapping, arousal/valence display for neural engagement analytics
+**Researched:** 2026-04-10
 
 ## Table Stakes
 
-Features users expect. Missing = worker won't function reliably in production.
+Features users expect when moving from 4-region blobs to full cortical visualization. Missing = upgrade feels half-baked.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Handler function with model pre-loading** | RunPod pattern: model loaded globally outside handler, not per-request. Without this, every job re-loads the model (minutes of waste on GPU). | Low | Load TRIBE v2 model + tokenizer at module level, before `runpod.serverless.start()`. Standard RunPod pattern. |
-| **Input validation** | Reject bad payloads early before burning GPU time. Must validate: video URL present, URL format valid, optional parameters have correct types. | Low | Use manual validation (check required keys, return `{"error": "..."}` dict). RunPod has a `rp_validator` utility but manual is simpler for this scope. |
-| **Video download from URL** | Worker receives a URL (not raw video bytes -- 10MB payload limit enforces this). Must download video to temp storage before inference. | Low | Use `requests` or `httpx` to download. Validate content-type, enforce max file size (e.g., 500MB). Clean up temp files after processing. |
-| **Structured JSON output** | Callers need predictable output schema: per-segment scores with timestamps. Both raw TRIBE v2 output and mapped NeuroCut schema (2-second windows with activation, arousal, valence, region breakdown). | Medium | Define output schema contract. Return both `raw_output` and `mapped_output` in response. |
-| **Error handling with structured error responses** | Unhandled exceptions mark jobs as FAILED with opaque messages. Wrap handler in try/except, return `{"error": "message", "error_type": "validation|download|inference|unknown"}` for graceful failures. | Low | RunPod SDK auto-captures unhandled exceptions, but structured errors give callers actionable info. |
-| **Execution timeout configuration** | Video inference can take minutes. Default RunPod timeout is 600s (10 min). Must configure appropriate timeout for 60-second video inference. | Low | Set via RunPod endpoint config. Range: 5s to 7 days. Set to ~15 min initially, adjust after benchmarking. |
-| **Temp file cleanup** | Downloaded videos and intermediate files (extracted frames, audio) consume disk. Serverless workers have limited storage. Must clean up after every job. | Low | Use `try/finally` or `tempfile.TemporaryDirectory()` context manager. Critical -- disk fills up across jobs if workers aren't refreshed. |
-| **Container with CUDA + FFmpeg** | TRIBE v2 requires CUDA GPU. Video processing likely needs FFmpeg for frame/audio extraction. Both must be in the Docker image. | Medium | Base: `runpod/base` (includes CUDA, Python, uv) or `nvidia/cuda`. Install FFmpeg via apt. Install torch, torchaudio, transformers, tribev2, runpod SDK. |
-| **Logging** | Must log job ID, processing stages, timing, errors. RunPod collects stdout and surfaces it in dashboard. Logs retained 90 days. | Low | Use Python `logging` module with structured format. Include job ID in every log line. Log timing for each stage (download, preprocess, inference, postprocess). |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Per-vertex color attribute on brain mesh | This IS the heatmap. Without per-vertex coloring, there is no spatial resolution upgrade. Three.js supports this natively via `BufferGeometry.setAttribute('color', ...)` with `vertexColors: true` on the material. | Medium | Existing `brain-fsaverage5.glb` mesh (20,484 vertices), TRIBE v2 raw predictions piped to frontend | Replace current `BrainRegionMesh` emissive glow with per-vertex color array. Each vertex gets an RGB value mapped from its activation scalar via a colormap. Must update every time segment changes. |
+| Sequential colormap (cool-to-hot) | Standard in neuroimaging. Users familiar with brain activation maps expect blue-to-red or viridis-like gradients. A single emissive color per region is not a heatmap. | Low | Per-vertex color attribute | Implement as a JS function mapping 0-1 scalar to RGB. Use diverging cool-warm palette (blue=low, white=neutral, red=high) -- matches fMRI convention. Viridis is perceptually uniform but less intuitive for "brain heat." |
+| Color scale legend | Without a legend, the heatmap is uninterpretable. Must show min/max values and color gradient. | Low | Colormap function | Simple horizontal gradient bar with "Low" / "High" labels. Position below or beside the 3D viewer. |
+| Expanded functional networks (5 new regions) | PROJECT.md explicitly lists: visual processing, auditory processing, language/narrative, default mode, motion processing. These align with TRIBE v2's ICA-discovered networks. | Medium | Backend: new Destrieux parcel mappings in `regions.py`. Frontend: extended `SegmentRegionScores` type, new toggle buttons, new timeline tracks. | TRIBE v2's own ICA analysis reveals these 5 networks naturally. They are NOT arbitrary -- they reflect the model's learned functional organization. Yeo 7-network parcellation provides neuroscience backing. |
+| Region toggle buttons for all 9 networks | Current UI has 4 toggle buttons. Must extend to 9. Critical for usability -- 9 simultaneous overlays would be visual noise. | Low | Expanded regions in data model | Layout challenge: 9 buttons in a row may overflow. Use 2-row grid or scrollable chip bar. Keep existing toggle pattern. |
+| Arousal metric display | Already in `SegmentData` (computed as avg of attention + emotional_processing). Must be surfaced prominently on results page, not just buried in segment table. | Low | Existing `arousal` field in segment data | Currently only shown as a number in SegmentTable. Needs a dedicated MetricCard or gauge. |
+| Valence metric display | Same as arousal -- already computed (avg of reward + social_cognition), needs prominent display. | Low | Existing `valence` field in segment data | Pair with arousal display. These two dimensions together map to Russell's circumplex model of affect. |
+| Timeline tracks for new networks | Current NeuralTimeline shows 4 tracks. Must support 9. Cannot just add 5 more stacked rows -- would be too tall. | Medium | Expanded region data in API response | Need track grouping or selective display. Show 4 default, let user toggle additional tracks on/off. Or group by category: "Sensory" (visual, auditory, motion), "Cognitive" (attention, language, DMN), "Affective" (reward, emotional, social). |
 
 ## Differentiators
 
-Features that improve production quality. Not required for a working worker, but significantly improve reliability, debuggability, and cost efficiency.
+Features that set NeuroCut apart. Not expected in a basic upgrade, but valued by content creators.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Progress updates** | Video inference is slow (potentially minutes). Callers polling `/status` see "IN_PROGRESS" but no detail. `runpod.serverless.progress_update(job, msg)` sends stage updates: "downloading video", "extracting frames", "running inference (segment 5/30)". | Low | One-liner per stage. Visible when polling job status. Excellent for debugging and UX. |
-| **Stage-level timing in response** | Return `timing: {download_ms, preprocess_ms, inference_ms, postprocess_ms, total_ms}` in output. Critical for benchmarking and optimizing the pipeline. | Low | Wrap each stage with `time.perf_counter()`. Essential for answering the project's key question: "how long does inference take?" |
-| **Video duration validation** | Reject videos that are too long (e.g., >5 min) before downloading/processing. Prevents abuse and runaway GPU costs. Can check via HEAD request content-length or post-download FFprobe. | Low | Post-download check with FFprobe is more reliable than content-length guessing. Return error with actual duration and max allowed. |
-| **Cold start optimization via model baking** | Bake model weights into the Docker image rather than downloading at startup. Increases image size (10GB+) but eliminates cold-start model download (which can take minutes). | Medium | Trade-off: larger image = slightly slower container pull, but RunPod caches images. Net win for cold start. Alternative: use RunPod network volume for model cache. |
-| **Worker refresh after job** | Return `{"refresh_worker": True, "job_results": results}` to clear worker state between jobs. Prevents memory leaks from accumulating torch tensors across jobs. | Low | One-line addition to return. Use if memory profiling shows leaks. Cost: slightly slower next job (re-init, but not re-pull). |
-| **Health/readiness signal** | Log a clear "READY" message after model loads so RunPod knows the worker is initialized. Helps distinguish cold-start init time from actual job processing time. | Low | Single log line after model load completes. RunPod uses worker status (init -> ready -> idle) automatically, but explicit logging aids debugging. |
-| **Configurable inference parameters** | Allow callers to pass optional parameters: `segment_duration` (default 2s), `output_format` (raw/mapped/both), `include_region_breakdown` (bool). Makes the worker flexible without separate endpoints. | Medium | Define defaults in schema. Validate parameter ranges. Don't over-engineer -- start with 2-3 optional params max. |
-| **Retry logic for video download** | Network issues can cause download failures. Retry with exponential backoff (2-3 attempts) before failing the job. | Low | Use `tenacity` or manual retry loop. Only retry on transient errors (timeouts, 5xx), not on 4xx. |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Arousal-Valence scatter plot (circumplex) | Maps each segment as a dot on a 2D arousal (Y) x valence (X) plane. Shows emotional trajectory of the video at a glance. No competitor does this for video content. Based on Russell's circumplex model of affect -- instantly communicates "this segment is exciting and positive" vs "calm and negative." | Medium | Arousal and valence per segment (already computed) | Use Recharts ScatterChart or custom SVG. Quadrant labels: "Exciting/Positive" (top-right), "Exciting/Negative" (top-left), "Calm/Positive" (bottom-right), "Calm/Negative" (bottom-left). Color dots by time position to show trajectory. |
+| Per-vertex data in API response | Send the full 20,484-vertex activation array per segment to the frontend for true spatial heatmap. Currently the backend aggregates to 4 scalar region scores and discards vertex data. | High | Backend schema change: add optional `vertex_activations: float[]` to Segment. Significant payload increase. | Key architectural decision. Options: (A) send all vertices for all segments (~2.4MB gzipped for 30 segments), (B) separate `/vertices/{job_id}` endpoint, (C) pre-compute vertex colors server-side. Recommend (A) with gzip for simplicity -- 2.4MB is acceptable for a results page that loads once. |
+| Heatmap animation synced to video playback | As video plays, brain heatmap smoothly transitions between segment activations. Lerp between consecutive vertex arrays for fluid animation. | Medium | Per-vertex data available on frontend, video time sync (already exists via `currentTime`) | Use `useFrame` to lerp vertex color arrays between keyframes. Already have the pattern in `BrainRegionMesh` with `emissiveIntensity` lerping. Extend to lerp full Float32Array of colors. |
+| Network overlay isolation mode | Click a network name to show ONLY that network's vertices highlighted, with the rest dimmed to base color. Different from toggle (which shows/hides geometry) -- this filters the heatmap to show activation only within one network's vertices. | Medium | Per-vertex data + region masks available on frontend | Requires shipping region mask definitions (vertex index arrays) to the frontend. ~40KB for all 9 masks as typed arrays. |
+| Arousal/Valence timeline overlay | Add arousal and valence as overlay lines on the existing NeuralTimeline, providing a composite engagement view alongside individual region tracks. | Low | Existing arousal/valence data | Two additional line series on existing chart. Use dashed lines or different stroke style to distinguish from region tracks. |
+| Peak moment highlighting | Auto-identify and visually mark the highest-activation moments on the brain viewer and timeline. "Your video peaks at 0:24 -- here's what the brain looks like." | Low | Existing `summary.peak_second` | Combine existing peak data with a "Jump to peak" button. Show the brain heatmap at that moment. |
 
 ## Anti-Features
 
-Features to explicitly NOT build at this stage.
+Features to explicitly NOT build in this milestone.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Video upload to worker** | RunPod has 10/20MB payload limits. Video files easily exceed this. Building upload handling adds complexity for no gain. | Accept video URL only. Caller uploads to R2/S3 first, passes presigned URL to worker. This is the documented RunPod pattern. |
-| **Result storage in cloud** | Tempting to have the worker upload results to S3/R2. Adds IAM credentials management, cloud SDK deps, failure modes. | Return JSON directly in response (scores are small, well under 10MB). Let the caller handle storage. |
-| **Multiple video comparison (A/B)** | Explicitly out of scope per PROJECT.md. Adds complexity to handler, input schema, and output schema. | Single video per job. A/B comparison is caller-side: submit two jobs, compare results. |
-| **Authentication/authorization** | Worker runs behind RunPod's API. RunPod handles auth via API keys. Adding auth inside the worker is redundant. | Rely on RunPod's built-in API key auth for the endpoint. |
-| **Async/streaming handler** | TRIBE v2 inference is batch-style (process whole video, return scores). No intermediate results to stream. Async adds complexity for no benefit here. | Use standard synchronous handler. Progress updates provide sufficient feedback. |
-| **Concurrent handler** | Video inference is GPU-bound and memory-intensive. Running multiple jobs concurrently on one GPU risks OOM. | One job per worker. Scale horizontally via RunPod's auto-scaling (configure max workers). |
-| **Custom dashboard/monitoring** | RunPod provides built-in monitoring dashboard with GPU utilization, memory, execution times, P70/P90/P98 percentiles. | Use RunPod's native monitoring. Export logs to external service only if retention >90 days is needed. |
-| **Model versioning/A-B testing** | Only one model (TRIBE v2) exists. No variants to test. | Hardcode model. Revisit if Meta releases TRIBE v3 or alternative models. |
-| **Webhook callbacks** | RunPod supports webhooks natively (caller passes `webhook` URL in payload). No worker-side code needed. | Document that callers can use RunPod's built-in webhook support. Zero worker-side implementation. |
+| Real-time vertex streaming via WebSocket | Massive over-engineering. Video is pre-processed, not live. All data is known upfront. | Load all vertex data at page load or lazy-fetch per segment via REST. |
+| Volumetric (voxel) rendering | TRIBE v2 outputs on fsaverage5 surface mesh, not in volumetric MNI space. Building a volume renderer solves the wrong problem. NiiVue exists for this but is irrelevant here. | Stay with surface mesh rendering. The GLB already has the correct topology. |
+| Custom atlas parcellation UI | Letting users define their own brain regions is a neuroscience research tool feature, not a content creator feature. | Ship 9 pre-defined networks. Hardcode in backend. |
+| Statistical significance / p-values | TRIBE v2 predictions are point estimates, not statistical tests. Showing "p < 0.05" would be scientifically misleading. | Show raw activation values with clear "predicted activation" labeling. |
+| Comparison between multiple videos | Explicitly out of scope per PROJECT.md. Requires solving normalization across different-length videos. | Single video analysis only. Defer to future milestone. |
+| PDF/image export of brain visualization | Nice-to-have but not core to the analytics upgrade. Three.js canvas screenshots are unreliable across browsers. | Defer. If needed later, use `canvas.toDataURL()` as a quick path. |
+| Subcortical structure rendering | Amygdala, ventral striatum, hippocampus are not on the cortical surface. TRIBE v2 does not predict subcortical activations (fsaverage5 is cortex only). | Acknowledge limitation in UI: "Cortical activation only." |
 
 ## Feature Dependencies
 
 ```
-Container (CUDA + FFmpeg) --> Model Pre-loading --> Handler Function
-                                                       |
-                                                       v
-                                            Input Validation
-                                                       |
-                                                       v
-                                            Video Download (from URL)
-                                                       |
-                                                       v
-                                            Video Preprocessing (FFmpeg/torchaudio)
-                                                       |
-                                                       v
-                                            TRIBE v2 Inference
-                                                       |
-                                                       v
-                                            Output Mapping (raw -> NeuroCut schema)
-                                                       |
-                                                       v
-                                            Structured JSON Response + Timing
-                                                       |
-                                                       v
-                                            Temp File Cleanup
+Backend: New region masks (regions.py)
+  --> Backend: Extended RegionScores schema (schema.py)
+    --> Backend: Per-vertex data in API response (postprocessor.py)
+      --> Frontend: Parse extended API response (results.ts)
+        --> Frontend: Per-vertex color attribute on mesh (BrainViewerCanvas.tsx)
+          --> Frontend: Colormap function (brain-utils.ts)
+            --> Frontend: Color scale legend (BrainViewer.tsx)
+        --> Frontend: Heatmap animation sync (BrainRegionMesh.tsx)
+        --> Frontend: Network overlay isolation
+
+Backend: Extended RegionScores schema
+  --> Frontend: Extended SegmentRegionScores type
+    --> Frontend: Region toggle buttons for 9 networks
+    --> Frontend: Timeline tracks for new networks
+    --> Frontend: Arousal/Valence recalculation (if formula changes with new regions)
+
+Existing arousal/valence data (no backend change needed)
+  --> Frontend: Arousal metric card
+  --> Frontend: Valence metric card
+  --> Frontend: Arousal-Valence circumplex scatter plot
+  --> Frontend: Arousal/Valence timeline overlay
 ```
 
-Cross-cutting (apply to all stages):
-- Error handling wraps the entire pipeline
-- Logging happens at every stage
-- Progress updates happen between stages
+## New Functional Network Definitions
+
+Based on Yeo 7-network parcellation and TRIBE v2's ICA-discovered networks, the 5 new networks mapped to Destrieux atlas parcels:
+
+| Network | Neuroscience Basis | Key Destrieux Parcels | Confidence |
+|---------|-------------------|----------------------|------------|
+| Visual Processing | Yeo Visual Network; TRIBE v2 ICA component | `S_calcarine`, `G_cuneus`, `S_oc_sup_and_transversal`, `G_occipital_sup`, `G_occipital_middle`, `S_oc_middle_and_Lunatus`, `Pole_occipital` | HIGH -- well-established primary visual cortex parcels |
+| Auditory Processing | Yeo Somatomotor (auditory sub); TRIBE v2 ICA component | `G_temp_sup-G_T_transv` (Heschl's gyrus), `G_temp_sup-Plan_tempo`, `S_temporal_transverse`, `G_temp_sup-Lateral` | HIGH -- primary auditory cortex is well-localized |
+| Language/Narrative | TRIBE v2 ICA component; Broca + Wernicke areas | `G_front_inf-Triangul` (Broca), `G_front_inf-Opercular`, `G_temp_sup-Lateral` (Wernicke overlap), `S_temporal_sup`, `G_pariet_inf-Angular` (semantic) | MEDIUM -- overlaps with attention and social networks |
+| Default Mode Network | Yeo DMN; TRIBE v2 ICA component | `G_precuneus`, `G_cingul-Post-ventral`, `G_cingul-Post-dorsal`, `G_front_sup` (medial), `G_pariet_inf-Angular`, `G_temp_sup-Lateral` | HIGH -- one of the most replicated findings in neuroimaging |
+| Motion Processing | TRIBE v2 ICA component; MT+/V5 complex | `G_occipital_middle` (V5/MT+), `G_temporal_middle`, `S_occipital_ant`, `G_and_S_occipital_inf` | MEDIUM -- MT+ localization on Destrieux requires careful vertex selection |
+
+**Note:** Some parcels appear in multiple networks (e.g., `G_pariet_inf-Angular` in social_cognition, language, and DMN). This is neuroanatomically valid -- the same cortical region participates in multiple functional networks. This is already the pattern in the existing `regions.py` (e.g., `Pole_temporal` shared between emotional_processing and social_cognition).
+
+## Data Size Estimates
+
+| Data | Size (raw) | Size (gzipped) | Notes |
+|------|-----------|----------------|-------|
+| 1 segment vertex array (20,484 float32) | 80 KB | ~20 KB | Per-segment cost |
+| 30 segments vertex data | 2.4 MB | ~600 KB | Typical 60s video |
+| 9 region masks (boolean arrays) | 23 KB | ~3 KB | Ship once, cache forever |
+| Current API response (30 segments, 4 regions) | ~8 KB | ~2 KB | Current baseline |
+
+**Recommendation:** Add vertex data as optional field with `include_vertices: true` input parameter (InputSchema already has `include_raw: bool`). Reuse that flag or add a new one. Keep default response lean for clients that only need region scores.
 
 ## MVP Recommendation
 
-**Prioritize (Phase 1 -- make it work):**
-1. Container with CUDA + FFmpeg + dependencies (prerequisite for everything)
-2. Model pre-loading at module level (prerequisite for handler)
-3. Handler with input validation and structured error responses
-4. Video download from URL with basic retry
-5. TRIBE v2 inference pipeline (the core value)
-6. Structured JSON output (both raw + mapped)
-7. Temp file cleanup
-8. Logging with job ID and stage timing
+**Phase 1 -- Backend extensions (no frontend changes):**
+1. Add 5 new region definitions to `regions.py` -- Low complexity, pure data
+2. Rebuild `region_masks.npz` with 9 regions -- Run `build_region_masks()` once
+3. Extend `RegionScores` schema to include 9 region fields -- Breaking change for frontend type
+4. Add per-vertex activation data to API response (optional field, gzipped)
+5. Reconsider arousal/valence formulas now that 9 regions exist
 
-**Add immediately after working (Phase 1.5 -- make it production-ready):**
-1. Progress updates (trivial to add, high debugging value)
-2. Stage-level timing in response (critical for benchmarking)
-3. Video duration validation (cost protection)
-4. Execution timeout configuration (safety net)
+**Phase 2 -- Frontend quick wins (uses existing data patterns):**
+1. Arousal and Valence metric cards -- Low complexity, immediate visible improvement
+2. Extended region toggle buttons (9 networks) -- Low complexity, extend existing pattern
+3. Timeline track grouping with selective display
 
-**Defer (Phase 2+):**
-- Cold start optimization via model baking (optimize after baseline works)
-- Worker refresh (add if memory issues observed)
-- Configurable inference parameters (add when callers need flexibility)
+**Phase 3 -- Frontend heatmap (the headline feature):**
+1. Per-vertex heatmap coloring on brain mesh -- Medium-High, replaces BrainRegionMesh pattern
+2. Colormap function + legend -- Completes the heatmap UX
+3. Heatmap animation synced to video playback
+
+**Defer to later:**
+- Arousal-Valence circumplex scatter plot
+- Network overlay isolation mode
+- Peak moment jump-to button
 
 ## Sources
 
-- [RunPod Handler Functions Documentation](https://docs.runpod.io/serverless/workers/handler-functions)
-- [RunPod Error Handling](https://docs.runpod.io/serverless/workers/handlers/handler-error-handling)
-- [RunPod Endpoint Configurations (timeout, TTL)](https://docs.runpod.io/serverless/endpoints/endpoint-configurations)
-- [RunPod Worker Template](https://github.com/runpod-workers/worker-template)
-- [RunPod Cold Start / Model Caching](https://www.runpod.io/blog/reduce-automatic1111-start-time)
-- [RunPod Payload Size Limits Discussion](https://www.answeroverflow.com/m/1199970565381967982)
-- [RunPod Monitoring and Logging](https://docs.runpod.io/serverless/development/logs)
-- [RunPod FFmpeg Worker Example](https://github.com/Csaba8472/runpod-ffmpeg)
-- [RunPod Concurrent Handlers](https://docs.runpod.io/serverless/workers/handlers/handler-concurrency)
+- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- output format, ICA network analysis
+- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- architecture, functional networks
+- [Yeo 2011 parcellation (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC3174820/) -- 7-network functional parcellation
+- [FreeSurfer Yeo2011 atlas](https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011) -- atlas availability on fsaverage5
+- [BrainBrowser](https://brainbrowser.cbrain.mcgill.ca/) -- reference web-based per-vertex surface visualization
+- [three.js vertex colors example](https://threejs.org/examples/webgl_geometry_colors.html) -- native BufferGeometry vertex color support
+- [three-brain-js](https://github.com/dipterix/three-brain-js) -- reference WebGL brain viewer
+- [Russell's Circumplex Model](https://psychologyfanatic.com/circumplex-model-of-arousal-and-valence/) -- arousal-valence 2D emotion space
+- [Colormap best practices (Matplotlib)](https://matplotlib.org/stable/users/explain/colors/colormaps.html) -- perceptual uniformity guidance
+- Existing NeuroCut codebase: `src/region_mapping/`, `web/src/components/results/`

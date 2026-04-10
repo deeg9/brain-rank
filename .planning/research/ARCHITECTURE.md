@@ -1,438 +1,487 @@
-# Architecture Patterns
+# Architecture Patterns: Per-Vertex Heatmaps, Functional Networks, Arousal/Valence
 
-**Domain:** Containerized ML inference pipeline (video-to-brain-activation scores)
-**Researched:** 2026-04-07
+**Domain:** Enhanced brain analytics integration into existing NeuroCut pipeline
+**Researched:** 2026-04-10
+**Overall confidence:** HIGH (based on direct codebase analysis + established Three.js/neuroscience patterns)
+
+## Current Architecture Summary
+
+The existing pipeline flows:
+
+```
+TRIBE v2 model
+  -> raw predictions: np.ndarray (n_segments, 20484)
+  -> postprocessor: aggregate 20,484 vertices into 4 region means
+  -> JSON API response: per-segment { activation, arousal, valence, regions: {4 floats} }
+  -> Frontend: 4 named GLB submeshes colored uniformly by region score
+```
+
+**Key insight:** The raw 20,484-vertex data already exists at the postprocessor stage. It is discarded during aggregation. The new features recover and transmit this data.
+
+---
 
 ## Recommended Architecture
 
-The system is a single RunPod serverless worker container that accepts a video URL, runs TRIBE v2 inference, and returns JSON activation scores. There is no orchestration layer, no queue management, and no persistent storage within this milestone -- RunPod handles all of that.
+### Data Flow: Per-Vertex Heatmaps
 
 ```
-Client (HTTP POST)
+Backend (postprocessor.py)
+  |
+  | predictions: (n_segments, 20484) float32
   |
   v
-RunPod Serverless Endpoint
+  robust_normalize(aligned) -- already happens
   |
   v
-+--------------------------------------------------+
-|  Worker Container                                |
-|                                                  |
-|  [Module-level initialization]                   |
-|    - Load TribeModel from HuggingFace cache      |
-|    - Warm up GPU (dummy forward pass)            |
-|                                                  |
-|  handler(job) -->                                |
-|    1. Validate input (video_url required)        |
-|    2. Download video to /tmp                     |
-|    3. model.get_events_dataframe(video_path)     |
-|       - Extracts video frames (V-JEPA2)          |
-|       - Extracts audio (Wav2Vec-BERT 2.0)        |
-|       - Transcribes speech via WhisperX (LLaMA)  |
-|       - Builds events DataFrame                  |
-|    4. model.predict(events=df)                   |
-|       - Returns (n_timesteps, 20484) ndarray     |
-|    5. Post-process: map cortical vertices to     |
-|       NeuroCut schema (segment scores)           |
-|    6. Return JSON response                       |
-|    7. Cleanup /tmp files                         |
-+--------------------------------------------------+
+  NEW: Encode full vertex array per 2-second window
+  |     average 2 consecutive 1s segments -> (20484,) float32
+  |     quantize float32 -> uint8 (0-255) -- 80x size reduction
+  |     base64 encode -> ~27KB string per window
   |
   v
-Client receives JSON scores
-```
-
-### Component Boundaries
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| **handler.py** | RunPod entry point. Validates input, orchestrates pipeline, returns response. | All components below |
-| **model_loader.py** | Module-level singleton. Loads TribeModel once at container start, holds reference. | handler.py (provides model instance) |
-| **video_fetcher.py** | Downloads video from URL to local /tmp path. Handles timeouts, retries, validation (file size, format). | handler.py (returns local path) |
-| **inference.py** | Wraps `get_events_dataframe()` and `predict()`. Isolates TRIBE v2 API surface. | model_loader.py (uses model), handler.py (returns raw predictions) |
-| **postprocessor.py** | Maps raw cortical vertex predictions (20,484 vertices) to NeuroCut schema: 2-second windows with activation, arousal, valence, region breakdown, and summary stats. | handler.py (returns formatted JSON) |
-| **schema.py** | Pydantic models for input validation and output serialization. Defines the contract. | All components |
-
-### Data Flow
-
-```
-video_url (string)
+  JSON response with vertex_data field per segment
   |
   v
-[video_fetcher] --> /tmp/video_{job_id}.mp4
+Frontend (BrainViewer)
+  |
+  | Decode base64 -> Uint8Array -> Float32Array (0.0-1.0)
   |
   v
-[inference: get_events_dataframe] --> pandas DataFrame
-  |                                   (type, start, duration, filepath, text, context)
+  Set as vertex color attribute on UNIFIED brain mesh
+  |
   v
-[inference: predict] --> numpy array (n_timesteps, 20484)
-  |                      + segments metadata
-  v
-[postprocessor] --> NeuroCut JSON schema
-  |                 - segments[]: {start, end, activation_score, arousal, valence, regions{}}
-  |                 - summary: {overall, hook_score, retention_score, peak_second, peak_score}
-  v
-handler returns dict --> RunPod serializes to JSON response
+  Three.js renders per-vertex heatmap via vertexColors
 ```
 
-## Component Details
+### Why Send Vertex Data to Frontend (Not Pre-Rendered Textures)
 
-### 1. handler.py -- RunPod Entry Point
+**Decision: Send quantized vertex arrays. Do NOT pre-render on backend.**
 
-The handler follows RunPod's required pattern exactly:
+Rationale:
+1. The GLB mesh already has 20,484 vertices matching the TRIBE v2 output 1:1 (both use fsaverage5)
+2. Three.js `BufferGeometry.setAttribute('color', ...)` maps vertex colors directly -- no UV mapping needed
+3. Backend rendering would require headless GL context on RunPod (unnecessary complexity)
+4. Quantized uint8 vertex data is ~27KB/segment gzipped to ~8-12KB -- acceptable for 30 segments (~300KB total)
+5. Frontend can interpolate between segments, apply custom colormaps, and respond to user interaction
+
+### Why Quantize to uint8
+
+- Raw float32: 20,484 * 4 bytes = ~80KB per window
+- uint8: 20,484 * 1 byte = ~20KB per window
+- Base64 of uint8: ~27KB per window
+- With gzip: ~8-12KB per window (float data compresses well)
+- For 30 windows (60s video): ~300-360KB total -- well within API limits
+- Perceptual difference between 256 levels of activation is negligible on a color gradient
+
+---
+
+## Component Boundaries
+
+### Backend Changes
+
+| Component | Change Type | Responsibility |
+|-----------|-------------|----------------|
+| `src/schema.py` | **MODIFY** | Add `vertex_data: Optional[str]` to `Segment`, add new region fields to `RegionScores`, add arousal/valence composite fields to `Summary` |
+| `src/postprocessor.py` | **MODIFY** | Encode per-window vertex arrays as base64 uint8, compute new network scores, compute arousal/valence composites for summary |
+| `src/region_mapping/regions.py` | **MODIFY** | Add 5 new network definitions (visual, auditory, language, default_mode, motion) |
+| `src/region_mapping/constants.py` | **MODIFY** | Add new region names to `NEUROCUT_REGIONS` list |
+| `data/region_masks.npz` | **REGENERATE** | Run `scripts/generate_masks.py` after updating region definitions |
+| `scripts/export_brain_glb.py` | **NO CHANGE** | Heatmap uses a single unified mesh, not per-region submeshes |
+
+### Frontend Changes
+
+| Component | Change Type | Responsibility |
+|-----------|-------------|----------------|
+| `web/src/components/results/SegmentTable.tsx` | **MODIFY** | Extend `SegmentRegionScores` interface with 5 new regions |
+| `web/src/components/results/brain-utils.ts` | **MODIFY** | Add colors for new regions, add vertex data decode utility |
+| `web/src/components/results/BrainViewerCanvas.tsx` | **MAJOR REWRITE** | Replace per-region submesh rendering with single unified mesh + vertex color heatmap |
+| `web/src/components/results/BrainRegionMesh.tsx` | **REPLACE** | Replace with `BrainHeatmapMesh.tsx` using vertex color buffer attribute |
+| `web/src/components/results/BrainViewer.tsx` | **MODIFY** | Add heatmap/region toggle, update legend for 9 networks |
+| `web/src/app/(app)/results/[id]/page.tsx` | **MODIFY** | Add arousal/valence display cards |
+| `web/src/components/results/BrainHeatmapMesh.tsx` | **NEW** | Unified brain mesh with per-vertex color attribute |
+| `web/src/components/results/ArousalValenceCard.tsx` | **NEW** | Display component for arousal/valence metrics |
+| `web/src/components/results/NetworkLegend.tsx` | **NEW** | Expandable legend for 9 functional networks |
+| `web/src/lib/vertex-codec.ts` | **NEW** | Base64 decode + uint8-to-float conversion + colormap application |
+
+---
+
+## Detailed Integration Points
+
+### 1. Backend: Vertex Data Encoding (postprocessor.py)
+
+The existing `postprocess()` function already computes 2-second windows by averaging consecutive 1s segments. The vertex encoding slots into the existing window loop.
 
 ```python
-import runpod
-from model_loader import get_model
-from video_fetcher import download_video
-from inference import run_inference
-from postprocessor import format_output
-from schema import InputSchema, OutputSchema
+# In the existing window construction loop (postprocessor.py line ~118-143):
 
-# Model loads ONCE at module level (container startup)
-model = get_model()
+import base64
 
-def handler(job):
-    """RunPod serverless handler. Called once per job."""
-    job_input = job["input"]
+# After computing window_preds (already a (1-2, 20484) array):
+vertex_mean = window_preds.mean(axis=0)  # (20484,) -- mean of 1-2 segments
+# Quantize to uint8 (0-255), already normalized to 0-1 by robust_normalize
+vertex_uint8 = (np.clip(vertex_mean, 0, 1) * 255).astype(np.uint8)
+vertex_b64 = base64.b64encode(vertex_uint8.tobytes()).decode('ascii')
 
-    # 1. Validate
-    try:
-        params = InputSchema(**job_input)
-    except Exception as e:
-        return {"error": f"Invalid input: {str(e)}"}
-
-    # 2. Download video
-    runpod.serverless.progress_update(job, "Downloading video...")
-    video_path = download_video(params.video_url, job["id"])
-
-    # 3. Run inference
-    runpod.serverless.progress_update(job, "Running brain activation analysis...")
-    raw_preds, segments = run_inference(model, video_path)
-
-    # 4. Post-process
-    runpod.serverless.progress_update(job, "Generating results...")
-    result = format_output(raw_preds, segments, params.video_url)
-
-    # 5. Cleanup
-    video_path.unlink(missing_ok=True)
-
-    return result
-
-runpod.serverless.start({"handler": handler})
+# Pass to Segment constructor:
+seg = Segment(
+    ...,
+    vertex_data=vertex_b64,  # NEW field
+)
 ```
 
-**Key pattern**: `runpod.serverless.start()` is the last line of the file. The handler receives `job` (dict with `id` and `input` keys), returns a dict or raises an exception (auto-marked FAILED by RunPod).
+**Integration risk: LOW.** This is additive -- existing fields unchanged.
 
-### 2. model_loader.py -- Singleton Model Loading
+### 2. Backend: New Functional Network Definitions (regions.py)
+
+Add 5 new networks using Destrieux atlas parcels that are neuroanatomically validated:
 
 ```python
-from tribev2 import TribeModel
-from pathlib import Path
-import torch
+# NEW entries in REGION_DEFINITIONS dict:
 
-CACHE_DIR = Path("/models/tribev2")  # Baked into Docker image
+"visual_processing": [
+    # Primary and early visual cortex (V1, V2, V3)
+    "S_calcarine",              # Calcarine sulcus (V1)
+    "G_cuneus",                 # Cuneus (V2/V3)
+    "G_occipital_sup",          # Superior occipital gyrus
+    "S_oc_sup_and_transversal", # Superior occipital sulcus
+    "G_and_S_occipital_inf",    # Inferior occipital gyrus
+    "G_oc-temp_lat-fusifor",    # Fusiform gyrus (face/object processing)
+    "Pole_occipital",           # Occipital pole
+    "S_oc_middle_and_Lunatus",  # Lunate sulcus
+],
 
-_model = None
+"auditory_processing": [
+    # Primary and secondary auditory cortex
+    "G_temp_sup-G_T_transv",    # Transverse temporal gyrus (Heschl's - A1)
+    "S_temporal_transverse",    # Transverse temporal sulcus
+    "G_temp_sup-Plan_polar",    # Planum polare (already in emotional_processing)
+    "G_temp_sup-Plan_tempo",    # Planum temporale (already in social_cognition)
+    "G_temp_sup-Lateral",       # Lateral STG (already in social_cognition)
+],
 
-def get_model():
-    global _model
-    if _model is None:
-        _model = TribeModel.from_pretrained(
-            "facebook/tribev2",
-            cache_folder=CACHE_DIR,
-        )
-        # Warm up: dummy forward pass to initialize CUDA kernels
-        # (reduces first-job latency)
-    return _model
+"language_narrative": [
+    # Broca's + Wernicke's + supporting areas
+    "G_front_inf-Triangul",     # Pars triangularis (Broca's area)
+    "G_front_inf-Opercular",    # Pars opercularis (Broca's - already in attention)
+    "S_temporal_sup",           # Superior temporal sulcus (already in social_cognition)
+    "G_pariet_inf-Angular",     # Angular gyrus (already in social_cognition)
+    "G_temp_sup-Lateral",       # Lateral STG / Wernicke's area
+    "G_temp_sup-Plan_tempo",    # Planum temporale
+],
+
+"default_mode": [
+    # Default mode network (Raichle 2001, Buckner 2008)
+    "G_precuneus",              # Precuneus (already in social_cognition)
+    "G_cingul-Post-ventral",    # Posterior cingulate (already in social_cognition)
+    "G_cingul-Post-dorsal",     # Dorsal posterior cingulate (already in emotional)
+    "G_front_sup",              # Medial prefrontal (already in social_cognition)
+    "G_front_middle",           # Middle frontal (already in attention)
+    "G_pariet_inf-Angular",     # Angular gyrus (already in social_cognition)
+    "G_rectus",                 # Medial orbital (already in reward)
+    "Pole_temporal",            # Temporal pole (already in emotional/social)
+],
+
+"motion_processing": [
+    # MT/V5 complex + associated motion areas
+    "G_temporal_middle",        # Middle temporal gyrus (MT/V5 area)
+    "S_temporal_inf",           # Inferior temporal sulcus
+    "G_occipital_middle",       # Middle occipital gyrus (V3A/V3B)
+    "G_oc-temp_med-Lingual",    # Lingual gyrus (motion processing)
+    "S_oc-temp_lat",            # Lateral occipito-temporal sulcus
+],
 ```
 
-**Critical decision**: Model weights must be baked into the Docker image at `/models/tribev2/`, not downloaded at runtime. TRIBE v2 is ~1 GB for the fusion model, but the backbone extractors (LLaMA 3.2-3B, V-JEPA2, Wav2Vec-BERT 2.0) are loaded separately and may total 10-15 GB. Downloading at cold start would add minutes.
+**Integration risk: LOW.** Parcels can overlap across networks (already the case with existing regions). The `build_region_masks()` function handles this -- each network gets its own boolean mask. Shared parcels are neuroanatomically valid (brain areas serve multiple functions).
 
-### 3. video_fetcher.py -- Video Download
+**Confidence: MEDIUM.** The Destrieux-to-functional-network mapping is approximate. The Destrieux atlas is anatomical, not functional. These mappings are based on well-established neuroscience literature but are population-level approximations. This is acceptable for NeuroCut's purpose (engagement visualization, not clinical diagnosis).
 
-```python
-from pathlib import Path
-import requests
-
-DOWNLOAD_DIR = Path("/tmp")
-MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
-DOWNLOAD_TIMEOUT = 120  # seconds
-
-def download_video(url: str, job_id: str) -> Path:
-    output_path = DOWNLOAD_DIR / f"video_{job_id}.mp4"
-    response = requests.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT)
-    response.raise_for_status()
-
-    content_length = int(response.headers.get("content-length", 0))
-    if content_length > MAX_VIDEO_SIZE:
-        raise ValueError(f"Video too large: {content_length} bytes")
-
-    with open(output_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-    return output_path
-```
-
-### 4. inference.py -- TRIBE v2 Wrapper
+### 3. Backend: Schema Changes (schema.py)
 
 ```python
-import numpy as np
-
-def run_inference(model, video_path):
-    """Run TRIBE v2 inference. Returns (predictions, segments)."""
-    df = model.get_events_dataframe(video_path=str(video_path))
-    preds, segments = model.predict(events=df)
-    return preds, segments  # preds shape: (n_timesteps, 20484)
-```
-
-This is intentionally thin. The complexity lives in TRIBE v2 internally (feature extraction with three backbone models, transformer fusion, cortical projection). Wrapping it isolates our code from TRIBE v2's internal API changes.
-
-### 5. postprocessor.py -- Cortical Vertices to NeuroCut Schema
-
-This is the most uncertain component. TRIBE v2 outputs raw fMRI predictions across 20,484 cortical vertices per timestep. The NeuroCut schema expects:
-- activation_score (0-100)
-- arousal (0-100)
-- valence (-1 to 1)
-- region breakdown: attention, reward, emotional_processing, social_cognition
-
-**Mapping strategy** (needs validation in Phase 1):
-
-```python
-import numpy as np
-
-# fsaverage5 vertex-to-region mapping (approximate ROI indices)
-# These must be derived from neuroanatomical atlases (Destrieux, Desikan-Killiany)
-REGION_MASKS = {
-    "attention": [...],           # Frontal eye fields, IPS, TPJ vertices
-    "reward": [...],              # Ventral striatum-adjacent, vmPFC vertices
-    "emotional_processing": [...], # Amygdala-adjacent, insula vertices
-    "social_cognition": [...],     # mPFC, TPJ, STS vertices
-}
-
-def format_output(preds, segments, video_url):
-    n_timesteps = preds.shape[0]
-    window_size = 2  # seconds
-
-    formatted_segments = []
-    for t in range(0, n_timesteps, window_size):
-        window = preds[t:t+window_size].mean(axis=0)  # Average across window
-
-        # Overall activation: mean across all vertices, normalized to 0-100
-        activation = normalize_to_score(window.mean())
-
-        # Region scores: mean of vertices in each ROI
-        regions = {
-            name: normalize_to_score(window[mask].mean())
-            for name, mask in REGION_MASKS.items()
-        }
-
-        formatted_segments.append({
-            "start": t,
-            "end": min(t + window_size, n_timesteps),
-            "activation_score": activation,
-            "arousal": regions["attention"],  # Proxy mapping
-            "valence": normalize_to_valence(window),
-            "regions": regions,
-        })
-
-    return {
-        "video_url": video_url,
-        "duration_seconds": n_timesteps,
-        "segments": formatted_segments,
-        "summary": compute_summary(formatted_segments),
-        "raw_shape": list(preds.shape),
-    }
-```
-
-**Important**: The mapping from cortical vertices to "attention", "reward", etc. is a neuroscience question, not an engineering one. Phase 1 must output both the raw predictions AND the mapped version so the mapping can be validated and refined.
-
-### 6. schema.py -- Input/Output Contract
-
-```python
-from pydantic import BaseModel, HttpUrl
-from typing import List, Dict, Optional
-
-class InputSchema(BaseModel):
-    video_url: str  # URL to download video from (R2 presigned URL in production)
-    include_raw: bool = False  # Whether to include raw vertex data in response
-
 class RegionScores(BaseModel):
+    # Existing (keep for backward compatibility)
     attention: float
     reward: float
     emotional_processing: float
     social_cognition: float
+    # New networks
+    visual_processing: float = 0.0      # default for backward compat
+    auditory_processing: float = 0.0
+    language_narrative: float = 0.0
+    default_mode: float = 0.0
+    motion_processing: float = 0.0
 
 class Segment(BaseModel):
-    start: int
-    end: int
+    start: float
+    end: float
     activation_score: float
     arousal: float
     valence: float
     regions: RegionScores
+    vertex_data: Optional[str] = None  # base64-encoded uint8 vertex activations
+```
 
+**Backward compatibility:** New fields have defaults. Existing consumers see the same 4 regions plus optional new ones.
+
+### 4. Frontend: Unified Heatmap Mesh (BrainHeatmapMesh.tsx)
+
+The current architecture splits the brain GLB into 5 named submeshes (4 regions + base). For per-vertex heatmaps, we need a SINGLE unified mesh where each vertex gets an individual color.
+
+**Two approaches considered:**
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| A: Load original fsaverage5 mesh as single geometry | Perfect 1:1 vertex mapping to TRIBE data | Need a new GLB with unified mesh |
+| B: Merge existing submeshes in frontend | No new GLB needed | Vertex order scrambled by trimesh export -- CANNOT map back to TRIBE indices |
+
+**Decision: Approach A -- generate a new unified GLB.**
+
+The existing `export_brain_glb.py` splits vertices into submeshes using `extract_submesh()`, which remaps vertex indices. This means `nodes.attention.geometry` vertex 0 is NOT TRIBE v2 vertex 0. Reconstructing the original ordering from split submeshes is fragile and error-prone.
+
+Instead, export a second GLB (`brain-fsaverage5-unified.glb`) with a single mesh node containing all 20,484 vertices in their original order. The existing region-split GLB remains for the legacy region view.
+
+```python
+# Addition to export_brain_glb.py:
+unified_mesh = trimesh.Trimesh(vertices=coords, faces=faces, process=False)
+trimesh.repair.fix_normals(unified_mesh)
+unified_scene = trimesh.Scene()
+unified_scene.add_geometry(unified_mesh, node_name="brain", geom_name="brain")
+unified_scene.export(UNIFIED_OUTPUT_PATH)
+```
+
+**Frontend component pattern:**
+
+```tsx
+// BrainHeatmapMesh.tsx
+function BrainHeatmapMesh({ vertexData }: { vertexData: Float32Array }) {
+  const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb');
+  const meshRef = useRef<THREE.Mesh>(null);
+  const geometry = nodes.brain.geometry;
+
+  useEffect(() => {
+    // Apply per-vertex colors from decoded activation data
+    const colors = applyColormap(vertexData); // (20484 * 3) RGB float array
+    geometry.setAttribute('color',
+      new THREE.Float32BufferAttribute(colors, 3)
+    );
+    geometry.attributes.color.needsUpdate = true;
+  }, [vertexData, geometry]);
+
+  return (
+    <mesh ref={meshRef} geometry={geometry}>
+      <meshStandardMaterial vertexColors roughness={0.6} metalness={0.3} />
+    </mesh>
+  );
+}
+```
+
+### 5. Frontend: Dual View Mode (BrainViewer.tsx)
+
+The BrainViewer should support two modes:
+
+1. **Heatmap mode** (NEW, default): Shows per-vertex activation intensity on unified mesh
+2. **Network mode** (EXISTING): Shows 4-9 functional networks as colored regions
+
+```tsx
+// BrainViewer.tsx additions:
+const [viewMode, setViewMode] = useState<'heatmap' | 'networks'>('heatmap');
+
+// In render:
+{viewMode === 'heatmap' ? (
+  <BrainHeatmapMesh vertexData={currentVertexData} />
+) : (
+  // Existing BrainRegionMesh components (4 or 9 networks)
+  {REGION_NAMES.map(name => (
+    <BrainRegionMesh key={name} ... />
+  ))}
+)}
+```
+
+### 6. Frontend: Vertex Data Decoding (vertex-codec.ts)
+
+```typescript
+// vertex-codec.ts
+export function decodeVertexData(base64: string): Float32Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  // Convert uint8 (0-255) back to float (0.0-1.0)
+  const floats = new Float32Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) {
+    floats[i] = bytes[i] / 255;
+  }
+  return floats;
+}
+
+export function applyColormap(
+  activations: Float32Array,
+  colormap: 'plasma' | 'viridis' | 'hot' = 'plasma'
+): Float32Array {
+  // Returns (N * 3) float array of RGB values
+  const colors = new Float32Array(activations.length * 3);
+  for (let i = 0; i < activations.length; i++) {
+    const [r, g, b] = colormapLookup(activations[i], colormap);
+    colors[i * 3] = r;
+    colors[i * 3 + 1] = g;
+    colors[i * 3 + 2] = b;
+  }
+  return colors;
+}
+```
+
+### 7. Frontend: Arousal/Valence Display (ArousalValenceCard.tsx)
+
+Arousal and valence are already computed per-segment in the backend (postprocessor.py lines 146-147). They are simple composites:
+
+- **Arousal** = (attention + emotional_processing) / 2
+- **Valence** = (reward + social_cognition) / 2
+
+The results page already has these values in the segment data. The new component displays them prominently:
+
+**Placement:** Below the video player, above the Neural Timeline + Brain Viewer grid. A horizontal card with two gauges/meters showing current arousal and valence at the playback position, plus sparklines showing their trajectory over the video.
+
+```
+[ Video Player                                                      ]
+[ Arousal: [=====>     ] 0.67  |  Valence: [========>  ] 0.82      ] <-- NEW
+[ Neural Timeline (col-span-6) | Brain Viewer (col-span-6)         ]
+```
+
+**No backend changes needed** for basic arousal/valence display -- the data already exists in `Segment.arousal` and `Segment.valence`.
+
+**For summary-level composites** (overall arousal/valence), add to `Summary` schema:
+
+```python
 class Summary(BaseModel):
     overall: float
-    hook_score: float  # Average of first 3 segments (0-6 seconds)
-    retention_score: float  # Trend of activation over time
-    peak_second: int
+    hook_score: float
+    retention_score: float
+    peak_second: float
     peak_score: float
-
-class OutputSchema(BaseModel):
-    video_url: str
-    duration_seconds: int
-    segments: List[Segment]
-    summary: Summary
-    raw_shape: List[int]  # For debugging: (n_timesteps, n_vertices)
+    # NEW
+    mean_arousal: float = 0.0
+    mean_valence: float = 0.0
+    peak_arousal: float = 0.0
+    peak_valence: float = 0.0
 ```
 
-## Docker Architecture
-
-```dockerfile
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
-
-# System deps
-RUN apt-get update && apt-get install -y \
-    python3.11 python3.11-pip python3.11-venv \
-    ffmpeg \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Python deps
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Pre-download and bake model weights into image
-RUN python3.11 -c "
-from tribev2 import TribeModel
-TribeModel.from_pretrained('facebook/tribev2', cache_folder='/models/tribev2')
-"
-# This also downloads backbone models (LLaMA 3.2-3B, V-JEPA2, Wav2Vec-BERT 2.0)
-# WARNING: This makes the Docker image 15-20GB+ but eliminates cold-start downloads
-
-# App code
-COPY src/ /app/
-WORKDIR /app
-
-CMD ["python3.11", "handler.py"]
-```
-
-**requirements.txt:**
-```
-runpod>=1.7.0
-torch>=2.0
-tribev2
-whisperx
-pydantic>=2.0
-requests
-numpy
-```
-
-**Container size warning**: With CUDA runtime + PyTorch + three backbone models + TRIBE v2 fusion model, expect 15-25 GB. This is normal for ML inference containers but affects:
-- Docker build time (~15-30 min)
-- Registry push/pull time
-- RunPod cold start time (first pull to worker node)
+---
 
 ## Patterns to Follow
 
-### Pattern 1: Module-Level Model Loading
-**What:** Load the model at import time (module scope), not inside the handler.
-**When:** Always for RunPod serverless workers.
-**Why:** RunPod reuses the same container for multiple jobs. Loading the model once means job 2+ start instantly. Loading inside the handler means re-loading a 15 GB model on every single request.
+### Pattern 1: Additive Schema Evolution
+**What:** Add new fields with defaults rather than changing existing fields.
+**When:** Any schema change that could break existing stored results.
+**Why:** Jobs already stored in Supabase have the old schema. New fields with defaults ensure old results still render.
 
-### Pattern 2: Progress Updates for Long Jobs
-**What:** Call `runpod.serverless.progress_update(job, message)` at each pipeline stage.
-**When:** Any job that takes more than a few seconds.
-**Why:** Video download + inference for a 60-second video may take 30-120 seconds. Without progress updates, the client has no visibility into whether the job is stuck or working.
+### Pattern 2: Lazy Decode on Frontend
+**What:** Only decode vertex_data for the segment currently being viewed, not all segments at once.
+**When:** User scrubs the timeline.
+**Why:** Decoding 30 base64 strings of 27KB each on page load would create a 200ms+ jank spike. Decode on demand and cache the last 3-5 decoded frames.
 
-### Pattern 3: Return Raw + Mapped Output in Phase 1
-**What:** Include both the post-processed NeuroCut schema AND the raw prediction shape/metadata.
-**When:** During validation (Phase 1).
-**Why:** The cortical-vertex-to-brain-region mapping is a hypothesis. Returning raw data lets you validate whether the mapping produces meaningful scores without redeploying the container.
+### Pattern 3: GLB Separation
+**What:** Keep two GLB files -- region-split (existing) and unified (new).
+**When:** Supporting both heatmap and network view modes.
+**Why:** The region-split GLB has scrambled vertex indices that cannot map to TRIBE data. The unified GLB preserves the original fsaverage5 vertex ordering.
 
-### Pattern 4: Defensive Video Download
-**What:** Validate file size before download completes. Set hard timeouts. Clean up /tmp after every job.
-**When:** Always.
-**Why:** RunPod workers have limited disk. A malicious or oversized video URL could fill /tmp and crash the worker, affecting subsequent jobs on the same container.
+---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Downloading Models at Runtime
-**What:** Calling `from_pretrained()` with a remote source inside the handler or at container startup without pre-cached weights.
-**Why bad:** TRIBE v2 + backbones = 10-15 GB. At container startup on a cold worker, this adds 2-10 minutes before the first job can run. On RunPod serverless, this means the client waits 2-10 minutes just for cold start, plus inference time.
-**Instead:** Bake all model weights into the Docker image during build. Accept the large image size.
+### Anti-Pattern 1: Sending Raw Float32 Arrays in JSON
+**What:** Serializing 20,484 float32 values as JSON numbers per segment.
+**Why bad:** 20,484 floats * ~8 chars each = ~160KB per segment as JSON text. For 30 segments = ~4.8MB of just vertex data. Base64 uint8 is 27KB/segment, ~810KB total, gzips to ~300KB.
+**Instead:** Quantize to uint8, base64 encode.
 
-### Anti-Pattern 2: Processing Multiple Videos in One Handler Call
-**What:** Accepting two video URLs and processing both in the same job.
-**Why bad:** Doubles memory usage, doubles failure blast radius, prevents RunPod from parallelizing across workers. If video B fails, video A's results are also lost.
-**Instead:** One video per job. The orchestration layer (Supabase Edge Function, built in Phase 2) dispatches two jobs and correlates results.
+### Anti-Pattern 2: Reconstructing Vertex Order from Split Meshes
+**What:** Trying to merge the 5 existing GLB submeshes back into a 20,484-vertex mesh and map vertices.
+**Why bad:** `export_brain_glb.py` uses `extract_submesh()` which remaps vertex indices. The "base" mesh vertices also lose their original indices. Reconstruction is fragile and requires maintaining a vertex index mapping.
+**Instead:** Export a unified GLB that preserves original vertex ordering.
 
-### Anti-Pattern 3: Storing State Between Jobs
-**What:** Caching video files or results between handler invocations.
-**Why bad:** RunPod may recycle workers unpredictably. Files in /tmp may or may not persist. Relying on inter-job state creates intermittent bugs.
-**Instead:** Each job is fully self-contained. Download, process, return, cleanup.
+### Anti-Pattern 3: Running Colormap on Backend
+**What:** Computing RGB colors for each vertex on the backend and sending RGB triples.
+**Why bad:** Triples the data size (3x). Prevents the user from switching colormaps without re-requesting. Couples display logic to the inference pipeline.
+**Instead:** Send scalar activation values, apply colormap on frontend.
 
-### Anti-Pattern 4: Returning Raw Vertex Arrays in Production
-**What:** Sending 20,484 floats per timestep back to the client.
-**Why bad:** For a 60-second video (60 timesteps), that is 1.2 million floats per response. Serialization is slow, network transfer is slow, and the client cannot use vertex-level data.
-**Instead:** Return the mapped NeuroCut schema (a few hundred bytes per segment). Keep a `include_raw` debug flag for Phase 1 validation only.
+### Anti-Pattern 4: Modifying the Existing GLB
+**What:** Changing `brain-fsaverage5.glb` to be unified instead of region-split.
+**Why bad:** Breaks the existing network view mode, which is still useful and already working.
+**Instead:** Add a second GLB file. Load the one needed based on view mode.
+
+---
 
 ## Scalability Considerations
 
-| Concern | At 10 jobs/day (Phase 1) | At 1K jobs/day | At 10K jobs/day |
-|---------|--------------------------|----------------|-----------------|
-| Cold starts | Acceptable (few minutes) | Set 1-2 active workers | Set 5+ active workers, use FlashBoot |
-| GPU cost | ~$0.50-2/day (pay-per-job) | ~$50-200/day | Evaluate dedicated GPU vs serverless breakeven |
-| Container registry | Any registry works | Use RunPod's recommended registry | Consider multi-region registry |
-| Inference time | Must measure in Phase 1 | Optimize if >60s per video | Consider model quantization or smaller backbones |
-| Video download | Direct URL fetch fine | Add CDN/caching layer | R2 presigned URLs with edge locations |
+| Concern | Current (30 segments) | At 120 segments (2min video) | At 300 segments (5min video) |
+|---------|----------------------|------------------------------|------------------------------|
+| JSON payload size | ~300KB gzipped | ~1.2MB gzipped | ~3MB gzipped |
+| Frontend memory (decoded) | ~2.4MB (30 * 80KB) | ~9.6MB | ~24MB |
+| Decode latency | <5ms per frame | <5ms per frame | <5ms per frame |
 
-## Build Order (Dependencies Between Components)
+For videos beyond 2 minutes, consider:
+- Sending vertex data at reduced temporal resolution (every 2nd window)
+- Making vertex_data an optional field requested via `include_vertex_data: true` input parameter
+- Streaming vertex data separately from the main JSON response
 
-```
-Phase 1a: Local Validation (no RunPod yet)
-  1. Clone tribev2, install locally, run tribe_demo.ipynb
-  2. inference.py -- wrap get_events_dataframe + predict
-  3. postprocessor.py -- map vertices to NeuroCut schema
-  4. Validate: does the output make intuitive sense?
+---
 
-Phase 1b: Containerization
-  5. schema.py -- define input/output contract
-  6. video_fetcher.py -- download from URL
-  7. model_loader.py -- singleton loading pattern
-  8. handler.py -- wire everything together
-  9. Dockerfile -- build with baked weights
-  10. test_input.json -- local testing with runpod SDK
+## Suggested Build Order
 
-Phase 1c: Deployment
-  11. Push image to Docker Hub / RunPod registry
-  12. Create RunPod serverless endpoint
-  13. End-to-end test: POST video URL, receive JSON
-  14. Measure inference time, document cold start
-```
+Based on dependency analysis, the recommended implementation order is:
 
-**Critical path**: Steps 1-4 block everything. If TRIBE v2 does not produce meaningful per-segment differentiation on test videos, the entire product hypothesis is invalid. Do not containerize until local validation passes.
+### Phase 1: New Functional Networks (Backend Only)
+1. Update `regions.py` with 5 new network definitions
+2. Update `constants.py` with new region names
+3. Regenerate `data/region_masks.npz`
+4. Update `schema.py` (RegionScores with new fields)
+5. Update `postprocessor.py` to compute new network scores
+6. Test: existing pipeline still works, new regions appear in output
 
-## Key Unknowns (Must Resolve in Phase 1)
+**Why first:** Zero frontend risk. Pure additive. Validates neuroscience mappings.
 
-1. **TRIBE v2 output interpretation**: The model outputs cortical vertex activations, not "attention" or "arousal" scores. The mapping from 20,484 vertices to 4-5 named brain regions is a neuroscience question. This mapping must be validated against known stimuli (high-engagement vs. low-engagement videos).
+### Phase 2: Vertex Data Pipeline (Backend)
+1. Add vertex data encoding to `postprocessor.py`
+2. Add `vertex_data` field to `Segment` schema
+3. Add `include_vertex_data` option to `InputSchema` (default false for backward compat)
+4. Test: vertex_data appears in output, correct size, decodable
 
-2. **Inference time**: No published benchmarks for TRIBE v2 inference. The model runs three large backbone extractors (LLaMA 3.2-3B, V-JEPA2, Wav2Vec-BERT 2.0) sequentially. Expect 30-120 seconds per 60-second video on an A100, but this is an estimate.
+**Why second:** Backend must produce data before frontend can consume it.
 
-3. **WhisperX dependency**: TRIBE v2 uses WhisperX internally for speech transcription. WhisperX requires its own model weights and CUDA. This adds to container size and may have version conflicts with TRIBE v2's torch requirements.
+### Phase 3: Unified GLB Export
+1. Modify `export_brain_glb.py` to also export unified mesh
+2. Generate `brain-fsaverage5-unified.glb`
+3. Verify vertex count matches N_VERTICES (20,484)
 
-4. **GPU memory**: Three backbone models + fusion transformer, all loaded simultaneously. Likely requires 16-24 GB VRAM minimum. A100 (40/80 GB) is safe. A40 (48 GB) should work. Lower-end GPUs (T4 at 16 GB) may not fit.
+**Why third:** Frontend heatmap component needs this asset.
 
-5. **Temporal resolution**: TRIBE v2 outputs one prediction per second with a 5-second hemodynamic delay offset. The NeuroCut schema expects 2-second windows. The postprocessor must handle this alignment correctly.
+### Phase 4: Frontend Heatmap Viewer
+1. Create `vertex-codec.ts` (decode + colormap)
+2. Create `BrainHeatmapMesh.tsx` (unified mesh + vertex colors)
+3. Update `BrainViewerCanvas.tsx` with dual mode support
+4. Update `BrainViewer.tsx` with heatmap/network toggle
+5. Test: vertex data renders as smooth heatmap on brain
+
+**Why fourth:** Depends on unified GLB + backend vertex data.
+
+### Phase 5: Arousal/Valence Display + Network Legend
+1. Create `ArousalValenceCard.tsx`
+2. Create `NetworkLegend.tsx` for 9 networks
+3. Update results page layout
+4. Update `brain-utils.ts` with new region colors
+5. Update `SegmentTable.tsx` types
+
+**Why last:** Pure UI, no data dependencies, can be done in parallel with Phase 4.
+
+---
 
 ## Sources
 
-- [RunPod Handler Functions Documentation](https://docs.runpod.io/serverless/workers/handler-functions) -- HIGH confidence
-- [RunPod Worker Template](https://github.com/runpod-workers/worker-template) -- HIGH confidence
-- [RunPod Optimization Guide](https://docs.runpod.io/serverless/development/optimization) -- HIGH confidence
-- [RunPod Model Caching](https://docs.runpod.io/serverless/endpoints/model-caching) -- HIGH confidence
-- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- HIGH confidence
-- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- HIGH confidence
-- [TRIBE v2 on HuggingFace](https://huggingface.co/facebook/tribev2) -- HIGH confidence
-- [Meta AI Blog: TRIBE v2 Announcement](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- HIGH confidence
-- [RunPod Serverless Scaling Blog](https://www.runpod.io/blog/serverless-scaling-strategy-runpod) -- MEDIUM confidence
+- Codebase analysis: `src/postprocessor.py`, `src/schema.py`, `src/region_mapping/`, `scripts/export_brain_glb.py`, `web/src/components/results/`
+- [Three.js BufferGeometry vertex colors](https://dustinpfister.github.io/2023/01/20/threejs-buffer-geometry-attributes-color/) -- pattern for per-vertex coloring
+- [Three.js Custom Shader Materials](https://blog.cjgammon.com/threejs-custom-shader-material/) -- custom attributes in shaders
+- [Destrieux Atlas - Nilearn](https://nilearn.github.io/dev/modules/description/destrieux_surface.html) -- atlas label reference
+- [Destrieux et al. 2010 - Automatic parcellation of cortical gyri and sulci](https://pmc.ncbi.nlm.nih.gov/articles/PMC2937159/) -- anatomical parcellation reference
+- [Default Mode Network regions from Destrieux atlas](https://www.researchgate.net/figure/The-25-default-mode-network-regions-and-seed-points-are-based-on-the-Destrieux-atlas-The_fig1_377579316) -- DMN-to-Destrieux mapping
+- [JSON compression with gzip](https://zuplo.com/learning-center/implementing-data-compression-in-rest-apis-with-gzip-and-brotli) -- payload size optimization
+- [React Three Fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction) -- R3F patterns
