@@ -25,9 +25,9 @@ Requirements for Enhanced Brain Analytics milestone. Each maps to roadmap phases
 
 ### Brain Visualization
 
-- [ ] **VIZ-01**: User can see per-vertex cortical heatmap on the 3D brain showing activation intensity across all 20,484 vertices
-- [ ] **VIZ-02**: User can toggle between heatmap view and region-blob view on the brain viewer
-- [ ] **VIZ-03**: User can select between colormap options (Inferno, Plasma, Viridis) for the heatmap
+- [x] **VIZ-01**: User can see per-vertex cortical heatmap on the 3D brain showing activation intensity across all 20,484 vertices
+- [x] **VIZ-02**: User can toggle between heatmap view and region-blob view on the brain viewer
+- [x] **VIZ-03**: User can select between colormap options (Inferno, Plasma, Viridis) for the heatmap
 
 ### Functional Networks
 
@@ -79,9 +79,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-02 | Phase 29 | Pending |
 | COMP-03 | Phase 30 | Pending |
 | COMP-04 | Phase 31 | Pending |
-| VIZ-01 | Phase 36 | Pending |
-| VIZ-02 | Phase 36 | Pending |
-| VIZ-03 | Phase 36 | Pending |
+| VIZ-01 | Phase 36 | Complete |
+| VIZ-02 | Phase 36 | Complete |
+| VIZ-03 | Phase 36 | Complete |
 | NET-01 | Phase 33 | Complete |
 | NET-02 | Phase 37 | Pending |
 | DATA-01 | Phase 34 | Complete |

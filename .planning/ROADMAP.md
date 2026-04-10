@@ -526,9 +526,9 @@ Plans:
   3. User can select between at least 3 colormap options (Inferno, Plasma, Viridis) and the heatmap updates immediately
   4. Scrubbing the timeline updates the heatmap colors in real-time without perceptible lag
 **UI hint**: yes
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 36-01-PLAN.md — Per-vertex heatmap mesh, colormap utility, dual view mode toggle
+- [x] 36-01-PLAN.md — Per-vertex heatmap mesh, colormap utility, dual view mode toggle
 
 ### Phase 37: Arousal/Valence Display & Network Legend
 **Goal**: Users can see arousal and valence metrics and interact with all 9 functional networks on the results page
@@ -591,5 +591,5 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 35. Unified GLB Mesh Export | v2.2 | 1/1 | Complete   | 2026-04-10 |
-| 36. Cortical Heatmap Viewer | v2.2 | 0/0 | Not started | - |
+| 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 37. Arousal/Valence & Network Legend | v2.2 | 0/0 | Not started | - |
