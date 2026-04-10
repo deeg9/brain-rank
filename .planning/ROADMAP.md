@@ -494,7 +494,7 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
-| 32. 3D Brain Viewer | v2.1 | 0/0 | Planning | - |
+| 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
 
 ### Phase 32: 3D Brain Viewer
 
@@ -506,8 +506,9 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
   2. Four brain regions (attention, reward, emotional processing, social cognition) glow independently based on per-segment activation scores
   3. The brain visualization syncs with the video timeline — scrubbing the video updates region colors in real-time
   4. Bloom/glow postprocessing creates a visually striking "lighting up" effect matching the NeuroCut dark theme
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 32 to break down)
+- [ ] 32-01-PLAN.md — R3F deps, brain-utils, Python mesh conversion to GLB
+- [ ] 32-02-PLAN.md — BrainViewer R3F component, results page integration, visual verification
 **UI hint**: yes
