@@ -3,7 +3,7 @@ import { Button } from "@/components/ui";
 
 export default function WelcomePage() {
   return (
-    <body className="min-h-screen flex flex-col items-center justify-center bg-background text-on-surface selection:bg-primary/30">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-on-surface selection:bg-primary/30">
       {/* Decorative background blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/8 rounded-full blur-[128px]" />
@@ -14,11 +14,11 @@ export default function WelcomePage() {
         {/* Header Section */}
         <header className="flex justify-between items-center py-12">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 neural-gradient rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-on-background">
-                psychology
-              </span>
-            </div>
+            <img
+              src="/illustrations/logo-icon.png"
+              alt="NeuroCut"
+              className="w-10 h-10 rounded-lg"
+            />
             <span className="font-headline font-black text-xl tracking-tight text-on-background">
               NeuroCut
             </span>
@@ -33,25 +33,16 @@ export default function WelcomePage() {
 
         {/* Centered Content Canvas */}
         <div className="flex-grow flex flex-col items-center justify-center gap-10">
-          {/* Hero Illustration Placeholder */}
+          {/* Hero Illustration */}
           <div className="w-full aspect-video bg-surface-container rounded-xl overflow-hidden relative group">
-            {/* Gradient placeholder instead of external image */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-surface-container to-secondary/10 opacity-40 group-hover:opacity-50 transition-opacity duration-700" />
-
-            {/* Central Icon Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="p-8 rounded-full bg-surface-container-high/80 backdrop-blur-md mb-4 border border-outline-variant/10">
-                <span
-                  className="material-symbols-outlined text-primary text-6xl"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  play_circle
-                </span>
-              </div>
-            </div>
+            <img
+              src="/illustrations/welcome-hero.png"
+              alt="Neural network visualization"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
 
             {/* Floating Semantic Element */}
-            <div className="absolute bottom-6 left-6 glass-surface px-4 py-2 rounded-lg flex items-center gap-3 border border-outline-variant/10">
+            <div className="absolute bottom-6 left-6 glass-surface px-4 py-2 rounded-lg flex items-center gap-3 border border-outline-variant/10 backdrop-blur-md bg-surface-container-high/60">
               <span className="material-symbols-outlined text-secondary text-sm">
                 insights
               </span>
@@ -104,6 +95,6 @@ export default function WelcomePage() {
           </div>
         </footer>
       </main>
-    </body>
+    </div>
   );
 }

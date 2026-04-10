@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 export function OfflineDetector() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  const [isOnline, setIsOnline] = useState(true);
   const [reconnecting, setReconnecting] = useState(false);
 
   const handleOnline = useCallback(() => {
@@ -26,6 +24,7 @@ export function OfflineDetector() {
   }, []);
 
   useEffect(() => {
+    setIsOnline(navigator.onLine);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     return () => {

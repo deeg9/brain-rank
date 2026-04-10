@@ -35,8 +35,8 @@
 ### Results
 
 - [ ] **RSLT-01**: Results Overview shows overall score, hook score, retention, peak moment from API response
-- [ ] **RSLT-02**: Results Overview shows neural activation timeline visualization
-- [ ] **RSLT-03**: Results Detail shows per-region breakdown (attention, reward, emotional, social)
+- [x] **RSLT-02**: Results Overview shows neural activation timeline visualization
+- [x] **RSLT-03**: Results Detail shows per-region breakdown (attention, reward, emotional, social)
 - [ ] **RSLT-04**: Results Detail shows segment-level data with timestamps
 - [ ] **RSLT-05**: User can export results as JSON
 
@@ -108,8 +108,8 @@ Deferred to future release.
 | PROC-03 | Phase 18 | Pending |
 | PROC-04 | Phase 18 | Pending |
 | RSLT-01 | Phase 20 | Pending |
-| RSLT-02 | Phase 20 | Pending |
-| RSLT-03 | Phase 20 | Pending |
+| RSLT-02 | Phase 20 | Complete |
+| RSLT-03 | Phase 20 | Complete |
 | RSLT-04 | Phase 20 | Pending |
 | RSLT-05 | Phase 20 | Pending |
 | DASH-01 | Phase 21 | Pending |

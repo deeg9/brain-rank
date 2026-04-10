@@ -12,8 +12,6 @@ interface NavItem {
 const mainNavItems: NavItem[] = [
   { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
   { icon: "cloud_upload", label: "Upload", href: "/upload" },
-  { icon: "psychology", label: "Processing", href: "/processing" },
-  { icon: "analytics", label: "Results", href: "/results" },
   { icon: "settings", label: "Settings", href: "/settings" },
 ];
 
