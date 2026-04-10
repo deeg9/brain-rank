@@ -418,7 +418,9 @@ Plans:
   2. After dropping or selecting a file, a progress bar animates the upload progress and a video thumbnail preview is generated and displayed
   3. User can add multiple files and manage the file list (remove files before confirming upload)
   4. The upload zone integrates with the existing Supabase Storage upload flow without breaking job creation
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 29-01-PLAN.md — AnimatedFileUpload component, VideoThumbnail, upload page integration
 **UI hint**: yes
 
 ### Phase 30: Wave Loader
@@ -483,6 +485,6 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
 | 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
 | 28. Sliding Number Counters | v2.1 | 0/0 | Not started | - |
-| 29. Animated File Upload | v2.1 | 0/0 | Not started | - |
+| 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/0 | Not started | - |
 | 31. Hero Odyssey | v2.1 | 0/0 | Not started | - |
