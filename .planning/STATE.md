@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Frontend Implementation
 status: verifying
-stopped_at: Completed 34-01-PLAN.md
-last_updated: "2026-04-10T20:28:19.932Z"
+stopped_at: Completed 35-01-PLAN.md
+last_updated: "2026-04-10T20:35:28.443Z"
 last_activity: 2026-04-10
 progress:
-  total_phases: 8
-  completed_phases: 5
-  total_plans: 9
-  completed_plans: 5
-  percent: 56
+  total_phases: 9
+  completed_phases: 6
+  total_plans: 10
+  completed_plans: 6
+  percent: 60
 ---
 
 # Project State
@@ -21,11 +21,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Phase 34 — Vertex Data Pipeline
+**Current focus:** Phase 35 — Unified GLB Mesh Export
 
 ## Current Position
 
-Phase: 34 (Vertex Data Pipeline) — EXECUTING
+Phase: 35 (Unified GLB Mesh Export) — EXECUTING
 Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-10
@@ -51,6 +51,7 @@ Progress: [██████████████████░░] 84% (23
 *Updated after each plan completion*
 | Phase 33 P01 | 252s | 2 tasks | 11 files |
 | Phase 34 P01 | 4min | 3 tasks | 7 files |
+| Phase 35 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Progress: [██████████████████░░] 84% (23
 - [Phase 33]: Used 0.0 defaults for new RegionScores fields for backward compatibility with existing 4-region payloads
 - [Phase 33]: Replaced hardcoded RegionScores construction with dynamic RegionScores(**region_vals)
 - [Phase 34]: Used Optional[str] for Python 3.9 compat; include_vertex_data defaults True; uint8 quantization for 65% payload reduction
+- [Phase 35]: Used process=False on trimesh.Trimesh to preserve fsaverage5 vertex ordering for TRIBE v2 index mapping
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T20:28:19.929Z
-Stopped at: Completed 34-01-PLAN.md
+Last session: 2026-04-10T20:35:28.440Z
+Stopped at: Completed 35-01-PLAN.md
 Resume file: None

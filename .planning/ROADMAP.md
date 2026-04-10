@@ -512,9 +512,9 @@ Plans:
   1. A Python script reads the fsaverage5 surface files and produces a GLB with 20,484 vertices whose indices match the TRIBE v2 output ordering
   2. The GLB loads in the existing react-three-fiber brain viewer and renders a recognizable cortical surface
   3. Vertex i in the decoded activation array corresponds to vertex i in the GLB mesh (no index remapping needed at runtime)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
+- [x] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
 
 ### Phase 36: Cortical Heatmap Viewer
 **Goal**: Users can see per-vertex activation intensity painted directly on the 3D brain surface and switch between heatmap and region-blob views
@@ -590,6 +590,6 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
-| 35. Unified GLB Mesh Export | v2.2 | 0/0 | Not started | - |
+| 35. Unified GLB Mesh Export | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 36. Cortical Heatmap Viewer | v2.2 | 0/0 | Not started | - |
 | 37. Arousal/Valence & Network Legend | v2.2 | 0/0 | Not started | - |

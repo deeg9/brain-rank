@@ -38,7 +38,7 @@ Requirements for Enhanced Brain Analytics milestone. Each maps to roadmap phases
 
 - [x] **DATA-01**: Pipeline sends per-vertex activation data as quantized uint8 base64 to minimize payload size
 - [x] **DATA-02**: API schema supports 9 functional network region scores while remaining backward-compatible with existing 4-region jobs
-- [ ] **DATA-03**: A unified GLB mesh with 20,484 vertices preserving fsaverage5 ordering exists for heatmap rendering
+- [x] **DATA-03**: A unified GLB mesh with 20,484 vertices preserving fsaverage5 ordering exists for heatmap rendering
 
 ### Arousal/Valence
 
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NET-02 | Phase 37 | Pending |
 | DATA-01 | Phase 34 | Complete |
 | DATA-02 | Phase 33 | Complete |
-| DATA-03 | Phase 35 | Pending |
+| DATA-03 | Phase 35 | Complete |
 | AV-01 | Phase 37 | Pending |
 | AV-02 | Phase 37 | Pending |
 
