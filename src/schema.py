@@ -12,7 +12,7 @@ the inference/postprocessor pipeline (Phase 7) build against.
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Optional
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, field_validator
@@ -29,6 +29,7 @@ class InputSchema(BaseModel):
 
     video_url: str
     include_raw: bool = False
+    include_vertex_data: bool = True
 
     @field_validator("video_url")
     @classmethod
@@ -71,6 +72,7 @@ class Segment(BaseModel):
     arousal: float
     valence: float
     regions: RegionScores
+    vertex_data: Optional[str] = None
 
 
 class Summary(BaseModel):
