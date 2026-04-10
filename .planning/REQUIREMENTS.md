@@ -42,18 +42,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | — | Pending |
-| FOUN-02 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
+| FOUN-01 | Phase 27 | Pending |
+| FOUN-02 | Phase 27 | Pending |
+| COMP-01 | Phase 28 | Pending |
+| COMP-02 | Phase 29 | Pending |
+| COMP-03 | Phase 30 | Pending |
+| COMP-04 | Phase 31 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 6 total
-- Mapped to phases: 0
-- Unmapped: 6
+- Mapped to phases: 6
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-10 after initial definition*
+*Last updated: 2026-04-10 after roadmap creation*

@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: 21st.dev Component Integration
-status: defining_requirements
+status: ready_to_plan
 stopped_at: null
 last_updated: "2026-04-10"
-last_activity: "2026-04-10 - Milestone v2.1 started"
+last_activity: "2026-04-10 - Roadmap created for v2.1 (Phases 27-31)"
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Defining requirements for v2.1
+**Current focus:** Phase 27 — Animation Foundation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 27 of 31 (Animation Foundation)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-10 — Milestone v2.1 started
+Status: Ready to plan
+Last activity: 2026-04-10 — Roadmap created for v2.1 milestone (Phases 27-31)
 
-Progress: Not started
+Progress: [██████████████████░░] 84% (26/31 phases complete across all milestones)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 34 (v1.0 + v1.1)
+- Total plans completed: 34 (v1.0 + v1.1 + v2.0)
 - Average duration: varies
 - Total execution time: ~2 days
 
@@ -46,15 +46,7 @@ Progress: Not started
 |-------|-------|-------|----------|
 | v1.0 (1-10) | 14 | ~1.5 days | - |
 | v1.1 (11-14) | 7 | ~0.5 days | - |
-| 15 | 3 | - | - |
-| 16 | 1 | - | - |
-| 17 | 2 | - | - |
-| 18 | 2 | - | - |
-| 19 | 1 | - | - |
-| 20 | 2 | - | - |
-| 21 | 1 | - | - |
-| 22 | 1 | - | - |
-| 23 | 1 | - | - |
+| v2.0 (15-23) | 14 | ~1 day | - |
 
 *Updated after each plan completion*
 
@@ -63,17 +55,9 @@ Progress: Not started
 ### Decisions
 
 - [v1.0]: RunPod async endpoint validated (POST /run, poll /status)
-- [v1.0]: 12+ min inference time -- async UX required
-- [v1.1]: 15 Stitch screens received (10 batch 2 + 5 batch 3)
-- [v1.1]: Design system: tonal layering, neural-gradient, Space Grotesk + Inter
+- [v1.1]: 15 Stitch screens received, design system documented
 - [v2.0]: Next.js + Supabase stack selected
-- [v2.0]: 9 phases (15-23) covering 34 requirements
-
-### Roadmap Evolution
-
-- Phase 24 added: Results Detail Multi-Track Neural Activation Timeline
-- Phase 25 added: Synced Video Player and Neural Timeline Scrubber
-- Phase 26 added: Research-Backed Neural Insights and Benchmark Engine
+- [v2.1]: 21st.dev components chosen: Sliding Number, File Upload, Wave Loader, Hero Odyssey
 
 ### Pending Todos
 
@@ -81,10 +65,9 @@ None yet.
 
 ### Blockers/Concerns
 
-- Supabase setup needed (auth, database, storage)
-- RunPod API key management for frontend->backend->RunPod flow
-- Video upload storage (R2/S3 or Supabase Storage)
-- Credit system is UI-only for v2.0 (no real payments)
+- Phase 27 (foundation) must complete before any component phases can start
+- COMP-02 (File Upload) replaces existing upload page — needs careful integration with Supabase Storage flow
+- COMP-04 (Hero Odyssey) requires WebGL — needs graceful fallback strategy
 
 ### Quick Tasks Completed
 
@@ -99,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T05:43:06.703Z
-Stopped at: Phase 25 executed — synced video player + timeline scrubber
-Resume file: .planning/phases/25-synced-video-player-and-neural-timeline-scrubber/25-01-PLAN.md
+Last session: 2026-04-10
+Stopped at: Roadmap created for v2.1 milestone
+Resume file: None

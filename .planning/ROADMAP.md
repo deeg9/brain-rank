@@ -4,7 +4,8 @@
 
 - ✅ **v1.0 Inference Pipeline** - Phases 1-10 (shipped 2026-04-09)
 - ✅ **v1.1 UI Audit & Consolidation** - Phases 11-14 (shipped 2026-04-09)
-- 🚧 **v2.0 Frontend Implementation** - Phases 15-23 (in progress)
+- 🚧 **v2.0 Frontend Implementation** - Phases 15-26 (in progress)
+- 📋 **v2.1 21st.dev Component Integration** - Phases 27-31 (planned)
 
 ## Phases
 
@@ -47,6 +48,19 @@
 - [ ] **Phase 21: Dashboard** - Job history list, navigation to past results, empty state
 - [ ] **Phase 22: Settings & Profile** - Account settings, notifications, billing page, profile with stats
 - [ ] **Phase 23: Error Handling** - 404, 500, and offline error pages
+- [ ] **Phase 24: Neural Timeline** - Multi-track neural activation timeline with synchronized crosshair
+- [ ] **Phase 25: Video Player + Scrubber** - Synced video player and neural timeline scrubber
+- [ ] **Phase 26: Neural Insights + Benchmark** - Research-backed insights and benchmark engine
+
+### v2.1 21st.dev Component Integration (Planned)
+
+**Milestone Goal:** Integrate 4 premium animated components from 21st.dev into the NeuroCut web app, adapted to the existing dark/neural design system, to elevate the UI with polished animations and interactions.
+
+- [ ] **Phase 27: Animation Foundation** - Framer Motion dependency and cn() utility for all animated components
+- [ ] **Phase 28: Sliding Number Counters** - Spring-animated score counters on results page
+- [ ] **Phase 29: Animated File Upload** - Drag-and-drop upload zone with progress bars and video thumbnails
+- [ ] **Phase 30: Wave Loader** - Neural signal wave animation for processing wait state
+- [ ] **Phase 31: Hero Odyssey** - WebGL lightning shader hero section for welcome/marketing page
 
 ## Phase Details
 
@@ -371,12 +385,71 @@ Plans:
 Plans:
 - [ ] 26-01-PLAN.md — Benchmark engine, InsightsPanel, timeline annotations, BenchmarkCards, page wiring
 
+### Phase 27: Animation Foundation
+**Goal**: Framer Motion and class-merging utilities are installed and verified, enabling all subsequent animated component work
+**Depends on**: Phase 15 (existing Next.js project)
+**Requirements**: FOUN-01, FOUN-02
+**Success Criteria** (what must be TRUE):
+  1. Framer Motion and react-use-measure are installed and a test animation renders without errors in the existing app
+  2. A cn() utility combining clsx and tailwind-merge is available and correctly merges conflicting Tailwind classes
+  3. An existing component (e.g., a card or button) can be wrapped with a Framer Motion animation without breaking its current styling or behavior
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 28: Sliding Number Counters
+**Goal**: Brain activation scores on the results page animate into view with spring-physics number counters instead of appearing as static text
+**Depends on**: Phase 27 (Framer Motion required), Phase 20 (results page exists)
+**Requirements**: COMP-01
+**Success Criteria** (what must be TRUE):
+  1. The overall score, hook score, retention percentage, and peak moment on the Results Overview page animate from 0 to their final values with a visible spring-physics motion
+  2. The animation triggers when the results page loads or when scores first enter the viewport
+  3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 29: Animated File Upload
+**Goal**: The upload page has a polished drag-and-drop zone with animated transitions, per-file progress bars, and video thumbnail previews replacing the current upload implementation
+**Depends on**: Phase 27 (Framer Motion required), Phase 18 (upload page exists)
+**Requirements**: COMP-02
+**Success Criteria** (what must be TRUE):
+  1. User can drag a video file over the upload zone and see a visual hover/active state animation indicating the drop target
+  2. After dropping or selecting a file, a progress bar animates the upload progress and a video thumbnail preview is generated and displayed
+  3. User can add multiple files and manage the file list (remove files before confirming upload)
+  4. The upload zone integrates with the existing Supabase Storage upload flow without breaking job creation
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 30: Wave Loader
+**Goal**: The processing wait state displays a neural signal wave animation instead of the current loading indicator
+**Depends on**: Phase 27 (Framer Motion required), Phase 18 (processing page exists)
+**Requirements**: COMP-03
+**Success Criteria** (what must be TRUE):
+  1. The processing page shows an animated wave form that evokes a neural signal/EEG aesthetic while inference runs
+  2. The wave animation runs smoothly without jank and adapts to the NeuroCut purple/cyan color palette
+  3. The wave loader coexists with the existing progress stages and percentage indicator without replacing status information
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 31: Hero Odyssey
+**Goal**: The welcome/marketing page has a WebGL lightning shader hero section that establishes the neural/scientific brand identity
+**Depends on**: Phase 27 (Framer Motion required)
+**Requirements**: COMP-04
+**Success Criteria** (what must be TRUE):
+  1. The welcome page renders a WebGL lightning shader animation in the hero section that runs at 60fps on modern browsers
+  2. The shader is adapted to the NeuroCut purple/cyan palette with neural-aesthetic lightning effects
+  3. The hero section includes a call-to-action that navigates to the upload or signup flow
+  4. The WebGL shader degrades gracefully on devices that do not support WebGL (shows a static fallback)
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
 Phases 1-10: Complete (v1.0)
 Phases 11-14: Complete (v1.1)
 Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
+Phases 24-26: 24 -> 25 -> 26
+Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -394,15 +467,20 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 12. Component Catalog | v1.1 | 2/2 | Complete | 2026-04-09 |
 | 13. Gap Analysis | v1.1 | 1/1 | Complete | 2026-04-09 |
 | 14. Stitch Brief | v1.1 | 1/1 | Complete | 2026-04-09 |
-| 15. Scaffold & Design System | v2.0 | 3/3 | Complete    | 2026-04-09 |
-| 16. Backend Foundation | v2.0 | 1/1 | Complete    | 2026-04-09 |
-| 17. Authentication Flow | v2.0 | 2/2 | Complete    | 2026-04-09 |
-| 18. Upload & Processing | v2.0 | 2/2 | Complete    | 2026-04-10 |
-| 19. API Integration | v2.0 | 1/1 | Complete    | 2026-04-10 |
-| 20. Results Display | v2.0 | 2/2 | Complete    | 2026-04-10 |
-| 21. Dashboard | v2.0 | 1/1 | Complete    | 2026-04-10 |
-| 22. Settings & Profile | v2.0 | 1/1 | Complete    | 2026-04-10 |
-| 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
-| 24. Neural Timeline | v2.0 | 0/1 | Planning    | - |
-| 25. Video Player + Scrubber | v2.0 | 0/1 | Planning    | - |
-| 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning    | - |
+| 15. Scaffold & Design System | v2.0 | 3/3 | Complete | 2026-04-09 |
+| 16. Backend Foundation | v2.0 | 1/1 | Complete | 2026-04-09 |
+| 17. Authentication Flow | v2.0 | 2/2 | Complete | 2026-04-09 |
+| 18. Upload & Processing | v2.0 | 2/2 | Complete | 2026-04-10 |
+| 19. API Integration | v2.0 | 1/1 | Complete | 2026-04-10 |
+| 20. Results Display | v2.0 | 2/2 | Complete | 2026-04-10 |
+| 21. Dashboard | v2.0 | 1/1 | Complete | 2026-04-10 |
+| 22. Settings & Profile | v2.0 | 1/1 | Complete | 2026-04-10 |
+| 23. Error Handling | v2.0 | 1/1 | Complete | 2026-04-10 |
+| 24. Neural Timeline | v2.0 | 0/1 | Planning | - |
+| 25. Video Player + Scrubber | v2.0 | 0/1 | Planning | - |
+| 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
+| 27. Animation Foundation | v2.1 | 0/0 | Not started | - |
+| 28. Sliding Number Counters | v2.1 | 0/0 | Not started | - |
+| 29. Animated File Upload | v2.1 | 0/0 | Not started | - |
+| 30. Wave Loader | v2.1 | 0/0 | Not started | - |
+| 31. Hero Odyssey | v2.1 | 0/0 | Not started | - |
