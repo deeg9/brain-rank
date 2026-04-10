@@ -488,7 +488,9 @@ Plans:
   1. The regions.py module defines vertex masks for 5 new functional networks (visual processing, auditory processing, language/narrative, default mode, motion processing) using Destrieux atlas parcels
   2. The API response schema includes all 9 functional network scores per segment while existing 4-region jobs still parse correctly without client changes
   3. Running inference on a test video returns scores for all 9 networks with plausible differentiation (not all identical values)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 33-01-PLAN.md — Add 5 new functional networks (backend + frontend) and update API schema
 
 ### Phase 34: Vertex Data Pipeline
 **Goal**: Per-vertex activation data is transmitted efficiently as quantized uint8 base64-encoded payloads instead of raw float arrays
