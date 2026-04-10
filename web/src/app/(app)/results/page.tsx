@@ -202,41 +202,45 @@ export default function ResultsPage() {
             label="Overall Score"
             value={Math.round(summary.overall * 100)}
             icon="analytics"
-            colorClass="text-on-surface"
+            colorClass="text-on-surface animate-score-in"
+            className="glass-surface glow-primary-lg"
           />
           <div className="grid grid-cols-2 gap-4">
             <MetricCard
               label="Hook Score"
               value={Math.round(summary.hook_score * 100)}
               colorClass="text-secondary"
-              className="p-5"
+              className="p-5 glass-surface"
             />
             <MetricCard
               label="Retention"
               value={`${Math.round(summary.retention_score * 100)}%`}
               colorClass="text-tertiary-fixed-dim"
-              className="p-5"
+              className="p-5 glass-surface"
             />
           </div>
           <MetricCard
             label="Peak Moment"
             value={formatTimestamp(summary.peak_second)}
             sublabel={`Peak Score: ${summary.peak_score.toFixed(2)}`}
+            className="glass-surface"
           />
         </div>
       </div>
 
       {/* Row 2: Neural Activation Timeline */}
+      <div className="animate-score-in">
       <ActivationTimeline
         segments={results.segments}
         duration={results.duration_seconds}
       />
+      </div>
 
       {/* Row 3: View Full Analysis link */}
       <div className="flex justify-end">
         <Link
           href={`/results/${jobId}`}
-          className="neural-gradient text-on-background py-4 px-8 rounded-xl font-headline font-bold text-base tracking-widest uppercase shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all"
+          className="neural-gradient text-on-background py-4 px-8 rounded-xl font-headline font-bold text-base tracking-widest uppercase shadow-lg shadow-primary/20 hover:brightness-110 hover:glow-primary active:scale-[0.98] transition-all duration-300"
         >
           View Full Analysis
         </Link>
