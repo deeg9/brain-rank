@@ -478,11 +478,11 @@ Plans:
   2. Four brain regions (attention, reward, emotional processing, social cognition) glow independently based on per-segment activation scores
   3. The brain visualization syncs with the video timeline — scrubbing the video updates region colors in real-time
   4. Bloom/glow postprocessing creates a visually striking "lighting up" effect matching the NeuroCut dark theme
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 32-01-PLAN.md — R3F deps, brain-utils, Python mesh conversion to GLB
-- [ ] 32-02-PLAN.md — BrainViewer R3F component, results page integration, visual verification
+- [x] 32-01-PLAN.md — R3F deps, brain-utils, Python mesh conversion to GLB
+- [x] 32-02-PLAN.md — BrainViewer R3F component, results page integration, visual verification
 **UI hint**: yes
 
 ### Phase 33: Functional Network Expansion
@@ -592,7 +592,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 29. Animated File Upload | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 30. Wave Loader | v2.1 | 2/2 | Complete    | 2026-04-10 |
 | 31. Hero Odyssey | v2.1 | 1/1 | Complete    | 2026-04-10 |
-| 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
+| 32. 3D Brain Viewer | v2.1 | 2/2 | Complete    | 2026-04-10 |
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 35. Unified GLB Mesh Export | v2.2 | 1/1 | Complete   | 2026-04-10 |
