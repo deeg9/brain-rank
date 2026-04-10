@@ -45,9 +45,12 @@ export default function LoginPage() {
             <label className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant ml-1">
               Password
             </label>
-            <span className="text-xs font-semibold text-primary hover:text-primary-dim transition-colors cursor-pointer">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-semibold text-primary hover:text-primary-dim transition-colors"
+            >
               Forgot password?
-            </span>
+            </Link>
           </div>
           <Input
             type="password"
