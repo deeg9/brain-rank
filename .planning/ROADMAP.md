@@ -295,10 +295,10 @@ Plans:
   3. Results Detail page shows per-region breakdown (attention, reward, emotional processing, social cognition) with visual indicators
   4. Segment-level data table shows timestamps with corresponding activation scores
   5. User can export the full results as a downloadable JSON file
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 20-01-PLAN.md — Results Overview page with summary metrics and activation timeline
-- [ ] 20-02-PLAN.md — Results Detail page with region breakdown, segment table, JSON export
+- [x] 20-01-PLAN.md — Results Overview page with summary metrics and activation timeline
+- [x] 20-02-PLAN.md — Results Detail page with region breakdown, segment table, JSON export
 **UI hint**: yes
 
 ### Phase 21: Dashboard
@@ -369,7 +369,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 17. Authentication Flow | v2.0 | 2/2 | Complete    | 2026-04-09 |
 | 18. Upload & Processing | v2.0 | 2/2 | Complete    | 2026-04-10 |
 | 19. API Integration | v2.0 | 1/1 | Complete    | 2026-04-10 |
-| 20. Results Display | v2.0 | 0/2 | Not started | - |
+| 20. Results Display | v2.0 | 2/2 | Complete    | 2026-04-10 |
 | 21. Dashboard | v2.0 | 0/1 | Not started | - |
 | 22. Settings & Profile | v2.0 | 0/1 | Not started | - |
 | 23. Error Handling | v2.0 | 0/1 | Not started | - |
