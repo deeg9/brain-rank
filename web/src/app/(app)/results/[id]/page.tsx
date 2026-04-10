@@ -226,7 +226,7 @@ export default function ResultsDetailPage({ params }: Props) {
             </div>
             <div className="w-16 h-16 rounded-full border-4 border-tertiary-fixed flex items-center justify-center">
               <span className="font-headline text-2xl font-black text-tertiary-fixed">
-                {(summary.overall * 10).toFixed(1)}
+                {Math.round(summary.overall * 100)}%
               </span>
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function ResultsDetailPage({ params }: Props) {
             Hook Score
           </p>
           <p className="font-headline text-3xl font-bold text-secondary">
-            {(summary.hook_score * 10).toFixed(1)}
+            {Math.round(summary.hook_score * 100)}%
           </p>
         </Card>
         <Card className="col-span-4 p-6">
@@ -246,7 +246,7 @@ export default function ResultsDetailPage({ params }: Props) {
             Retention
           </p>
           <p className="font-headline text-3xl font-bold text-tertiary-fixed">
-            {(summary.retention_score * 10).toFixed(1)}
+            {Math.round(summary.retention_score * 100)}%
           </p>
         </Card>
         <Card className="col-span-4 p-6">
@@ -257,7 +257,7 @@ export default function ResultsDetailPage({ params }: Props) {
             {summary.peak_second}s
           </p>
           <p className="text-on-surface-variant text-xs mt-1">
-            Score: {(summary.peak_score * 10).toFixed(1)}
+            Score: {Math.round(summary.peak_score * 100)}%
           </p>
         </Card>
       </div>
