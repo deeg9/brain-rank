@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Button, StatusBadge, Skeleton } from "@/components/ui";
+import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
 import {
   fetchJobStatus,
   retryJob,
@@ -230,10 +230,8 @@ function ProcessingContent() {
           </p>
         </div>
 
-        <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-6">
-          <Skeleton variant="row" />
-          <Skeleton variant="bar" />
-          <Skeleton variant="row" count={4} />
+        <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 flex justify-center">
+          <WaveLoader />
         </div>
       </div>
     );
@@ -291,6 +289,11 @@ function ProcessingContent() {
               Est. time remaining: ~{Math.max(1, Math.round((100 - progress) * 0.12))} min
             </div>
           </div>
+        </div>
+
+        {/* Wave Animation */}
+        <div className="flex justify-center">
+          <WaveLoader message="Analyzing neural patterns..." />
         </div>
 
         {/* Progress Bar */}
