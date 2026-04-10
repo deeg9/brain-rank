@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { SlidingNumber } from "@/components/ui/SlidingNumber";
 
 interface MetricCardProps {
   label: string;
@@ -9,6 +10,9 @@ interface MetricCardProps {
   colorClass?: string;
   sublabel?: string;
   className?: string;
+  animate?: boolean;
+  numericValue?: number;
+  suffix?: string;
 }
 
 export function MetricCard({
@@ -18,6 +22,9 @@ export function MetricCard({
   colorClass = "text-on-surface",
   sublabel,
   className = "",
+  animate = false,
+  numericValue,
+  suffix,
 }: MetricCardProps) {
   return (
     <div
@@ -28,7 +35,11 @@ export function MetricCard({
           {label}
         </p>
         <h2 className={`text-5xl font-headline font-bold ${colorClass}`}>
-          {value}
+          {animate && numericValue !== undefined ? (
+            <SlidingNumber value={numericValue} suffix={suffix} />
+          ) : (
+            value
+          )}
         </h2>
         {sublabel && (
           <span className="text-[10px] font-mono text-on-surface-variant mt-1 block">
