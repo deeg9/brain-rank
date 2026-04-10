@@ -5,6 +5,7 @@ export interface Job {
   user_id: string
   video_url: string
   status: JobStatus
+  runpod_id: string | null
   results: Record<string, unknown> | null
   error_message: string | null
   created_at: string
