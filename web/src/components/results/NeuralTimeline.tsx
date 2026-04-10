@@ -175,14 +175,27 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
   );
 }
 
+export interface ZoneMarker {
+  startTime: number;
+  endTime: number;
+  type: 'flow' | 'dropoff' | 'neutral';
+}
+
+export interface IconMarker {
+  time: number;
+  type: 'share' | 'warning';
+}
+
 interface NeuralTimelineProps {
   segments: SegmentData[];
   duration: number;
   currentTime?: number;
   onSeek?: (time: number) => void;
+  zones?: ZoneMarker[];
+  iconMarkers?: IconMarker[];
 }
 
-export function NeuralTimeline({ segments, duration, currentTime, onSeek }: NeuralTimelineProps) {
+export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers }: NeuralTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
 
@@ -243,6 +256,34 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek }: Neur
         <h3 className="font-headline text-lg font-bold">Neural Activation Timeline</h3>
       </div>
 
+      {/* Icon Markers Row */}
+      {iconMarkers && iconMarkers.length > 0 && (
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-20 shrink-0" />
+          <div className="flex-1 relative h-5">
+            {iconMarkers.map((marker, i) => {
+              const leftPct = (marker.time / duration) * 100;
+              const iconName = marker.type === 'share' ? 'share' : 'warning';
+              const colorCls = marker.type === 'share' ? 'text-tertiary-fixed' : 'text-error';
+              return (
+                <span
+                  key={`${marker.type}-${i}`}
+                  className={`material-symbols-outlined absolute ${colorCls}`}
+                  style={{
+                    left: `${leftPct}%`,
+                    transform: 'translateX(-50%)',
+                    fontSize: '14px',
+                    top: 0,
+                  }}
+                >
+                  {iconName}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div
         ref={containerRef}
         className="space-y-1 relative select-none"
@@ -263,6 +304,36 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek }: Neur
           />
         ))}
       </div>
+
+      {/* Zone Markers Bar */}
+      {zones && zones.length > 0 && (
+        <div className="flex items-center gap-2 mt-1">
+          <div className="w-20 shrink-0 text-right">
+            <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
+              Zones
+            </span>
+          </div>
+          <div className="flex-1 relative h-2 bg-surface-container-high rounded-full overflow-hidden">
+            {zones.map((zone, i) => {
+              const leftPct = (zone.startTime / duration) * 100;
+              const widthPct = ((zone.endTime - zone.startTime) / duration) * 100;
+              const bgColor =
+                zone.type === 'flow'
+                  ? 'bg-green-500/40'
+                  : zone.type === 'dropoff'
+                    ? 'bg-red-500/40'
+                    : 'bg-amber-500/20';
+              return (
+                <div
+                  key={`zone-${i}`}
+                  className={`absolute top-0 h-full ${bgColor} rounded-full`}
+                  style={{ left: `${leftPct}%`, width: `${Math.max(widthPct, 0.5)}%` }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
