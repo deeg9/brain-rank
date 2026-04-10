@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from postprocessor import postprocess
+from postprocessor import postprocess, robust_normalize
 from schema import OutputSchema, Segment, RegionScores, Summary
 
 
@@ -166,6 +166,51 @@ class TestPostprocess:
         job_messages = [r for r in caplog.records if "test-job-log" in r.message]
         assert len(job_messages) >= 1
 
+    def test_segment_region_scores_in_0_1_range(self, synthetic_predictions, synthetic_segments):
+        """All region score values should be in [0, 1] range after normalization."""
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-job-range",
+        )
+        for seg in result.segments:
+            assert 0.0 <= seg.regions.attention <= 1.0
+            assert 0.0 <= seg.regions.reward <= 1.0
+            assert 0.0 <= seg.regions.emotional_processing <= 1.0
+            assert 0.0 <= seg.regions.social_cognition <= 1.0
+
+    def test_all_scores_normalized_0_to_1(self, synthetic_predictions, synthetic_segments):
+        """Every score field across all segments and summary is in [0, 1]."""
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-job-norm",
+        )
+        for seg in result.segments:
+            assert 0.0 <= seg.activation_score <= 1.0, f"activation_score {seg.activation_score} out of range"
+            assert 0.0 <= seg.arousal <= 1.0, f"arousal {seg.arousal} out of range"
+            assert 0.0 <= seg.valence <= 1.0, f"valence {seg.valence} out of range"
+            assert 0.0 <= seg.regions.attention <= 1.0
+            assert 0.0 <= seg.regions.reward <= 1.0
+            assert 0.0 <= seg.regions.emotional_processing <= 1.0
+            assert 0.0 <= seg.regions.social_cognition <= 1.0
+
+        assert 0.0 <= result.summary.overall <= 1.0
+        assert 0.0 <= result.summary.hook_score <= 1.0
+        assert 0.0 <= result.summary.retention_score <= 1.0
+        assert 0.0 <= result.summary.peak_score <= 1.0
+
+    def test_uniform_predictions_cluster_near_half(self):
+        """With uniform (constant) predictions, normalized scores should cluster near 0.5."""
+        # All same value -> robust_normalize should return ~0.5
+        preds = np.full((12, 20484), 0.42, dtype=np.float32)
+        segs = [SimpleNamespace(start=float(i), duration=1.0) for i in range(12)]
+        result = postprocess(preds, segs, "https://example.com/v.mp4", "test-uniform")
+        for seg in result.segments:
+            assert 0.4 <= seg.activation_score <= 0.6, f"Expected ~0.5, got {seg.activation_score}"
+
     def test_even_aligned_segments_no_trailing(self):
         """Even number of aligned segments produces no trailing 1-second window."""
         rng = np.random.default_rng(99)
@@ -177,3 +222,35 @@ class TestPostprocess:
         # All segments should be 2 seconds
         for seg in result.segments:
             assert seg.end - seg.start == pytest.approx(2.0)
+
+
+class TestRobustNormalize:
+    """Unit tests for robust_normalize function."""
+
+    def test_known_input_produces_expected_range(self):
+        """Array [-1, 0, 1] with percentile=99 should produce values near [0, 0.5, 1]."""
+        arr = np.array([-1.0, 0.0, 1.0])
+        result = robust_normalize(arr, percentile=99)
+        assert result[0] == pytest.approx(0.0, abs=0.02)
+        assert result[1] == pytest.approx(0.5, abs=0.02)
+        assert result[2] == pytest.approx(1.0, abs=0.02)
+
+    def test_output_clipped_to_0_1(self):
+        """Output is clipped to [0, 1] when clip=True (default)."""
+        arr = np.array([0.0, 0.5, 1.0, 100.0])
+        result = robust_normalize(arr, percentile=99)
+        assert result.min() >= 0.0
+        assert result.max() <= 1.0
+
+    def test_constant_input_returns_half(self):
+        """Constant input (hi == lo) should return 0.5 to avoid NaN."""
+        arr = np.full(10, 3.14)
+        result = robust_normalize(arr)
+        assert np.all(result == pytest.approx(0.5, abs=0.01))
+
+    def test_2d_array_normalizes_globally(self):
+        """2D array without axis normalizes across all values."""
+        arr = np.array([[0.0, 1.0], [2.0, 3.0]])
+        result = robust_normalize(arr, percentile=99)
+        assert result.min() >= 0.0
+        assert result.max() <= 1.0
