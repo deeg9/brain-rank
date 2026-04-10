@@ -5,10 +5,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { RegionBreakdown, type RegionScores } from "@/components/results/RegionBreakdown";
-import { SegmentTable, type SegmentData } from "@/components/results/SegmentTable";
+import type { SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
-import { InsightsPanel } from "@/components/results/InsightsPanel";
 
 import { formatTimestamp } from "@/lib/results";
 import { analyzeBenchmark } from "@/lib/benchmark";
@@ -25,14 +23,19 @@ const VideoPlayer = dynamic(
   { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
 );
 
-const RegionValuesBar = dynamic(
-  () => import("@/components/results/RegionValuesBar").then(m => m.RegionValuesBar),
-  { ssr: false }
-);
-
 const BrainViewer = dynamic(
   () => import("@/components/results/BrainViewer").then(m => m.BrainViewer),
   { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
+);
+
+const ArousalValenceCards = dynamic(
+  () => import("@/components/results/ArousalValenceCards").then(m => m.ArousalValenceCards),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-36" /> }
+);
+
+const CircumplexChart = dynamic(
+  () => import("@/components/results/CircumplexChart").then(m => m.CircumplexChart),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-36" /> }
 );
 
 interface ResultsData {
@@ -51,6 +54,21 @@ interface ResultsData {
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+function getSegmentAtTime(segments: SegmentData[], time: number): SegmentData | null {
+  if (segments.length === 0) return null;
+  for (const seg of segments) {
+    if (time >= seg.start && time <= seg.end) return seg;
+  }
+  // Fallback to nearest
+  let closest = segments[0];
+  let minDist = Infinity;
+  for (const seg of segments) {
+    const dist = Math.min(Math.abs(seg.start - time), Math.abs(seg.end - time));
+    if (dist < minDist) { minDist = dist; closest = seg; }
+  }
+  return closest;
 }
 
 function extractFilename(url: string): string {
@@ -243,26 +261,6 @@ export default function ResultsDetailPage({ params }: Props) {
     })),
   ];
 
-  const avgRegions: RegionScores =
-    segments.length > 0
-      ? {
-          attention:
-            segments.reduce((s, seg) => s + seg.regions.attention, 0) /
-            segments.length,
-          reward:
-            segments.reduce((s, seg) => s + seg.regions.reward, 0) /
-            segments.length,
-          emotional_processing:
-            segments.reduce(
-              (s, seg) => s + seg.regions.emotional_processing,
-              0
-            ) / segments.length,
-          social_cognition:
-            segments.reduce((s, seg) => s + seg.regions.social_cognition, 0) /
-            segments.length,
-        }
-      : { attention: 0, reward: 0, emotional_processing: 0, social_cognition: 0 };
-
   const filename = extractFilename(job.video_url);
 
   return (
@@ -304,67 +302,35 @@ export default function ResultsDetailPage({ params }: Props) {
         onLoadedMetadata={handleLoadedMetadata}
       />
 
-      {/* Real-time Region Values */}
-      <RegionValuesBar segments={segments} currentTime={currentTime} />
-
-      {/* 3D Brain Activation Map */}
-      <BrainViewer segments={segments} currentTime={currentTime} />
-
-      {/* Summary Stat Cards */}
-      <div className="grid grid-cols-12 gap-6">
-        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Overall Score
-          </p>
-          <p className="font-headline text-3xl font-bold text-secondary animate-score-in">
-            {Math.round(summary.overall * 100)}%
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">Brain activation score</p>
-        </Card>
-        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Retention
-          </p>
-          <p className="font-headline text-3xl font-bold text-tertiary-fixed animate-score-in">
-            {Math.round(summary.retention_score * 100)}%
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">Sustained activation</p>
-        </Card>
-        <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Peak Moment
-          </p>
-          <p className="font-headline text-3xl font-bold text-primary animate-score-in">
-            {summary.peak_second}s
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">
-            {Math.round(summary.peak_score * 100)}% activation
-          </p>
-        </Card>
+      {/* Neural Timeline + Brain Viewer — side by side */}
+      <div className="grid grid-cols-2 gap-6">
+        <NeuralTimeline
+          segments={segments}
+          duration={results.duration_seconds}
+          currentTime={currentTime}
+          onSeek={handleSeek}
+          zones={zones}
+          iconMarkers={iconMarkers}
+        />
+        <BrainViewer segments={segments} currentTime={currentTime} />
       </div>
 
-      {/* Neural Activation Timeline */}
-      <NeuralTimeline
-        segments={segments}
-        duration={results.duration_seconds}
-        currentTime={currentTime}
-        onSeek={handleSeek}
-        zones={zones}
-        iconMarkers={iconMarkers}
-      />
-
-      {/* Neural Insights */}
-      <InsightsPanel benchmark={benchmark} />
-
-      {/* Region Breakdown + Segment Table */}
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-5">
-          <RegionBreakdown regions={avgRegions} />
-        </div>
-        <div className="col-span-7">
-          <SegmentTable segments={segments} />
-        </div>
-      </div>
+      {/* Arousal/Valence Display */}
+      {(() => {
+        const currentSegment = getSegmentAtTime(segments, currentTime);
+        const arousal = currentSegment?.arousal ?? 0;
+        const valence = currentSegment?.valence ?? 0;
+        return (
+          <div className="grid grid-cols-3 gap-6">
+            <div className="col-span-2">
+              <ArousalValenceCards arousal={arousal} valence={valence} />
+            </div>
+            <div className="col-span-1">
+              <CircumplexChart arousal={arousal} valence={valence} />
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
