@@ -393,7 +393,9 @@ Plans:
   1. Framer Motion and react-use-measure are installed and a test animation renders without errors in the existing app
   2. A cn() utility combining clsx and tailwind-merge is available and correctly merges conflicting Tailwind classes
   3. An existing component (e.g., a card or button) can be wrapped with a Framer Motion animation without breaking its current styling or behavior
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 27-01-PLAN.md — Install Framer Motion + react-use-measure + clsx + tailwind-merge, create cn() utility, verify with Card component
 **UI hint**: yes
 
 ### Phase 28: Sliding Number Counters
@@ -479,7 +481,7 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 24. Neural Timeline | v2.0 | 0/1 | Planning | - |
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning | - |
 | 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
-| 27. Animation Foundation | v2.1 | 0/0 | Not started | - |
+| 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
 | 28. Sliding Number Counters | v2.1 | 0/0 | Not started | - |
 | 29. Animated File Upload | v2.1 | 0/0 | Not started | - |
 | 30. Wave Loader | v2.1 | 0/0 | Not started | - |
