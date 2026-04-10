@@ -5,7 +5,7 @@
 - ✅ **v1.0 Inference Pipeline** - Phases 1-10 (shipped 2026-04-09)
 - ✅ **v1.1 UI Audit & Consolidation** - Phases 11-14 (shipped 2026-04-09)
 - 🚧 **v2.0 Frontend Implementation** - Phases 15-26 (in progress)
-- 📋 **v2.1 21st.dev Component Integration** - Phases 27-31 (planned)
+- 📋 **v2.1 21st.dev Component Integration** - Phases 27-32 (planned)
 
 ## Phases
 
@@ -494,3 +494,20 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
+| 32. 3D Brain Viewer | v2.1 | 0/0 | Planning | - |
+
+### Phase 32: 3D Brain Viewer
+
+**Goal:** Interactive 3D brain visualization using react-three-fiber showing brain regions lighting up based on TRIBE v2 activation scores, synced to the video timeline on the results page
+**Depends on:** Phase 20 (results page exists), Phase 27 (Framer Motion / animation foundation)
+**Requirements**: RSLT-03
+**Success Criteria** (what must be TRUE):
+  1. A 3D brain model renders on the results page using react-three-fiber with the fsaverage5 mesh
+  2. Four brain regions (attention, reward, emotional processing, social cognition) glow independently based on per-segment activation scores
+  3. The brain visualization syncs with the video timeline — scrubbing the video updates region colors in real-time
+  4. Bloom/glow postprocessing creates a visually striking "lighting up" effect matching the NeuroCut dark theme
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 32 to break down)
+**UI hint**: yes
