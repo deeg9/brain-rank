@@ -12,6 +12,7 @@ Security note (T-07-03): Does not log raw prediction values or full
 arrays -- only shapes and aggregate stats.
 """
 
+import base64
 import logging
 from pathlib import Path
 from typing import Optional
@@ -77,6 +78,7 @@ def postprocess(
     segments: list,
     video_url: str,
     job_id: str,
+    include_vertex_data: bool = True,
 ) -> OutputSchema:
     """Convert raw TRIBE v2 predictions to OutputSchema.
 
@@ -146,6 +148,18 @@ def postprocess(
         arousal = (region_vals["attention"] + region_vals["emotional_processing"]) / 2.0
         valence = (region_vals["reward"] + region_vals["social_cognition"]) / 2.0
 
+        # Encode per-vertex activation data as quantized uint8 base64
+        vertex_b64 = None
+        if include_vertex_data:
+            vertex_mean = window_preds.mean(axis=0)  # (20484,) float
+            quantized = np.clip(vertex_mean * 255, 0, 255).astype(np.uint8)
+            vertex_b64 = base64.b64encode(quantized.tobytes()).decode("ascii")
+            logger.info(
+                "Job %s: vertex_data encoded — %d bytes/segment (base64)",
+                job_id,
+                len(vertex_b64),
+            )
+
         seg = Segment(
             start=start,
             end=end,
@@ -153,6 +167,7 @@ def postprocess(
             arousal=arousal,
             valence=valence,
             regions=RegionScores(**region_vals),
+            vertex_data=vertex_b64,
         )
         output_segments.append(seg)
 

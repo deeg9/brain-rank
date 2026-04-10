@@ -72,7 +72,7 @@ def handler(job):
         # Step 4: Map to NeuroCut schema (HDLR-06)
         stage = "postprocessing"
         logger.info("Job %s: postprocessing...", job_id)
-        output = postprocess(predictions, segments, params.video_url, job_id)
+        output = postprocess(predictions, segments, params.video_url, job_id, include_vertex_data=params.include_vertex_data)
         logger.info("Job %s: complete", job_id)
 
         return output.model_dump()

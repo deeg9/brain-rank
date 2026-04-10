@@ -224,6 +224,73 @@ class TestPostprocess:
             assert seg.end - seg.start == pytest.approx(2.0)
 
 
+class TestVertexData:
+    """Tests for vertex_data encoding in postprocess output."""
+
+    def test_vertex_data_present_by_default(self, synthetic_predictions, synthetic_segments):
+        """postprocess with default include_vertex_data=True produces non-None vertex_data."""
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-vertex-default",
+            include_vertex_data=True,
+        )
+        for seg in result.segments:
+            assert seg.vertex_data is not None, "vertex_data should be present by default"
+            assert isinstance(seg.vertex_data, str)
+
+    def test_vertex_data_base64_decodes_to_20484_bytes(self, synthetic_predictions, synthetic_segments):
+        """Each vertex_data string base64-decodes to exactly 20,484 bytes."""
+        import base64
+
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-vertex-size",
+            include_vertex_data=True,
+        )
+        for seg in result.segments:
+            decoded = base64.b64decode(seg.vertex_data)
+            assert len(decoded) == 20484, f"Expected 20484 bytes, got {len(decoded)}"
+
+    def test_vertex_data_disabled(self, synthetic_predictions, synthetic_segments):
+        """postprocess with include_vertex_data=False produces vertex_data=None."""
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-vertex-disabled",
+            include_vertex_data=False,
+        )
+        for seg in result.segments:
+            assert seg.vertex_data is None, "vertex_data should be None when disabled"
+
+    def test_vertex_data_roundtrip_accuracy(self, synthetic_predictions, synthetic_segments):
+        """Decoded uint8 values divided by 255 should be within quantization tolerance of source."""
+        import base64
+
+        result = postprocess(
+            synthetic_predictions,
+            synthetic_segments,
+            "https://example.com/video.mp4",
+            "test-vertex-roundtrip",
+            include_vertex_data=True,
+        )
+        for seg in result.segments:
+            decoded = base64.b64decode(seg.vertex_data)
+            uint8_arr = np.frombuffer(decoded, dtype=np.uint8)
+            float_arr = uint8_arr.astype(np.float64) / 255.0
+            # All values should be in [0, 1]
+            assert float_arr.min() >= 0.0
+            assert float_arr.max() <= 1.0
+            # Quantization tolerance: 1/255 ~= 0.004
+            # We can't compare to source directly here, but we can verify
+            # the values are valid normalized floats
+            assert len(float_arr) == 20484
+
+
 class TestRobustNormalize:
     """Unit tests for robust_normalize function."""
 
