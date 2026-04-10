@@ -60,7 +60,7 @@
 - [ ] **Phase 27: Animation Foundation** - Framer Motion dependency and cn() utility for all animated components
 - [ ] **Phase 28: Sliding Number Counters** - Spring-animated score counters on results page
 - [ ] **Phase 29: Animated File Upload** - Drag-and-drop upload zone with progress bars and video thumbnails
-- [ ] **Phase 30: Wave Loader** - Neural signal wave animation for processing wait state
+- [ ] **Phase 30: Processing Page Premium Polish** - Animated progress bar, kinetic log stream, pipeline stepper, VRAM stat card glow, live pulse indicators, and wave loader
 - [ ] **Phase 31: Hero Odyssey** - WebGL lightning shader hero section for welcome/marketing page
 
 ### v2.2 Enhanced Brain Analytics (Planned)
@@ -436,17 +436,21 @@ Plans:
 - [ ] 29-01-PLAN.md — AnimatedFileUpload component, VideoThumbnail, upload page integration
 **UI hint**: yes
 
-### Phase 30: Wave Loader
-**Goal**: The processing wait state displays a neural signal wave animation instead of the current loading indicator
+### Phase 30: Processing Page Premium Polish
+**Goal**: The processing page is elevated from functional to premium with animated progress bar, kinetic log stream, pipeline stepper with motion, VRAM stat card with glow effects, live pulse indicators, and a neural wave loader
 **Depends on**: Phase 27 (Framer Motion required), Phase 18 (processing page exists)
 **Requirements**: COMP-03
 **Success Criteria** (what must be TRUE):
-  1. The processing page shows an animated wave form that evokes a neural signal/EEG aesthetic while inference runs
-  2. The wave animation runs smoothly without jank and adapts to the NeuroCut purple/cyan color palette
-  3. The wave loader coexists with the existing progress stages and percentage indicator without replacing status information
-**Plans:** 1 plan
+  1. Progress bar uses Framer Motion spring animation with a traveling shimmer/glow sweep effect
+  2. Pipeline stage stepper has connected lines, animated checkmarks, and a pulsing active indicator replacing the flat grid
+  3. Inference log panel has terminal chrome (macOS dots), AnimatePresence line entries, color-coded prefixes, and top/bottom fade gradients
+  4. VRAM stat card has animated number counting, orbiting halo glow, and shimmer on the load intensity bar
+  5. Live status pulse dots replace static indicators with ping animation throughout the page
+  6. A neural wave loader animation runs during the predicting stage, evoking EEG/neural signal aesthetic
+  7. All animations run at 60fps, respect the NeuroCut purple/cyan palette, and coexist with existing status information
+**Plans:** 0 plans
 Plans:
-- [ ] 30-01-PLAN.md — WaveLoader component and processing page integration
+- [ ] 30-01-PLAN.md
 **UI hint**: yes
 
 ### Phase 31: Hero Odyssey
