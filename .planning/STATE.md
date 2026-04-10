@@ -93,6 +93,7 @@ None yet.
 | 260409-sfh | Create Forgot Password page with Supabase reset | 2026-04-10 | 43b4cfa | [260409-sfh-create-forgot-password-page-with-supabas](./quick/260409-sfh-create-forgot-password-page-with-supabas/) |
 | 260409-sd7 | Add robust_normalize to postprocessor and update web UI grading for normalized TRIBE v2 scores | 2026-04-10 | e65f741 | [260409-sd7-add-robust-normalize-to-postprocessor-an](./quick/260409-sd7-add-robust-normalize-to-postprocessor-an/) |
 | 260409-sjd | Add password strength indicator and Terms checkbox to Sign Up | 2026-04-10 | 83fe159 | [260409-sjd-add-password-strength-indicator-and-term](./quick/260409-sjd-add-password-strength-indicator-and-term/) |
+| 260409-v0k | Visual polish — hover animations, glassmorphism, glow effects | 2026-04-10 | 64b4850 | [260409-v0k-visual-polish-pass-hover-animations-glas](./quick/260409-v0k-visual-polish-pass-hover-animations-glas/) |
 
 ## Session Continuity
 
