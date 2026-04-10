@@ -417,7 +417,7 @@ Plans:
   1. The overall score, hook score, retention percentage, and peak moment on the Results Overview page animate from 0 to their final values with a visible spring-physics motion
   2. The animation triggers when the results page loads or when scores first enter the viewport
   3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
@@ -587,7 +587,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning | - |
 | 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
 | 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
-| 28. Sliding Number Counters | v2.1 | 0/1 | Planning | - |
+| 28. Sliding Number Counters | v2.1 | 1/1 | Complete    | 2026-04-10 |
 | 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
