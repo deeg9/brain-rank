@@ -10,6 +10,7 @@ import {
   type ResultsData,
 } from "@/lib/results";
 import { MetricCard } from "@/components/results/MetricCard";
+import { ActivationTimeline } from "@/components/results/ActivationTimeline";
 import { Skeleton } from "@/components/ui";
 
 export default function ResultsPage() {
@@ -225,7 +226,11 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      {/* Timeline placeholder -- Task 2 will add ActivationTimeline here */}
+      {/* Row 2: Neural Activation Timeline */}
+      <ActivationTimeline
+        segments={results.segments}
+        duration={results.duration_seconds}
+      />
 
       {/* Row 3: View Full Analysis link */}
       <div className="flex justify-end">
