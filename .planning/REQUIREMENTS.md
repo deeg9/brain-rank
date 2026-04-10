@@ -9,15 +9,15 @@ Requirements for 21st.dev Component Integration milestone. Each maps to roadmap 
 
 ### Foundation
 
-- [ ] **FOUN-01**: Framer Motion and react-use-measure are installed as project dependencies and verified working with existing components
-- [ ] **FOUN-02**: A cn() utility (clsx + tailwind-merge) is available for component class merging
+- [x] **FOUN-01**: Framer Motion and react-use-measure are installed as project dependencies and verified working with existing components
+- [x] **FOUN-02**: A cn() utility (clsx + tailwind-merge) is available for component class merging
 
 ### Components
 
-- [ ] **COMP-01**: Results page displays brain activation scores with spring-animated sliding number counters instead of static text
-- [ ] **COMP-02**: Upload page has an animated drag-and-drop zone with per-file progress bars, video thumbnail previews, and file list management
-- [ ] **COMP-03**: Processing page shows a wave loader animation with neural signal aesthetic while inference runs
-- [ ] **COMP-04**: Welcome/marketing page has a WebGL lightning shader hero section adapted to the NeuroCut purple/cyan palette
+- [x] **COMP-01**: Results page displays brain activation scores with spring-animated sliding number counters instead of static text
+- [x] **COMP-02**: Upload page has an animated drag-and-drop zone with per-file progress bars, video thumbnail previews, and file list management
+- [x] **COMP-03**: Processing page shows a wave loader animation with neural signal aesthetic while inference runs
+- [x] **COMP-04**: Welcome/marketing page has a WebGL lightning shader hero section adapted to the NeuroCut purple/cyan palette
 
 ## v2.2 Requirements
 
@@ -73,12 +73,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | Phase 27 | Pending |
-| FOUN-02 | Phase 27 | Pending |
-| COMP-01 | Phase 28 | Pending |
-| COMP-02 | Phase 29 | Pending |
-| COMP-03 | Phase 30 | Pending |
-| COMP-04 | Phase 31 | Pending |
+| FOUN-01 | Phase 27 | Complete |
+| FOUN-02 | Phase 27 | Complete |
+| COMP-01 | Phase 28 | Complete |
+| COMP-02 | Phase 29 | Complete |
+| COMP-03 | Phase 30 | Complete |
+| COMP-04 | Phase 31 | Complete |
 | VIZ-01 | Phase 36 | Complete |
 | VIZ-02 | Phase 36 | Complete |
 | VIZ-03 | Phase 36 | Complete |
