@@ -34,7 +34,7 @@
 
 </details>
 
-### 🚧 v2.0 Frontend Implementation (In Progress)
+### v2.0 Frontend Implementation (In Progress)
 
 **Milestone Goal:** Build the NeuroCut web app from 15 Stitch-generated screens, wire it to the live RunPod inference endpoint, and ship a working product.
 
@@ -351,6 +351,16 @@ Plans:
 Plans:
 - [ ] 24-01-PLAN.md — Install Recharts, create NeuralTimeline component, add video placeholder, update Results Detail page layout
 
+### Phase 25: Synced Video Player and Neural Timeline Scrubber
+
+**Goal:** Bidirectional sync between a custom video player and the 4-track NeuralTimeline -- playing the video moves a playhead across all tracks, clicking a track seeks the video, and a real-time region values bar shows brain activation scores at the current position
+**Requirements**: RSLT-02, RSLT-03
+**Depends on:** Phase 24
+**Plans:** 1 plan
+
+Plans:
+- [ ] 25-01-PLAN.md — VideoPlayer component, NeuralTimeline playhead + click-to-seek, RegionValuesBar, parent state wiring
+
 ## Progress
 
 **Execution Order:**
@@ -384,13 +394,4 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 22. Settings & Profile | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 24. Neural Timeline | v2.0 | 0/1 | Planning    | - |
-
-### Phase 25: Synced Video Player and Neural Timeline Scrubber
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 24
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 25 to break down)
+| 25. Video Player + Scrubber | v2.0 | 0/1 | Planning    | - |
