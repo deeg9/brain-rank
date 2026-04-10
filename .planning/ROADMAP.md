@@ -542,7 +542,7 @@ Plans:
 **UI hint**: yes
 **Plans:** 1 plan
 Plans:
-- [ ] 35-01-PLAN.md — Add unified mesh export and generate brain-fsaverage5-unified.glb
+- [ ] 37-01-PLAN.md — Arousal/valence metric cards, circumplex chart, 9-network legend verification
 
 ## Progress
 
