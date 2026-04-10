@@ -283,7 +283,7 @@ Plans:
   3. The client never sees the RunPod API key in network requests or client-side code
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 19-01-PLAN.md — POST /api/jobs + GET /api/jobs/[id] routes proxying to RunPod
 
 ### Phase 20: Results Display
 **Goal**: Users can view comprehensive neural activation results for their analyzed video
@@ -297,7 +297,7 @@ Plans:
   5. User can export the full results as a downloadable JSON file
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 20-01-PLAN.md — Results overview + detail pages with timeline visualization
 **UI hint**: yes
 
 ### Phase 21: Dashboard
@@ -310,7 +310,7 @@ Plans:
   3. A user with no analyses sees an empty state with a prompt to upload their first video
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 21-01-PLAN.md — Dashboard job list, empty state, navigation to results
 **UI hint**: yes
 
 ### Phase 22: Settings & Profile
@@ -324,7 +324,7 @@ Plans:
   4. Profile page shows user info and aggregate stats (total analyses, average score)
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 22-01-PLAN.md — Settings, billing, and profile pages
 **UI hint**: yes
 
 ### Phase 23: Error Handling
@@ -337,7 +337,7 @@ Plans:
   3. Losing network connectivity shows an offline indicator with automatic retry when connection returns
 **Plans:** 1 plan
 Plans:
-- [ ] 16-01-PLAN.md — Supabase client utilities, middleware, jobs table migration with RLS
+- [ ] 23-01-PLAN.md — 404, 500, and offline error pages
 **UI hint**: yes
 
 ## Progress
@@ -367,8 +367,8 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 16. Backend Foundation | v2.0 | 1/1 | Complete    | 2026-04-09 |
 | 17. Authentication Flow | v2.0 | 2/2 | Complete    | 2026-04-09 |
 | 18. Upload & Processing | v2.0 | 0/2 | Planned | - |
-| 19. API Integration | v2.0 | 0/? | Not started | - |
-| 20. Results Display | v2.0 | 0/? | Not started | - |
-| 21. Dashboard | v2.0 | 0/? | Not started | - |
-| 22. Settings & Profile | v2.0 | 0/? | Not started | - |
-| 23. Error Handling | v2.0 | 0/? | Not started | - |
+| 19. API Integration | v2.0 | 0/1 | Planned | - |
+| 20. Results Display | v2.0 | 0/1 | Not started | - |
+| 21. Dashboard | v2.0 | 0/1 | Not started | - |
+| 22. Settings & Profile | v2.0 | 0/1 | Not started | - |
+| 23. Error Handling | v2.0 | 0/1 | Not started | - |
