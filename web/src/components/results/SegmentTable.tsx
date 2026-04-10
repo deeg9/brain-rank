@@ -19,6 +19,7 @@ export interface SegmentData {
   arousal: number;
   valence: number;
   regions: SegmentRegionScores;
+  vertex_data?: string;
 }
 
 interface SegmentTableProps {

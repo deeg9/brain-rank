@@ -26,6 +26,29 @@ export function getRegionsAtTime(segments: SegmentData[], time: number): Segment
 }
 
 /**
+ * Look up vertex data at a given time by finding the segment that contains
+ * the time, or the nearest segment if time falls in a gap.
+ */
+export function getVertexDataAtTime(segments: SegmentData[], time: number): string | null {
+  if (segments.length === 0) return null;
+
+  let closest = segments[0];
+  let minDist = Infinity;
+
+  for (const seg of segments) {
+    if (time >= seg.start && time <= seg.end) return seg.vertex_data ?? null;
+
+    const dist = Math.min(Math.abs(seg.start - time), Math.abs(seg.end - time));
+    if (dist < minDist) {
+      minDist = dist;
+      closest = seg;
+    }
+  }
+
+  return closest.vertex_data ?? null;
+}
+
+/**
  * Canonical colors for each brain region, used by BrainViewer and RegionValuesBar.
  */
 export const REGION_COLORS: Record<keyof SegmentRegionScores, string> = {
