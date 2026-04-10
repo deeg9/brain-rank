@@ -189,13 +189,19 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek }: Neur
   const getTimeFromMouseEvent = useCallback((e: React.MouseEvent | MouseEvent) => {
     const container = containerRef.current;
     if (!container || !onSeek) return;
-    // The chart area starts after the label column (w-20 = 80px) + gap (8px) + y-axis (32px)
+    // Find the actual Recharts plot area by looking for the first .recharts-cartesian-grid rect
+    // or fall back to the first SVG's clipPath rect — this is the actual drawable chart region
+    const plotArea = container.querySelector('.recharts-cartesian-grid') as SVGElement | null;
+    if (plotArea) {
+      const plotRect = plotArea.getBoundingClientRect();
+      const x = e.clientX - plotRect.left;
+      const ratio = Math.max(0, Math.min(1, x / plotRect.width));
+      return ratio * duration;
+    }
+    // Fallback: use container with estimated offsets
     const rect = container.getBoundingClientRect();
-    const chartLeft = 80 + 8 + 32; // label width + gap + y-axis
-    const chartRight = 8; // right margin
-    const chartWidth = rect.width - chartLeft - chartRight;
-    const x = e.clientX - rect.left - chartLeft;
-    const ratio = Math.max(0, Math.min(1, x / chartWidth));
+    const x = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, x / rect.width));
     return ratio * duration;
   }, [duration, onSeek]);
 
