@@ -107,6 +107,12 @@
   border-radius: 10px;
 }
 
+/* Dot grid pattern — used in upload drop zone */
+@utility dot-grid {
+  background-image: radial-gradient(#48474a 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 /* Selection colors */
 ::selection {
   background-color: rgba(186, 158, 255, 0.3);
