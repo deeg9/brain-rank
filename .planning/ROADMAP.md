@@ -500,9 +500,9 @@ Plans:
   1. The postprocessor quantizes 20,484 float32 vertex activations to uint8 and base64-encodes the result, reducing per-segment payload from ~80KB to ~28KB
   2. The frontend can decode the base64 string back to a typed array and map values to vertex colors without visible quantization artifacts
   3. Existing API consumers that do not read the vertex_data field continue to work unchanged
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
+- [x] 34-01-PLAN.md — Quantize vertex activations to uint8 base64, add schema fields, create frontend decoder
 
 ### Phase 35: Unified GLB Mesh Export
 **Goal**: A single GLB mesh file with exactly 20,484 vertices in fsaverage5 ordering exists for the frontend heatmap renderer
@@ -589,7 +589,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
 | 33. Functional Network Expansion | v2.2 | 1/1 | Complete   | 2026-04-10 |
-| 34. Vertex Data Pipeline | v2.2 | 0/0 | Not started | - |
+| 34. Vertex Data Pipeline | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 35. Unified GLB Mesh Export | v2.2 | 0/0 | Not started | - |
 | 36. Cortical Heatmap Viewer | v2.2 | 0/0 | Not started | - |
 | 37. Arousal/Valence & Network Legend | v2.2 | 0/0 | Not started | - |
