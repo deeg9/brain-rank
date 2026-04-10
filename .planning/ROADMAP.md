@@ -408,7 +408,7 @@ Plans:
   3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
 **Plans:** 1 plan
 Plans:
-- [ ] 28-01-PLAN.md — SlidingNumber component with spring physics, integration into MetricCard, BenchmarkCards, and results pages
+- [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
 
 ### Phase 29: Animated File Upload
@@ -449,7 +449,7 @@ Plans:
   4. The WebGL shader degrades gracefully on devices that do not support WebGL (shows a static fallback)
 **Plans:** 1 plan
 Plans:
-- [ ] 28-01-PLAN.md — SlidingNumber component with spring physics, integration into MetricCard, BenchmarkCards, and results pages
+- [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
 
 ## Progress
@@ -493,4 +493,4 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 28. Sliding Number Counters | v2.1 | 0/1 | Planning | - |
 | 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
-| 31. Hero Odyssey | v2.1 | 0/0 | Not started | - |
+| 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
