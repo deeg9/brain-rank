@@ -406,9 +406,9 @@ Plans:
   1. The overall score, hook score, retention percentage, and peak moment on the Results Overview page animate from 0 to their final values with a visible spring-physics motion
   2. The animation triggers when the results page loads or when scores first enter the viewport
   3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
+- [x] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
 
 ### Phase 29: Animated File Upload
@@ -420,9 +420,9 @@ Plans:
   2. After dropping or selecting a file, a progress bar animates the upload progress and a video thumbnail preview is generated and displayed
   3. User can add multiple files and manage the file list (remove files before confirming upload)
   4. The upload zone integrates with the existing Supabase Storage upload flow without breaking job creation
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 29-01-PLAN.md — AnimatedFileUpload component, VideoThumbnail, upload page integration
+- [x] 29-01-PLAN.md — AnimatedFileUpload component, VideoThumbnail, upload page integration
 **UI hint**: yes
 
 ### Phase 30: Wave Loader
@@ -433,9 +433,9 @@ Plans:
   1. The processing page shows an animated wave form that evokes a neural signal/EEG aesthetic while inference runs
   2. The wave animation runs smoothly without jank and adapts to the NeuroCut purple/cyan color palette
   3. The wave loader coexists with the existing progress stages and percentage indicator without replacing status information
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 30-01-PLAN.md — WaveLoader component and processing page integration
+- [x] 30-01-PLAN.md — WaveLoader component and processing page integration
 **UI hint**: yes
 
 ### Phase 31: Hero Odyssey
@@ -447,7 +447,7 @@ Plans:
   2. The shader is adapted to the NeuroCut purple/cyan palette with neural-aesthetic lightning effects
   3. The hero section includes a call-to-action that navigates to the upload or signup flow
   4. The WebGL shader degrades gracefully on devices that do not support WebGL (shows a static fallback)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
@@ -490,7 +490,7 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning | - |
 | 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
 | 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
-| 28. Sliding Number Counters | v2.1 | 0/1 | Planning | - |
-| 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
-| 30. Wave Loader | v2.1 | 0/1 | Planning | - |
-| 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
+| 28. Sliding Number Counters | v2.1 | 1/1 | Complete   | 2026-04-10 |
+| 29. Animated File Upload | v2.1 | 1/1 | Complete   | 2026-04-10 |
+| 30. Wave Loader | v2.1 | 1/1 | Complete   | 2026-04-10 |
+| 31. Hero Odyssey | v2.1 | 1/1 | Complete   | 2026-04-10 |
