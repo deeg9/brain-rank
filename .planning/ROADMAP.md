@@ -406,7 +406,9 @@ Plans:
   1. The overall score, hook score, retention percentage, and peak moment on the Results Overview page animate from 0 to their final values with a visible spring-physics motion
   2. The animation triggers when the results page loads or when scores first enter the viewport
   3. The animated numbers match the existing design system (Space Grotesk font, correct colors, proper sizing) and do not break the results page layout
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 28-01-PLAN.md — SlidingNumber component with spring physics, integration into MetricCard, BenchmarkCards, and results pages
 **UI hint**: yes
 
 ### Phase 29: Animated File Upload
@@ -445,7 +447,9 @@ Plans:
   2. The shader is adapted to the NeuroCut purple/cyan palette with neural-aesthetic lightning effects
   3. The hero section includes a call-to-action that navigates to the upload or signup flow
   4. The WebGL shader degrades gracefully on devices that do not support WebGL (shows a static fallback)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 28-01-PLAN.md — SlidingNumber component with spring physics, integration into MetricCard, BenchmarkCards, and results pages
 **UI hint**: yes
 
 ## Progress
@@ -486,7 +490,7 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 25. Video Player + Scrubber | v2.0 | 0/1 | Planning | - |
 | 26. Neural Insights + Benchmark | v2.0 | 0/1 | Planning | - |
 | 27. Animation Foundation | v2.1 | 0/1 | Planning | - |
-| 28. Sliding Number Counters | v2.1 | 0/0 | Not started | - |
+| 28. Sliding Number Counters | v2.1 | 0/1 | Planning | - |
 | 29. Animated File Upload | v2.1 | 0/1 | Planning | - |
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/0 | Not started | - |
