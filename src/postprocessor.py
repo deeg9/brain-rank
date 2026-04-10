@@ -14,6 +14,7 @@ arrays -- only shapes and aggregate stats.
 
 import logging
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -23,6 +24,52 @@ from src.region_mapping.scoring import compute_region_scores
 from src.region_mapping.constants import SEGMENT_DURATION_S
 
 logger = logging.getLogger("neurocut.postprocessor")
+
+
+def robust_normalize(
+    array: np.ndarray,
+    axis: Optional[int] = None,
+    percentile: int = 99,
+    clip: bool = True,
+    two_sided: bool = True,
+) -> np.ndarray:
+    """Normalize array to 0-1 using percentile-based scaling.
+
+    Matches Meta's implementation from tribev2/plotting/utils.py.
+    Uses 99th/1st percentile bounds to handle outliers gracefully.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        Input array to normalize.
+    axis : int or None
+        Axis along which to compute percentiles. None = global.
+    percentile : int
+        Upper percentile for scaling (default 99).
+    clip : bool
+        Whether to clip output to [0, 1] (default True).
+    two_sided : bool
+        If True, use symmetric percentiles for lo/hi bounds.
+
+    Returns
+    -------
+    np.ndarray
+        Normalized array in [0, 1] range (when clip=True).
+    """
+    hi = np.percentile(array, percentile, axis=axis, keepdims=True)
+    if two_sided:
+        lo = np.percentile(array, 100 - percentile, axis=axis, keepdims=True)
+    else:
+        lo = np.min(array, axis=axis, keepdims=True)
+    denom = hi - lo
+    # Constant input: return 0.5 instead of NaN
+    if np.all(denom == 0):
+        return np.full_like(array, 0.5, dtype=np.float64)
+    denom = np.where(denom == 0, 1.0, denom)
+    out = (array - lo) / denom
+    if clip:
+        out = np.clip(out, 0, 1)
+    return out
 
 
 def postprocess(
@@ -57,6 +104,9 @@ def postprocess(
 
     # Apply hemodynamic delay correction
     aligned = align_to_stimulus(predictions)
+
+    # Normalize to 0-1 range before all downstream computation
+    aligned = robust_normalize(aligned)
     n_aligned = aligned.shape[0]
 
     # Compute per-region scores for all aligned segments

@@ -8,10 +8,10 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from postprocessor import postprocess, robust_normalize
-from schema import OutputSchema, Segment, RegionScores, Summary
+from src.postprocessor import postprocess, robust_normalize
+from src.schema import OutputSchema, Segment, RegionScores, Summary
 
 
 @pytest.fixture
