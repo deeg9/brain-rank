@@ -123,8 +123,8 @@ export function analyzeHook(segments: SegmentData[]): HookAnalysis {
 
   if (highReward && highAttention) {
     type = 'strong_viral_hook';
-    headline = 'Strong viral hook';
-    description = `Your opening activates reward centers at ${Math.round(avgReward * 100)}% and captures attention at ${Math.round(avgAttention * 100)}% -- that's the combination that predicts virality.`;
+    headline = 'High neural engagement opener';
+    description = `Your opening activates reward centers at ${Math.round(avgReward * 100)}% and captures attention at ${Math.round(avgAttention * 100)}% -- both systems firing together indicates strong initial brain response.`;
   } else if (highReward && !highAttention) {
     type = 'engaging_unfocused';
     headline = 'Engaging but unfocused';

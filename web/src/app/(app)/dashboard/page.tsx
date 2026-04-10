@@ -293,7 +293,7 @@ export default async function DashboardPage() {
                 </h4>
                 <p className="text-on-surface-variant text-sm leading-relaxed">
                   Get an interactive heat-map and AI-suggested cuts designed to
-                  maximize virality and retention.
+                  maximize engagement and retention.
                 </p>
               </div>
             </div>

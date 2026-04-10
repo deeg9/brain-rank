@@ -9,7 +9,7 @@ import { RegionBreakdown, type RegionScores } from "@/components/results/RegionB
 import { SegmentTable, type SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
 import { InsightsPanel } from "@/components/results/InsightsPanel";
-import { BenchmarkCards } from "@/components/results/BenchmarkCards";
+
 import { formatTimestamp } from "@/lib/results";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
@@ -347,9 +347,6 @@ export default function ResultsDetailPage({ params }: Props) {
 
       {/* Neural Insights */}
       <InsightsPanel benchmark={benchmark} />
-
-      {/* Benchmark Comparison */}
-      <BenchmarkCards benchmark={benchmark} />
 
       {/* Region Breakdown + Segment Table */}
       <div className="grid grid-cols-12 gap-6">

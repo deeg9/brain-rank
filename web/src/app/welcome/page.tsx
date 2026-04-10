@@ -58,7 +58,7 @@ export default function WelcomePage() {
               Welcome to NeuroCut
             </h1>
             <p className="text-lg text-on-surface-variant font-body leading-relaxed max-w-lg">
-              Start predicting viral engagement with our brain-activation model.
+              See how the brain responds to your content with neural activation analysis.
               Analyze pacing, hooks, and retention peaks before you publish.
             </p>
           </div>
