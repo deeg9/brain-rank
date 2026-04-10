@@ -8,7 +8,11 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { RegionBreakdown, type RegionScores } from "@/components/results/RegionBreakdown";
 import { SegmentTable, type SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
+import { InsightsPanel } from "@/components/results/InsightsPanel";
+import { BenchmarkCards } from "@/components/results/BenchmarkCards";
 import { formatTimestamp } from "@/lib/results";
+import { analyzeBenchmark } from "@/lib/benchmark";
+import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import type { Job } from "@/lib/database.types";
 
 const NeuralTimeline = dynamic(
@@ -201,6 +205,39 @@ export default function ResultsDetailPage({ params }: Props) {
     peak_score: 0,
   };
 
+  // Benchmark analysis
+  const benchmark = analyzeBenchmark(segments, summary);
+
+  // Compute zone markers from benchmark results
+  const zones: ZoneMarker[] = [
+    ...benchmark.flowStates.map((f) => ({
+      startTime: f.startTime,
+      endTime: f.endTime,
+      type: 'flow' as const,
+    })),
+    ...benchmark.dropoffs.map((d) => {
+      // Create a small zone around the dropoff timestamp
+      const segDuration = segments.length > 1 ? segments[1].end - segments[1].start : 5;
+      return {
+        startTime: d.timestamp,
+        endTime: d.timestamp + segDuration,
+        type: 'dropoff' as const,
+      };
+    }),
+  ];
+
+  // Compute icon markers from benchmark results
+  const iconMarkers: IconMarker[] = [
+    ...benchmark.shareMoments.map((m) => ({
+      time: m.timestamp,
+      type: 'share' as const,
+    })),
+    ...benchmark.dropoffs.map((d) => ({
+      time: d.timestamp,
+      type: 'warning' as const,
+    })),
+  ];
+
   const avgRegions: RegionScores =
     segments.length > 0
       ? {
@@ -265,58 +302,8 @@ export default function ResultsDetailPage({ params }: Props) {
       {/* Real-time Region Values */}
       <RegionValuesBar segments={segments} currentTime={currentTime} />
 
-      {/* Neural Activation Timeline */}
-      <NeuralTimeline
-        segments={segments}
-        duration={results.duration_seconds}
-        currentTime={currentTime}
-        onSeek={handleSeek}
-      />
-
-      {/* Key Insights */}
+      {/* Summary Stat Cards */}
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12">
-          <div className="bg-surface-container rounded-xl p-8 glow-primary-lg animate-glow-pulse">
-            <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">
-              Key Insights
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-tertiary-fixed text-lg mt-0.5">insights</span>
-                <p className="text-on-surface">
-                  Peak engagement at <span className="font-bold text-primary">{summary.peak_second}s</span> — {Math.round(summary.peak_score * 100)}% activation
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-secondary text-lg mt-0.5">
-                  {summary.retention_score > summary.hook_score ? "trending_up" : "trending_down"}
-                </span>
-                <p className="text-on-surface">
-                  {summary.retention_score > summary.hook_score
-                    ? "Retention is stronger than hook — viewers who stay get more engaged"
-                    : "Hook is stronger than retention — strong opening, consider strengthening the ending"}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary text-lg mt-0.5">group</span>
-                <p className="text-on-surface">
-                  {(() => {
-                    const topRegion = Object.entries(avgRegions).sort(([,a], [,b]) => b - a)[0];
-                    const labels: Record<string, string> = {
-                      attention: "Attention (Focus) dominates — content holds visual/auditory focus",
-                      reward: "Reward (Motivation) dominates — content triggers dopamine response",
-                      emotional_processing: "Emotional Processing dominates — content evokes strong emotional response",
-                      social_cognition: "Social Cognition dominates — content triggers social/relational processing",
-                    };
-                    return labels[topRegion[0]] || "Balanced regional activation";
-                  })()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Summary Stat Cards */}
         <Card className="col-span-4 p-6 glass-surface hover:glow-primary transition-all duration-300">
           <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
             Hook Strength
@@ -347,6 +334,22 @@ export default function ResultsDetailPage({ params }: Props) {
           </p>
         </Card>
       </div>
+
+      {/* Neural Activation Timeline */}
+      <NeuralTimeline
+        segments={segments}
+        duration={results.duration_seconds}
+        currentTime={currentTime}
+        onSeek={handleSeek}
+        zones={zones}
+        iconMarkers={iconMarkers}
+      />
+
+      {/* Neural Insights */}
+      <InsightsPanel benchmark={benchmark} />
+
+      {/* Benchmark Comparison */}
+      <BenchmarkCards benchmark={benchmark} />
 
       {/* Region Breakdown + Segment Table */}
       <div className="grid grid-cols-12 gap-6">
