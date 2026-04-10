@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from "framer-motion";
 import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
+import { cn } from "@/lib/utils";
 import {
   fetchJobStatus,
   retryJob,
@@ -34,47 +36,82 @@ function generateLogLines(): string[] {
   ];
 }
 
-/* ---------- Stage checklist item ---------- */
+/* ---------- Stage stepper item ---------- */
 function StageItem({
   stage,
   currentIndex,
   index,
+  isLast,
 }: {
   stage: (typeof STAGES)[number];
   currentIndex: number;
   index: number;
+  isLast: boolean;
 }) {
   const isCompleted = index < currentIndex;
   const isActive = index === currentIndex;
 
-  if (isCompleted) {
-    return (
-      <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-tertiary-fixed bg-tertiary-fixed/10 p-1.5 rounded-lg text-sm">
-          check_circle
-        </span>
-        <span className="text-sm font-medium">{stage.label}</span>
-      </div>
-    );
-  }
-
-  if (isActive) {
-    return (
-      <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-secondary animate-spin p-1.5 rounded-lg text-sm">
-          sync
-        </span>
-        <span className="text-sm font-medium">{stage.label}</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center gap-3 opacity-30">
-      <span className="material-symbols-outlined p-1.5 rounded-lg text-sm">
-        {stage.icon}
-      </span>
-      <span className="text-sm font-medium">{stage.label}</span>
+    <div className="flex items-center flex-1 min-w-0">
+      <div className="flex flex-col items-center gap-2">
+        {/* Step indicator circle */}
+        <div className="relative">
+          {isCompleted ? (
+            <motion.div
+              className="w-8 h-8 rounded-full bg-tertiary-fixed/20 flex items-center justify-center"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", damping: 12, stiffness: 200 }}
+            >
+              <motion.span
+                className="material-symbols-outlined text-tertiary-fixed text-base"
+                initial={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", damping: 10, stiffness: 150, delay: 0.1 }}
+              >
+                check
+              </motion.span>
+            </motion.div>
+          ) : isActive ? (
+            <div className="relative">
+              <div className="w-8 h-8 rounded-full border-2 border-secondary flex items-center justify-center animate-pulse">
+                <span className="material-symbols-outlined text-secondary text-base animate-spin">
+                  sync
+                </span>
+              </div>
+              {/* Pulsing ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-secondary/40 animate-ping" />
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center opacity-30">
+              <span className="material-symbols-outlined text-on-surface-variant text-base">
+                {stage.icon}
+              </span>
+            </div>
+          )}
+        </div>
+        {/* Label */}
+        <span className={cn(
+          "text-[10px] font-medium text-center leading-tight max-w-[80px]",
+          isCompleted ? "text-tertiary-fixed" : isActive ? "text-secondary" : "text-on-surface-variant/30"
+        )}>
+          {stage.label}
+        </span>
+      </div>
+      {/* Connecting line */}
+      {!isLast && (
+        <div className="flex-1 h-0.5 mx-2 bg-outline-variant/20 rounded-full relative self-start mt-4 min-w-[20px]">
+          {isCompleted && (
+            <motion.div
+              className="absolute inset-0 neural-gradient rounded-full"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              style={{ transformOrigin: "left" }}
+              transition={{ type: "spring", damping: 15, stiffness: 100 }}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -254,7 +291,7 @@ function ProcessingContent() {
             retention.
           </p>
         </div>
-        <div className="bg-surface-container px-4 py-2 rounded-lg hidden md:block">
+        <div className="bg-surface-container px-4 py-2 rounded-lg hidden md:block animate-breathing-glow">
           <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest block mb-1">
             Compute Node
           </span>
@@ -298,20 +335,35 @@ function ProcessingContent() {
 
         {/* Progress Bar */}
         <div className="h-4 w-full bg-surface-container-lowest rounded-full overflow-hidden p-1">
-          <div
-            className="h-full neural-gradient rounded-full shadow-[0_0_12px_-2px_rgba(186,158,255,0.4)] transition-all duration-1000 ease-out"
-            style={{ width: `${progress}%` }}
-          />
+          <motion.div
+            className="h-full neural-gradient rounded-full relative overflow-hidden"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ type: "spring", damping: 10, stiffness: 100, mass: 0.75 }}
+            style={{
+              boxShadow: `0 0 ${12 + progress * 0.2}px -2px rgba(186,158,255,${0.3 + progress * 0.004})`,
+            }}
+          >
+            {/* Shimmer sweep overlay */}
+            <div
+              className="absolute inset-0 animate-shimmer"
+              style={{
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+                width: "50%",
+              }}
+            />
+          </motion.div>
         </div>
 
-        {/* Stage Checklist */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-outline-variant/10">
+        {/* Stage Stepper */}
+        <div className="flex items-start mt-8 pt-6 border-t border-outline-variant/10">
           {STAGES.map((stage, i) => (
             <StageItem
               key={stage.key}
               stage={stage}
               currentIndex={currentStageIndex}
               index={i}
+              isLast={i === STAGES.length - 1}
             />
           ))}
         </div>
@@ -325,7 +377,10 @@ function ProcessingContent() {
             <h3 className="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">
               Inference Engine Logs
             </h3>
-            <span className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb] animate-glow-pulse" />
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb]" />
+            </span>
           </div>
           <div className="bg-surface-container-lowest rounded-lg p-4 flex-1 font-mono text-[10px] text-primary-dim/70 space-y-1 overflow-y-auto border-l-2 border-primary/30">
             {logs.map((line, i) => (
@@ -386,7 +441,10 @@ function ProcessingContent() {
           <span className="text-xs text-on-surface-variant font-medium">
             Notification will be sent when complete
           </span>
-          <div className="w-2 h-2 rounded-full bg-outline-variant" />
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75 animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-tertiary-fixed shadow-[0_0_6px_rgba(155,255,206,0.5)]" />
+          </span>
           <span className="text-xs text-on-surface-variant font-medium">
             Auto-save enabled
           </span>
