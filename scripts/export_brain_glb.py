@@ -26,6 +26,7 @@ from region_mapping.atlas import build_region_masks
 from region_mapping.constants import N_VERTICES
 
 OUTPUT_PATH = os.path.join(PROJECT_ROOT, "web", "public", "models", "brain-fsaverage5.glb")
+UNIFIED_OUTPUT_PATH = os.path.join(PROJECT_ROOT, "web", "public", "models", "brain-fsaverage5-unified.glb")
 
 
 def load_fsaverage5():
@@ -109,5 +110,56 @@ def main():
     print(f"Mesh nodes: {len(scene.geometry)} ({', '.join(scene.geometry.keys())})")
 
 
+def export_unified_glb():
+    """Export a single unified mesh GLB with all 20,484 fsaverage5 vertices.
+
+    Vertex ordering is preserved exactly: left hemisphere 0-10241,
+    right hemisphere 10242-20483. This matches TRIBE v2 output indices 1:1,
+    enabling direct per-vertex heatmap mapping without index remapping.
+
+    CRITICAL: process=False prevents trimesh from deduplicating vertices
+    at hemisphere seams, which would break the vertex-to-index mapping.
+    """
+    print("\n=== Unified GLB Export ===")
+    print("Loading fsaverage5 surface...")
+    coords, faces = load_fsaverage5()
+
+    # Create single mesh with process=False to preserve vertex ordering
+    unified_mesh = trimesh.Trimesh(vertices=coords, faces=faces, process=False)
+    trimesh.repair.fix_normals(unified_mesh)
+
+    # Build scene with named geometry for useGLTF access as nodes.brain
+    scene = trimesh.Scene()
+    scene.add_geometry(unified_mesh, node_name="brain", geom_name="brain")
+
+    # Export
+    os.makedirs(os.path.dirname(UNIFIED_OUTPUT_PATH), exist_ok=True)
+    scene.export(UNIFIED_OUTPUT_PATH)
+
+    # Validate
+    assert len(unified_mesh.vertices) == N_VERTICES, (
+        f"Expected {N_VERTICES} vertices, got {len(unified_mesh.vertices)}"
+    )
+
+    file_size = os.path.getsize(UNIFIED_OUTPUT_PATH)
+    print(f"Exported to: {UNIFIED_OUTPUT_PATH}")
+    print(f"Vertices: {len(unified_mesh.vertices)}")
+    print(f"Faces: {len(unified_mesh.faces)}")
+    print(f"File size: {file_size / 1024:.1f} KB ({file_size / (1024*1024):.2f} MB)")
+    print(f"Mesh nodes: 1 (brain)")
+
+
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Export fsaverage5 brain meshes as GLB")
+    parser.add_argument(
+        "--unified-only",
+        action="store_true",
+        help="Only export the unified single-mesh GLB (skip region-split export)",
+    )
+    args = parser.parse_args()
+
+    if not args.unified_only:
+        main()
+    export_unified_glb()
