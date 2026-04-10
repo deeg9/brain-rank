@@ -6,6 +6,7 @@
 - ✅ **v1.1 UI Audit & Consolidation** - Phases 11-14 (shipped 2026-04-09)
 - 🚧 **v2.0 Frontend Implementation** - Phases 15-26 (in progress)
 - 📋 **v2.1 21st.dev Component Integration** - Phases 27-32 (planned)
+- 📋 **v2.2 Enhanced Brain Analytics** - Phases 33-37 (planned)
 
 ## Phases
 
@@ -61,6 +62,16 @@
 - [ ] **Phase 29: Animated File Upload** - Drag-and-drop upload zone with progress bars and video thumbnails
 - [ ] **Phase 30: Wave Loader** - Neural signal wave animation for processing wait state
 - [ ] **Phase 31: Hero Odyssey** - WebGL lightning shader hero section for welcome/marketing page
+
+### v2.2 Enhanced Brain Analytics (Planned)
+
+**Milestone Goal:** Unlock the full 20,484-vertex brain data with per-vertex heatmaps, expand from 4 to 9+ functional networks, and surface arousal/valence metrics -- making the results page scientifically richer and visually closer to Meta's own TRIBE v2 demo.
+
+- [ ] **Phase 33: Functional Network Expansion** - Add 5 new functional networks to backend region mapping and update API schema
+- [ ] **Phase 34: Vertex Data Pipeline** - Quantized uint8 base64 encoding for per-vertex activation data
+- [ ] **Phase 35: Unified GLB Mesh Export** - Python script producing a single GLB with 20,484 vertices in fsaverage5 order
+- [ ] **Phase 36: Cortical Heatmap Viewer** - Per-vertex heatmap on 3D brain with dual-view toggle and colormap selector
+- [ ] **Phase 37: Arousal/Valence & Network Legend** - Arousal/valence display cards, circumplex chart, and 9-network toggleable legend
 
 ## Phase Details
 
@@ -452,6 +463,77 @@ Plans:
 - [ ] 31-01-PLAN.md — WebGL lightning shader hero section with FBM effects, branded content overlay, auth-aware CTA
 **UI hint**: yes
 
+### Phase 32: 3D Brain Viewer
+
+**Goal:** Interactive 3D brain visualization using react-three-fiber showing brain regions lighting up based on TRIBE v2 activation scores, synced to the video timeline on the results page
+**Depends on:** Phase 20 (results page exists), Phase 27 (Framer Motion / animation foundation)
+**Requirements**: RSLT-03
+**Success Criteria** (what must be TRUE):
+  1. A 3D brain model renders on the results page using react-three-fiber with the fsaverage5 mesh
+  2. Four brain regions (attention, reward, emotional processing, social cognition) glow independently based on per-segment activation scores
+  3. The brain visualization syncs with the video timeline — scrubbing the video updates region colors in real-time
+  4. Bloom/glow postprocessing creates a visually striking "lighting up" effect matching the NeuroCut dark theme
+**Plans:** 2 plans
+
+Plans:
+- [ ] 32-01-PLAN.md — R3F deps, brain-utils, Python mesh conversion to GLB
+- [ ] 32-02-PLAN.md — BrainViewer R3F component, results page integration, visual verification
+**UI hint**: yes
+
+### Phase 33: Functional Network Expansion
+**Goal**: The backend maps all 9 functional networks from Destrieux atlas parcels and the API schema supports them while staying backward-compatible with existing 4-region jobs
+**Depends on**: Phase 32 (existing brain viewer and region mapping infrastructure)
+**Requirements**: NET-01, DATA-02
+**Success Criteria** (what must be TRUE):
+  1. The regions.py module defines vertex masks for 5 new functional networks (visual processing, auditory processing, language/narrative, default mode, motion processing) using Destrieux atlas parcels
+  2. The API response schema includes all 9 functional network scores per segment while existing 4-region jobs still parse correctly without client changes
+  3. Running inference on a test video returns scores for all 9 networks with plausible differentiation (not all identical values)
+**Plans**: TBD
+
+### Phase 34: Vertex Data Pipeline
+**Goal**: Per-vertex activation data is transmitted efficiently as quantized uint8 base64-encoded payloads instead of raw float arrays
+**Depends on**: Phase 33 (schema must support new fields)
+**Requirements**: DATA-01
+**Success Criteria** (what must be TRUE):
+  1. The postprocessor quantizes 20,484 float32 vertex activations to uint8 and base64-encodes the result, reducing per-segment payload from ~80KB to ~28KB
+  2. The frontend can decode the base64 string back to a typed array and map values to vertex colors without visible quantization artifacts
+  3. Existing API consumers that do not read the vertex_data field continue to work unchanged
+**Plans**: TBD
+
+### Phase 35: Unified GLB Mesh Export
+**Goal**: A single GLB mesh file with exactly 20,484 vertices in fsaverage5 ordering exists for the frontend heatmap renderer
+**Depends on**: Phase 32 (existing brain mesh conversion tooling)
+**Requirements**: DATA-03
+**Success Criteria** (what must be TRUE):
+  1. A Python script reads the fsaverage5 surface files and produces a GLB with 20,484 vertices whose indices match the TRIBE v2 output ordering
+  2. The GLB loads in the existing react-three-fiber brain viewer and renders a recognizable cortical surface
+  3. Vertex i in the decoded activation array corresponds to vertex i in the GLB mesh (no index remapping needed at runtime)
+**Plans**: TBD
+
+### Phase 36: Cortical Heatmap Viewer
+**Goal**: Users can see per-vertex activation intensity painted directly on the 3D brain surface and switch between heatmap and region-blob views
+**Depends on**: Phase 34 (vertex data available), Phase 35 (unified GLB mesh exists)
+**Requirements**: VIZ-01, VIZ-02, VIZ-03
+**Success Criteria** (what must be TRUE):
+  1. The 3D brain viewer displays a continuous color gradient across all 20,484 vertices reflecting per-vertex activation intensity for the selected segment
+  2. User can toggle between the per-vertex heatmap view and the original 4-region blob view using a visible control on the brain viewer
+  3. User can select between at least 3 colormap options (Inferno, Plasma, Viridis) and the heatmap updates immediately
+  4. Scrubbing the timeline updates the heatmap colors in real-time without perceptible lag
+**UI hint**: yes
+**Plans**: TBD
+
+### Phase 37: Arousal/Valence Display & Network Legend
+**Goal**: Users can see arousal and valence metrics and interact with all 9 functional networks on the results page
+**Depends on**: Phase 33 (9 networks available in API), Phase 36 (heatmap viewer exists for network overlay)
+**Requirements**: AV-01, AV-02, NET-02
+**Success Criteria** (what must be TRUE):
+  1. The results page displays arousal and valence composite scores as styled metric cards matching the existing design system
+  2. A circumplex chart plots arousal (y-axis) vs valence (x-axis) with quadrant labels (high-arousal/positive, high-arousal/negative, low-arousal/positive, low-arousal/negative)
+  3. A color-coded legend lists all 9 functional networks with toggle switches that show/hide each network's activation on the brain viewer
+  4. Toggling a network on highlights its vertices on the heatmap; toggling it off returns those vertices to the base color
+**UI hint**: yes
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
@@ -460,6 +542,7 @@ Phases 11-14: Complete (v1.1)
 Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 Phases 24-26: 24 -> 25 -> 26
 Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
+Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -495,20 +578,8 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 | 30. Wave Loader | v2.1 | 0/1 | Planning | - |
 | 31. Hero Odyssey | v2.1 | 0/1 | Planning | - |
 | 32. 3D Brain Viewer | v2.1 | 0/2 | Planning | - |
-
-### Phase 32: 3D Brain Viewer
-
-**Goal:** Interactive 3D brain visualization using react-three-fiber showing brain regions lighting up based on TRIBE v2 activation scores, synced to the video timeline on the results page
-**Depends on:** Phase 20 (results page exists), Phase 27 (Framer Motion / animation foundation)
-**Requirements**: RSLT-03
-**Success Criteria** (what must be TRUE):
-  1. A 3D brain model renders on the results page using react-three-fiber with the fsaverage5 mesh
-  2. Four brain regions (attention, reward, emotional processing, social cognition) glow independently based on per-segment activation scores
-  3. The brain visualization syncs with the video timeline — scrubbing the video updates region colors in real-time
-  4. Bloom/glow postprocessing creates a visually striking "lighting up" effect matching the NeuroCut dark theme
-**Plans:** 2 plans
-
-Plans:
-- [ ] 32-01-PLAN.md — R3F deps, brain-utils, Python mesh conversion to GLB
-- [ ] 32-02-PLAN.md — BrainViewer R3F component, results page integration, visual verification
-**UI hint**: yes
+| 33. Functional Network Expansion | v2.2 | 0/0 | Not started | - |
+| 34. Vertex Data Pipeline | v2.2 | 0/0 | Not started | - |
+| 35. Unified GLB Mesh Export | v2.2 | 0/0 | Not started | - |
+| 36. Cortical Heatmap Viewer | v2.2 | 0/0 | Not started | - |
+| 37. Arousal/Valence & Network Legend | v2.2 | 0/0 | Not started | - |

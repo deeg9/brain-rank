@@ -79,22 +79,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-02 | Phase 29 | Pending |
 | COMP-03 | Phase 30 | Pending |
 | COMP-04 | Phase 31 | Pending |
-| VIZ-01 | TBD | Pending |
-| VIZ-02 | TBD | Pending |
-| VIZ-03 | TBD | Pending |
-| NET-01 | TBD | Pending |
-| NET-02 | TBD | Pending |
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| AV-01 | TBD | Pending |
-| AV-02 | TBD | Pending |
+| VIZ-01 | Phase 36 | Pending |
+| VIZ-02 | Phase 36 | Pending |
+| VIZ-03 | Phase 36 | Pending |
+| NET-01 | Phase 33 | Pending |
+| NET-02 | Phase 37 | Pending |
+| DATA-01 | Phase 34 | Pending |
+| DATA-02 | Phase 33 | Pending |
+| DATA-03 | Phase 35 | Pending |
+| AV-01 | Phase 37 | Pending |
+| AV-02 | Phase 37 | Pending |
 
 **Coverage:**
 - v2.1 requirements: 6 total (mapped)
-- v2.2 requirements: 10 total (pending roadmap)
-- Unmapped: 10
+- v2.2 requirements: 10 total (mapped)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-10 after v2.2 requirements definition*
+*Last updated: 2026-04-10 after v2.2 roadmap creation*

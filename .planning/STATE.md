@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Enhanced Brain Analytics
-status: defining
-stopped_at: Defining requirements for v2.2
-last_updated: "2026-04-10T18:15:00.000Z"
-last_activity: 2026-04-10 -- Milestone v2.2 started
+status: roadmap_created
+stopped_at: Roadmap created for v2.2 with phases 33-37
+last_updated: "2026-04-10T19:00:00.000Z"
+last_activity: 2026-04-10 -- Roadmap created for v2.2
 progress:
-  total_phases: 0
-  completed_phases: 0
+  total_phases: 37
+  completed_phases: 23
   total_plans: 0
   completed_plans: 0
   percent: 0
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Defining requirements for v2.2 Enhanced Brain Analytics
+**Current focus:** v2.2 Enhanced Brain Analytics -- Phase 33 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-10 — Milestone v2.2 started
+Phase: 33 of 37 (Functional Network Expansion)
+Plan: --
+Status: Ready to plan
+Last activity: 2026-04-10 -- Roadmap created for v2.2 Enhanced Brain Analytics
 
-Progress: [██████████████████░░] 84% (26/31 phases complete across all milestones)
+Progress: [██████████████████░░] 84% (23/37 phases complete across all milestones)
 
 ## Performance Metrics
 
@@ -58,7 +58,8 @@ Progress: [██████████████████░░] 84% (26
 - [v1.1]: 15 Stitch screens received, design system documented
 - [v2.0]: Next.js + Supabase stack selected
 - [v2.1]: 21st.dev components chosen: Sliding Number, File Upload, Wave Loader, Hero Odyssey
-- [v2.1]: Phase 32 added: 3D Brain Viewer — interactive brain visualization with react-three-fiber on results page
+- [v2.1]: Phase 32 added: 3D Brain Viewer with react-three-fiber
+- [v2.2]: 5 phases (33-37) roadmapped: network expansion, vertex pipeline, GLB mesh, heatmap viewer, arousal/valence
 
 ### Pending Todos
 
@@ -66,9 +67,9 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 27 (foundation) must complete before any component phases can start
-- COMP-02 (File Upload) replaces existing upload page — needs careful integration with Supabase Storage flow
-- COMP-04 (Hero Odyssey) requires WebGL — needs graceful fallback strategy
+- Phase 33 depends on Phase 32 (existing brain viewer infrastructure)
+- Phase 36 (heatmap) requires both vertex data (34) and GLB mesh (35) -- strict dependency chain
+- NET-01 requires Destrieux atlas parcel-to-network mapping -- neuroscience domain knowledge needed
 
 ### Quick Tasks Completed
 
@@ -79,10 +80,10 @@ None yet.
 | 260409-sfh | Create Forgot Password page with Supabase reset | 2026-04-10 | 43b4cfa | [260409-sfh-create-forgot-password-page-with-supabas](./quick/260409-sfh-create-forgot-password-page-with-supabas/) |
 | 260409-sd7 | Add robust_normalize to postprocessor and update web UI grading for normalized TRIBE v2 scores | 2026-04-10 | e65f741 | [260409-sd7-add-robust-normalize-to-postprocessor-an](./quick/260409-sd7-add-robust-normalize-to-postprocessor-an/) |
 | 260409-sjd | Add password strength indicator and Terms checkbox to Sign Up | 2026-04-10 | 83fe159 | [260409-sjd-add-password-strength-indicator-and-term](./quick/260409-sjd-add-password-strength-indicator-and-term/) |
-| 260409-v0k | Visual polish — hover animations, glassmorphism, glow effects | 2026-04-10 | 64b4850 | [260409-v0k-visual-polish-pass-hover-animations-glas](./quick/260409-v0k-visual-polish-pass-hover-animations-glas/) |
+| 260409-v0k | Visual polish -- hover animations, glassmorphism, glow effects | 2026-04-10 | 64b4850 | [260409-v0k-visual-polish-pass-hover-animations-glas](./quick/260409-v0k-visual-polish-pass-hover-animations-glas/) |
 
 ## Session Continuity
 
 Last session: 2026-04-10
-Stopped at: Roadmap created for v2.1 milestone
+Stopped at: Roadmap created for v2.2 Enhanced Brain Analytics (phases 33-37)
 Resume file: None
