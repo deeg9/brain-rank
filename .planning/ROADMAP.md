@@ -341,6 +341,16 @@ Plans:
 - [x] 23-01-PLAN.md — 404, 500, and offline error pages
 **UI hint**: yes
 
+### Phase 24: Results Detail Multi-Track Neural Activation Timeline
+
+**Goal:** Results Detail page has a premium 4-track neural activation timeline (Recharts AreaCharts) with synchronized crosshair, gradient fills, custom tooltip, and video player placeholder
+**Requirements**: RSLT-02, RSLT-03
+**Depends on:** Phase 20
+**Plans:** 1 plan
+
+Plans:
+- [ ] 24-01-PLAN.md — Install Recharts, create NeuralTimeline component, add video placeholder, update Results Detail page layout
+
 ## Progress
 
 **Execution Order:**
@@ -373,13 +383,4 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 | 21. Dashboard | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 22. Settings & Profile | v2.0 | 1/1 | Complete    | 2026-04-10 |
 | 23. Error Handling | v2.0 | 1/1 | Complete    | 2026-04-10 |
-
-### Phase 24: Results Detail Multi-Track Neural Activation Timeline
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 23
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 24 to break down)
+| 24. Neural Timeline | v2.0 | 0/1 | Planning    | - |
