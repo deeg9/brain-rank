@@ -1,26 +1,16 @@
 ---
 phase: 28-sliding-number-counters
 verified: 2026-04-10T17:45:00Z
-status: gaps_found
-score: 4/6 must-haves verified
+status: human_needed
+score: 6/6 must-haves verified
 overrides_applied: 0
 gaps:
   - truth: "Hook strength, retention, and peak moment animate from 0 on results detail page"
-    status: failed
-    reason: "The stat cards (hook strength, retention, peak moment) were integrated with SlidingNumber in commit 2c79eb9 but subsequently removed from the detail page during the phase 27-31 merge (commit 821c26f). The SlidingNumber import remains as a dead import on the detail page but is never used in JSX."
-    artifacts:
-      - path: "web/src/app/(app)/results/[id]/page.tsx"
-        issue: "SlidingNumber imported but unused — stat cards (hook strength, retention, peak moment) no longer exist in the rendered output"
-    missing:
-      - "Restore stat summary cards (hook strength, retention, peak moment) with SlidingNumber animation on the results detail page, or remove the orphaned SlidingNumber import"
+    status: resolved
+    reason: "Restored in commit 84473d1 — stat cards with SlidingNumber animation re-integrated after merge regression"
   - truth: "BenchmarkCards percentage values animate from 0 on results detail page"
-    status: failed
-    reason: "BenchmarkCards component correctly uses SlidingNumber internally, but BenchmarkCards is not imported or rendered anywhere in the application. It is an orphaned component — removed from the detail page during the phase 27-31 merge (commit 821c26f)."
-    artifacts:
-      - path: "web/src/components/results/BenchmarkCards.tsx"
-        issue: "Component is orphaned — not imported or used in any page"
-    missing:
-      - "Re-integrate BenchmarkCards into the results detail page, or acknowledge removal and update phase scope"
+    status: resolved
+    reason: "Restored in commit 84473d1 — BenchmarkCards re-imported and rendered on detail page after merge regression"
 human_verification:
   - test: "Navigate to results overview page with real data"
     expected: "Overall score, hook score, and retention percentage animate from 0 to final values with visible spring overshoot-and-settle motion"
