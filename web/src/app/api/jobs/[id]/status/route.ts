@@ -55,11 +55,56 @@ export async function GET(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
-    const stage = mapStatusToStage(job.status, job.runpod_id)
+    // If job is still processing and has a RunPod ID, check RunPod for updates
+    let resolvedStatus = job.status
+    if (job.status === 'processing' && job.runpod_id) {
+      const apiKey = process.env.RUNPOD_API_KEY
+      const endpointId = process.env.RUNPOD_ENDPOINT_ID
+
+      if (apiKey && endpointId) {
+        try {
+          const res = await fetch(
+            `https://api.runpod.ai/v2/${endpointId}/status/${job.runpod_id}`,
+            { headers: { 'Authorization': `Bearer ${apiKey}` } }
+          )
+
+          if (res.ok) {
+            const runpodData = await res.json()
+
+            if (runpodData.status === 'COMPLETED' && runpodData.output) {
+              // Update Supabase with results
+              await supabase
+                .from('jobs')
+                .update({ status: 'completed', results: runpodData.output })
+                .eq('id', id)
+              resolvedStatus = 'completed'
+            } else if (
+              runpodData.status === 'FAILED' ||
+              runpodData.status === 'CANCELLED' ||
+              runpodData.status === 'TIMED_OUT'
+            ) {
+              await supabase
+                .from('jobs')
+                .update({
+                  status: 'failed',
+                  error_message: runpodData.error || 'Inference failed',
+                })
+                .eq('id', id)
+              resolvedStatus = 'failed'
+            }
+            // IN_QUEUE / IN_PROGRESS → keep as processing
+          }
+        } catch {
+          // RunPod unreachable — return current status, don't block
+        }
+      }
+    }
+
+    const stage = mapStatusToStage(resolvedStatus, job.runpod_id)
 
     const response: JobStatusResponse = {
       id: job.id,
-      status: job.status,
+      status: resolvedStatus,
       stage,
       progress: getStageProgress(stage),
       error_message: job.error_message,
