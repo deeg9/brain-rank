@@ -635,10 +635,9 @@ Plans:
   1. The top 3-5 activation peaks are automatically identified and marked on the neural timeline with visible indicators
   2. Each peak marker shows the timestamp and relative activation intensity on hover or tap
   3. Peak markers do not interfere with existing timeline interactions (playhead scrubbing, click-to-seek)
-**Plans:** 2 plans
+**Plans:** 1 plan
 Plans:
-- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [ ] 43-01-PLAN.md — Peak detection logic, timeline marker rendering, results page wiring
 **UI hint**: yes
 
 ## Progress
