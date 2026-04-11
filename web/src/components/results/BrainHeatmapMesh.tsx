@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { VERTEX_COUNT } from '@/lib/vertex-codec';
-import { applyColormap } from '@/lib/colormap';
+import { buildColormapLUT, applyColormapFromLUT } from '@/lib/colormap';
 import type { ColormapName } from '@/lib/colormap';
 
 interface BrainHeatmapMeshProps {
@@ -17,31 +18,42 @@ type GLTFNodes = Record<string, THREE.Mesh>;
 export function BrainHeatmapMesh({ vertexData, colormap }: BrainHeatmapMeshProps) {
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
-  // Clone geometry once so we don't mutate the cached original
-  const clonedGeometry = useMemo(() => {
-    const geo = nodes.brain.geometry.clone();
-    return geo;
-  }, [nodes.brain.geometry]);
+  // Build 256-entry LUT once per colormap change (not per vertex)
+  const lutData = useMemo(() => buildColormapLUT(colormap), [colormap]);
 
   // Pre-allocate color buffer (never allocate in render loop)
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
 
-  // Set up the color attribute on the cloned geometry
-  useMemo(() => {
-    clonedGeometry.setAttribute(
-      'color',
-      new THREE.BufferAttribute(colorBuffer, 3),
-    );
-  }, [clonedGeometry, colorBuffer]);
+  // Create color attribute with DynamicDrawUsage for frequent GPU uploads
+  const colorAttr = useMemo(() => {
+    const attr = new THREE.BufferAttribute(colorBuffer, 3);
+    attr.setUsage(THREE.DynamicDrawUsage);
+    return attr;
+  }, [colorBuffer]);
 
-  // Update colors only when vertexData or colormap changes
+  // Clone geometry once so we don't mutate the cached original
+  const clonedGeometry = useMemo(() => {
+    const geo = nodes.brain.geometry.clone();
+    geo.setAttribute('color', colorAttr);
+    return geo;
+  }, [nodes.brain.geometry, colorAttr]);
+
+  // Dirty flag for GPU sync via useFrame
+  const needsColorUpdate = useRef(true);
+
+  // Update color data when inputs change, mark dirty for GPU upload
   useEffect(() => {
-    applyColormap(vertexData, colormap, colorBuffer);
-    const attr = clonedGeometry.attributes.color as THREE.BufferAttribute;
-    if (attr) {
-      attr.needsUpdate = true;
+    applyColormapFromLUT(vertexData, lutData, colorBuffer);
+    needsColorUpdate.current = true;
+  }, [vertexData, lutData, colorBuffer]);
+
+  // Sync dirty flag to GPU inside the render loop (not useEffect)
+  useFrame(() => {
+    if (needsColorUpdate.current && colorAttr) {
+      colorAttr.needsUpdate = true;
+      needsColorUpdate.current = false;
     }
-  }, [vertexData, colormap, colorBuffer, clonedGeometry]);
+  });
 
   return (
     <mesh geometry={clonedGeometry}>
