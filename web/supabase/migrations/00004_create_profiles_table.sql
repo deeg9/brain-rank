@@ -14,8 +14,8 @@ CREATE TABLE public.profiles (
   updated_at timestamptz DEFAULT now() NOT NULL,
   CONSTRAINT username_format CHECK (
     username IS NULL OR (
-      length(username) BETWEEN 3 AND 20
-      AND username ~ '^[a-z0-9_]+$'
+      length(username::text) BETWEEN 3 AND 20
+      AND lower(username::text) ~ '^[a-z0-9_]+$'
     )
   )
 );
