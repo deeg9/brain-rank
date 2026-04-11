@@ -4,24 +4,18 @@ import { motion } from "framer-motion";
 
 type AccentColor = "primary" | "secondary" | "tertiary";
 
-const ACCENT_MAP: Record<AccentColor, { halo: string; icon: string; glow: string; border: string }> = {
+const ACCENT_MAP: Record<AccentColor, { halo: string; glow: string }> = {
   primary: {
-    halo: "bg-primary/15",
-    icon: "text-primary-dim",
-    glow: "shadow-primary/20",
-    border: "border-primary/20",
+    halo: "bg-on-surface/10",
+    glow: "shadow-on-surface/10",
   },
   secondary: {
-    halo: "bg-secondary/15",
-    icon: "text-secondary",
-    glow: "shadow-secondary/20",
-    border: "border-secondary/20",
+    halo: "bg-on-surface/10",
+    glow: "shadow-on-surface/10",
   },
   tertiary: {
-    halo: "bg-tertiary-fixed/15",
-    icon: "text-tertiary-fixed",
-    glow: "shadow-tertiary-fixed/20",
-    border: "border-tertiary-fixed/20",
+    halo: "bg-on-surface/10",
+    glow: "shadow-on-surface/10",
   },
 };
 
@@ -69,7 +63,7 @@ export function StatTile({ icon, label, value, suffix, accentColor }: StatTilePr
               )}
             </div>
           </div>
-          <div className={`w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center ${accent.icon}`}>
+          <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
             <span className="material-symbols-outlined text-2xl">{icon}</span>
           </div>
         </div>
