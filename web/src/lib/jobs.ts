@@ -13,6 +13,7 @@ export type JobStage = 'queued' | 'processing' | 'complete' | 'failed'
 export const STAGES: { key: JobStage; label: string; icon: string }[] = [
   { key: 'queued', label: 'In Queue', icon: 'hourglass_top' },
   { key: 'processing', label: 'Processing', icon: 'neurology' },
+  { key: 'complete', label: 'Complete', icon: 'check_circle' },
 ]
 
 export function getStageIndex(stage: JobStage): number {

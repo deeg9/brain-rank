@@ -30,7 +30,7 @@ function StageItem({
   const isActive = index === currentIndex;
 
   return (
-    <div className="flex items-center flex-1 min-w-0">
+    <div className="flex items-center min-w-0">
       <div className="flex flex-col items-center gap-2">
         <div className="relative">
           {isCompleted ? (
@@ -77,7 +77,7 @@ function StageItem({
         </span>
       </div>
       {!isLast && (
-        <div className="flex-1 h-0.5 mx-3 bg-outline-variant/20 rounded-full relative self-start mt-5 min-w-[30px]">
+        <div className="w-20 h-0.5 mx-3 bg-outline-variant/20 rounded-full relative self-start mt-5">
           {isCompleted && (
             <motion.div
               className="absolute inset-0 neural-gradient rounded-full"
@@ -274,7 +274,7 @@ function ProcessingContent() {
         </div>
 
         {/* Stage Stepper */}
-        <div className="flex items-start justify-center gap-4 pt-4 border-t border-outline-variant/10">
+        <div className="flex items-start justify-center pt-4 border-t border-outline-variant/10">
           {STAGES.map((stage, i) => (
             <StageItem
               key={stage.key}
