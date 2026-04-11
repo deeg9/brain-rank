@@ -187,10 +187,15 @@ export default function ResultsDetailPage({ params }: Props) {
 
   if (!job) return null;
 
-  if (job.status !== "completed" || !job.results) {
-    router.replace(`/processing?jobId=${id}`);
-    return null;
-  }
+  const shouldRedirect = job.status !== "completed" || !job.results;
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.replace(`/processing?jobId=${id}`);
+    }
+  }, [shouldRedirect, router, id]);
+
+  if (shouldRedirect) return null;
 
   const results = job.results as unknown as ResultsData;
   const segments = results.segments ?? [];
