@@ -680,7 +680,9 @@ Plans:
   1. User can upload a profile avatar image from the settings page and see it reflected on their profile
   2. Avatar images are stored in Supabase Storage and served via public URL
   3. User can write and save a short bio (max 160 chars) that appears on their profile
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 46: Public Profile Pages
@@ -692,7 +694,9 @@ Plans:
   2. The profile page lists all of that user's public analyses with thumbnails and scores
   3. Visiting /u/nonexistent-user shows a 404 page
   4. The profile page is accessible without authentication (public route)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 47: Privacy Controls & Sharing
@@ -704,7 +708,9 @@ Plans:
   2. New analyses default to private (is_public = false)
   3. User can copy a shareable link for any public analysis with one click
   4. Attempting to access a private analysis URL while not the owner returns a 404 (not a 403, to avoid leaking existence)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 48: Public Analysis View
@@ -716,7 +722,9 @@ Plans:
   2. The page does not include video playback (scores only, per v4.0 scope)
   3. The page shows the creator's username (linked to their profile) and analysis metadata (date, video title)
   4. The page is accessible without authentication
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 49: Discovery Feed
@@ -728,7 +736,9 @@ Plans:
   2. Analyses are paginated or infinitely scrolled (not all loaded at once)
   3. Each card links to the public analysis view page
   4. The page loads within 2 seconds for up to 100 public analyses
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 50: Discovery Search & Filters
@@ -740,7 +750,9 @@ Plans:
   2. User can search public analyses by video title or creator username with results updating as they type
   3. User can filter analyses by content type or score range and see the feed update accordingly
   4. Sorting, searching, and filtering can be combined (e.g., search "cooking" + sort by neural score + filter score > 70)
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ### Phase 51: Social Engagement
@@ -752,7 +764,9 @@ Plans:
   2. Authenticated users can bookmark any public analysis with a single click, and the bookmark state persists
   3. User can view all their saved bookmarks at /bookmarks with the same card format as the discovery feed
   4. Unbookmarking removes the analysis from /bookmarks immediately
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
 **UI hint**: yes
 
 ## Progress
