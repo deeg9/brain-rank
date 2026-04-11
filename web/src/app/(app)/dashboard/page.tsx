@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button, Card, StatusBadge } from "@/components/ui";
 import { AnalysisSearch } from "./AnalysisSearch";
+import { StatTile } from "./StatTile";
 import { VideoThumb } from "./VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
 
@@ -102,30 +103,25 @@ export default async function DashboardPage() {
 
       {/* Quick Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-primary hover:glow-primary transition-all duration-300">
-          <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
-            Total Analyses
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold animate-score-in">{jobList.length}</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-secondary hover:glow-primary transition-all duration-300">
-          <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
-            Credits Remaining
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold animate-score-in">250</span>
-          </div>
-        </div>
-        <div className="bg-surface-container-high p-8 rounded-xl border-l-4 border-tertiary-fixed-dim hover:glow-primary transition-all duration-300">
-          <p className="text-on-surface-variant font-headline text-xs uppercase tracking-widest font-semibold">
-            Avg Neural Score
-          </p>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-4xl font-headline font-bold animate-score-in">{avgScore}</span>
-          </div>
-        </div>
+        <StatTile
+          icon="analytics"
+          label="Total Analyses"
+          value={String(jobList.length)}
+          accentColor="primary"
+        />
+        <StatTile
+          icon="toll"
+          label="Credits Remaining"
+          value="250"
+          accentColor="secondary"
+        />
+        <StatTile
+          icon="neurology"
+          label="Avg Neural Score"
+          value={avgScore}
+          suffix="/100"
+          accentColor="tertiary"
+        />
       </section>
 
       {hasJobs ? (
