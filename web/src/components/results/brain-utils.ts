@@ -49,7 +49,7 @@ export function getVertexDataAtTime(segments: SegmentData[], time: number): stri
 }
 
 /**
- * Canonical colors for each brain region, used by BrainViewer and RegionValuesBar.
+ * Canonical colors for each brain region, used by BrainViewer and BrainNetworkMesh.
  */
 export const REGION_COLORS: Record<keyof SegmentRegionScores, string> = {
   attention: '#60a5fa',
