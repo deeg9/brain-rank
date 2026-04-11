@@ -8,14 +8,16 @@ A web app that lets content creators upload videos and get brain-activation-base
 
 Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out, so creators can re-edit for maximum impact.
 
-## Current Milestone: v2.2 Enhanced Brain Analytics
+## Current Milestone: v3.0 Brain Visualization UX Overhaul
 
-**Goal:** Unlock the full 20,484-vertex brain data with per-vertex heatmaps, expand from 4 to 9+ functional networks, and surface arousal/valence metrics — making the results page scientifically richer and visually closer to Meta's own TRIBE v2 demo.
+**Goal:** Research Meta's TRIBE v2 demo approach and redesign the brain viewer so activation lights up dynamically as the video plays — matching how Meta successfully demos their model. Simplify the UI from cluttered controls to a clean, story-telling visualization.
 
 **Target features:**
-- Per-vertex cortical heatmap on 3D brain viewer (full spatial resolution instead of 4 colored blobs)
-- Additional functional networks: visual processing, auditory processing, language/narrative, default mode, motion processing
-- Arousal & valence composite metrics displayed on results page
+- Research Meta's TRIBE v2 demo patterns and brain visualization UX
+- Dynamic brain glow — regions light up in real-time as video plays, only above activation threshold
+- Remove toggle filter buttons — replace with static color legend
+- Clean up crowded brain viewer header
+- Simplified, visually compelling brain viewer that tells a story as the video plays
 
 ## Requirements
 
@@ -92,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-10 after v2.2 milestone start*
+*Last updated: 2026-04-10 after v3.0 milestone start*
