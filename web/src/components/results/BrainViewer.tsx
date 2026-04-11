@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useRef, useMemo } from 'react';
+import React, { Suspense, useState, useRef, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import type { BrainViewerCanvasHandle } from './BrainViewerCanvas';
@@ -13,7 +13,7 @@ import type { ColormapName } from '@/lib/colormap';
 
 interface BrainViewerProps {
   segments: SegmentData[];
-  currentTime: number;
+  currentTimeRef: React.RefObject<number>;
 }
 
 const REGION_LABELS: Record<string, string> = {
@@ -30,7 +30,9 @@ const REGION_LABELS: Record<string, string> = {
 
 type RegionKey = keyof SegmentRegionScores;
 
-export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
+export function BrainViewer({ segments, currentTimeRef }: BrainViewerProps) {
+  // Read time from ref — avoids 60fps React re-renders
+  const currentTime = currentTimeRef.current;
   const regionScores = getRegionsAtTime(segments, currentTime);
   const canvasRef = useRef<BrainViewerCanvasHandle>(null);
   const [viewMode, setViewMode] = useState<'heatmap' | 'regions'>('heatmap');
@@ -47,8 +49,8 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
     motion_processing: true,
   });
 
-  // Decode vertex data for current time
-  const vertexDataBase64 = getVertexDataAtTime(segments, currentTime);
+  // Decode vertex data for current time (reads from ref for latest value)
+  const vertexDataBase64 = getVertexDataAtTime(segments, currentTimeRef.current);
   const vertexData = useMemo(() => {
     if (!vertexDataBase64) return null;
     try {

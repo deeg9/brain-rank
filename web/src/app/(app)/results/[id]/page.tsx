@@ -8,6 +8,7 @@ import { Card } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
+import { useVideoTime } from "@/hooks/useVideoTime";
 
 import { formatTimestamp } from "@/lib/results";
 import { SlidingNumber } from "@/components/ui/SlidingNumber";
@@ -93,10 +94,17 @@ export default function ResultsDetailPage({ params }: Props) {
 
   // Video-timeline sync state
   const videoRef = useRef<HTMLVideoElement>(null);
+  const currentTimeRef = useRef(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // High-frequency ref update via requestVideoFrameCallback (60fps, no re-renders)
+  useVideoTime(videoRef, (time) => {
+    currentTimeRef.current = time;
+  });
+
+  // Low-frequency React state update via HTML timeupdate (~4Hz, drives timeline/UI)
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
       setCurrentTime(videoRef.current.currentTime);
@@ -291,7 +299,7 @@ export default function ResultsDetailPage({ params }: Props) {
           zones={zones}
           iconMarkers={iconMarkers}
         />
-        <BrainViewer segments={segments} currentTime={currentTime} />
+        <BrainViewer segments={segments} currentTimeRef={currentTimeRef} />
       </div>
 
       {/* Summary Stat Cards */}
