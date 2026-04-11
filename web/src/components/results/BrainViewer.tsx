@@ -3,6 +3,7 @@
 import React, { Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
+import { ActivationLegend } from './ActivationLegend';
 import { getVertexDataAtTime } from './brain-utils';
 import type { SegmentData } from '@/components/results/SegmentTable';
 import { decodeVertexData } from '@/lib/vertex-codec';
@@ -42,6 +43,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
           </Suspense>
         </Canvas>
       </div>
+      <ActivationLegend />
     </div>
   );
 }
