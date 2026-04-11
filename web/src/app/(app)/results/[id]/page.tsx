@@ -276,7 +276,7 @@ export default function ResultsDetailPage({ params }: Props) {
       </div>
 
       {/* Video Player + Brain Viewer — side by side */}
-      <div className="grid grid-cols-2 gap-6 [&>*]:min-h-[480px]">
+      <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
         <VideoPlayer
           src={results.video_url}
           videoRef={videoRef}
@@ -298,7 +298,7 @@ export default function ResultsDetailPage({ params }: Props) {
         const valence = currentSegment?.valence ?? 0;
         return (
           <>
-            <div className="grid grid-cols-2 gap-6 [&>*]:min-h-[480px]">
+            <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
               <NeuralTimeline
                 segments={segments}
                 duration={results.duration_seconds}
