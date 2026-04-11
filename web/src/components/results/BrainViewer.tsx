@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useMemo, useEffect, useState } from 'react';
+import React, { Suspense, useMemo, useEffect, useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import { NetworkLegend } from './NetworkLegend';
@@ -8,7 +8,7 @@ import { getAdjacentSegments, getRegionsAtTime, REGION_COLORS } from './brain-ut
 import type { SegmentData, SegmentRegionScores } from '@/components/results/SegmentTable';
 import { decodeVertexData, VERTEX_COUNT } from '@/lib/vertex-codec';
 
-type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
+export type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
 interface BrainViewerProps {
   segments: SegmentData[];
@@ -16,9 +16,27 @@ interface BrainViewerProps {
   currentTime: number;
 }
 
-/**
- * Convert hex color string to [r, g, b] normalized to [0,1].
- */
+export interface HoverInfo {
+  network: keyof SegmentRegionScores;
+  label: string;
+  score: number;
+  color: string;
+  screenX: number;
+  screenY: number;
+}
+
+const NETWORK_LABELS: Record<keyof SegmentRegionScores, string> = {
+  attention: 'Attention',
+  reward: 'Reward',
+  emotional_processing: 'Emotional Processing',
+  social_cognition: 'Social Cognition',
+  visual_processing: 'Visual Processing',
+  auditory_processing: 'Auditory Processing',
+  language_narrative: 'Language & Narrative',
+  default_mode: 'Default Mode',
+  motion_processing: 'Motion Processing',
+};
+
 function hexToRGB(hex: string): [number, number, number] {
   return [
     parseInt(hex.slice(1, 3), 16) / 255,
@@ -27,39 +45,29 @@ function hexToRGB(hex: string): [number, number, number] {
   ];
 }
 
-// Dark base color for inactive vertices
-const BASE_R = 0.102; // #1a
+const BASE_R = 0.102;
 const BASE_G = 0.102;
-const BASE_B = 0.118; // #1e
+const BASE_B = 0.118;
 
-/**
- * Build a per-vertex activation array from region scores + vertex map.
- * Each vertex gets painted with its network's color scaled by score.
- * Returns a Float32Array of length VERTEX_COUNT * 3 (RGB).
- */
 function buildRegionColors(
   regions: SegmentRegionScores,
   vertexMap: NetworkVertexMap,
   out: Float32Array,
 ): void {
-  // Fill with dark base
   for (let i = 0; i < VERTEX_COUNT; i++) {
     out[i * 3] = BASE_R;
     out[i * 3 + 1] = BASE_G;
     out[i * 3 + 2] = BASE_B;
   }
 
-  // Paint each network's vertices with its color * score
   for (const [network, indices] of Object.entries(vertexMap)) {
     const score = regions[network as keyof SegmentRegionScores] ?? 0;
-    if (score < 0.05) continue; // Skip nearly-zero networks
+    if (score < 0.05) continue;
 
     const color = REGION_COLORS[network as keyof SegmentRegionScores];
     if (!color) continue;
     const [cr, cg, cb] = hexToRGB(color);
 
-    // Intensity: blend between base and full color based on score
-    // Score > 0.5 gets emissive boost (values > 1.0 with toneMapped=false)
     const intensity = Math.max(0.15, score);
     const emissiveBoost = score > 0.5 ? 1 + (score - 0.5) * 2 : 1;
 
@@ -72,10 +80,32 @@ function buildRegionColors(
   }
 }
 
+/**
+ * Build a reverse lookup: vertex index → network name.
+ * When a vertex belongs to multiple networks, the first one wins.
+ */
+function buildVertexToNetwork(
+  vertexMap: NetworkVertexMap,
+): Uint8Array {
+  const NETWORK_KEYS = Object.keys(vertexMap) as (keyof SegmentRegionScores)[];
+  // 0 = no network, 1-9 = network index + 1
+  const map = new Uint8Array(VERTEX_COUNT);
+  for (let ni = 0; ni < NETWORK_KEYS.length; ni++) {
+    const indices = vertexMap[NETWORK_KEYS[ni]];
+    for (const idx of indices) {
+      if (idx < VERTEX_COUNT && map[idx] === 0) {
+        map[idx] = ni + 1;
+      }
+    }
+  }
+  return map;
+}
+
 export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
+  const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load network-vertex-map.json once
   useEffect(() => {
     fetch('/data/network-vertex-map.json')
       .then(r => r.json())
@@ -83,11 +113,59 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
       .catch(() => setVertexMap(null));
   }, []);
 
-  // Get current + next segment vertex data and blend factor for smooth transitions
+  // Build reverse vertex→network lookup
+  const vertexToNetwork = useMemo(() => {
+    if (!vertexMap) return null;
+    return buildVertexToNetwork(vertexMap);
+  }, [vertexMap]);
+
+  const networkKeys = useMemo(() => {
+    if (!vertexMap) return [];
+    return Object.keys(vertexMap) as (keyof SegmentRegionScores)[];
+  }, [vertexMap]);
+
+  const regions = getRegionsAtTime(segments, currentTime);
+
+  const handleHoverVertex = useCallback((vertexIndex: number | null, clientX: number, clientY: number) => {
+    if (vertexIndex === null || !vertexToNetwork || !regions) {
+      setHoverInfo(null);
+      return;
+    }
+
+    const networkIdx = vertexToNetwork[vertexIndex];
+    if (networkIdx === 0) {
+      setHoverInfo(null);
+      return;
+    }
+
+    const network = networkKeys[networkIdx - 1];
+    if (!network) {
+      setHoverInfo(null);
+      return;
+    }
+
+    // Convert client coords to position relative to canvas container
+    const rect = canvasContainerRef.current?.getBoundingClientRect();
+    const screenX = rect ? clientX - rect.left : clientX;
+    const screenY = rect ? clientY - rect.top : clientY;
+
+    setHoverInfo({
+      network,
+      label: NETWORK_LABELS[network],
+      score: regions[network] ?? 0,
+      color: REGION_COLORS[network],
+      screenX,
+      screenY,
+    });
+  }, [vertexToNetwork, networkKeys, regions]);
+
+  const handlePointerLeave = useCallback(() => {
+    setHoverInfo(null);
+  }, []);
+
   const adjacent = getAdjacentSegments(segments, currentTime);
   const hasVertexData = !!adjacent;
 
-  // Pre-allocate color buffer for region-based mode
   const regionColorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
 
   const vertexDataA = useMemo(() => {
@@ -110,11 +188,9 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
     }
   }, [adjacent?.nextVertexData]);
 
-  // Region-based colors when vertex_data is unavailable
   const regionColors = useMemo(() => {
-    if (vertexDataA) return null; // per-vertex mode, skip
+    if (vertexDataA) return null;
     if (!vertexMap) return null;
-    const regions = getRegionsAtTime(segments, currentTime);
     if (!regions) return null;
     buildRegionColors(regions, vertexMap, regionColorBuffer);
     return regionColorBuffer;
@@ -122,16 +198,17 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
 
   const blendFactor = adjacent?.blendFactor ?? 0;
 
-  // Determine which mode we're in
-  const useRegionMode = !vertexDataA && !!regionColors;
-
   return (
     <div className="bg-surface-container rounded-xl p-6 flex flex-col">
       <div className="flex items-center gap-2 mb-6">
         <span className="material-symbols-outlined text-on-surface-variant">neurology</span>
         <h3 className="font-headline text-lg font-bold">Neural Activation Map</h3>
       </div>
-      <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden relative">
+      <div
+        ref={canvasContainerRef}
+        className="flex-1 min-h-[300px] rounded-lg overflow-hidden relative"
+        onPointerLeave={handlePointerLeave}
+      >
         <Canvas
           camera={{ position: [0, 0, 200], fov: 45 }}
           dpr={[1, 1.5]}
@@ -143,13 +220,38 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
               vertexDataB={vertexDataB}
               blendFactor={blendFactor}
               regionColors={regionColors}
+              onHoverVertex={handleHoverVertex}
             />
           </Suspense>
         </Canvas>
+
+        {/* Hover tooltip */}
+        {hoverInfo && (
+          <div
+            className="absolute pointer-events-none z-50"
+            style={{
+              left: hoverInfo.screenX + 12,
+              top: hoverInfo.screenY - 8,
+            }}
+          >
+            <div className="bg-surface-bright/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl">
+              <div className="flex items-center gap-2 mb-1">
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: hoverInfo.color }}
+                />
+                <span className="text-xs font-bold text-on-surface">
+                  {hoverInfo.label}
+                </span>
+              </div>
+              <p className="text-[11px] text-on-surface-variant">
+                Activation: <span className="font-mono font-bold text-on-surface">{Math.round(hoverInfo.score * 100)}%</span>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-      <NetworkLegend
-        regions={getRegionsAtTime(segments, currentTime)}
-      />
+      <NetworkLegend regions={regions} />
     </div>
   );
 }

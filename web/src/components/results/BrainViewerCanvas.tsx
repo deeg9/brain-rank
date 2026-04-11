@@ -10,12 +10,13 @@ interface BrainViewerCanvasProps {
   vertexDataB: Float32Array | null;
   blendFactor: number;
   regionColors: Float32Array | null;
+  onHoverVertex?: (vertexIndex: number | null, clientX: number, clientY: number) => void;
 }
 
 const IDLE_TIMEOUT_MS = 3000;
 const AUTO_ROTATE_SPEED = 0.5; // slow rotation (drei default is 2.0)
 
-export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors }: BrainViewerCanvasProps) {
+export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, onHoverVertex }: BrainViewerCanvasProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const [isIdle, setIsIdle] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,9 +50,9 @@ export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regio
         {/* Rotate -90deg on X to convert neuroimaging Z-up to Three.js Y-up */}
         <group rotation={[-Math.PI / 2, 0, 0]}>
           {vertexDataA ? (
-            <BrainGlowMesh vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} />
+            <BrainGlowMesh vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} onHoverVertex={onHoverVertex} />
           ) : regionColors ? (
-            <BrainGlowMesh regionColors={regionColors} />
+            <BrainGlowMesh regionColors={regionColors} onHoverVertex={onHoverVertex} />
           ) : null}
         </group>
       </Center>

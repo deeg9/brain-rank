@@ -1,32 +1,24 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useEffect, useMemo, useRef, useCallback } from 'react';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { VERTEX_COUNT } from '@/lib/vertex-codec';
 import { buildColormapLUT, applyThresholdGlow } from '@/lib/colormap';
 
-/**
- * BrainGlowMesh supports two rendering modes:
- *
- * 1. Per-vertex mode (vertexDataA provided): Uses threshold glow with inferno
- *    colormap. This is the full-fidelity path when per-vertex activation data
- *    is available from the inference pipeline.
- *
- * 2. Region mode (regionColors provided): Uses pre-computed RGB color buffer
- *    from network-vertex-map.json. Each functional network's vertices are
- *    painted with that network's color scaled by its activation score.
- */
+type BaseProps = {
+  onHoverVertex?: (vertexIndex: number | null, clientX: number, clientY: number) => void;
+};
 
-type PerVertexProps = {
+type PerVertexProps = BaseProps & {
   vertexDataA: Float32Array;
   vertexDataB?: Float32Array | null;
   blendFactor?: number;
   regionColors?: never;
 };
 
-type RegionProps = {
+type RegionProps = BaseProps & {
   regionColors: Float32Array;
   vertexDataA?: never;
   vertexDataB?: never;
@@ -49,27 +41,21 @@ function lerpVertexData(
 type GLTFNodes = Record<string, THREE.Mesh>;
 
 export function BrainGlowMesh(props: BrainGlowMeshProps) {
+  const { onHoverVertex } = props;
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
   const isRegionMode = 'regionColors' in props && !!props.regionColors;
 
-  // Build 256-entry LUT once (inferno colormap for per-vertex mode)
   const lutData = useMemo(() => buildColormapLUT('inferno'), []);
-
-  // Pre-allocate lerp buffer for per-vertex blending
   const lerpBuffer = useMemo(() => new Float32Array(VERTEX_COUNT), []);
-
-  // Pre-allocate color buffer
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
 
-  // Create color attribute with DynamicDrawUsage for frequent GPU uploads
   const colorAttr = useMemo(() => {
     const attr = new THREE.BufferAttribute(colorBuffer, 3);
     attr.setUsage(THREE.DynamicDrawUsage);
     return attr;
   }, [colorBuffer]);
 
-  // Clone geometry once
   const clonedGeometry = useMemo(() => {
     const geo = nodes.brain.geometry.clone();
     geo.setAttribute('color', colorAttr);
@@ -82,14 +68,11 @@ export function BrainGlowMesh(props: BrainGlowMeshProps) {
 
   const needsColorUpdate = useRef(true);
 
-  // Update colors when inputs change
   useEffect(() => {
     if (isRegionMode) {
-      // Region mode: copy pre-computed RGB directly into color buffer
       const src = props.regionColors!;
       colorBuffer.set(src);
     } else {
-      // Per-vertex mode: threshold glow with optional lerp
       const { vertexDataA, vertexDataB, blendFactor = 0 } = props as PerVertexProps;
       if (blendFactor > 0 && vertexDataB) {
         lerpVertexData(vertexDataA, vertexDataB, blendFactor, lerpBuffer);
@@ -108,8 +91,51 @@ export function BrainGlowMesh(props: BrainGlowMeshProps) {
     }
   });
 
+  // Find closest vertex from a face intersection
+  const handlePointerMove = useCallback((e: ThreeEvent<PointerEvent>) => {
+    if (!onHoverVertex) return;
+    e.stopPropagation();
+
+    const face = e.face;
+    if (!face) {
+      onHoverVertex(null, 0, 0);
+      return;
+    }
+
+    // Find which of the 3 face vertices is closest to the hit point
+    const position = clonedGeometry.attributes.position;
+    const point = e.point;
+    const vA = new THREE.Vector3().fromBufferAttribute(position, face.a);
+    const vB = new THREE.Vector3().fromBufferAttribute(position, face.b);
+    const vC = new THREE.Vector3().fromBufferAttribute(position, face.c);
+
+    // Transform vertices by the mesh's world matrix to match hit point space
+    const mesh = e.object as THREE.Mesh;
+    vA.applyMatrix4(mesh.matrixWorld);
+    vB.applyMatrix4(mesh.matrixWorld);
+    vC.applyMatrix4(mesh.matrixWorld);
+
+    const dA = point.distanceToSquared(vA);
+    const dB = point.distanceToSquared(vB);
+    const dC = point.distanceToSquared(vC);
+
+    let closestIdx = face.a;
+    if (dB < dA && dB < dC) closestIdx = face.b;
+    else if (dC < dA && dC < dB) closestIdx = face.c;
+
+    onHoverVertex(closestIdx, e.nativeEvent.clientX, e.nativeEvent.clientY);
+  }, [onHoverVertex, clonedGeometry]);
+
+  const handlePointerOut = useCallback(() => {
+    if (onHoverVertex) onHoverVertex(null, 0, 0);
+  }, [onHoverVertex]);
+
   return (
-    <mesh geometry={clonedGeometry}>
+    <mesh
+      geometry={clonedGeometry}
+      onPointerMove={handlePointerMove}
+      onPointerOut={handlePointerOut}
+    >
       <meshStandardMaterial
         vertexColors
         toneMapped={false}
