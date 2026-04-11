@@ -110,28 +110,16 @@ export default function UploadPage() {
       icon: "speed",
       title: "Turbo Processing",
       desc: "Parallel neural threads handle frame-by-frame inference at 4x realtime speed.",
-      gradient: "from-primary/20 to-primary/5",
-      iconBg: "bg-primary-container/20",
-      iconColor: "text-primary-dim",
-      glowColor: "group-hover:shadow-primary/20",
     },
     {
       icon: "model_training",
       title: "Neural Engine",
       desc: "Proprietary vision models trained specifically for cinematic composition and pacing.",
-      gradient: "from-tertiary-fixed/20 to-tertiary-fixed/5",
-      iconBg: "bg-tertiary-fixed/10",
-      iconColor: "text-tertiary-fixed",
-      glowColor: "group-hover:shadow-tertiary-fixed/20",
     },
     {
       icon: "security",
       title: "Encrypted Transit",
       desc: "End-to-end AES-256 encryption. Your raw media is deleted immediately post-analysis.",
-      gradient: "from-secondary-fixed/20 to-secondary-fixed/5",
-      iconBg: "bg-secondary-container/20",
-      iconColor: "text-secondary-fixed",
-      glowColor: "group-hover:shadow-secondary-fixed/20",
     },
   ];
 
@@ -149,7 +137,7 @@ export default function UploadPage() {
         </h2>
         <p className="text-on-surface-variant font-body">
           Supported formats: MP4, WebM, MOV.{" "}
-          <span className="text-primary-dim/80">Max 2GB, 30 min runtime.</span>
+          <span className="text-on-surface-variant/80">Max 2GB, 30 min runtime.</span>
         </p>
       </motion.header>
 
@@ -191,7 +179,7 @@ export default function UploadPage() {
       >
         <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary-fixed">
+            <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
               <span className="material-symbols-outlined">token</span>
             </div>
             <div>
@@ -231,19 +219,13 @@ export default function UploadPage() {
           >
             <Card
               hover
-              className={`group relative p-8 space-y-4 overflow-hidden transition-shadow duration-500 hover:shadow-xl ${f.glowColor}`}
+              className="group relative p-8 space-y-4 overflow-hidden transition-shadow duration-500 hover:shadow-xl hover:shadow-on-surface/5"
             >
-              {/* Gradient hover overlay */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${f.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}
-              />
               {/* Shimmer sweep on hover */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
               <div className="relative z-10">
-                <div
-                  className={`w-12 h-12 rounded-lg ${f.iconBg} flex items-center justify-center ${f.iconColor} transition-transform duration-300 group-hover:scale-110`}
-                >
+                <div className="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-transform duration-300 group-hover:scale-110">
                   <span className="material-symbols-outlined">{f.icon}</span>
                 </div>
               </div>

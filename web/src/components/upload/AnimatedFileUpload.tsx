@@ -187,7 +187,7 @@ export function AnimatedFileUpload({
 
         <div className="relative z-10 flex flex-col items-center">
           <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 border border-outline-variant/40">
-            <span className="material-symbols-outlined text-3xl text-primary-dim">
+            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
               cloud_upload
             </span>
           </div>
@@ -300,12 +300,12 @@ export function AnimatedFileUpload({
             {/* Status / Remove */}
             <div className="flex-shrink-0">
               {item.status === "complete" ? (
-                <span className="material-symbols-outlined text-xl text-secondary-fixed">
+                <span className="material-symbols-outlined text-xl text-tertiary-fixed">
                   check_circle
                 </span>
               ) : item.status === "uploading" ? (
                 <svg
-                  className="animate-spin h-5 w-5 text-primary-dim"
+                  className="animate-spin h-5 w-5 text-on-surface-variant"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
