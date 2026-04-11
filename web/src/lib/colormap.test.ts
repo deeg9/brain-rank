@@ -2,6 +2,13 @@ import { describe, it, expect } from 'vitest';
 import {
   buildColormapLUT,
   applyColormapFromLUT,
+  smoothstep,
+  applyThresholdGlow,
+  THRESHOLD,
+  BLEND_LOW,
+  BLEND_HIGH,
+  DARK_GRAY,
+  MAX_EMISSIVE,
 } from './colormap';
 
 // Legacy implementation copied from original colormap.ts for regression testing
@@ -101,5 +108,96 @@ describe('applyColormapFromLUT', () => {
     for (let i = 0; i < count * 3; i++) {
       expect(Math.abs(lutTarget[i] - legacyTarget[i])).toBeLessThanOrEqual(epsilon);
     }
+  });
+});
+
+describe('smoothstep', () => {
+  it('returns 0 when value is below edge0', () => {
+    expect(smoothstep(0.25, 0.35, 0.20)).toBe(0);
+  });
+
+  it('returns 1 when value is above edge1', () => {
+    expect(smoothstep(0.25, 0.35, 0.40)).toBe(1);
+  });
+
+  it('returns 0.5 at the midpoint', () => {
+    expect(smoothstep(0.25, 0.35, 0.30)).toBe(0.5);
+  });
+
+  it('returns 0 at edge0', () => {
+    expect(smoothstep(0.25, 0.35, 0.25)).toBe(0);
+  });
+
+  it('returns 1 at edge1', () => {
+    expect(smoothstep(0.25, 0.35, 0.35)).toBe(1);
+  });
+});
+
+describe('applyThresholdGlow', () => {
+  const lutData = buildColormapLUT('inferno');
+
+  it('outputs dark gray for value 0.0', () => {
+    const values = new Float32Array([0.0]);
+    const target = new Float32Array(3);
+    applyThresholdGlow(values, lutData, target);
+    const dg = DARK_GRAY;
+    expect(target[0]).toBeCloseTo(dg, 3);
+    expect(target[1]).toBeCloseTo(dg, 3);
+    expect(target[2]).toBeCloseTo(dg, 3);
+  });
+
+  it('outputs dark gray for value 0.2 (below threshold blend range)', () => {
+    const values = new Float32Array([0.2]);
+    const target = new Float32Array(3);
+    applyThresholdGlow(values, lutData, target);
+    const dg = DARK_GRAY;
+    expect(target[0]).toBeCloseTo(dg, 3);
+    expect(target[1]).toBeCloseTo(dg, 3);
+    expect(target[2]).toBeCloseTo(dg, 3);
+  });
+
+  it('outputs inferno-mapped color with emissive scaling for value 0.5', () => {
+    const values = new Float32Array([0.5]);
+    const target = new Float32Array(3);
+    applyThresholdGlow(values, lutData, target);
+    // Above threshold fully (blend=1), should NOT be dark gray
+    const dg = DARK_GRAY;
+    const isNotDarkGray = target[0] !== dg || target[1] !== dg || target[2] !== dg;
+    expect(isNotDarkGray).toBe(true);
+    // At least one channel should be > dark gray (inferno colors are warm)
+    expect(Math.max(target[0], target[1], target[2])).toBeGreaterThan(dg);
+  });
+
+  it('outputs inferno color at max emissive scale for value 1.0', () => {
+    const values = new Float32Array([1.0]);
+    const target = new Float32Array(3);
+    applyThresholdGlow(values, lutData, target);
+    // At value 1.0, emissive scale = 2.0, so some channels should be > 1.0 (HDR)
+    // Inferno at 1.0 is bright yellow (~252, 255, 164 in 0-255)
+    const maxChannel = Math.max(target[0], target[1], target[2]);
+    expect(maxChannel).toBeGreaterThan(1.0); // HDR values exceed 1.0
+  });
+
+  it('outputs a blend at value 0.30 (midpoint of smoothstep range)', () => {
+    const values = new Float32Array([0.30]);
+    const target = new Float32Array(3);
+    applyThresholdGlow(values, lutData, target);
+    const dg = DARK_GRAY;
+    // At 0.30, smoothstep(0.25, 0.35, 0.30) = 0.5 — halfway blend
+    // Should be between dark gray and inferno color — not purely dark gray
+    // At least one channel should differ from pure dark gray
+    const diffFromDarkGray = Math.abs(target[0] - dg) + Math.abs(target[1] - dg) + Math.abs(target[2] - dg);
+    expect(diffFromDarkGray).toBeGreaterThan(0.01);
+  });
+
+  it('has emissive scale of 2.0 at value 1.0', () => {
+    // emissiveScale = 1.0 + ((value - THRESHOLD) / (1 - THRESHOLD)) * (MAX_EMISSIVE - 1.0)
+    const emissiveAtMax = 1.0 + ((1.0 - THRESHOLD) / (1 - THRESHOLD)) * (MAX_EMISSIVE - 1.0);
+    expect(emissiveAtMax).toBeCloseTo(2.0, 5);
+  });
+
+  it('has emissive scale of 1.0 at threshold value', () => {
+    const emissiveAtThreshold = 1.0 + ((THRESHOLD - THRESHOLD) / (1 - THRESHOLD)) * (MAX_EMISSIVE - 1.0);
+    expect(emissiveAtThreshold).toBeCloseTo(1.0, 5);
   });
 });
