@@ -13,10 +13,12 @@ Content creators upload a video and get per-segment neural engagement scores —
 **Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform where users have identities (usernames), can share neural analyses publicly, and anyone can browse a leaderboard of brain reactions to videos.
 
 **Target features:**
-- User profiles with unique usernames (foundation for public identity)
+- User profiles with unique usernames (foundation for public identity) — Phase 44 complete
 - Public/private toggle on analyses (privacy controls)
 - Discovery/leaderboard page with browsable public neural data
 - Social features — view counts, bookmarks, sorting by neural scores
+
+**Current state:** Phase 44 complete — profiles table, username claiming, RLS policies, is_public flag on jobs all implemented. Last updated: 2026-04-11.
 
 ## Requirements
 
