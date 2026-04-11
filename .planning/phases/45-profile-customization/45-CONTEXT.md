@@ -23,12 +23,12 @@ Users can personalize their profile with an avatar image and short bio. This pha
 ### Bio Field Design
 - Textarea with live character counter showing remaining chars (e.g., "42/160")
 - Bio and username save together via single "Save Profile" button
-- Avatar saves immediately on upload (separate from text save)
+- Avatar shows local preview after file selection; user confirms before upload commits (separate from text save)
 - Placeholder text: "Tell us about your content..."
 
 ### Storage & API Design
 - Supabase Storage bucket named `avatars` with public access policy
-- Avatar file naming: `{user_id}.webp` — one file per user, overwritten on re-upload
+- Avatar file naming: `{user_id}/{user_id}.webp` — subfolder per user for RLS isolation, overwritten on re-upload
 - Bio field handling added to existing PATCH /api/profile route (alongside username)
 
 ### Claude's Discretion
