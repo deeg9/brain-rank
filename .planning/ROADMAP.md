@@ -73,6 +73,10 @@
 - [ ] **Phase 36: Cortical Heatmap Viewer** - Per-vertex heatmap on 3D brain with dual-view toggle and colormap selector
 - [ ] **Phase 37: Arousal/Valence & Network Legend** - Arousal/valence display cards, circumplex chart, and 9-network toggleable legend
 
+### Gap Closure
+
+- [ ] **Phase 38: Code Cleanup & Missing Wiring** - Fix 9-network regions mode, add retry API route, remove dead code
+
 ## Phase Details
 
 <details>
