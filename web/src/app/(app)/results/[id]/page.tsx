@@ -32,10 +32,6 @@ const BrainViewer = dynamic(
   { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
 );
 
-const ArousalValenceCards = dynamic(
-  () => import("@/components/results/ArousalValenceCards").then(m => m.ArousalValenceCards),
-  { ssr: false, loading: () => <Skeleton variant="card" className="h-36" /> }
-);
 
 const CircumplexChart = dynamic(
   () => import("@/components/results/CircumplexChart").then(m => m.CircumplexChart),
@@ -305,52 +301,60 @@ export default function ResultsDetailPage({ params }: Props) {
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
-      {/* Summary Stat Cards */}
-      <div className="grid grid-cols-3 gap-6">
-        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Hook Strength
-          </p>
-          <p className="font-headline text-3xl font-bold text-secondary">
-            <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">First 10s activation</p>
-        </Card>
-        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Retention
-          </p>
-          <p className="font-headline text-3xl font-bold text-tertiary-fixed">
-            <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">Last 10s activation</p>
-        </Card>
-        <Card className="p-6 glass-surface hover:glow-primary transition-all duration-300">
-          <p className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant mb-2">
-            Peak Moment
-          </p>
-          <p className="font-headline text-3xl font-bold text-primary">
-            <SlidingNumber value={summary.peak_second} suffix="s" />
-          </p>
-          <p className="text-on-surface-variant text-xs mt-1">
-            {Math.round(summary.peak_score * 100)}% activation
-          </p>
-        </Card>
-      </div>
-
-      {/* Arousal/Valence Display */}
+      {/* Neural Metrics + Emotional State — side by side */}
       {(() => {
         const currentSegment = getSegmentAtTime(segments, currentTime);
         const arousal = currentSegment?.arousal ?? 0;
         const valence = currentSegment?.valence ?? 0;
         return (
-          <div className="grid grid-cols-3 gap-6">
-            <div className="col-span-2">
-              <ArousalValenceCards arousal={arousal} valence={valence} />
-            </div>
-            <div className="col-span-1">
-              <CircumplexChart arousal={arousal} valence={valence} />
-            </div>
+          <div className="grid grid-cols-2 gap-6">
+            {/* Left: Consolidated KPI card */}
+            <Card className="p-6 glass-surface">
+              <div className="flex items-center gap-2 mb-5">
+                <span className="material-symbols-outlined text-on-surface-variant">monitoring</span>
+                <h3 className="font-headline text-lg font-bold">Neural Metrics</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Hook Strength</p>
+                  <p className="font-headline text-2xl font-bold text-secondary">
+                    <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
+                  </p>
+                  <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s activation</p>
+                </div>
+                <div>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Retention</p>
+                  <p className="font-headline text-2xl font-bold text-tertiary-fixed">
+                    <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
+                  </p>
+                  <p className="text-on-surface-variant text-[10px] mt-0.5">Last 10s activation</p>
+                </div>
+                <div>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Peak Moment</p>
+                  <p className="font-headline text-2xl font-bold text-primary">
+                    <SlidingNumber value={summary.peak_second} suffix="s" />
+                  </p>
+                  <p className="text-on-surface-variant text-[10px] mt-0.5">{Math.round(summary.peak_score * 100)}% activation</p>
+                </div>
+                <div>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Arousal</p>
+                  <p className="font-headline text-2xl font-bold text-secondary">
+                    <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
+                  </p>
+                  <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Valence</p>
+                  <p className="font-headline text-2xl font-bold text-tertiary-fixed">
+                    <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
+                  </p>
+                  <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional positivity</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Right: Emotional State circumplex */}
+            <CircumplexChart arousal={arousal} valence={valence} />
           </div>
         );
       })()}
