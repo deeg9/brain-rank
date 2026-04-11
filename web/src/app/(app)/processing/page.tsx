@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence, useSpring, useTransform, useMotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import {
@@ -14,27 +14,6 @@ import {
   type JobStatusResponse,
   type JobStage,
 } from "@/lib/jobs";
-
-/* ---------- Decorative log lines ---------- */
-function generateLogLines(): string[] {
-  const now = new Date();
-  const fmt = (offset: number) => {
-    const d = new Date(now.getTime() - offset * 1000);
-    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
-  };
-  return [
-    `[${fmt(50)}] INITIALIZING NEURAL_NETWORK_V4.8...`,
-    `[${fmt(49)}] ALLOCATING 14.2GB VRAM FOR BUFFER_ENCODING`,
-    `[${fmt(47)}] LOADING WEIGHTS: dopamine_response_models_2024.bin`,
-    `[${fmt(46)}] STARTING FRAME-BY-FRAME ANALYSIS OF TENTATIVE CUTS...`,
-    `[${fmt(39)}] DETECTION: HIGH ADRENALINE SPIKE DETECTED AT 00:12:04`,
-    `[${fmt(33)}] SYNCING AUDIO FREQUENCIES WITH VISUAL TRANSITIONS...`,
-    `[${fmt(20)}] ENCODING_PASS_1: 42.1% COMPLETE`,
-    `[${fmt(6)}] ENCODING_PASS_1: 68.0% COMPLETE`,
-    `[${fmt(5)}] ANALYZING SCENE DYNAMICS: COMPLEX MOTION DETECTED`,
-    `[${fmt(4)}] APPLYING SYNAPTIC_SMOOTHING FILTER...`,
-  ];
-}
 
 /* ---------- Stage stepper item ---------- */
 function StageItem({
@@ -54,7 +33,6 @@ function StageItem({
   return (
     <div className="flex items-center flex-1 min-w-0">
       <div className="flex flex-col items-center gap-2">
-        {/* Step indicator circle */}
         <div className="relative">
           {isCompleted ? (
             <motion.div
@@ -75,11 +53,13 @@ function StageItem({
           ) : isActive ? (
             <div className="relative">
               <div className="w-8 h-8 rounded-full border-2 border-secondary flex items-center justify-center animate-pulse">
-                <span className="material-symbols-outlined text-secondary text-base animate-spin">
+                <span
+                  className="material-symbols-outlined text-secondary text-base"
+                  style={{ animation: "spin 1.5s linear infinite reverse" }}
+                >
                   sync
                 </span>
               </div>
-              {/* Pulsing ring */}
               <div className="absolute inset-0 rounded-full border-2 border-secondary/40 animate-ping" />
             </div>
           ) : (
@@ -90,7 +70,6 @@ function StageItem({
             </div>
           )}
         </div>
-        {/* Label */}
         <span className={cn(
           "text-[10px] font-medium text-center leading-tight max-w-[80px]",
           isCompleted ? "text-tertiary-fixed" : isActive ? "text-secondary" : "text-on-surface-variant/30"
@@ -98,7 +77,6 @@ function StageItem({
           {stage.label}
         </span>
       </div>
-      {/* Connecting line */}
       {!isLast && (
         <div className="flex-1 h-0.5 mx-2 bg-outline-variant/20 rounded-full relative self-start mt-4 min-w-[20px]">
           {isCompleted && (
@@ -116,25 +94,6 @@ function StageItem({
   );
 }
 
-/* ---------- Animated number display ---------- */
-function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const motionValue = useMotionValue(0);
-  const springValue = useSpring(motionValue, { damping: 30, stiffness: 80 });
-  const display = useTransform(springValue, (v) => v.toFixed(1));
-  const [displayText, setDisplayText] = React.useState("0.0");
-
-  React.useEffect(() => {
-    motionValue.set(value);
-  }, [value, motionValue]);
-
-  React.useEffect(() => {
-    const unsubscribe = display.on("change", (v) => setDisplayText(v));
-    return unsubscribe;
-  }, [display]);
-
-  return <>{displayText}{suffix}</>;
-}
-
 /* ---------- Main processing content ---------- */
 function ProcessingContent() {
   const searchParams = useSearchParams();
@@ -144,7 +103,6 @@ function ProcessingContent() {
   const [status, setStatus] = useState<JobStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const [logs, setLogs] = useState<string[]>(generateLogLines);
 
   const poll = useCallback(async () => {
     if (!jobId) return;
@@ -161,22 +119,13 @@ function ProcessingContent() {
     }
   }, [jobId, router]);
 
-  /* Polling effect */
   useEffect(() => {
     if (!jobId) return;
-
-    // Fetch immediately
     poll();
-
-    const interval = setInterval(() => {
-      poll();
-      setLogs(generateLogLines());
-    }, 5000);
-
+    const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
   }, [jobId, poll]);
 
-  /* Handle retry */
   const handleRetry = async () => {
     if (!jobId) return;
     setRetrying(true);
@@ -222,8 +171,7 @@ function ProcessingContent() {
   /* --- Error / Failed state --- */
   if (isFailed || (error && !status)) {
     return (
-      <div className="w-full max-w-4xl mx-auto space-y-8">
-        {/* Header */}
+      <div className="w-full max-w-4xl mx-auto pt-6 space-y-8">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-headline font-bold text-on-surface">
@@ -236,7 +184,6 @@ function ProcessingContent() {
           </p>
         </div>
 
-        {/* Error panel */}
         <div className="bg-error/10 border border-error/20 rounded-xl p-8 space-y-6">
           <div className="flex items-start gap-4">
             <span className="material-symbols-outlined text-error text-3xl">
@@ -272,7 +219,7 @@ function ProcessingContent() {
   /* --- Loading state (before first fetch) --- */
   if (!status && !error) {
     return (
-      <div className="w-full max-w-4xl mx-auto space-y-8">
+      <div className="w-full max-w-4xl mx-auto pt-6 space-y-8">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-headline font-bold text-on-surface">
@@ -281,11 +228,9 @@ function ProcessingContent() {
             <StatusBadge status="processing" label="In Progress" />
           </div>
           <p className="text-on-surface-variant text-sm">
-            Neural engine sequence initiated. Optimizing for brain activation
-            retention.
+            Connecting to neural engine...
           </p>
         </div>
-
         <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 flex justify-center">
           <WaveLoader />
         </div>
@@ -295,32 +240,21 @@ function ProcessingContent() {
 
   /* --- Active processing state --- */
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
-      {/* Header Section */}
-      <div className="flex items-end justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-4xl font-headline font-bold text-on-surface">
-              Analyzing your video...
-            </h1>
-            <StatusBadge status="processing" label="In Progress" />
-          </div>
-          <p className="text-on-surface-variant text-sm font-label">
-            Neural engine sequence initiated. Optimizing for brain activation
-            retention.
-          </p>
+    <div className="w-full max-w-4xl mx-auto pt-6 space-y-8">
+      {/* Header */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <h1 className="text-4xl font-headline font-bold text-on-surface">
+            Analyzing your video...
+          </h1>
+          <StatusBadge status="processing" label="In Progress" />
         </div>
-        <div className="bg-surface-container px-4 py-2 rounded-lg hidden md:block animate-breathing-glow">
-          <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest block mb-1">
-            Compute Node
-          </span>
-          <span className="text-secondary font-mono text-sm">
-            US-EAST-NEURAL-01
-          </span>
-        </div>
+        <p className="text-on-surface-variant text-sm font-label">
+          Running TRIBE v2 brain activation prediction model.
+        </p>
       </div>
 
-      {/* Processing Glass Panel */}
+      {/* Processing Panel */}
       <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-6 relative overflow-hidden glow-primary">
         {/* File info + progress percentage */}
         <div className="flex justify-between items-center relative z-10">
@@ -341,15 +275,18 @@ function ProcessingContent() {
             <div className="text-2xl font-headline font-bold text-on-surface">
               {progress}%
             </div>
-            <div className="text-xs text-tertiary-fixed font-semibold">
-              Est. time remaining: ~{Math.max(1, Math.round((100 - progress) * 0.12))} min
-            </div>
           </div>
         </div>
 
         {/* Wave Animation */}
         <div className="flex justify-center">
-          <WaveLoader message="Analyzing neural patterns..." />
+          <WaveLoader message={
+            currentStage === "uploading" ? "Uploading to cloud storage..." :
+            currentStage === "analyzing_audio" ? "Extracting audio features..." :
+            currentStage === "encoding_video" ? "Processing video frames..." :
+            currentStage === "predicting" ? "Running brain activation model..." :
+            "Analyzing neural patterns..."
+          } />
         </div>
 
         {/* Progress Bar */}
@@ -363,7 +300,6 @@ function ProcessingContent() {
               boxShadow: `0 0 ${12 + progress * 0.2}px -2px rgba(186,158,255,${0.3 + progress * 0.004})`,
             }}
           >
-            {/* Shimmer sweep overlay */}
             <div
               className="absolute inset-0 animate-shimmer"
               style={{
@@ -388,109 +324,6 @@ function ProcessingContent() {
         </div>
       </div>
 
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-12 gap-6">
-        {/* Inference Engine Logs */}
-        <div className="col-span-12 md:col-span-8 bg-surface-container-high rounded-xl overflow-hidden h-64 flex flex-col">
-          {/* Terminal chrome header */}
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-container border-b border-outline-variant/10">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-              <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-              <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-            </div>
-            <div className="flex-1 flex items-center justify-between ml-3">
-              <h3 className="text-xs font-headline font-bold uppercase tracking-widest text-on-surface-variant">
-                Inference Engine Logs
-              </h3>
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75 animate-ping" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-secondary shadow-[0_0_8px_#5af8fb]" />
-              </span>
-            </div>
-          </div>
-          {/* Log content with fade gradients */}
-          <div className="relative flex-1 overflow-hidden">
-            {/* Top fade */}
-            <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-surface-container-lowest to-transparent z-10 pointer-events-none" />
-            {/* Bottom fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-surface-container-lowest to-transparent z-10 pointer-events-none" />
-            <div className="bg-surface-container-lowest p-4 h-full font-mono text-[10px] space-y-1 overflow-y-auto border-l-2 border-primary/30">
-              <AnimatePresence mode="popLayout">
-                {logs.map((line, i) => (
-                  <motion.p
-                    key={`${line}-${i}`}
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 30 }}
-                    transition={{ type: "spring", damping: 20, stiffness: 200 }}
-                    className={
-                      line.includes("COMPLETE")
-                        ? "text-tertiary-fixed"
-                        : line.includes("ENCODING")
-                          ? "text-secondary"
-                          : line.includes("DETECTION") || line.includes("SPIKE")
-                            ? "text-amber-400"
-                            : "text-primary-dim/70"
-                    }
-                  >
-                    {line}
-                  </motion.p>
-                ))}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* VRAM Load Card */}
-        <div className="col-span-12 md:col-span-4 glass-surface rounded-xl p-8 flex flex-col justify-between items-start relative overflow-hidden">
-          {/* Orbiting halo */}
-          <motion.div
-            className="absolute w-16 h-16 rounded-full bg-secondary/10 blur-xl pointer-events-none"
-            animate={{
-              top: ["10%", "70%", "70%", "10%", "10%"],
-              left: ["10%", "10%", "80%", "80%", "10%"],
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          />
-          <div className="space-y-4 w-full relative z-10">
-            <div className="flex items-center justify-between">
-              <span className="material-symbols-outlined text-secondary-fixed text-3xl">
-                memory
-              </span>
-              <span className="text-[10px] font-bold font-headline uppercase text-on-surface-variant">
-                VRAM Usage
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="text-4xl font-headline font-bold text-on-surface">
-                <AnimatedNumber value={14.2} suffix=" GB" />
-              </div>
-              <div className="text-xs text-on-surface-variant font-mono">
-                Of 24.0 GB Available
-              </div>
-            </div>
-          </div>
-          <div className="w-full space-y-2 mt-auto pt-6 relative z-10">
-            <div className="flex justify-between text-[10px] uppercase font-bold text-on-surface-variant">
-              <span>Load Intensity</span>
-              <span>88%</span>
-            </div>
-            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden">
-              <div className="h-full w-[88%] bg-secondary rounded-full relative overflow-hidden">
-                <div
-                  className="absolute inset-0 animate-shimmer"
-                  style={{
-                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
-                    width: "50%",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Action Footer */}
       <div className="flex items-center justify-between py-6">
         <button
@@ -502,14 +335,11 @@ function ProcessingContent() {
         </button>
         <div className="flex items-center gap-4">
           <span className="text-xs text-on-surface-variant font-medium">
-            Notification will be sent when complete
+            Page auto-refreshes every 5s
           </span>
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75 animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-tertiary-fixed shadow-[0_0_6px_rgba(155,255,206,0.5)]" />
-          </span>
-          <span className="text-xs text-on-surface-variant font-medium">
-            Auto-save enabled
           </span>
         </div>
       </div>
@@ -522,7 +352,7 @@ export default function ProcessingPage() {
   return (
     <Suspense
       fallback={
-        <div className="w-full max-w-4xl mx-auto space-y-8 p-8">
+        <div className="w-full max-w-4xl mx-auto pt-6 space-y-8 p-8">
           <Skeleton variant="row" />
           <Skeleton variant="card" />
         </div>
