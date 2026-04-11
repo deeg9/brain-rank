@@ -2,7 +2,7 @@
 
 import React, { Suspense, useMemo, useEffect, useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { BrainViewerCanvas } from './BrainViewerCanvas';
+import { BrainViewerCanvas, type BrainViewerCanvasHandle } from './BrainViewerCanvas';
 import { NetworkLegend } from './NetworkLegend';
 import { getAdjacentSegments, getRegionsAtTime, REGION_COLORS } from './brain-utils';
 import type { SegmentData, SegmentRegionScores } from '@/components/results/SegmentTable';
@@ -115,9 +115,18 @@ function buildVertexToNetwork(
   return map;
 }
 
+const CAMERA_DISTANCE = 280;
+const VIEW_PRESETS: { label: string; icon: string; position: [number, number, number] }[] = [
+  { label: 'Front', icon: 'visibility', position: [0, 0, CAMERA_DISTANCE] },
+  { label: 'Top', icon: 'vertical_align_top', position: [0, CAMERA_DISTANCE, 0] },
+  { label: 'Left', icon: 'chevron_left', position: [-CAMERA_DISTANCE, 0, 0] },
+  { label: 'Right', icon: 'chevron_right', position: [CAMERA_DISTANCE, 0, 0] },
+];
+
 export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+  const canvasRef = useRef<BrainViewerCanvasHandle>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -225,12 +234,13 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
         onPointerLeave={handlePointerLeave}
       >
         <Canvas
-          camera={{ position: [0, 0, 200], fov: 45 }}
+          camera={{ position: [0, 0, 280], fov: 45 }}
           dpr={[1, 1.5]}
           style={{ background: '#f5f5f8' }}
         >
           <Suspense fallback={null}>
             <BrainViewerCanvas
+              ref={canvasRef}
               vertexDataA={vertexDataA}
               vertexDataB={vertexDataB}
               blendFactor={blendFactor}
@@ -239,6 +249,22 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
             />
           </Suspense>
         </Canvas>
+
+        {/* View preset buttons */}
+        <div className="absolute top-2 right-2 flex gap-1 z-10">
+          {VIEW_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              onClick={() => canvasRef.current?.setView(preset.position)}
+              className="w-7 h-7 rounded bg-surface-container-high/80 backdrop-blur-sm flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+              title={preset.label}
+            >
+              <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 16 }}>
+                {preset.icon}
+              </span>
+            </button>
+          ))}
+        </div>
 
         {/* Hover tooltip */}
         {hoverInfo && (

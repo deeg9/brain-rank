@@ -33,7 +33,7 @@ interface TimelinePoint {
 }
 
 function toTimelineData(segments: SegmentData[], key: keyof SegmentRegionScores): TimelinePoint[] {
-  return segments.map(seg => ({ t: seg.start, value: seg.regions[key] }));
+  return segments.map(seg => ({ t: seg.start, value: seg.regions[key] ?? 0 }));
 }
 
 function buildLookup(allTracks: { label: string; color: string; data: TimelinePoint[] }[]) {
@@ -41,7 +41,11 @@ function buildLookup(allTracks: { label: string; color: string; data: TimelinePo
   allTracks.forEach(({ label, color, data }) => {
     data.forEach(pt => {
       if (!lookup.has(pt.t)) lookup.set(pt.t, []);
-      lookup.get(pt.t)!.push({ label, color, value: pt.value });
+      // Skip networks with no data (NaN/undefined/zero)
+      const val = pt.value ?? 0;
+      if (!isNaN(val) && val > 0) {
+        lookup.get(pt.t)!.push({ label, color, value: val });
+      }
     });
   });
   return lookup;
@@ -60,7 +64,7 @@ function CustomTooltipContent({
   const numLabel = typeof label === 'string' ? parseFloat(label) : label;
   const entries = lookup.get(numLabel) ?? [];
   return (
-    <div className="bg-surface-bright/90 backdrop-blur-sm border border-white/10 rounded-lg p-3 shadow-xl">
+    <div className="bg-surface-bright/90 backdrop-blur-sm border border-outline-variant/30 rounded-lg p-3 shadow-xl">
       <p className="font-mono text-[10px] text-on-surface-variant mb-2">
         {formatTimestamp(numLabel)}
       </p>

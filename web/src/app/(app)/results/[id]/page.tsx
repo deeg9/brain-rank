@@ -15,6 +15,7 @@ import { SlidingNumber } from "@/components/ui/SlidingNumber";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import { findPeaks } from "@/lib/peak-detection";
+import { MetricInfo } from "@/components/results/MetricInfo";
 import type { Job } from "@/lib/database.types";
 
 const NeuralTimeline = dynamic(
@@ -316,35 +317,75 @@ export default function ResultsDetailPage({ params }: Props) {
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-5">
                 <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Hook Strength</p>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
+                    Hook Strength
+                    <MetricInfo
+                      title="Hook Strength"
+                      description="How effectively your video captures attention in the opening seconds."
+                      calculation="Average neural activation (attention + reward regions) during the first 10 seconds of the video."
+                      interpretation="Higher = stronger opening. Above 50% means your intro triggers both focus and reward circuits. Below 30% suggests a weak hook that may lose viewers."
+                    />
+                  </p>
                   <p className="font-headline text-2xl font-bold text-secondary">
                     <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s activation</p>
                 </div>
                 <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Retention</p>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
+                    Retention
+                    <MetricInfo
+                      title="Retention"
+                      description="How well your video maintains neural engagement through the end."
+                      calculation="Average neural activation across all brain regions during the last 10 seconds of the video."
+                      interpretation="Higher = viewers stay engaged. Compare to Hook Strength: if retention > hook, your content builds momentum. If lower, viewers may be dropping off."
+                    />
+                  </p>
                   <p className="font-headline text-2xl font-bold text-tertiary-fixed">
                     <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">Last 10s activation</p>
                 </div>
                 <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Peak Moment</p>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
+                    Peak Moment
+                    <MetricInfo
+                      title="Peak Moment"
+                      description="The exact timestamp where brain activation reaches its maximum across all regions."
+                      calculation="The 2-second segment with the highest overall activation_score in the video."
+                      interpretation="This is your video's most neurally engaging moment. Use it as a thumbnail frame, clip highlight, or to understand what content type drives the strongest brain response."
+                    />
+                  </p>
                   <p className="font-headline text-2xl font-bold text-primary">
                     <SlidingNumber value={summary.peak_second} suffix="s" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">{Math.round(summary.peak_score * 100)}% activation</p>
                 </div>
                 <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Arousal</p>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
+                    Arousal
+                    <MetricInfo
+                      title="Arousal"
+                      description="The viewer's physiological activation level — how alert or stimulated their nervous system is."
+                      calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
+                      interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
+                    />
+                  </p>
                   <p className="font-headline text-2xl font-bold text-secondary">
                     <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Valence</p>
+                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
+                    Valence
+                    <MetricInfo
+                      title="Valence"
+                      description="The emotional positivity or negativity of the viewer's response."
+                      calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
+                      interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
+                    />
+                  </p>
                   <p className="font-headline text-2xl font-bold text-tertiary-fixed">
                     <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
                   </p>
