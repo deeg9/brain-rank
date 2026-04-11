@@ -74,25 +74,26 @@ Requirements for Social Discovery Platform milestone. Add user identities, publi
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROF-01 | — | Pending |
-| PROF-02 | — | Pending |
-| PROF-03 | — | Pending |
-| PROF-04 | — | Pending |
-| PRIV-01 | — | Pending |
-| PRIV-02 | — | Pending |
-| PRIV-03 | — | Pending |
-| DISC-01 | — | Pending |
-| DISC-02 | — | Pending |
-| DISC-03 | — | Pending |
-| DISC-04 | — | Pending |
-| SOC-01 | — | Pending |
-| SOC-02 | — | Pending |
-| SOC-03 | — | Pending |
+| PROF-01 | Phase 44 | Pending |
+| PROF-02 | Phase 46 | Pending |
+| PROF-03 | Phase 45 | Pending |
+| PROF-04 | Phase 45 | Pending |
+| PRIV-01 | Phase 47 | Pending |
+| PRIV-02 | Phase 48 | Pending |
+| PRIV-03 | Phase 47 | Pending |
+| DISC-01 | Phase 49 | Pending |
+| DISC-02 | Phase 50 | Pending |
+| DISC-03 | Phase 50 | Pending |
+| DISC-04 | Phase 50 | Pending |
+| SOC-01 | Phase 51 | Pending |
+| SOC-02 | Phase 51 | Pending |
+| SOC-03 | Phase 51 | Pending |
 
 **Coverage:**
-- v4.0 requirements: 13 total
-- Mapped: 0/13
-- Unmapped: 13
+- v4.0 requirements: 14 total
+- Mapped: 14/14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-11*
+*Traceability updated: 2026-04-11*

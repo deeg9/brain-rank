@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v4.0
 milestone_name: Social Discovery Platform
-status: defining-requirements
+status: ready-to-plan
 stopped_at: null
-last_updated: "2026-04-11T20:50:00.000Z"
+last_updated: "2026-04-11T21:00:00.000Z"
 last_activity: 2026-04-11
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,22 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-11)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Defining requirements for v4.0 Social Discovery Platform
+**Current focus:** v4.0 Social Discovery Platform -- Phase 44 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-11 — Milestone v4.0 started
+Phase: 44 of 51 (Social Schema & Identity Foundation)
+Plan: 0 of 0 in current phase
+Status: Ready to plan
+Last activity: 2026-04-11 -- Roadmap created for v4.0
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 51+ (v1.0 through v2.2 + gap)
+- Total plans completed: 59+ (v1.0 through v3.0)
 - Average duration: varies
-- Total execution time: ~3 days
+- Total execution time: ~4 days
 
 **By Phase:**
 
@@ -47,12 +49,7 @@ Last activity: 2026-04-11 — Milestone v4.0 started
 | v2.0 (15-23) | 14 | ~1 day | - |
 | v2.1 (27-32) | 8 | ~0.5 days | - |
 | v2.2 (33-37) | 5 | ~0.5 days | - |
-| 38 (gap) | 1 | - | - |
-| 39 | 2 | - | - |
-| 40 | 1 | - | - |
-| 41 | 2 | - | - |
-| 42 | 2 | - | - |
-| 43 | 1 | - | - |
+| v3.0 (38-43) | 9 | ~0.5 days | - |
 
 *Updated after each plan completion*
 
@@ -60,11 +57,10 @@ Last activity: 2026-04-11 — Milestone v4.0 started
 
 ### Decisions
 
-- [v3.0 Research]: Only one new dependency needed (three-custom-shader-material@^6.4.0)
-- [v3.0 Research]: CPU colormap (d3-color CSS parsing) must be replaced with GPU DataTexture LUT before any visual work
-- [v3.0 Research]: BrainHeatmapMesh + BrainNetworkMesh merge into single BrainGlowMesh
-- [v3.0 Research]: Activation threshold ~0.15 -- needs validation against real TRIBE v2 output
-- [v3.0 Research]: Meta uses zero toggles in their demo -- subtraction over addition
+- [v4.0]: 8 phases (44-51) derived from 14 requirements across 4 categories
+- [v4.0]: Schema foundation first (Phase 44) since all social features depend on profiles + is_public flag
+- [v4.0]: No likes/upvotes -- neural score IS the ranking mechanism
+- [v4.0]: No video playback on public views -- scores only for v4.0
 
 ### Pending Todos
 
@@ -72,10 +68,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- Bloom post-processing may halve frame rate on integrated GPUs (research Pitfall 4 -- try emissive-only first)
-- Threshold value (0.15) needs validation against real TRIBE v2 output data
-- Meta's exact colormap choice uncertain -- inferno vs hot to be validated visually in Phase 41
-- CSM emissive + bloom interaction is not well-documented -- expect empirical tuning in Phase 41
+- Need to decide on thumbnail generation strategy for discovery feed cards
+- Public analysis view must render brain viewer without video sync (scores-only mode)
 
 ### Quick Tasks Completed
 
@@ -91,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-11
-Stopped at: v3.0 roadmap created, ready to plan Phase 39
+Stopped at: v4.0 roadmap created, ready to plan Phase 44
 Resume file: None
