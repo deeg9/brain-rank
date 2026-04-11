@@ -75,6 +75,12 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
   const { data: jobs } = await supabase
     .from("jobs")
     .select("*")
@@ -95,12 +101,31 @@ export default async function DashboardPage() {
         </h1>
         <Link
           href="/upload"
-          className="group relative inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-on-surface bg-surface-container-high border border-outline-variant/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+          className="group relative inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white bg-black hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300"
         >
-          <span className="material-symbols-outlined text-lg text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+          <span className="material-symbols-outlined text-lg text-white">add</span>
           New Analysis
         </Link>
       </section>
+
+      {/* Username Banner */}
+      {!profile?.username && (
+        <div className="p-4 rounded-xl glass-surface border border-black/5 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-headline font-bold text-on-surface">
+              Claim your username
+            </p>
+            <p className="text-xs text-on-surface-variant">
+              Set a unique username to unlock your public profile.
+            </p>
+          </div>
+          <Link href="/settings">
+            <Button variant="primary" size="sm">
+              Set Username
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Quick Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -188,7 +213,7 @@ export default async function DashboardPage() {
                       <div className="mt-6">
                         <Link
                           href={`/results/${job.id}`}
-                          className="block flex-1 bg-surface-container-highest hover:bg-surface-bright text-on-surface py-2 rounded-lg text-sm font-semibold transition-colors text-center"
+                          className="block flex-1 bg-black hover:bg-gray-800 text-white py-2 rounded-lg text-sm font-semibold transition-colors text-center"
                         >
                           View Results
                         </Link>
@@ -200,9 +225,9 @@ export default async function DashboardPage() {
             })}
             {/* New Analysis Card */}
             <Link href="/upload">
-              <div className="bg-surface-container-high rounded-xl overflow-hidden border border-dashed border-outline-variant/30 flex items-center justify-center min-h-[220px] hover:border-primary/50 transition-colors cursor-pointer">
+              <div className="rounded-xl overflow-hidden border border-dashed border-gray-300 flex items-center justify-center min-h-[220px] hover:border-black/40 transition-colors cursor-pointer glass-surface">
                 <div className="text-center p-8">
-                  <div className="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center mx-auto mb-4 text-on-surface-variant">
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-600">
                     <span className="material-symbols-outlined text-2xl">
                       add_circle
                     </span>

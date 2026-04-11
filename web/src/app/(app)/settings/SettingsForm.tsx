@@ -33,15 +33,13 @@ function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-        checked ? "bg-tertiary-container" : "bg-surface-container-highest"
+        checked ? "bg-black" : "bg-gray-300"
       }`}
     >
       <span
         className={`${
           checked ? "translate-x-5" : "translate-x-0"
-        } pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out ${
-          checked ? "bg-on-tertiary-container" : "bg-on-surface-variant"
-        }`}
+        } pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out bg-white`}
       />
     </button>
   );
@@ -50,10 +48,20 @@ function Toggle({
 interface SettingsFormProps {
   email: string;
   displayName: string;
+  currentUsername: string | null;
 }
 
-export function SettingsForm({ email, displayName }: SettingsFormProps) {
+export function SettingsForm({ email, displayName, currentUsername }: SettingsFormProps) {
   const [prefs, setPrefs] = useState<NotificationPrefs>(defaultPrefs);
+  const [username, setUsername] = useState(currentUsername ?? "");
+  const [checking, setChecking] = useState(false);
+  const [availability, setAvailability] = useState<{
+    available: boolean;
+    reason: string | null;
+  } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     try {
@@ -65,6 +73,62 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
       // Ignore parse errors
     }
   }, []);
+
+  // Debounced username availability check
+  useEffect(() => {
+    if (username.length < 3) {
+      setAvailability(null);
+      return;
+    }
+    if (username === currentUsername) {
+      setAvailability(null);
+      return;
+    }
+
+    setChecking(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/username/check?username=${encodeURIComponent(username)}`
+        );
+        const data = await res.json();
+        setAvailability(data);
+      } catch {
+        setAvailability(null);
+      } finally {
+        setChecking(false);
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      setChecking(false);
+    };
+  }, [username, currentUsername]);
+
+  async function handleSaveUsername() {
+    setSaving(true);
+    setSaveError(null);
+    setSaveSuccess(false);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.toLowerCase() }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setSaveError(data.error || "Failed to save username");
+      } else {
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
+    } catch {
+      setSaveError("Failed to save username");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function updatePref(key: keyof NotificationPrefs, value: boolean) {
     const next = { ...prefs, [key]: value };
@@ -79,10 +143,10 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
   return (
     <div className="space-y-8">
       {/* Section: Profile Information */}
-      <section className="bg-surface-container p-8 rounded-xl relative overflow-hidden">
+      <section className="p-8 rounded-xl glass-surface relative overflow-hidden">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/3">
-            <h3 className="text-xl font-headline font-semibold text-on-surface mb-2">
+            <h3 className="text-xl font-headline font-bold text-black mb-2">
               Profile Information
             </h3>
             <p className="text-sm text-on-surface-variant leading-relaxed">
@@ -90,21 +154,84 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
             </p>
           </div>
           <div className="flex-1 space-y-6">
+            {/* Username */}
             <div className="space-y-2">
-              <label className="text-xs font-headline uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
+                Username
+              </label>
+              <input
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-on-surface focus:bg-white focus:border-black focus:ring-0 transition-all"
+                type="text"
+                value={username}
+                onChange={(e) =>
+                  setUsername(
+                    e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
+                  )
+                }
+                maxLength={20}
+                placeholder="choose_a_username"
+              />
+              <div className="min-h-[20px]">
+                {checking && (
+                  <p className="text-xs text-on-surface-variant">Checking...</p>
+                )}
+                {!checking && availability?.available === true && (
+                  <p className="text-xs text-green-600 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    Username available
+                  </p>
+                )}
+                {!checking && availability?.available === false && (
+                  <p className="text-xs text-red-500">{availability.reason}</p>
+                )}
+                {!checking &&
+                  !availability &&
+                  username.length > 0 &&
+                  username.length < 3 && (
+                    <p className="text-xs text-on-surface-variant">
+                      Must be at least 3 characters
+                    </p>
+                  )}
+                {saveError && (
+                  <p className="text-xs text-red-500">{saveError}</p>
+                )}
+                {saveSuccess && (
+                  <p className="text-xs text-green-600">Username saved!</p>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handleSaveUsername}
+                  disabled={
+                    saving ||
+                    checking ||
+                    username.length < 3 ||
+                    (availability !== null && !availability.available) ||
+                    username === currentUsername
+                  }
+                >
+                  {saving ? "Saving..." : "Save Username"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
                 Display Name
               </label>
               <input
-                className="w-full bg-surface-container-low border-none rounded-lg px-4 py-3 text-on-surface focus:bg-surface-container focus:ring-0 ghost-border transition-all"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-on-surface focus:bg-white focus:border-black focus:ring-0 transition-all"
                 type="text"
                 defaultValue={displayName}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-headline uppercase tracking-widest text-on-surface-variant">
+              <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
                 Email Address
               </label>
-              <div className="flex items-center bg-surface-container-lowest/50 rounded-lg px-4 py-3 text-on-surface-variant cursor-not-allowed">
+              <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-gray-500 cursor-not-allowed">
                 <span className="flex-1">{email}</span>
                 <span className="material-symbols-outlined text-sm">lock</span>
               </div>
@@ -113,7 +240,7 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
               </p>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button variant="secondary" size="md">
+              <Button variant="primary" size="md">
                 Save Changes
               </Button>
             </div>
@@ -122,14 +249,14 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
       </section>
 
       {/* Section: Security */}
-      <section className="bg-surface-container p-8 rounded-xl">
+      <section className="p-8 rounded-xl glass-surface">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/3">
-            <h3 className="text-xl font-headline font-semibold text-on-surface mb-2">
+            <h3 className="text-xl font-headline font-bold text-black mb-2">
               Security
             </h3>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Ensure your neural engine stays private with a robust password.
+              Keep your account secure by updating your password regularly.
             </p>
           </div>
           <div className="flex-1 space-y-4">
@@ -145,7 +272,7 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
               </div>
             </div>
             <div className="pt-4 flex justify-end">
-              <Button variant="secondary" size="md">
+              <Button variant="primary" size="md">
                 Update Security
               </Button>
             </div>
@@ -154,19 +281,19 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
       </section>
 
       {/* Section: Notifications */}
-      <section className="bg-surface-container p-8 rounded-xl">
+      <section className="p-8 rounded-xl glass-surface">
         <div className="flex flex-col md:flex-row gap-8 mb-8">
           <div className="w-full md:w-1/3">
-            <h3 className="text-xl font-headline font-semibold text-on-surface mb-2">
+            <h3 className="text-xl font-headline font-bold text-black mb-2">
               Notifications
             </h3>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Control how the Neural Engine communicates with you.
+              Control how NeuroCut communicates with you.
             </p>
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Toggle: Analysis Complete */}
-            <div className="bg-surface-container-high p-5 rounded-xl flex items-start justify-between">
+            <div className="bg-gray-50 p-5 rounded-xl flex items-start justify-between border border-gray-100">
               <div>
                 <p className="text-on-surface font-headline font-medium text-sm mb-1">
                   Analysis Complete
@@ -182,7 +309,7 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
             </div>
 
             {/* Toggle: Processing Failed */}
-            <div className="bg-surface-container-high p-5 rounded-xl flex items-start justify-between">
+            <div className="bg-gray-50 p-5 rounded-xl flex items-start justify-between border border-gray-100">
               <div>
                 <p className="text-on-surface font-headline font-medium text-sm mb-1">
                   Processing Failed
@@ -198,7 +325,7 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
             </div>
 
             {/* Toggle: Weekly Summary */}
-            <div className="bg-surface-container-high p-5 rounded-xl flex items-start justify-between">
+            <div className="bg-gray-50 p-5 rounded-xl flex items-start justify-between border border-gray-100">
               <div>
                 <p className="text-on-surface font-headline font-medium text-sm mb-1">
                   Weekly Summary
@@ -214,7 +341,7 @@ export function SettingsForm({ email, displayName }: SettingsFormProps) {
             </div>
 
             {/* Toggle: Product Updates */}
-            <div className="bg-surface-container-high p-5 rounded-xl flex items-start justify-between">
+            <div className="bg-gray-50 p-5 rounded-xl flex items-start justify-between border border-gray-100">
               <div>
                 <p className="text-on-surface font-headline font-medium text-sm mb-1">
                   Product Updates
