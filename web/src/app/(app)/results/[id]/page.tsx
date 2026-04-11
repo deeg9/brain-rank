@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -85,6 +86,7 @@ function extractFilename(url: string): string {
 
 export default function ResultsDetailPage({ params }: Props) {
   const { id } = use(params);
+  const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -186,38 +188,8 @@ export default function ResultsDetailPage({ params }: Props) {
   if (!job) return null;
 
   if (job.status !== "completed" || !job.results) {
-    return (
-      <div className="space-y-6">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
-        >
-          <span className="material-symbols-outlined text-sm">
-            arrow_back_ios
-          </span>
-          <span className="font-headline uppercase tracking-widest text-xs">
-            Back
-          </span>
-        </Link>
-        <Card className="p-8 text-center">
-          <span className="material-symbols-outlined text-4xl text-secondary mb-4">
-            hourglass_empty
-          </span>
-          <p className="font-headline text-lg font-bold text-on-surface mb-2">
-            Analysis In Progress
-          </p>
-          <p className="text-on-surface-variant">
-            This analysis is still processing. Check back shortly.
-          </p>
-          <Link
-            href={`/processing?jobId=${id}`}
-            className="inline-block mt-4 text-primary font-headline text-sm font-bold hover:opacity-80 transition-opacity"
-          >
-            View Processing Status
-          </Link>
-        </Card>
-      </div>
-    );
+    router.replace(`/processing?jobId=${id}`);
+    return null;
   }
 
   const results = job.results as unknown as ResultsData;
