@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Brain Visualization UX Overhaul
-status: defining_requirements
+status: roadmap_complete
 stopped_at: null
-last_updated: "2026-04-11T03:00:00.000Z"
+last_updated: "2026-04-11T04:00:00.000Z"
 last_activity: 2026-04-11
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,24 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-10)
 
 **Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Phase 38 — code-cleanup-missing-wiring
+**Current focus:** v3.0 Brain Visualization UX Overhaul -- Phase 39 (Performance Foundation)
 
 ## Current Position
 
-Phase: 38
-Plan: Not started
-Status: Executing Phase 38
-Last activity: 2026-04-11
+Phase: 39 of 43 (Performance Foundation)
+Plan: 0 of 0 in current phase (awaiting planning)
+Status: Ready to plan
+Last activity: 2026-04-11 -- v3.0 roadmap created (5 phases, 9 requirements mapped)
 
-Progress: [██████████████████░░] 84% (23/37 phases complete across all milestones)
+Progress: [████████████████████░░░░░] 0% of v3.0 (0/5 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 43 (v1.0 + v1.1 + v2.0)
+- Total plans completed: 43+ (v1.0 through v2.2 + gap)
 - Average duration: varies
-- Total execution time: ~2 days
+- Total execution time: ~3 days
 
 **By Phase:**
 
@@ -47,37 +47,21 @@ Progress: [██████████████████░░] 84% (23
 | v1.0 (1-10) | 14 | ~1.5 days | - |
 | v1.1 (11-14) | 7 | ~0.5 days | - |
 | v2.0 (15-23) | 14 | ~1 day | - |
-| 28 | 1 | - | - |
-| 29 | 1 | - | - |
-| 30 | 2 | - | - |
-| 31 | 1 | - | - |
-| 32 | 2 | - | - |
-| 37 | 1 | - | - |
-| 38 | 1 | - | - |
+| v2.1 (27-32) | 8 | ~0.5 days | - |
+| v2.2 (33-37) | 5 | ~0.5 days | - |
+| 38 (gap) | 1 | - | - |
 
 *Updated after each plan completion*
-| Phase 33 P01 | 252s | 2 tasks | 11 files |
-| Phase 34 P01 | 4min | 3 tasks | 7 files |
-| Phase 35 P01 | 2min | 2 tasks | 2 files |
-| Phase 36 P01 | 193s | 3 tasks | 7 files |
-| Phase 37 P01 | 135s | 2 tasks | 3 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-- [v1.0]: RunPod async endpoint validated (POST /run, poll /status)
-- [v1.1]: 15 Stitch screens received, design system documented
-- [v2.0]: Next.js + Supabase stack selected
-- [v2.1]: 21st.dev components chosen: Sliding Number, File Upload, Wave Loader, Hero Odyssey
-- [v2.1]: Phase 32 added: 3D Brain Viewer with react-three-fiber
-- [v2.2]: 5 phases (33-37) roadmapped: network expansion, vertex pipeline, GLB mesh, heatmap viewer, arousal/valence
-- [Phase 33]: Used 0.0 defaults for new RegionScores fields for backward compatibility with existing 4-region payloads
-- [Phase 33]: Replaced hardcoded RegionScores construction with dynamic RegionScores(**region_vals)
-- [Phase 34]: Used Optional[str] for Python 3.9 compat; include_vertex_data defaults True; uint8 quantization for 65% payload reduction
-- [Phase 35]: Used process=False on trimesh.Trimesh to preserve fsaverage5 vertex ordering for TRIBE v2 index mapping
-- [Phase 36]: useEffect over useFrame for colormap application to avoid 60fps cost
-- [Phase 37]: Used pure SVG circumplex chart instead of Recharts for single-dot quadrant visualization
+- [v3.0 Research]: Only one new dependency needed (three-custom-shader-material@^6.4.0)
+- [v3.0 Research]: CPU colormap (d3-color CSS parsing) must be replaced with GPU DataTexture LUT before any visual work
+- [v3.0 Research]: BrainHeatmapMesh + BrainNetworkMesh merge into single BrainGlowMesh
+- [v3.0 Research]: Activation threshold ~0.15 -- needs validation against real TRIBE v2 output
+- [v3.0 Research]: Meta uses zero toggles in their demo -- subtraction over addition
 
 ### Pending Todos
 
@@ -85,9 +69,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 33 depends on Phase 32 (existing brain viewer infrastructure)
-- Phase 36 (heatmap) requires both vertex data (34) and GLB mesh (35) -- strict dependency chain
-- NET-01 requires Destrieux atlas parcel-to-network mapping -- neuroscience domain knowledge needed
+- Bloom post-processing may halve frame rate on integrated GPUs (research Pitfall 4 -- try emissive-only first)
+- Threshold value (0.15) needs validation against real TRIBE v2 output data
+- Meta's exact colormap choice uncertain -- inferno vs hot to be validated visually in Phase 41
+- CSM emissive + bloom interaction is not well-documented -- expect empirical tuning in Phase 41
 
 ### Quick Tasks Completed
 
@@ -102,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-10T22:11:23.698Z
-Stopped at: Phase 30 context gathered (expanded scope)
-Resume file: .planning/phases/30-wave-loader/30-CONTEXT.md
+Last session: 2026-04-11
+Stopped at: v3.0 roadmap created, ready to plan Phase 39
+Resume file: None

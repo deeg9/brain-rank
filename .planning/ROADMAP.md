@@ -7,6 +7,7 @@
 - 🚧 **v2.0 Frontend Implementation** - Phases 15-26 (in progress)
 - 📋 **v2.1 21st.dev Component Integration** - Phases 27-32 (planned)
 - 📋 **v2.2 Enhanced Brain Analytics** - Phases 33-37 (planned)
+- 📋 **v3.0 Brain Visualization UX Overhaul** - Phases 39-43 (planned)
 
 ## Phases
 
@@ -80,6 +81,16 @@
 **Plans:** 1 plan
 Plans:
 - [x] 38-01-PLAN.md — Fix 9-network regions mode, add retry route, remove dead code
+
+### v3.0 Brain Visualization UX Overhaul (Planned)
+
+**Milestone Goal:** Redesign the brain viewer from a cluttered multi-control interface to a clean, dynamic visualization where the brain simply glows as the video plays -- matching Meta's own TRIBE v2 demo approach.
+
+- [ ] **Phase 39: Performance Foundation** - GPU colormap LUT, DynamicDrawUsage, useFrame animation loop
+- [ ] **Phase 40: UI Subtraction & Component Consolidation** - Remove all controls, merge mesh components, clean header
+- [ ] **Phase 41: Threshold Glow & Legend** - Threshold-based emissive glow, static network color legend
+- [ ] **Phase 42: Smooth Transitions** - Segment interpolation, auto-rotate idle behavior
+- [ ] **Phase 43: Timeline Peak Markers** - Mark top activation moments on neural timeline
 
 ## Phase Details
 
@@ -557,6 +568,64 @@ Plans:
 Plans:
 - [x] 37-01-PLAN.md — Arousal/valence metric cards, circumplex chart, 9-network legend verification
 
+### Phase 39: Performance Foundation
+**Goal**: The brain viewer renders per-vertex activation colors at 60fps using GPU-side computation instead of CPU string parsing
+**Depends on**: Phase 38 (clean codebase with 9-network support)
+**Requirements**: PERF-01, PERF-03
+**Success Criteria** (what must be TRUE):
+  1. Vertex colors are computed via a GPU-side 256-entry DataTexture LUT -- no d3-color CSS string parsing occurs per frame
+  2. Buffer attributes use DynamicDrawUsage and the animation loop runs in useFrame instead of useEffect
+  3. Video-to-brain sync polls currentTime at display refresh rate via requestVideoFrameCallback (or useFrame fallback)
+  4. The brain viewer maintains 60fps during video playback with all 20,484 vertices updating per segment change
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 40: UI Subtraction & Component Consolidation
+**Goal**: The brain viewer has zero interactive controls -- no toggles, no dropdowns, no preset view buttons -- and the component tree is simplified from two mesh components to one
+**Depends on**: Phase 39 (performance foundation must be in place before restructuring components)
+**Requirements**: VIS-02, VIS-04
+**Success Criteria** (what must be TRUE):
+  1. The heatmap/regions mode toggle, colormap dropdown, and all 9 network filter toggle buttons are removed from the brain viewer
+  2. The brain viewer header shows only a clean title with no crowded controls
+  3. BrainHeatmapMesh and BrainNetworkMesh are merged into a single BrainGlowMesh component
+  4. BrainViewer.tsx has zero useState calls for view mode, colormap selection, or region filters
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 41: Threshold Glow & Legend
+**Goal**: Brain regions glow dynamically above an activation threshold while below-threshold vertices stay dark, and a static legend explains the color mapping
+**Depends on**: Phase 40 (simplified component tree ready for custom shader material)
+**Requirements**: VIS-01, VIS-03
+**Success Criteria** (what must be TRUE):
+  1. Vertices with activation above threshold emit colored glow proportional to activation intensity; vertices below threshold appear dark gray
+  2. Threshold transitions use smoothstep blending -- no hard-edge popping or flickering at the activation boundary
+  3. A static non-interactive color legend below the brain viewer shows which color maps to which functional network
+  4. The brain viewer uses a single committed colormap (inferno or hot) with no user-selectable alternatives
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 42: Smooth Transitions
+**Goal**: Activation values interpolate smoothly between 2-second segments and the brain auto-rotates when the user is not interacting
+**Depends on**: Phase 41 (threshold glow must be working before adding temporal smoothing)
+**Requirements**: PERF-02, POL-01
+**Success Criteria** (what must be TRUE):
+  1. When the video crosses a segment boundary, vertex activation values lerp smoothly over ~300ms instead of snapping instantly
+  2. The brain auto-rotates slowly when the user has not touched OrbitControls for 3+ seconds
+  3. Auto-rotation pauses immediately when the user grabs the brain and resumes after idle timeout
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 43: Timeline Peak Markers
+**Goal**: The neural timeline visually marks the moments of highest brain activation so creators can instantly see their video's peak engagement points
+**Depends on**: Phase 41 (activation threshold logic defines what counts as a peak)
+**Requirements**: POL-02
+**Success Criteria** (what must be TRUE):
+  1. The top 3-5 activation peaks are automatically identified and marked on the neural timeline with visible indicators
+  2. Each peak marker shows the timestamp and relative activation intensity on hover or tap
+  3. Peak markers do not interfere with existing timeline interactions (playhead scrubbing, click-to-seek)
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
@@ -566,6 +635,7 @@ Phases 15-23: 15 -> 16 -> 17 -> 18/19 (parallel-capable) -> 20 -> 21 -> 22 -> 23
 Phases 24-26: 24 -> 25 -> 26
 Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
+Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -607,3 +677,8 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete    | 2026-04-10 |
 | 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
+| 39. Performance Foundation | v3.0 | 0/0 | Not started | - |
+| 40. UI Subtraction & Consolidation | v3.0 | 0/0 | Not started | - |
+| 41. Threshold Glow & Legend | v3.0 | 0/0 | Not started | - |
+| 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
+| 43. Timeline Peak Markers | v3.0 | 0/0 | Not started | - |

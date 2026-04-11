@@ -44,19 +44,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| VIS-01 | TBD | Pending |
-| VIS-02 | TBD | Pending |
-| VIS-03 | TBD | Pending |
-| VIS-04 | TBD | Pending |
-| POL-01 | TBD | Pending |
-| POL-02 | TBD | Pending |
+| PERF-01 | Phase 39 | Pending |
+| PERF-02 | Phase 42 | Pending |
+| PERF-03 | Phase 39 | Pending |
+| VIS-01 | Phase 41 | Pending |
+| VIS-02 | Phase 40 | Pending |
+| VIS-03 | Phase 41 | Pending |
+| VIS-04 | Phase 40 | Pending |
+| POL-01 | Phase 42 | Pending |
+| POL-02 | Phase 43 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 9 total
-- Unmapped: 9 (awaiting roadmap)
+- Mapped: 9/9
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-11*
+*Traceability updated: 2026-04-11 (roadmap created)*
