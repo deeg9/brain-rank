@@ -121,7 +121,7 @@ export function VideoPlayer({
       <video
         ref={videoRef}
         src={src}
-        className="w-full max-h-[400px] object-contain bg-surface-container-high"
+        className="w-full h-full object-contain bg-surface-container-high"
         preload="metadata"
         onTimeUpdate={onTimeUpdate}
         onPlay={() => onPlayStateChange(true)}
