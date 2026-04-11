@@ -26,25 +26,25 @@ export function CircumplexChart({ arousal, valence }: CircumplexChartProps) {
       </div>
       <svg viewBox="0 0 240 240" className="w-full" role="img" aria-label="Arousal-valence circumplex chart">
         {/* Axis lines */}
-        <line x1={midX} y1={pad} x2={midX} y2={pad + size} stroke="white" strokeOpacity={0.1} strokeWidth={1} />
-        <line x1={pad} y1={midY} x2={pad + size} y2={midY} stroke="white" strokeOpacity={0.1} strokeWidth={1} />
+        <line x1={midX} y1={pad} x2={midX} y2={pad + size} stroke="currentColor" strokeOpacity={0.15} strokeWidth={1} />
+        <line x1={pad} y1={midY} x2={pad + size} y2={midY} stroke="currentColor" strokeOpacity={0.15} strokeWidth={1} />
 
         {/* Quadrant labels */}
-        <text x={pad + size - 4} y={pad + 14} textAnchor="end" fontSize={10} fill="white" fillOpacity={0.4} fontFamily="inherit">
+        <text x={pad + size - 4} y={pad + 14} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
           Excited
         </text>
-        <text x={pad + 4} y={pad + 14} textAnchor="start" fontSize={10} fill="white" fillOpacity={0.4} fontFamily="inherit">
+        <text x={pad + 4} y={pad + 14} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
           Tense
         </text>
-        <text x={pad + size - 4} y={pad + size - 6} textAnchor="end" fontSize={10} fill="white" fillOpacity={0.4} fontFamily="inherit">
+        <text x={pad + size - 4} y={pad + size - 6} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
           Calm
         </text>
-        <text x={pad + 4} y={pad + size - 6} textAnchor="start" fontSize={10} fill="white" fillOpacity={0.4} fontFamily="inherit">
+        <text x={pad + 4} y={pad + size - 6} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
           Bored
         </text>
 
         {/* Axis labels */}
-        <text x={midX} y={pad + size + 16} textAnchor="middle" fontSize={9} fill="white" fillOpacity={0.3} fontFamily="inherit">
+        <text x={midX} y={pad + size + 16} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.4} fontFamily="inherit">
           Valence
         </text>
         <text
