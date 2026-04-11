@@ -3,62 +3,96 @@
 **Defined:** 2026-04-11
 **Core Value:** Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out
 
-## v3.0 Requirements
+## v4.0 Requirements
 
-Requirements for Brain Visualization UX Overhaul milestone. Redesign brain viewer to match Meta's TRIBE v2 demo approach.
+Requirements for Social Discovery Platform milestone. Add user identities, public sharing, and a neural-score-ranked discovery feed.
+
+### Identity & Profiles
+
+- [ ] **PROF-01**: User can claim a unique username (case-insensitive, citext)
+- [ ] **PROF-02**: User can view a public profile page at /u/username showing public analyses and stats
+- [ ] **PROF-03**: User can upload a profile avatar
+- [ ] **PROF-04**: User can set a short bio on their profile
+
+### Privacy & Sharing
+
+- [ ] **PRIV-01**: User can toggle each analysis between public and private (default private)
+- [ ] **PRIV-02**: User can view a public analysis page with brain viewer, timeline, and metrics (scores only, no video playback)
+- [ ] **PRIV-03**: User can copy a shareable link for public analyses
+
+### Discovery & Leaderboard
+
+- [ ] **DISC-01**: User can browse a /discover feed of all public analyses with thumbnails, usernames, and neural scores
+- [ ] **DISC-02**: User can sort the leaderboard by neural score, hook strength, or retention
+- [ ] **DISC-03**: User can search public analyses by video title or username
+- [ ] **DISC-04**: User can filter public analyses by content type or score range
+
+### Social Engagement
+
+- [ ] **SOC-01**: Public analyses track view counts
+- [ ] **SOC-02**: User can bookmark public analyses
+- [ ] **SOC-03**: User can view their saved bookmarks at /bookmarks
+
+## Previous Milestone Requirements (v3.0)
 
 ### Performance
 
-- [ ] **PERF-01**: Brain viewer renders per-vertex activation colors using GPU-side LUT instead of CPU d3-color parsing
-- [ ] **PERF-02**: Activation values interpolate smoothly between 2-second segments instead of snapping
-- [ ] **PERF-03**: Video-to-brain sync polls currentTime at 60fps via requestVideoFrameCallback
+- [x] **PERF-01**: Brain viewer renders per-vertex activation colors using GPU-side LUT instead of CPU d3-color parsing
+- [x] **PERF-02**: Activation values interpolate smoothly between 2-second segments instead of snapping
+- [x] **PERF-03**: Video-to-brain sync polls currentTime at 60fps via requestVideoFrameCallback
 
 ### Visualization
 
-- [ ] **VIS-01**: Brain regions glow only above an activation threshold — below-threshold vertices appear dark
-- [ ] **VIS-02**: All toggle controls removed — no heatmap/regions switch, no 9 network filter buttons, no colormap dropdown
-- [ ] **VIS-03**: Static non-interactive color legend shows which color maps to which brain network
-- [ ] **VIS-04**: Brain viewer header is clean — no crowded controls, just a title
+- [x] **VIS-01**: Brain regions glow only above an activation threshold
+- [x] **VIS-02**: All toggle controls removed
+- [x] **VIS-03**: Static non-interactive color legend shows which color maps to which brain network
+- [x] **VIS-04**: Brain viewer header is clean
 
 ### Polish
 
-- [ ] **POL-01**: Brain auto-rotates slowly when user is not interacting with it
-- [ ] **POL-02**: Peak activation moments are marked on the neural timeline
+- [x] **POL-01**: Brain auto-rotates slowly when user is not interacting
+- [x] **POL-02**: Peak activation moments are marked on the neural timeline
 
 ## Future Requirements
 
-None yet.
+- Follow system — users can follow other creators
+- Video playback on public views (pending licensing resolution)
+- Real payment processing (Stripe integration)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Comparison mode (two stimuli side-by-side) | Meta has this in their demo but it requires paired analysis — defer |
-| Expert/advanced mode with toggles | Keep the simplified view as primary; revisit if users request it |
-| Per-vertex temporal animation (sub-segment) | TRIBE v2 outputs 2-second segments; interpolation is cosmetic, not data-driven |
-| Custom colormap selector | Meta uses one colormap — simplicity over configurability |
+| Likes/upvotes | Neural score IS the ranking mechanism — social votes undermine data integrity |
+| Comments on analyses | Scope creep, not aligned with data-first positioning |
+| Follow system | Deferred to future milestone |
+| Gamification badges | Adds complexity without clear value |
+| Video playback on public views | Privacy/licensing concern — show scores only for v4.0 |
+| Real payment processing | Still mocked for v4.0 |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PERF-01 | Phase 39 | Pending |
-| PERF-02 | Phase 42 | Pending |
-| PERF-03 | Phase 39 | Pending |
-| VIS-01 | Phase 41 | Pending |
-| VIS-02 | Phase 40 | Pending |
-| VIS-03 | Phase 41 | Pending |
-| VIS-04 | Phase 40 | Pending |
-| POL-01 | Phase 42 | Pending |
-| POL-02 | Phase 43 | Pending |
+| PROF-01 | — | Pending |
+| PROF-02 | — | Pending |
+| PROF-03 | — | Pending |
+| PROF-04 | — | Pending |
+| PRIV-01 | — | Pending |
+| PRIV-02 | — | Pending |
+| PRIV-03 | — | Pending |
+| DISC-01 | — | Pending |
+| DISC-02 | — | Pending |
+| DISC-03 | — | Pending |
+| DISC-04 | — | Pending |
+| SOC-01 | — | Pending |
+| SOC-02 | — | Pending |
+| SOC-03 | — | Pending |
 
 **Coverage:**
-- v3.0 requirements: 9 total
-- Mapped: 9/9
-- Unmapped: 0
+- v4.0 requirements: 13 total
+- Mapped: 0/13
+- Unmapped: 13
 
 ---
 *Requirements defined: 2026-04-11*
-*Traceability updated: 2026-04-11 (roadmap created)*
