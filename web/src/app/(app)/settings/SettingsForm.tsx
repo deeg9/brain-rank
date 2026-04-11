@@ -217,16 +217,7 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
-                Display Name
-              </label>
-              <input
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-on-surface focus:bg-white focus:border-black focus:ring-0 transition-all"
-                type="text"
-                defaultValue={displayName}
-              />
-            </div>
+            {/* TODO: Display Name editing — wire to /api/profile when backend supports it */}
             <div className="space-y-2">
               <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
                 Email Address
@@ -238,11 +229,6 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
               <p className="text-[10px] text-on-surface-variant/60 italic">
                 Email cannot be changed.
               </p>
-            </div>
-            <div className="pt-2 flex justify-end">
-              <Button variant="primary" size="md">
-                Save Changes
-              </Button>
             </div>
           </div>
         </div>
