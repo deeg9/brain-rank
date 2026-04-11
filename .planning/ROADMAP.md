@@ -97,12 +97,7 @@ Plans:
 
 **Milestone Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform with user identities, public/private analysis sharing, a neural-score-ranked discovery feed, and social engagement features.
 
-- [ ] **Phase 44: Social Schema & Identity Foundation** - Database tables, username claiming, RLS policies for social features
-
-**Plans:** 2 plans
-Plans:
-- [x] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
-- [x] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
+- [x] **Phase 44: Social Schema & Identity Foundation** - Database tables, username claiming, RLS policies for social features (completed 2026-04-11)
 - [ ] **Phase 45: Profile Customization** - Avatar upload, bio editing on user profiles
 - [ ] **Phase 46: Public Profile Pages** - Public profile at /u/username with stats and public analyses
 - [ ] **Phase 47: Privacy Controls & Sharing** - Public/private toggle on analyses, shareable links
@@ -672,7 +667,10 @@ Plans:
   3. Username validation enforces rules (lowercase, no spaces, 3-20 chars) and case-insensitive uniqueness (e.g., "Diego" and "diego" conflict)
   4. RLS policies on the profiles table allow users to read any profile but only update their own
   5. An is_public boolean column exists on the jobs table (default false) with RLS allowing public read access for public analyses
-**Plans**: TBD
+**Plans:** 2/2 plans complete
+Plans:
+- [x] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
+- [x] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
 
 ### Phase 45: Profile Customization
 **Goal**: Users can personalize their profile with an avatar image and short bio
