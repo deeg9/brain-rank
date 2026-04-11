@@ -26,8 +26,7 @@ export async function PATCH(request: NextRequest) {
 
       const { data, error } = await supabase
         .from('profiles')
-        .update({ username: normalized })
-        .eq('id', user.id)
+        .upsert({ id: user.id, username: normalized, updated_at: new Date().toISOString() })
         .select()
         .single()
 
