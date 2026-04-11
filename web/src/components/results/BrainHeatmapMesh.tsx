@@ -38,6 +38,13 @@ export function BrainHeatmapMesh({ vertexData, colormap }: BrainHeatmapMeshProps
     return geo;
   }, [nodes.brain.geometry, colorAttr]);
 
+  // Dispose cloned geometry on unmount or when geometry changes (GPU memory cleanup)
+  useEffect(() => {
+    return () => {
+      clonedGeometry.dispose();
+    };
+  }, [clonedGeometry]);
+
   // Dirty flag for GPU sync via useFrame
   const needsColorUpdate = useRef(true);
 
