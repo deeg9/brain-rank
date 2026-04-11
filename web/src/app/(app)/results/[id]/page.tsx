@@ -291,25 +291,27 @@ export default function ResultsDetailPage({ params }: Props) {
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
-      {/* Neural Activation Timeline — full width */}
-      <NeuralTimeline
-        segments={segments}
-        duration={results.duration_seconds}
-        currentTime={currentTime}
-        onSeek={handleSeek}
-        zones={zones}
-        peakMarkers={peakMarkers}
-        iconMarkers={iconMarkers}
-      />
-
-      {/* Neural Metrics + Emotional State — side by side */}
+      {/* Neural Activation Timeline + Emotional State — side by side */}
       {(() => {
         const currentSegment = getSegmentAtTime(segments, currentTime);
         const arousal = currentSegment?.arousal ?? 0;
         const valence = currentSegment?.valence ?? 0;
         return (
-          <div className="grid grid-cols-2 gap-6">
-            {/* Left: Consolidated KPI card */}
+          <>
+            <div className="grid grid-cols-2 gap-6">
+              <NeuralTimeline
+                segments={segments}
+                duration={results.duration_seconds}
+                currentTime={currentTime}
+                onSeek={handleSeek}
+                zones={zones}
+                peakMarkers={peakMarkers}
+                iconMarkers={iconMarkers}
+              />
+              <CircumplexChart arousal={arousal} valence={valence} />
+            </div>
+
+            {/* Neural Metrics — full width */}
             <Card className="p-6 glass-surface">
               <div className="flex items-center gap-2 mb-5">
                 <span className="material-symbols-outlined text-on-surface-variant">monitoring</span>
@@ -393,10 +395,7 @@ export default function ResultsDetailPage({ params }: Props) {
                 </div>
               </div>
             </Card>
-
-            {/* Right: Emotional State circumplex */}
-            <CircumplexChart arousal={arousal} valence={valence} />
-          </div>
+          </>
         );
       })()}
     </div>
