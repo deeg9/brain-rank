@@ -58,9 +58,10 @@ function hexToRGB(hex: string): [number, number, number] {
   ];
 }
 
-const BASE_R = 0.102;
-const BASE_G = 0.102;
-const BASE_B = 0.118;
+// Medium gray base for inactive vertices — visible on both light and dark backgrounds
+const BASE_R = 0.55;
+const BASE_G = 0.55;
+const BASE_B = 0.58;
 
 function buildRegionColors(
   regions: SegmentRegionScores,
@@ -226,7 +227,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
         <Canvas
           camera={{ position: [0, 0, 200], fov: 45 }}
           dpr={[1, 1.5]}
-          style={{ background: '#151520' }}
+          style={{ background: '#f5f5f8' }}
         >
           <Suspense fallback={null}>
             <BrainViewerCanvas
