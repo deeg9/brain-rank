@@ -5,7 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { VERTEX_COUNT } from '@/lib/vertex-codec';
-import { buildColormapLUT, applyColormapFromLUT } from '@/lib/colormap';
+import { buildColormapLUT, applyThresholdGlow } from '@/lib/colormap';
 
 interface BrainGlowMeshProps {
   vertexData: Float32Array; // 20,484 normalized values from decodeVertexData
@@ -16,8 +16,8 @@ type GLTFNodes = Record<string, THREE.Mesh>;
 export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
-  // Build 256-entry LUT once (hardcoded plasma colormap)
-  const lutData = useMemo(() => buildColormapLUT('plasma'), []);
+  // Build 256-entry LUT once (inferno colormap for threshold glow)
+  const lutData = useMemo(() => buildColormapLUT('inferno'), []);
 
   // Pre-allocate color buffer (never allocate in render loop)
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
@@ -48,7 +48,7 @@ export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
 
   // Update color data when inputs change, mark dirty for GPU upload
   useEffect(() => {
-    applyColormapFromLUT(vertexData, lutData, colorBuffer);
+    applyThresholdGlow(vertexData, lutData, colorBuffer);
     needsColorUpdate.current = true;
   }, [vertexData, lutData, colorBuffer]);
 
@@ -64,8 +64,9 @@ export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
     <mesh geometry={clonedGeometry}>
       <meshStandardMaterial
         vertexColors
-        roughness={0.6}
-        metalness={0.2}
+        toneMapped={false}
+        roughness={0.7}
+        metalness={0.1}
       />
     </mesh>
   );
