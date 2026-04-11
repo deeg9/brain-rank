@@ -607,10 +607,10 @@ Plans:
   2. Threshold transitions use smoothstep blending -- no hard-edge popping or flickering at the activation boundary
   3. A static non-interactive color legend below the brain viewer shows which color maps to which functional network
   4. The brain viewer uses a single committed colormap (inferno or hot) with no user-selectable alternatives
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 41-01-PLAN.md — Threshold glow with smoothstep blending, inferno colormap, emissive intensity
-- [ ] 41-02-PLAN.md — Static ActivationLegend component with inferno gradient bar
+- [x] 41-01-PLAN.md — Threshold glow with smoothstep blending, inferno colormap, emissive intensity
+- [x] 41-02-PLAN.md — Static ActivationLegend component with inferno gradient bar
 **UI hint**: yes
 
 ### Phase 42: Smooth Transitions
@@ -694,6 +694,6 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
 | 39. Performance Foundation | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 40. UI Subtraction & Consolidation | v3.0 | 1/1 | Complete    | 2026-04-11 |
-| 41. Threshold Glow & Legend | v3.0 | 0/0 | Not started | - |
+| 41. Threshold Glow & Legend | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
 | 43. Timeline Peak Markers | v3.0 | 0/0 | Not started | - |
