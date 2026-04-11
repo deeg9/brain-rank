@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button, Input } from "@/components/ui";
+import {
+  resizeToAvatar,
+  uploadAvatar,
+  getInitials,
+  getInitialsColor,
+} from "@/lib/avatar";
 
 interface NotificationPrefs {
   analysisComplete: boolean;
@@ -49,9 +55,19 @@ interface SettingsFormProps {
   email: string;
   displayName: string;
   currentUsername: string | null;
+  currentAvatarUrl: string | null;
+  currentBio: string | null;
+  userId: string;
 }
 
-export function SettingsForm({ email, displayName, currentUsername }: SettingsFormProps) {
+export function SettingsForm({
+  email,
+  displayName,
+  currentUsername,
+  currentAvatarUrl,
+  currentBio,
+  userId,
+}: SettingsFormProps) {
   const [prefs, setPrefs] = useState<NotificationPrefs>(defaultPrefs);
   const [username, setUsername] = useState(currentUsername ?? "");
   const [checking, setChecking] = useState(false);
@@ -62,6 +78,17 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(currentAvatarUrl);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [pendingAvatarBlob, setPendingAvatarBlob] = useState<Blob | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Bio state
+  const [bio, setBio] = useState(currentBio ?? "");
 
   useEffect(() => {
     try {
@@ -106,25 +133,111 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
     };
   }, [username, currentUsername]);
 
-  async function handleSaveUsername() {
+  // Avatar file selection handler (preview only, no upload)
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset file input so the same file can be re-selected
+    e.target.value = "";
+
+    setAvatarError(null);
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError("Image must be under 2MB");
+      return;
+    }
+
+    try {
+      const resizedBlob = await resizeToAvatar(file);
+      setPendingAvatarBlob(resizedBlob);
+      setAvatarPreviewUrl(URL.createObjectURL(resizedBlob));
+    } catch {
+      setAvatarError("Failed to process image");
+    }
+  }
+
+  // Confirm avatar upload
+  async function handleAvatarConfirm() {
+    if (!pendingAvatarBlob) return;
+
+    setAvatarUploading(true);
+    setAvatarError(null);
+
+    try {
+      const url = await uploadAvatar(pendingAvatarBlob, userId);
+
+      // Persist avatar_url to profile
+      await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatar_url: url }),
+      });
+
+      setAvatarUrl(url);
+
+      // Clean up preview
+      if (avatarPreviewUrl) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+      setAvatarPreviewUrl(null);
+      setPendingAvatarBlob(null);
+    } catch {
+      setAvatarError("Failed to upload avatar");
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
+  // Cancel avatar preview
+  function handleAvatarCancel() {
+    if (avatarPreviewUrl) {
+      URL.revokeObjectURL(avatarPreviewUrl);
+    }
+    setAvatarPreviewUrl(null);
+    setPendingAvatarBlob(null);
+    setAvatarError(null);
+  }
+
+  // Save profile (username + bio)
+  const usernameChanged =
+    username !== (currentUsername ?? "") &&
+    username.length >= 3 &&
+    (availability === null || availability.available);
+  const bioChanged = bio.trim() !== (currentBio ?? "");
+  const canSave = (usernameChanged || bioChanged) && !saving && !checking;
+
+  async function handleSaveProfile() {
     setSaving(true);
     setSaveError(null);
     setSaveSuccess(false);
+
     try {
+      const patchBody: Record<string, unknown> = {};
+
+      if (usernameChanged) {
+        patchBody.username = username.toLowerCase();
+      }
+      if (bioChanged) {
+        patchBody.bio = bio.trim() || null;
+      }
+
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username.toLowerCase() }),
+        body: JSON.stringify(patchBody),
       });
+
       if (!res.ok) {
         const data = await res.json();
-        setSaveError(data.error || "Failed to save username");
+        setSaveError(data.error || "Failed to save profile");
       } else {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
       }
     } catch {
-      setSaveError("Failed to save username");
+      setSaveError("Failed to save profile");
     } finally {
       setSaving(false);
     }
@@ -140,6 +253,14 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
     }
   }
 
+  // Bio character counter color
+  const bioCounterColor =
+    bio.length >= 160
+      ? "text-red-500"
+      : bio.length >= 140
+        ? "text-orange-500"
+        : "text-on-surface-variant";
+
   return (
     <div className="space-y-8">
       {/* Section: Profile Information */}
@@ -154,6 +275,103 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
             </p>
           </div>
           <div className="flex-1 space-y-6">
+            {/* Avatar */}
+            <div className="flex flex-col items-center sm:items-start gap-3">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="relative w-24 h-24 rounded-full overflow-hidden cursor-pointer group focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                disabled={avatarUploading}
+              >
+                {avatarPreviewUrl ? (
+                  <img
+                    src={avatarPreviewUrl}
+                    alt="Avatar preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className={`w-full h-full flex items-center justify-center ${getInitialsColor(
+                      currentUsername,
+                      email
+                    )}`}
+                  >
+                    <span className="text-white text-2xl font-bold">
+                      {getInitials(currentUsername, email)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Upload spinner overlay */}
+                {avatarUploading && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+
+                {/* Hover overlay (only when not uploading and no preview) */}
+                {!avatarUploading && !avatarPreviewUrl && (
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center rounded-full">
+                    <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                      photo_camera
+                    </span>
+                  </div>
+                )}
+              </button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+
+              {/* Preview confirm/cancel buttons */}
+              {avatarPreviewUrl && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleAvatarConfirm}
+                    disabled={avatarUploading}
+                  >
+                    {avatarUploading ? "Uploading..." : "Confirm"}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={handleAvatarCancel}
+                    disabled={avatarUploading}
+                    className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+
+              {/* Change photo label (when no preview) */}
+              {!avatarPreviewUrl && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer"
+                >
+                  Change photo
+                </button>
+              )}
+
+              {/* Error message */}
+              {avatarError && (
+                <p className="text-xs text-red-500">{avatarError}</p>
+              )}
+            </div>
+
             {/* Username */}
             <div className="space-y-2">
               <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
@@ -192,32 +410,30 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
                       Must be at least 3 characters
                     </p>
                   )}
-                {saveError && (
-                  <p className="text-xs text-red-500">{saveError}</p>
-                )}
-                {saveSuccess && (
-                  <p className="text-xs text-green-600">Username saved!</p>
-                )}
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleSaveUsername}
-                  disabled={
-                    saving ||
-                    checking ||
-                    username.length < 3 ||
-                    (availability !== null && !availability.available) ||
-                    username === currentUsername
-                  }
-                >
-                  {saving ? "Saving..." : "Save Username"}
-                </Button>
               </div>
             </div>
 
-            {/* TODO: Display Name editing — wire to /api/profile when backend supports it */}
+            {/* Bio */}
+            <div className="space-y-2">
+              <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
+                Bio
+              </label>
+              <textarea
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-on-surface focus:bg-white focus:border-black focus:ring-0 transition-all resize-none"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                maxLength={160}
+                rows={3}
+                placeholder="Tell us about your content..."
+              />
+              <div className="flex justify-end">
+                <span className={`text-xs ${bioCounterColor}`}>
+                  {bio.length}/160
+                </span>
+              </div>
+            </div>
+
+            {/* Email (read-only) */}
             <div className="space-y-2">
               <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
                 Email Address
@@ -229,6 +445,26 @@ export function SettingsForm({ email, displayName, currentUsername }: SettingsFo
               <p className="text-[10px] text-on-surface-variant/60 italic">
                 Email cannot be changed.
               </p>
+            </div>
+
+            {/* Save Profile button */}
+            <div className="min-h-[20px]">
+              {saveError && (
+                <p className="text-xs text-red-500">{saveError}</p>
+              )}
+              {saveSuccess && (
+                <p className="text-xs text-green-600">Profile saved!</p>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleSaveProfile}
+                disabled={!canSave}
+              >
+                {saving ? "Saving..." : "Save Profile"}
+              </Button>
             </div>
           </div>
         </div>

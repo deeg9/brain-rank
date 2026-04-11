@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
 import type { Job, JobStatus } from "@/lib/database.types";
+import { AvatarDisplay } from "./AvatarDisplay";
 
 const statusMap: Record<JobStatus, "queued" | "processing" | "complete" | "failed"> = {
   pending: "queued",
@@ -27,6 +28,14 @@ export default async function ProfilePage() {
     (user.user_metadata?.display_name as string) ||
     email.split("@")[0] ||
     "User";
+
+  // Fetch profile data
+  const { data: profileData } = await supabase
+    .from("profiles")
+    .select("username, avatar_url, bio")
+    .eq("id", user.id)
+    .single();
+  const profile = profileData as { username: string | null; avatar_url: string | null; bio: string | null } | null;
 
   // Compute member since from user created_at
   const createdAt = user.created_at ? new Date(user.created_at) : new Date();
@@ -73,17 +82,30 @@ export default async function ProfilePage() {
         <div className="flex flex-col md:flex-row items-center text-center md:text-left">
           <div className="relative">
             <div className="w-24 h-24 rounded-full p-1 neural-gradient">
-              <div className="w-full h-full rounded-full bg-surface flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-on-surface-variant">
-                  person
-                </span>
-              </div>
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <AvatarDisplay
+                  username={profile?.username ?? null}
+                  email={email}
+                />
+              )}
             </div>
           </div>
           <div className="md:ml-8 mt-4 md:mt-0">
             <h2 className="text-3xl font-headline font-bold text-on-surface">
               {displayName}
             </h2>
+            {profile?.username && (
+              <p className="text-gray-500 text-sm">@{profile.username}</p>
+            )}
+            {profile?.bio && (
+              <p className="text-gray-600 text-sm mt-2">{profile.bio}</p>
+            )}
             <p className="text-on-surface-variant mt-1">{email}</p>
             <p className="text-on-surface-variant text-xs mt-2">
               Member since {memberSince}

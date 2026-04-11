@@ -21,7 +21,7 @@ export default async function SettingsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("username")
+    .select("username, avatar_url, bio")
     .eq("id", user.id)
     .single();
 
@@ -39,7 +39,10 @@ export default async function SettingsPage() {
       <SettingsForm
         email={email}
         displayName={displayName}
-        currentUsername={profile?.username ?? null}
+        currentUsername={(profile as Record<string, unknown> | null)?.username as string | null ?? null}
+        currentAvatarUrl={(profile as Record<string, unknown> | null)?.avatar_url as string | null ?? null}
+        currentBio={(profile as Record<string, unknown> | null)?.bio as string | null ?? null}
+        userId={user.id}
       />
     </div>
   );
