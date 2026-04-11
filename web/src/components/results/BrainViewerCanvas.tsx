@@ -3,12 +3,10 @@
 import { useRef, useImperativeHandle, forwardRef } from 'react';
 import { useGLTF, OrbitControls, Center } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { BrainRegionMesh } from './BrainRegionMesh';
 import { BrainHeatmapMesh } from './BrainHeatmapMesh';
-import { REGION_COLORS } from './brain-utils';
+import { BrainNetworkMesh } from './BrainNetworkMesh';
 import type { SegmentRegionScores } from './brain-utils';
 import type { ColormapName } from '@/lib/colormap';
-import type * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 interface BrainViewerCanvasProps {
@@ -27,14 +25,9 @@ export interface BrainViewerCanvasHandle {
   resetView: () => void;
 }
 
-const REGION_NAMES = ['attention', 'reward', 'emotional_processing', 'social_cognition'] as const;
-
-type GLTFNodes = Record<string, THREE.Mesh>;
-
 export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewerCanvasProps>(
   function BrainViewerCanvas({ regionScores, visibleRegions, viewMode, colormap, vertexData }, ref) {
     const controlsRef = useRef<OrbitControlsImpl>(null);
-    const { nodes } = useGLTF('/models/brain-fsaverage5.glb') as unknown as { nodes: GLTFNodes };
 
     useImperativeHandle(ref, () => ({
       viewFront: () => {
@@ -81,30 +74,7 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
             {viewMode === 'heatmap' && vertexData ? (
               <BrainHeatmapMesh vertexData={vertexData} colormap={colormap} />
             ) : (
-              <>
-                {REGION_NAMES.map((name) => {
-                  const node = nodes[name];
-                  if (!node?.geometry) return null;
-                  if (!visibleRegions[name]) return null;
-                  const score = regionScores?.[name] ?? 0;
-                  return (
-                    <BrainRegionMesh
-                      key={name}
-                      geometry={node.geometry}
-                      score={score}
-                      color={REGION_COLORS[name]}
-                    />
-                  );
-                })}
-                {nodes.base?.geometry && (
-                  <BrainRegionMesh
-                    geometry={nodes.base.geometry}
-                    score={0}
-                    color="#1a1a2e"
-                    isBase
-                  />
-                )}
-              </>
+              <BrainNetworkMesh regionScores={regionScores} visibleRegions={visibleRegions} />
             )}
           </group>
         </Center>
@@ -135,5 +105,4 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
   }
 );
 
-useGLTF.preload('/models/brain-fsaverage5.glb');
 useGLTF.preload('/models/brain-fsaverage5-unified.glb');
