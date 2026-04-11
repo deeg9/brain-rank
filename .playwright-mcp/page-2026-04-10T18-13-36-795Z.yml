@@ -1,0 +1,117 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "settings" [ref=e11] [cursor=pointer]:
+        - /url: /settings
+        - generic [ref=e12]: settings
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: User
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - link "arrow_back_ios Back" [ref=e44] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e45]: arrow_back_ios
+            - generic [ref=e46]: Back
+          - heading "fdfbf939-830c-419f-9eed-a90f8fb07b68.MP4" [level=2] [ref=e47]
+        - button "download Export JSON" [ref=e48]:
+          - generic [ref=e49]: download
+          - text: Export JSON
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - button "Play" [ref=e57]:
+            - generic [ref=e58]: play_arrow
+          - button "Mute" [ref=e59]:
+            - generic [ref=e60]: volume_up
+          - generic [ref=e61]: 00:00 / 00:41
+        - generic [ref=e63]:
+          - button "0.5x" [ref=e64]
+          - button "1x" [ref=e65]
+          - button "1.5x" [ref=e66]
+          - button "2x" [ref=e67]
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]: psychology
+            - heading "Neural Activation Timeline" [level=3] [ref=e72]
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: Attention
+              - application [ref=e79] [cursor=pointer]:
+                - generic [ref=e89]:
+                  - generic [ref=e91]: "50"
+                  - generic [ref=e93]: "100"
+            - generic [ref=e94]:
+              - generic [ref=e95]: Reward
+              - application [ref=e99] [cursor=pointer]:
+                - generic [ref=e109]:
+                  - generic [ref=e111]: "50"
+                  - generic [ref=e113]: "100"
+            - generic [ref=e114]:
+              - generic [ref=e115]: Emotional Processing
+              - application [ref=e119] [cursor=pointer]:
+                - generic [ref=e129]:
+                  - generic [ref=e131]: "50"
+                  - generic [ref=e133]: "100"
+            - generic [ref=e134]:
+              - generic [ref=e135]: Social Cognition
+              - application [ref=e139] [cursor=pointer]:
+                - generic [ref=e148]:
+                  - generic [ref=e149]:
+                    - generic [ref=e151]: 00:00
+                    - generic [ref=e153]: 00:15
+                    - generic [ref=e155]: 00:30
+                    - generic [ref=e157]: 00:42
+                  - generic [ref=e158]:
+                    - generic [ref=e160]: "0"
+                    - generic [ref=e162]: "50"
+                    - generic [ref=e164]: "100"
+          - generic [ref=e166]: Zones
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - generic [ref=e171]:
+              - generic [ref=e172]: neurology
+              - heading "Neural Activation Map" [level=3] [ref=e173]
+            - generic [ref=e174]:
+              - button "face Front" [ref=e175]:
+                - generic [ref=e176]: face
+                - text: Front
+              - button "vertical_align_top Top" [active] [ref=e177]:
+                - generic [ref=e178]: vertical_align_top
+                - text: Top
+              - button "chevron_left Left" [ref=e179]:
+                - generic [ref=e180]: chevron_left
+                - text: Left
+              - button "chevron_right Right" [ref=e181]:
+                - generic [ref=e182]: chevron_right
+                - text: Right
+          - generic [ref=e187]:
+            - button "Attention 43" [ref=e188]:
+              - generic [ref=e190]: Attention
+              - generic [ref=e191]: "43"
+            - button "Reward 36" [ref=e192]:
+              - generic [ref=e194]: Reward
+              - generic [ref=e195]: "36"
+            - button "Emotional 41" [ref=e196]:
+              - generic [ref=e198]: Emotional
+              - generic [ref=e199]: "41"
+            - button "Social 44" [ref=e200]:
+              - generic [ref=e202]: Social
+              - generic [ref=e203]: "44"
+  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]:
+    - img [ref=e38]
+  - alert [ref=e41]
+  - generic [ref=e204]: 00:00
