@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button, Card, StatusBadge } from "@/components/ui";
 import { AnalysisSearch } from "./AnalysisSearch";
+import { VideoThumb } from "./VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -18,11 +19,6 @@ function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "f
   }
 }
 
-const VIDEO_THUMBS = [
-  "/illustrations/thumb-neural-flow.png",
-  "/illustrations/thumb-social-hook.png",
-  "/illustrations/thumb-editorial-cut.png",
-];
 
 function extractFilename(videoUrl: string): string {
   try {
@@ -148,18 +144,13 @@ export default async function DashboardPage() {
             {jobList.map((job: Job, index: number) => {
               const filename = extractFilename(job.video_url);
               const score = extractScore(job.results);
-              const thumb = VIDEO_THUMBS[index % VIDEO_THUMBS.length];
 
               return (
                 <Card key={job.id} hover className="overflow-hidden group">
                   <div className="flex flex-col md:flex-row">
                     {/* Video thumbnail */}
                     <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-surface-container-lowest">
-                      <img
-                        src={thumb}
-                        alt={filename}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+                      <VideoThumb src={job.video_url} alt={filename} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <span className="material-symbols-outlined absolute bottom-3 right-3 text-on-surface opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         download
