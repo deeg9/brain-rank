@@ -59,8 +59,9 @@ export function applyColormapFromLUT(
   const INV_255 = 0.00392156862745098; // 1/255, avoids division per iteration
 
   for (let i = 0; i < values.length; i++) {
-    // Fast Math.round: (v * 255 + 0.5) | 0
-    const idx = ((values[i] * 255 + 0.5) | 0) * 4;
+    // Fast Math.round: (v * 255 + 0.5) | 0, clamped to [0, 255] for safety
+    const lutIdx = Math.min(255, Math.max(0, (values[i] * 255 + 0.5) | 0));
+    const idx = lutIdx * 4;
     const out = i * 3;
     target[out] = lutData[idx] * INV_255;
     target[out + 1] = lutData[idx + 1] * INV_255;
