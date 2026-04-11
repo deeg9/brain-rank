@@ -6,20 +6,18 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { VERTEX_COUNT } from '@/lib/vertex-codec';
 import { buildColormapLUT, applyColormapFromLUT } from '@/lib/colormap';
-import type { ColormapName } from '@/lib/colormap';
 
-interface BrainHeatmapMeshProps {
+interface BrainGlowMeshProps {
   vertexData: Float32Array; // 20,484 normalized values from decodeVertexData
-  colormap: ColormapName;
 }
 
 type GLTFNodes = Record<string, THREE.Mesh>;
 
-export function BrainHeatmapMesh({ vertexData, colormap }: BrainHeatmapMeshProps) {
+export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
-  // Build 256-entry LUT once per colormap change (not per vertex)
-  const lutData = useMemo(() => buildColormapLUT(colormap), [colormap]);
+  // Build 256-entry LUT once (hardcoded plasma colormap)
+  const lutData = useMemo(() => buildColormapLUT('plasma'), []);
 
   // Pre-allocate color buffer (never allocate in render loop)
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
