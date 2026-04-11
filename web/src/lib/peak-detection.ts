@@ -6,6 +6,11 @@ export const REGION_LABELS: Record<keyof SegmentRegionScores, string> = {
   reward: 'Reward',
   emotional_processing: 'Emotional Processing',
   social_cognition: 'Social Cognition',
+  visual_processing: 'Visual Processing',
+  auditory_processing: 'Auditory Processing',
+  language_narrative: 'Language & Narrative',
+  default_mode: 'Default Mode',
+  motion_processing: 'Motion Processing',
 } as const;
 
 /** Default activation threshold -- segments below this are not considered peaks. */

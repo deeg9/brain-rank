@@ -8,8 +8,8 @@ interface VideoFrameCallbackMetadata {
 }
 
 interface HTMLVideoElement {
-  requestVideoFrameCallback(
+  requestVideoFrameCallback?(
     callback: (now: DOMHighResTimeStamp, metadata: VideoFrameCallbackMetadata) => void
   ): number;
-  cancelVideoFrameCallback(handle: number): void;
+  cancelVideoFrameCallback?(handle: number): void;
 }

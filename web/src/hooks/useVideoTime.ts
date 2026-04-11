@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
  * The callback receives the current media time in seconds.
  */
 export function useVideoTime(
-  videoRef: React.RefObject<HTMLVideoElement | null>,
+  videoRef: React.MutableRefObject<HTMLVideoElement | null>,
   onTimeUpdate: (time: number) => void,
 ) {
   const callbackRef = useRef(onTimeUpdate);
@@ -21,13 +21,13 @@ export function useVideoTime(
     let handle: number;
     let rafId: number;
 
-    if ('requestVideoFrameCallback' in video) {
+    if ('requestVideoFrameCallback' in video && video.requestVideoFrameCallback) {
       const tick = (_now: number, metadata: VideoFrameCallbackMetadata) => {
         callbackRef.current(metadata.mediaTime);
-        handle = (video as HTMLVideoElement).requestVideoFrameCallback(tick);
+        handle = video.requestVideoFrameCallback!(tick);
       };
-      handle = (video as HTMLVideoElement).requestVideoFrameCallback(tick);
-      return () => (video as HTMLVideoElement).cancelVideoFrameCallback(handle);
+      handle = video.requestVideoFrameCallback(tick);
+      return () => video.cancelVideoFrameCallback!(handle);
     } else {
       let onPlay: (() => void) | null = null;
       const tick = () => {
@@ -63,14 +63,14 @@ export function setupVideoTimeSync(
   video: HTMLVideoElement,
   onTimeUpdate: (time: number) => void,
 ): () => void {
-  if ('requestVideoFrameCallback' in video) {
+  if ('requestVideoFrameCallback' in video && video.requestVideoFrameCallback) {
     let handle: number;
     const tick = (_now: number, metadata: VideoFrameCallbackMetadata) => {
       onTimeUpdate(metadata.mediaTime);
-      handle = (video as HTMLVideoElement).requestVideoFrameCallback(tick);
+      handle = video.requestVideoFrameCallback!(tick);
     };
-    handle = (video as HTMLVideoElement).requestVideoFrameCallback(tick);
-    return () => (video as HTMLVideoElement).cancelVideoFrameCallback(handle);
+    handle = video.requestVideoFrameCallback(tick);
+    return () => video.cancelVideoFrameCallback!(handle);
   } else {
     let rafId: number;
     let onPlay: (() => void) | null = null;

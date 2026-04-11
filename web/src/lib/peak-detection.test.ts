@@ -19,6 +19,11 @@ function makeSegment(
       reward: 0.25,
       emotional_processing: 0.25,
       social_cognition: 0.25,
+      visual_processing: 0,
+      auditory_processing: 0,
+      language_narrative: 0,
+      default_mode: 0,
+      motion_processing: 0,
       ...regions,
     },
   };
