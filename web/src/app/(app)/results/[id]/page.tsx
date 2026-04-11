@@ -117,6 +117,8 @@ export default function ResultsDetailPage({ params }: Props) {
     }
   }, []);
 
+  const shouldRedirect = !loading && !error && job != null && (job.status !== "completed" || !job.results);
+
   useEffect(() => {
     async function fetchJob() {
       try {
@@ -138,6 +140,12 @@ export default function ResultsDetailPage({ params }: Props) {
     }
     fetchJob();
   }, [id]);
+
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.replace(`/processing?jobId=${id}`);
+    }
+  }, [shouldRedirect, router, id]);
 
   if (loading) {
     return (
@@ -186,14 +194,6 @@ export default function ResultsDetailPage({ params }: Props) {
   }
 
   if (!job) return null;
-
-  const shouldRedirect = job.status !== "completed" || !job.results;
-
-  useEffect(() => {
-    if (shouldRedirect) {
-      router.replace(`/processing?jobId=${id}`);
-    }
-  }, [shouldRedirect, router, id]);
 
   if (shouldRedirect) return null;
 
