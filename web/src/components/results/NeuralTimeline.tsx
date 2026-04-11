@@ -95,13 +95,11 @@ interface SingleTrackProps {
 function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, currentTime, onSeek }: SingleTrackProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-20 shrink-0 text-right">
-        <span
-          className="font-headline text-[9px] uppercase tracking-widest"
-          style={{ color: config.color }}
-        >
+      <div className="w-20 shrink-0 text-right flex items-center justify-end gap-1.5">
+        <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
           {config.label}
         </span>
+        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.color }} />
       </div>
 
       <div className="flex-1" style={{ height: 80 }}>
@@ -360,35 +358,6 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
         ))}
       </div>
 
-      {/* Zone Markers Bar */}
-      {zones && zones.length > 0 && (
-        <div className="flex items-center gap-2 mt-1">
-          <div className="w-20 shrink-0 text-right">
-            <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
-              Zones
-            </span>
-          </div>
-          <div className="flex-1 relative h-2 bg-surface-container-high rounded-full overflow-hidden">
-            {zones.map((zone, i) => {
-              const leftPct = (zone.startTime / duration) * 100;
-              const widthPct = ((zone.endTime - zone.startTime) / duration) * 100;
-              const bgColor =
-                zone.type === 'flow'
-                  ? 'bg-green-500/40'
-                  : zone.type === 'dropoff'
-                    ? 'bg-red-500/40'
-                    : 'bg-amber-500/20';
-              return (
-                <div
-                  key={`zone-${i}`}
-                  className={`absolute top-0 h-full ${bgColor} rounded-full`}
-                  style={{ left: `${leftPct}%`, width: `${Math.max(widthPct, 0.5)}%` }}
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

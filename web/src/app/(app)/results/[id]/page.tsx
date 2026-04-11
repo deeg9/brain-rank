@@ -326,7 +326,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       interpretation="Higher = stronger opening. Above 50% means your intro triggers both focus and reward circuits. Below 30% suggests a weak hook that may lose viewers."
                     />
                   </p>
-                  <p className="font-headline text-2xl font-bold text-secondary">
+                  <p className="font-headline text-2xl font-bold text-on-surface">
                     <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s activation</p>
@@ -341,7 +341,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       interpretation="Higher = viewers stay engaged. Compare to Hook Strength: if retention > hook, your content builds momentum. If lower, viewers may be dropping off."
                     />
                   </p>
-                  <p className="font-headline text-2xl font-bold text-tertiary-fixed">
+                  <p className="font-headline text-2xl font-bold text-on-surface">
                     <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">Last 10s activation</p>
@@ -356,7 +356,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       interpretation="This is your video's most neurally engaging moment. Use it as a thumbnail frame, clip highlight, or to understand what content type drives the strongest brain response."
                     />
                   </p>
-                  <p className="font-headline text-2xl font-bold text-primary">
+                  <p className="font-headline text-2xl font-bold text-on-surface">
                     <SlidingNumber value={summary.peak_second} suffix="s" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">{Math.round(summary.peak_score * 100)}% activation</p>
@@ -371,7 +371,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
                     />
                   </p>
-                  <p className="font-headline text-2xl font-bold text-secondary">
+                  <p className="font-headline text-2xl font-bold text-on-surface">
                     <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
@@ -386,7 +386,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
                     />
                   </p>
-                  <p className="font-headline text-2xl font-bold text-tertiary-fixed">
+                  <p className="font-headline text-2xl font-bold text-on-surface">
                     <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
                   </p>
                   <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional positivity</p>

@@ -295,7 +295,6 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
           </div>
         )}
       </div>
-      <NetworkLegend regions={regions} />
     </div>
   );
 }
