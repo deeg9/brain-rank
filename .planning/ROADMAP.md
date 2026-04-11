@@ -98,6 +98,11 @@ Plans:
 **Milestone Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform with user identities, public/private analysis sharing, a neural-score-ranked discovery feed, and social engagement features.
 
 - [ ] **Phase 44: Social Schema & Identity Foundation** - Database tables, username claiming, RLS policies for social features
+
+**Plans:** 2 plans
+Plans:
+- [ ] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
+- [ ] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
 - [ ] **Phase 45: Profile Customization** - Avatar upload, bio editing on user profiles
 - [ ] **Phase 46: Public Profile Pages** - Public profile at /u/username with stats and public analyses
 - [ ] **Phase 47: Privacy Controls & Sharing** - Public/private toggle on analyses, shareable links
