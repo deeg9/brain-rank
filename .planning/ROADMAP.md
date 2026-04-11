@@ -609,8 +609,8 @@ Plans:
   4. The brain viewer uses a single committed colormap (inferno or hot) with no user-selectable alternatives
 **Plans:** 2 plans
 Plans:
-- [x] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [x] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [ ] 41-01-PLAN.md — Threshold glow with smoothstep blending, inferno colormap, emissive intensity
+- [ ] 41-02-PLAN.md — Static ActivationLegend component with inferno gradient bar
 **UI hint**: yes
 
 ### Phase 42: Smooth Transitions
