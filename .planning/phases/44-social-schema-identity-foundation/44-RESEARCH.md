@@ -408,17 +408,11 @@ export interface Profile {
 | A1 | Supabase supports citext extension out of the box | Architecture Patterns | LOW -- citext is a core PostgreSQL extension, unlikely to be disabled. Can verify by running CREATE EXTENSION in SQL editor |
 | A2 | PostgreSQL error code 23505 is returned for unique constraint violations via Supabase client | Code Examples | LOW -- this is standard PostgreSQL. If Supabase wraps it differently, the error.code field may differ |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Existing user backfill**
-   - What we know: The trigger only fires on new signups. Existing users need profile rows.
-   - What's unclear: How many existing users are in the database.
-   - Recommendation: Include backfill INSERT in the migration (safe with ON CONFLICT DO NOTHING).
+1. **Existing user backfill** — RESOLVED: Backfill INSERT included in migration (`INSERT INTO profiles (id) SELECT id FROM auth.users ON CONFLICT (id) DO NOTHING`). Safe regardless of user count.
 
-2. **Anonymous access to public jobs**
-   - What we know: RLS policy `USING (is_public = true)` will work for authenticated users. For truly anonymous access, the Supabase anon key must be used.
-   - What's unclear: Whether the current Supabase RLS setup allows anon-key queries on jobs.
-   - Recommendation: Test with anon key after applying migration. The policy should work since it doesn't reference auth.uid().
+2. **Anonymous access to public jobs** — RESOLVED: RLS policy `USING (is_public = true)` does not reference `auth.uid()`, so it works for anon-key queries. Manual verification after migration is recommended but not blocking.
 
 ## Sources
 
