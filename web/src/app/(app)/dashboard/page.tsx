@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button, Card, StatusBadge } from "@/components/ui";
+import { AnalysisSearch } from "./AnalysisSearch";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -59,6 +60,13 @@ function computeAvgScore(jobs: Job[]): string {
   return String(Math.round(scores.reduce((a, b) => a + b, 0) / scores.length));
 }
 
+function getFirstName(user: { user_metadata?: { full_name?: string; name?: string }; email?: string }): string {
+  const fullName = user.user_metadata?.full_name || user.user_metadata?.name;
+  if (fullName) return fullName.split(" ")[0];
+  if (user.email) return user.email.split("@")[0];
+  return "there";
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -79,19 +87,15 @@ export default async function DashboardPage() {
   const jobList = jobs ?? [];
   const hasJobs = jobList.length > 0;
   const avgScore = computeAvgScore(jobList);
+  const firstName = getFirstName(user);
 
   return (
     <div className="space-y-10">
-      {/* Header Section */}
+      {/* Welcome Header */}
       <section className="flex justify-between items-end">
-        <div>
-          <h1 className="font-headline text-4xl font-bold text-on-surface tracking-tight">
-            Analysis History
-          </h1>
-          <p className="text-on-surface-variant mt-2 text-lg">
-            Review your past neural analyses
-          </p>
-        </div>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface tracking-tight">
+          Welcome back, {firstName}!
+        </h1>
         <Link href="/upload">
           <Button variant="primary" size="md">
             <span className="material-symbols-outlined text-xl">add</span>
@@ -129,10 +133,16 @@ export default async function DashboardPage() {
       </section>
 
       {hasJobs ? (
-        /* Job Cards Grid */
+        /* Analysis History with Search */
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-headline text-xl font-bold">Recent Projects</h3>
+            <h3 className="font-headline text-xl font-bold">Analysis History</h3>
+            <div className="flex items-center gap-4">
+              <AnalysisSearch />
+              <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest font-bold">
+                {jobList.length} Total
+              </span>
+            </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {jobList.map((job: Job, index: number) => {

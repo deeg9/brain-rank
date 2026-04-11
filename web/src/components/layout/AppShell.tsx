@@ -1,4 +1,3 @@
-import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 
 interface AppShellProps {
@@ -15,9 +14,8 @@ interface AppShellProps {
 export function AppShell({ children, topBarProps }: AppShellProps) {
   return (
     <>
-      <Sidebar />
       <TopBar {...topBarProps} />
-      <main className="ml-64 pt-16 min-h-screen bg-surface p-8">
+      <main className="pt-16 min-h-screen bg-surface p-8">
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
     </>
