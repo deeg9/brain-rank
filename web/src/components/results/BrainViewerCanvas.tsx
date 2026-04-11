@@ -3,7 +3,10 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useGLTF, OrbitControls, Center } from '@react-three/drei';
 import { BrainGlowMesh } from './BrainGlowMesh';
+import { BrainRegionLabels } from './BrainRegionLabels';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import type { SegmentRegionScores } from '@/components/results/SegmentTable';
+import type { NetworkVertexMap } from './BrainViewer';
 
 interface BrainViewerCanvasProps {
   vertexDataA: Float32Array | null;
@@ -11,12 +14,14 @@ interface BrainViewerCanvasProps {
   blendFactor: number;
   regionColors: Float32Array | null;
   onHoverVertex?: (vertexIndex: number | null, clientX: number, clientY: number) => void;
+  vertexMap: NetworkVertexMap | null;
+  regions: SegmentRegionScores | null;
 }
 
 const IDLE_TIMEOUT_MS = 3000;
 const AUTO_ROTATE_SPEED = 0.5; // slow rotation (drei default is 2.0)
 
-export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, onHoverVertex }: BrainViewerCanvasProps) {
+export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, onHoverVertex, vertexMap, regions }: BrainViewerCanvasProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const [isIdle, setIsIdle] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -54,6 +59,9 @@ export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regio
           ) : regionColors ? (
             <BrainGlowMesh regionColors={regionColors} onHoverVertex={onHoverVertex} />
           ) : null}
+          {vertexMap && (
+            <BrainRegionLabels vertexMap={vertexMap} regions={regions} />
+          )}
         </group>
       </Center>
 

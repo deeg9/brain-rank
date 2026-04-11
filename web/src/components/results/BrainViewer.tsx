@@ -221,6 +221,8 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
               blendFactor={blendFactor}
               regionColors={regionColors}
               onHoverVertex={handleHoverVertex}
+              vertexMap={vertexMap}
+              regions={regions}
             />
           </Suspense>
         </Canvas>
