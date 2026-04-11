@@ -4,9 +4,9 @@ import React, { Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import { ActivationLegend } from './ActivationLegend';
-import { getAdjacentSegments } from './brain-utils';
+import { getAdjacentSegments, getRegionsAtTime } from './brain-utils';
 import type { SegmentData } from '@/components/results/SegmentTable';
-import { decodeVertexData } from '@/lib/vertex-codec';
+import { decodeVertexData, VERTEX_COUNT } from '@/lib/vertex-codec';
 
 interface BrainViewerProps {
   segments: SegmentData[];
@@ -14,18 +14,37 @@ interface BrainViewerProps {
   currentTime: number; // React state (~4Hz) — drives vertex data updates at segment boundaries
 }
 
+/**
+ * Generate a uniform activation array from region scores when per-vertex
+ * data is not available. Uses the average of all region scores so the
+ * brain still lights up proportionally.
+ */
+function syntheticVertexData(segments: SegmentData[], time: number): Float32Array | null {
+  const regions = getRegionsAtTime(segments, time);
+  if (!regions) return null;
+  const values = Object.values(regions) as number[];
+  const avg = values.reduce((s, v) => s + v, 0) / values.length;
+  const arr = new Float32Array(VERTEX_COUNT);
+  arr.fill(avg);
+  return arr;
+}
+
 export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   // Get current + next segment vertex data and blend factor for smooth transitions
   const adjacent = getAdjacentSegments(segments, currentTime);
+  const hasVertexData = !!adjacent;
 
   const vertexDataA = useMemo(() => {
-    if (!adjacent) return null;
-    try {
-      return decodeVertexData(adjacent.currentVertexData);
-    } catch {
-      return null;
+    if (adjacent) {
+      try {
+        return decodeVertexData(adjacent.currentVertexData);
+      } catch {
+        return null;
+      }
     }
-  }, [adjacent?.currentVertexData]);
+    // Fallback: generate uniform activation from region scores
+    return syntheticVertexData(segments, currentTime);
+  }, [adjacent?.currentVertexData, hasVertexData, segments, currentTime]);
 
   const vertexDataB = useMemo(() => {
     if (!adjacent?.nextVertexData) return null;
