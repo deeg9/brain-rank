@@ -31,6 +31,40 @@ export async function POST(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
+    // Handle cancel action
+    let body: Record<string, unknown> = {}
+    try {
+      body = await _request.json()
+    } catch {
+      // No body or invalid JSON — treat as retry
+    }
+
+    if (body.action === 'cancel') {
+      // Cancel the RunPod job if possible
+      const apiKey = process.env.RUNPOD_API_KEY
+      const endpointId = process.env.RUNPOD_ENDPOINT_ID
+      if (apiKey && endpointId && (job as Record<string, unknown>).runpod_id) {
+        try {
+          await fetch(
+            `https://api.runpod.ai/v2/${endpointId}/cancel/${(job as Record<string, unknown>).runpod_id}`,
+            {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${apiKey}` },
+            }
+          )
+        } catch {
+          // Best effort — continue with local cancel even if RunPod cancel fails
+        }
+      }
+
+      await supabase
+        .from('jobs')
+        .update({ status: 'failed', error_message: 'Cancelled by user' } as Record<string, unknown>)
+        .eq('id', id)
+
+      return NextResponse.json({ cancelled: true }, { status: 200 })
+    }
+
     // Only allow retry on failed jobs
     if ((job as Record<string, unknown>).status !== 'failed') {
       return NextResponse.json({ error: 'Job is not in failed state' }, { status: 400 })

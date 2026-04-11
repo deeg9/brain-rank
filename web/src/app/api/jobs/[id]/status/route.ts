@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { JobStatusResponse, JobStage } from '@/lib/jobs'
-import { getStageProgress } from '@/lib/jobs'
 
-function mapStatusToStage(status: string, runpodId: string | null): JobStage {
-  switch (status) {
-    case 'pending':
-      return runpodId ? 'uploading' : 'uploading'
-    case 'processing':
-      return 'encoding_video'
-    case 'completed':
-      return 'complete'
-    case 'failed':
-      return 'failed'
-    default:
-      return 'uploading'
-  }
+function mapToStage(dbStatus: string, runpodStatus: string | null): JobStage {
+  if (dbStatus === 'completed') return 'complete'
+  if (dbStatus === 'failed') return 'failed'
+  // If RunPod says IN_PROGRESS, it's actively processing on GPU
+  if (runpodStatus === 'IN_PROGRESS') return 'processing'
+  // Otherwise it's queued (pending, IN_QUEUE, or no RunPod status yet)
+  return 'queued'
 }
 
 function extractFilename(videoUrl: string): string {
@@ -55,9 +48,22 @@ export async function GET(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
-    // If job is still processing and has a RunPod ID, check RunPod for updates
-    let resolvedStatus = job.status
-    if (job.status === 'processing' && job.runpod_id) {
+    // If already terminal, return immediately
+    if (job.status === 'completed' || job.status === 'failed') {
+      const stage = mapToStage(job.status, null)
+      const response: JobStatusResponse = {
+        id: job.id,
+        status: job.status,
+        stage,
+        error_message: job.error_message,
+        video_filename: extractFilename(job.video_url),
+      }
+      return NextResponse.json(response)
+    }
+
+    // Poll RunPod for real status
+    let runpodStatus: string | null = null
+    if (job.runpod_id) {
       const apiKey = process.env.RUNPOD_API_KEY
       const endpointId = process.env.RUNPOD_ENDPOINT_ID
 
@@ -70,47 +76,58 @@ export async function GET(
 
           if (res.ok) {
             const runpodData = await res.json()
+            runpodStatus = runpodData.status
 
             if (runpodData.status === 'COMPLETED' && runpodData.output) {
-              // Update Supabase with results
               await supabase
                 .from('jobs')
                 .update({ status: 'completed', results: runpodData.output })
                 .eq('id', id)
-              resolvedStatus = 'completed'
+
+              const response: JobStatusResponse = {
+                id: job.id,
+                status: 'completed',
+                stage: 'complete',
+                error_message: null,
+                video_filename: extractFilename(job.video_url),
+              }
+              return NextResponse.json(response)
             } else if (
               runpodData.status === 'FAILED' ||
               runpodData.status === 'CANCELLED' ||
               runpodData.status === 'TIMED_OUT'
             ) {
+              const errorMsg = runpodData.error || 'Inference failed'
               await supabase
                 .from('jobs')
-                .update({
-                  status: 'failed',
-                  error_message: runpodData.error || 'Inference failed',
-                })
+                .update({ status: 'failed', error_message: errorMsg })
                 .eq('id', id)
-              resolvedStatus = 'failed'
+
+              const response: JobStatusResponse = {
+                id: job.id,
+                status: 'failed',
+                stage: 'failed',
+                error_message: errorMsg,
+                video_filename: extractFilename(job.video_url),
+              }
+              return NextResponse.json(response)
             }
-            // IN_QUEUE / IN_PROGRESS → keep as processing
+            // IN_QUEUE or IN_PROGRESS — fall through
           }
         } catch {
-          // RunPod unreachable — return current status, don't block
+          // RunPod unreachable — return current status
         }
       }
     }
 
-    const stage = mapStatusToStage(resolvedStatus, job.runpod_id)
-
+    const stage = mapToStage(job.status, runpodStatus)
     const response: JobStatusResponse = {
       id: job.id,
-      status: resolvedStatus,
+      status: job.status,
       stage,
-      progress: getStageProgress(stage),
       error_message: job.error_message,
       video_filename: extractFilename(job.video_url),
     }
-
     return NextResponse.json(response)
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

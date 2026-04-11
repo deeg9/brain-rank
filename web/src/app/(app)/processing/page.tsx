@@ -7,9 +7,8 @@ import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import {
   fetchJobStatus,
-  retryJob,
+  cancelJob,
   STAGES,
-  getStageProgress,
   getStageIndex,
   type JobStatusResponse,
   type JobStage,
@@ -36,13 +35,13 @@ function StageItem({
         <div className="relative">
           {isCompleted ? (
             <motion.div
-              className="w-8 h-8 rounded-full bg-tertiary-fixed/20 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-tertiary-fixed/20 flex items-center justify-center"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", damping: 12, stiffness: 200 }}
             >
               <motion.span
-                className="material-symbols-outlined text-tertiary-fixed text-base"
+                className="material-symbols-outlined text-tertiary-fixed text-lg"
                 initial={{ scale: 0, rotate: -90 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 10, stiffness: 150, delay: 0.1 }}
@@ -52,9 +51,9 @@ function StageItem({
             </motion.div>
           ) : isActive ? (
             <div className="relative">
-              <div className="w-8 h-8 rounded-full border-2 border-secondary flex items-center justify-center animate-pulse">
+              <div className="w-10 h-10 rounded-full border-2 border-secondary flex items-center justify-center">
                 <span
-                  className="material-symbols-outlined text-secondary text-base"
+                  className="material-symbols-outlined text-secondary text-lg"
                   style={{ animation: "spin 1.5s linear infinite reverse" }}
                 >
                   sync
@@ -63,22 +62,22 @@ function StageItem({
               <div className="absolute inset-0 rounded-full border-2 border-secondary/40 animate-ping" />
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-full border border-outline-variant/30 flex items-center justify-center opacity-30">
-              <span className="material-symbols-outlined text-on-surface-variant text-base">
+            <div className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center opacity-30">
+              <span className="material-symbols-outlined text-on-surface-variant text-lg">
                 {stage.icon}
               </span>
             </div>
           )}
         </div>
         <span className={cn(
-          "text-[10px] font-medium text-center leading-tight max-w-[80px]",
+          "text-xs font-medium text-center leading-tight max-w-[100px]",
           isCompleted ? "text-tertiary-fixed" : isActive ? "text-secondary" : "text-on-surface-variant/30"
         )}>
           {stage.label}
         </span>
       </div>
       {!isLast && (
-        <div className="flex-1 h-0.5 mx-2 bg-outline-variant/20 rounded-full relative self-start mt-4 min-w-[20px]">
+        <div className="flex-1 h-0.5 mx-3 bg-outline-variant/20 rounded-full relative self-start mt-5 min-w-[30px]">
           {isCompleted && (
             <motion.div
               className="absolute inset-0 neural-gradient rounded-full"
@@ -102,7 +101,7 @@ function ProcessingContent() {
 
   const [status, setStatus] = useState<JobStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [retrying, setRetrying] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const poll = useCallback(async () => {
     if (!jobId) return;
@@ -126,18 +125,15 @@ function ProcessingContent() {
     return () => clearInterval(interval);
   }, [jobId, poll]);
 
-  const handleRetry = async () => {
+  const handleCancel = async () => {
     if (!jobId) return;
-    setRetrying(true);
+    setCancelling(true);
     try {
-      await retryJob(jobId);
-      setError(null);
-      setStatus(null);
-      poll();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Retry failed");
-    } finally {
-      setRetrying(false);
+      await cancelJob(jobId);
+      router.push("/dashboard");
+    } catch {
+      // If cancel fails, just go to dashboard anyway
+      router.push("/dashboard");
     }
   };
 
@@ -162,11 +158,16 @@ function ProcessingContent() {
   }
 
   /* Derived state */
-  const currentStage: JobStage = status?.stage ?? "uploading";
+  const currentStage: JobStage = status?.stage ?? "queued";
   const isFailed = status?.status === "failed" || currentStage === "failed";
   const currentStageIndex = isFailed ? -1 : getStageIndex(currentStage);
-  const progress = status ? getStageProgress(currentStage) : 0;
   const filename = status?.video_filename ?? "Loading...";
+
+  const stageMessage = currentStage === "queued"
+    ? "Waiting for available GPU..."
+    : currentStage === "processing"
+      ? "Running brain activation model..."
+      : "Initializing...";
 
   /* --- Error / Failed state --- */
   if (isFailed || (error && !status)) {
@@ -195,17 +196,13 @@ function ProcessingContent() {
               </h3>
               <p className="text-on-surface-variant text-sm">
                 The neural engine encountered an error processing your video.
-                You can retry the analysis or go back to the dashboard.
+                You can retry or go back to the dashboard.
               </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <Button
-              variant="primary"
-              onClick={handleRetry}
-              loading={retrying}
-            >
-              Retry Analysis
+            <Button variant="primary" onClick={() => router.push("/upload")}>
+              Try Again
             </Button>
             <Button variant="ghost" onClick={() => router.push("/dashboard")}>
               Back to Dashboard
@@ -255,63 +252,29 @@ function ProcessingContent() {
       </div>
 
       {/* Processing Panel */}
-      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-6 relative overflow-hidden glow-primary">
-        {/* File info + progress percentage */}
-        <div className="flex justify-between items-center relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-surface-container-highest rounded-lg">
-              <span className="material-symbols-outlined text-primary">
-                movie
-              </span>
-            </div>
-            <div>
-              <div className="text-on-surface font-semibold">{filename}</div>
-              <div className="text-xs text-on-surface-variant font-mono uppercase">
-                VIDEO FILE
-              </div>
-            </div>
+      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-8 relative overflow-hidden glow-primary">
+        {/* File info */}
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="p-2 bg-surface-container-highest rounded-lg">
+            <span className="material-symbols-outlined text-primary">
+              movie
+            </span>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-headline font-bold text-on-surface">
-              {progress}%
+          <div>
+            <div className="text-on-surface font-semibold">{filename}</div>
+            <div className="text-xs text-on-surface-variant font-mono uppercase">
+              VIDEO FILE
             </div>
           </div>
         </div>
 
         {/* Wave Animation */}
-        <div className="flex justify-center">
-          <WaveLoader message={
-            currentStage === "uploading" ? "Uploading to cloud storage..." :
-            currentStage === "analyzing_audio" ? "Extracting audio features..." :
-            currentStage === "encoding_video" ? "Processing video frames..." :
-            currentStage === "predicting" ? "Running brain activation model..." :
-            "Analyzing neural patterns..."
-          } />
-        </div>
-
-        {/* Progress Bar */}
-        <div className="h-4 w-full bg-surface-container-lowest rounded-full overflow-hidden p-1">
-          <motion.div
-            className="h-full neural-gradient rounded-full relative overflow-hidden"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ type: "spring", damping: 10, stiffness: 100, mass: 0.75 }}
-            style={{
-              boxShadow: `0 0 ${12 + progress * 0.2}px -2px rgba(186,158,255,${0.3 + progress * 0.004})`,
-            }}
-          >
-            <div
-              className="absolute inset-0 animate-shimmer"
-              style={{
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-                width: "50%",
-              }}
-            />
-          </motion.div>
+        <div className="flex justify-center py-4">
+          <WaveLoader message={stageMessage} />
         </div>
 
         {/* Stage Stepper */}
-        <div className="flex items-start mt-8 pt-6 border-t border-outline-variant/10">
+        <div className="flex items-start justify-center gap-4 pt-4 border-t border-outline-variant/10">
           {STAGES.map((stage, i) => (
             <StageItem
               key={stage.key}
@@ -324,24 +287,16 @@ function ProcessingContent() {
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex items-center justify-between py-6">
+      {/* Cancel */}
+      <div className="flex justify-center py-4">
         <button
-          onClick={() => router.push("/dashboard")}
-          className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors font-medium text-sm"
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="flex items-center gap-2 text-on-surface-variant hover:text-error transition-colors font-medium text-sm disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-lg">close</span>
-          <span>Cancel Analysis</span>
+          <span>{cancelling ? "Cancelling..." : "Cancel Analysis"}</span>
         </button>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-on-surface-variant font-medium">
-            Page auto-refreshes every 5s
-          </span>
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75 animate-ping" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-tertiary-fixed shadow-[0_0_6px_rgba(155,255,206,0.5)]" />
-          </span>
-        </div>
       </div>
     </div>
   );
