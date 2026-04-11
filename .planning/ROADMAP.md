@@ -621,9 +621,9 @@ Plans:
   1. When the video crosses a segment boundary, vertex activation values lerp smoothly over ~300ms instead of snapping instantly
   2. The brain auto-rotates slowly when the user has not touched OrbitControls for 3+ seconds
   3. Auto-rotation pauses immediately when the user grabs the brain and resumes after idle timeout
-**Plans:** 2 plans
-- [ ] 42-01-PLAN.md — Smooth vertex interpolation between 2-second segments (~300ms lerp)
-- [ ] 42-02-PLAN.md — Auto-rotation with 3s idle timeout, immediate pause on grab
+**Plans:** 2/2 plans complete
+- [x] 42-01-PLAN.md — Smooth vertex interpolation between 2-second segments (~300ms lerp)
+- [x] 42-02-PLAN.md — Auto-rotation with 3s idle timeout, immediate pause on grab
 
 **UI hint**: yes
 
@@ -695,5 +695,5 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 39. Performance Foundation | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 40. UI Subtraction & Consolidation | v3.0 | 1/1 | Complete    | 2026-04-11 |
 | 41. Threshold Glow & Legend | v3.0 | 2/2 | Complete    | 2026-04-11 |
-| 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
+| 42. Smooth Transitions | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 43. Timeline Peak Markers | v3.0 | 0/0 | Not started | - |
