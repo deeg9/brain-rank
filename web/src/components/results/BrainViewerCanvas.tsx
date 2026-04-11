@@ -6,10 +6,12 @@ import { BrainGlowMesh } from './BrainGlowMesh';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 
 interface BrainViewerCanvasProps {
-  vertexData: Float32Array | null;
+  vertexDataA: Float32Array | null;
+  vertexDataB: Float32Array | null;
+  blendFactor: number;
 }
 
-export function BrainViewerCanvas({ vertexData }: BrainViewerCanvasProps) {
+export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor }: BrainViewerCanvasProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   return (
@@ -21,7 +23,7 @@ export function BrainViewerCanvas({ vertexData }: BrainViewerCanvasProps) {
       <Center>
         {/* Rotate -90deg on X to convert neuroimaging Z-up to Three.js Y-up */}
         <group rotation={[-Math.PI / 2, 0, 0]}>
-          {vertexData && <BrainGlowMesh vertexData={vertexData} />}
+          {vertexDataA && <BrainGlowMesh vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} />}
         </group>
       </Center>
 

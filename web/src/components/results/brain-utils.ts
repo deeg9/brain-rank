@@ -48,6 +48,67 @@ export function getVertexDataAtTime(segments: SegmentData[], time: number): stri
   return closest.vertex_data ?? null;
 }
 
+/** Duration in seconds before a segment boundary where lerp blending begins. */
+const BLEND_WINDOW = 0.3;
+
+export interface AdjacentSegmentResult {
+  currentVertexData: string;       // base64 vertex_data for current segment
+  nextVertexData: string | null;   // base64 vertex_data for next segment (null if last or same segment)
+  blendFactor: number;             // 0.0 = fully current, 1.0 = fully next
+}
+
+/**
+ * Find the current and next segment vertex data at a given time, plus a blend
+ * factor that ramps from 0 to 1 over the last 300ms before a segment boundary.
+ * This enables smooth lerp transitions instead of hard snaps.
+ */
+export function getAdjacentSegments(
+  segments: SegmentData[],
+  time: number,
+): AdjacentSegmentResult | null {
+  if (segments.length === 0) return null;
+
+  // Find current segment index
+  let currentIdx = -1;
+  let closestIdx = 0;
+  let minDist = Infinity;
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+    if (time >= seg.start && time <= seg.end) {
+      currentIdx = i;
+      break;
+    }
+    const dist = Math.min(Math.abs(seg.start - time), Math.abs(seg.end - time));
+    if (dist < minDist) {
+      minDist = dist;
+      closestIdx = i;
+    }
+  }
+
+  if (currentIdx === -1) currentIdx = closestIdx;
+
+  const current = segments[currentIdx];
+  const currentVD = current.vertex_data;
+  if (!currentVD) return null;
+
+  // Check for next segment
+  const nextIdx = currentIdx + 1;
+  const next = nextIdx < segments.length ? segments[nextIdx] : null;
+  const nextVD = next?.vertex_data ?? null;
+
+  // Compute blend factor: ramp up in the last BLEND_WINDOW seconds of the current segment
+  let blendFactor = 0;
+  if (nextVD !== null) {
+    const blendStart = current.end - BLEND_WINDOW;
+    if (time >= blendStart && time <= current.end) {
+      blendFactor = Math.min(1, Math.max(0, (time - blendStart) / BLEND_WINDOW));
+    }
+  }
+
+  return { currentVertexData: currentVD, nextVertexData: nextVD, blendFactor };
+}
+
 /**
  * Canonical colors for each brain region, used by BrainViewer and BrainNetworkMesh.
  */

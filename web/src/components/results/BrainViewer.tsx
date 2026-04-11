@@ -4,7 +4,7 @@ import React, { Suspense, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import { ActivationLegend } from './ActivationLegend';
-import { getVertexDataAtTime } from './brain-utils';
+import { getAdjacentSegments } from './brain-utils';
 import type { SegmentData } from '@/components/results/SegmentTable';
 import { decodeVertexData } from '@/lib/vertex-codec';
 
@@ -15,16 +15,28 @@ interface BrainViewerProps {
 }
 
 export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
-  // Decode vertex data using React state time (~4Hz) so useMemo re-evaluates at segment boundaries
-  const vertexDataBase64 = getVertexDataAtTime(segments, currentTime);
-  const vertexData = useMemo(() => {
-    if (!vertexDataBase64) return null;
+  // Get current + next segment vertex data and blend factor for smooth transitions
+  const adjacent = getAdjacentSegments(segments, currentTime);
+
+  const vertexDataA = useMemo(() => {
+    if (!adjacent) return null;
     try {
-      return decodeVertexData(vertexDataBase64);
+      return decodeVertexData(adjacent.currentVertexData);
     } catch {
       return null;
     }
-  }, [vertexDataBase64]);
+  }, [adjacent?.currentVertexData]);
+
+  const vertexDataB = useMemo(() => {
+    if (!adjacent?.nextVertexData) return null;
+    try {
+      return decodeVertexData(adjacent.nextVertexData);
+    } catch {
+      return null;
+    }
+  }, [adjacent?.nextVertexData]);
+
+  const blendFactor = adjacent?.blendFactor ?? 0;
 
   return (
     <div className="bg-surface-container rounded-xl p-6 flex flex-col">
@@ -39,7 +51,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
           style={{ background: '#151520' }}
         >
           <Suspense fallback={null}>
-            <BrainViewerCanvas vertexData={vertexData} />
+            <BrainViewerCanvas vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} />
           </Suspense>
         </Canvas>
       </div>
