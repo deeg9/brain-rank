@@ -15,6 +15,7 @@ import { SlidingNumber } from "@/components/ui/SlidingNumber";
 import { BenchmarkCards } from "@/components/results/BenchmarkCards";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
+import { findPeaks } from "@/lib/peak-detection";
 import type { Job } from "@/lib/database.types";
 
 const NeuralTimeline = dynamic(
@@ -248,6 +249,8 @@ export default function ResultsDetailPage({ params }: Props) {
     })),
   ];
 
+  const peakMarkers = findPeaks(segments);
+
   const filename = extractFilename(job.video_url);
 
   return (
@@ -297,6 +300,7 @@ export default function ResultsDetailPage({ params }: Props) {
           currentTime={currentTime}
           onSeek={handleSeek}
           zones={zones}
+          peakMarkers={peakMarkers}
           iconMarkers={iconMarkers}
         />
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />

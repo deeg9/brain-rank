@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { type SegmentData, type SegmentRegionScores } from '@/components/results/SegmentTable';
 import { formatTimestamp } from '@/lib/results';
+import type { PeakMarker } from '@/lib/peak-detection';
 
 const TRACK_CONFIG = [
   { key: 'attention' as const, label: 'Attention', color: '#60a5fa', gradientId: 'gradient-attention' },
@@ -198,9 +199,10 @@ interface NeuralTimelineProps {
   onSeek?: (time: number) => void;
   zones?: ZoneMarker[];
   iconMarkers?: IconMarker[];
+  peakMarkers?: PeakMarker[];
 }
 
-export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers }: NeuralTimelineProps) {
+export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers, peakMarkers }: NeuralTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
 
@@ -285,6 +287,50 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
                 </span>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Peak Markers Row */}
+      {peakMarkers && peakMarkers.length > 0 && (
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-20 shrink-0 text-right">
+            <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
+              Peaks
+            </span>
+          </div>
+          <div className="flex-1 relative h-6 pointer-events-none">
+            {peakMarkers.map((marker) => (
+              <div
+                key={`peak-${marker.rank}`}
+                className="absolute top-1/2 pointer-events-auto group"
+                style={{
+                  left: `${(marker.time / duration) * 100}%`,
+                  transform: 'translateX(-50%) translateY(-50%)',
+                }}
+              >
+                {/* Diamond marker */}
+                <div
+                  className="w-2.5 h-2.5 rotate-45 transition-opacity"
+                  style={{
+                    backgroundColor: '#fbbf24',
+                    boxShadow: '0 0 6px rgba(251, 191, 36, 0.5)',
+                  }}
+                />
+                {/* Hover tooltip */}
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-surface-bright/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap pointer-events-none z-50">
+                  <p className="font-mono text-[10px] text-on-surface-variant">
+                    {formatTimestamp(marker.time)}
+                  </p>
+                  <p className="text-on-surface font-bold">
+                    Activation: {Math.round(marker.activationScore * 100)}%
+                  </p>
+                  <p className="text-on-surface-variant">
+                    Peak: {marker.dominantRegion}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
