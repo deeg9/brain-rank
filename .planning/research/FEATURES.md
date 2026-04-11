@@ -1,153 +1,214 @@
-# Feature Landscape: Brain Visualization UX Overhaul
+# Feature Research: Social Discovery Platform
 
-**Domain:** Brain activation visualization for content creators (modeled after Meta's TRIBE v2 demo)
-**Researched:** 2026-04-10
-**Overall confidence:** MEDIUM (Meta's interactive demo is a JS app that cannot be scraped; findings synthesized from blog posts, notebook code, Gradio demo descriptions, nilearn docs, and third-party writeups)
+**Domain:** Social content sharing + discovery/leaderboard for neural video analysis
+**Researched:** 2026-04-11
+**Confidence:** HIGH (well-established patterns; NeuroCut-specific domain is novel but features map to known social/leaderboard patterns)
 
-## How Meta Demos TRIBE v2 (Evidence-Based Findings)
+## Feature Landscape
 
-### Meta's Demo Architecture (Two Surfaces)
+### Table Stakes (Users Expect These)
 
-Meta provides two visualization surfaces for TRIBE v2:
+Features users assume exist once you add "public profiles" and "discovery." Missing these = broken social experience.
 
-1. **Colab Notebook Demo** (`tribe_demo.ipynb`) -- Uses `PlotBrain` class wrapping `nilearn.plotting.view_surf` with `pyvista` backend. Generates **one brain surface render per timestep** (1 TR = 1 second). Renders 15 frames for 15 seconds of video. Uses the fsaverage5 inflated mesh (~20,484 vertices). Output is a sequence of static brain heatmaps, NOT an animation.
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Unique usernames | Public identity requires a handle; email is private and must stay private | LOW | Add `username` column to profiles table with unique constraint. Real-time availability check on keystroke (debounced). Regex: `^[a-z0-9_]{3,20}$`. Existing users must set username before going public. |
+| Public profile page (`/@username`) | Anyone sharing content needs a viewable profile | MEDIUM | New public route outside `(app)` layout group. Shows username, avatar, stats (total analyses, avg score, best score), grid of public analyses. No auth required to view. Reuses existing profile card pattern. |
+| Public/private toggle on analyses | Privacy control is non-negotiable when making content shareable | LOW | Add `is_public` boolean (default `false`) to `jobs` table. Toggle on results page and dashboard list item. Update RLS: public jobs readable by anyone, private only by owner. Default private = privacy-first. |
+| Discovery/browse page | Core feature of a "platform" -- users need to find public content | MEDIUM | `/discover` route. Paginated grid of public analyses. Each card: video thumbnail, title, overall neural score, username, date. Cursor-based pagination preferred but offset acceptable at this scale. |
+| Sort options on discovery | Users expect to organize content by what matters to them | LOW | Three sort modes: highest neural score (default = the leaderboard), newest, most viewed. Single `order_by` query param. Default to score because the neural ranking IS the product. |
+| View count on public analyses | Basic social proof; users expect to see content popularity | LOW | Add `view_count` integer to `jobs` table. Increment via Supabase RPC on page view. Approximate counts are fine -- no need for exact deduplication at this stage. |
+| Avatar upload | Profile identity needs a face; initials icon is not enough for a social platform | LOW | Supabase Storage bucket for avatars. Upload on settings page. Display on profile and discovery cards. Fallback to initials/default icon (existing pattern). Crop to square, max 500KB. |
+| Privacy-by-default | All content private until user explicitly chooses to share | LOW | `is_public` defaults to `false`. No pre-checked toggles. Matches privacy-first UX consensus: opt-in to sharing, not opt-out. |
 
-2. **Gradio Interactive Demo** (`aidemos.atmeta.com/tribev2`) -- Uses `nilearn.plotting.view_surf` via Plotly WebGL engine. Two modes:
-   - **Single-input mode**: Upload video/audio/text, get brain heatmap with a **timestep slider** to scrub through activation over time
-   - **Comparison mode**: Upload two inputs, visualize their **difference as a contrast heatmap** (what one stimulus activates more than the other)
+### Differentiators (Competitive Advantage)
 
-### What Meta Gets Right (Specific UX Decisions)
-
-**Confidence: MEDIUM** -- Synthesized from multiple sources describing the demo
-
-| Decision | What They Do | Why It Works |
-|----------|-------------|--------------|
-| Inflated mesh | Use fsaverage5 *inflated* surface, not pial | Exposes sulcal geometry hidden in brain folds -- activation in sulci becomes visible |
-| Sulcal depth background | Gray sulcal depth map rendered *under* the heatmap | Provides anatomical landmark context without adding UI clutter |
-| Hot colormap | Uses "hot" colormap (black -> red -> yellow -> white) on Gradio demo | Intuitive "heat = activation" metaphor. No cognitive load interpreting colors |
-| Threshold-based display | `view_surf` has `threshold` parameter -- only show activation above a cutoff | Brain appears mostly neutral gray; only significantly activated regions "glow." This is the key storytelling mechanism |
-| No toggles or filters | No per-region toggle buttons in their demo | The data speaks for itself. Visual cortex lights up when imagery appears. Language areas light up during speech. The spatial pattern IS the information |
-| Timestep slider | Single slider to scrub through time | Lets the viewer see activation *change* over time without animation complexity |
-| Colorbar legend | Single continuous colorbar showing activation scale | Replaces discrete category toggles. One legend, always visible, minimal space |
-| Two hemispheres side-by-side | Left and right hemisphere rendered separately via `nilearn.plotting.view_surf` | Standard neuroimaging convention. Each hemisphere gets its own interactive WebGL view |
-| Comparison mode | Difference heatmap: Input A minus Input B | Shows what makes one stimulus neurally distinct from another -- directly useful for A/B testing concept |
-
-### Meta's Storytelling Pattern (From Demo Notebook)
-
-The notebook explicitly narrates: "As the image appears on the screen, the visual cortex lights up (t=4s), followed by the language network when the character starts to speak (t=12s)."
-
-This is the core insight: **the visualization tells a temporal story**. You do not need labels saying "Visual Cortex" or "Language Network" -- the spatial pattern of activation on the brain surface, combined with knowledge of what was happening in the video at that moment, IS the story. The brain speaks for itself when the visualization is clean enough.
-
-### Three-Panel Layout (From The Decoder)
-
-Meta's research presentations use a three-panel comparison layout:
-- **Top panel**: Images/stimuli shown to subjects
-- **Middle panel**: Model prediction activation pattern
-- **Bottom panel**: Actual measured fMRI brain activity
-
-This layout immediately communicates accuracy and builds trust. For NeuroCut, the equivalent is: **video frame + predicted brain activation side-by-side**.
-
-## Table Stakes
-
-Features users expect for a brain visualization to feel credible and useful.
-
-| Feature | Why Expected | Complexity | Status in Current UI |
-|---------|--------------|------------|---------------------|
-| 3D brain surface with orbit controls | Users expect to rotate/zoom a brain model | Med | DONE -- react-three-fiber + OrbitControls |
-| Per-vertex activation heatmap | Vertex-level data is what makes this "real" vs a cartoon | High | DONE -- BrainHeatmapMesh with 20,484 vertices |
-| Time-synced activation | Brain should reflect what's happening in video NOW | Low | DONE -- currentTime prop drives getVertexDataAtTime |
-| Threshold-based display | Only show activation above a meaningful cutoff; rest is neutral gray | Low | NOT DONE -- currently shows all vertices with color |
-| Continuous colorbar legend | Show what the colors mean with a gradient bar + min/max labels | Low | NOT DONE -- currently uses toggle buttons per region |
-| Dark background | Black/very dark background behind brain for contrast | Low | DONE -- #151520 background |
-| Inflated mesh view | Expose sulci for full activation visibility | Med | PARTIALLY DONE -- using unified GLB, unclear if inflated |
-| Single committed colormap | One colormap, no user choice. Meta uses "hot" | Low | NOT DONE -- currently offers dropdown with plasma, viridis, etc. |
-
-## Differentiators
-
-Features that would set NeuroCut apart from a generic brain viewer.
+Features that make NeuroCut's social layer unique vs generic content platforms.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Dynamic glow above threshold | Regions above activation threshold emit soft bloom; below threshold = dark gray. Brain "breathes" as video plays | Med | Bloom already exists in regions mode. Apply threshold logic to heatmap mode. This is the hero feature |
-| Video-brain sync playback | Video plays in adjacent panel; brain updates in real-time as video plays. Creator sees EXACTLY which moments light up the brain | Low | Core wiring exists. Need to make it feel like a single integrated experience |
-| Activation timeline sparkline | Thin sparkline below brain showing overall activation over time, with playhead indicator. Shows "shape" of engagement at a glance | Med | Complements brain view. Meta's timestep slider serves similar purpose but NeuroCut can do better for creators |
-| Peak moment markers | Automatically mark the top 3-5 activation peaks on timeline. "Your video's brain moments" | Low | High value for content creators. Easy to compute from existing data |
-| Comparison contrast mode | Side-by-side two videos, difference heatmap showing what Video A activates MORE than Video B | High | Directly inspired by Meta's comparison mode. Core to A/B testing value prop. Out of scope for v3.0 |
-| Segment annotation overlay | When activation spikes, show what was happening in the video at that moment | High | Requires transcript/scene detection. Defer |
+| Neural score leaderboard | No other platform ranks content by brain activation data. The discovery page sorted by neural score IS inherently a leaderboard. This is the entire differentiator. | LOW | Not a separate feature -- it is the default sort on discovery. Add explicit "#1, #2, #3" rank indicators. Label the tab "Leaderboard." |
+| Bookmarks/saves | Users want to privately save interesting analyses to revisit later | LOW | New `bookmarks` junction table (user_id, job_id, created_at). Bookmark toggle icon on analysis cards in discovery. Section on dashboard or profile to view saved items. |
+| Per-region leaderboards | Sort by attention, reward, emotional processing, or social cognition scores separately | MEDIUM | Requires extracting region scores from JSONB `results` into sortable columns or a generated column index. Powerful: "Top videos for emotional response" is a genuinely unique filter no other platform offers. |
+| Brain activation preview on cards | Show mini brain heatmap or neural sparkline on discovery cards | HIGH | Requires generating a static preview image or compact visualization at analysis completion time. Significant work. Defer unless a lightweight sparkline approach proves quick. |
+| Creator stats on public profile | Aggregate neural metrics visible on profile: avg attention score, best emotional score, total views across all public analyses | LOW | Computed from existing job data via aggregate queries. Makes profiles interesting to visit and compare. |
+| Trending/rising content | Surface recently-posted analyses gaining views quickly | MEDIUM | "Most viewed in last 7 days" query approximates trending without complex velocity tracking. More interesting than pure all-time leaderboard after content volume grows. |
 
-## Anti-Features
+### Anti-Features (Commonly Requested, Often Problematic)
 
-Features to explicitly NOT build. Things the current UI does that should be removed.
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Per-region toggle buttons (9 buttons) | Creates decision paralysis. Meta shows zero toggles. The spatial pattern IS the information -- toggles add cognitive load without insight | Remove entirely. Replace with a small static color legend showing network colors (display-only, not interactive) |
-| Heatmap/Regions mode toggle | Two competing visualization modes confuses users. Switching between them breaks flow | Default to heatmap mode (this is what Meta uses). Remove regions as a primary toggle. If kept, make it a secondary option accessible through a settings menu |
-| Colormap selector dropdown | Letting users pick between plasma, viridis, etc. is a power-user feature that confuses casual creators. Meta uses ONE colormap | Pick one colormap and commit. Use "inferno" or "hot" (black-red-yellow-white) to match Meta's convention and the intuitive "heat" metaphor |
-| Preset view buttons (Front/Top/Left/Right) | Four buttons in header add visual noise. Orbit controls already let users rotate freely | Remove buttons. Keep orbit controls. Optionally add a single subtle "reset view" icon overlay on the canvas |
-| Crowded header with title + controls on one line | Current header jams: title + dropdown + mode toggle + 4 view buttons into one row | Clean header: title only. Any remaining controls become subtle overlaid icons on the canvas itself |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Likes/upvotes | Standard social pattern, seems obvious | Creates subjective popularity metric that COMPETES with the neural score. The neural score is the objective quality signal -- adding likes dilutes it and introduces popularity bias. The whole point is brain data replaces human voting. | Bookmarks (private saves) only. Neural score IS the public quality signal. |
+| Comments on analyses | Social engagement, discussion | Moderation burden at any scale. Spam risk. Comments on a brain activation chart add minimal analytical value. Premature community feature. | Defer entirely. If needed v5+, start with creator-only annotations on their own analyses. |
+| Follow/follower system | Standard social graph | Requires notification infrastructure, feed generation, graph queries, follower counts. Creates "influencer" dynamics that distract from the data-first mission. Massive scope for a v4.0. | Bookmarks serve "save for later." Follow is v5+ at earliest, if ever. |
+| Real-time activity feed | "See what others are analyzing now" | Privacy concern: users may not want analysis activity broadcast. Requires Supabase Realtime channels. Near-zero value at small user base. | Discovery page with "newest" sort serves this without privacy risk. |
+| Share-to-social buttons | Drive virality | Generic share buttons have near-zero click-through. Better to invest in making the public URL itself shareable with rich previews. | OG meta tags (title, neural score, preview image) on public analysis pages. The URL is the share mechanism. |
+| Gamification (badges, streaks, points) | Increase engagement loops | Over-engineered for a data platform. "Uploaded 10 videos" badges do not align with the analytical value prop. Creates busy-work incentives. | The leaderboard rank IS the gamification. Your position on the neural leaderboard is your badge. |
+| User-customizable profile themes | Self-expression | Scope creep. Design system is already established (Neural Architect theme). Custom themes create visual inconsistency and double frontend work. | Consistent profile layout. Avatar + bio is sufficient self-expression for a data platform. |
 
 ## Feature Dependencies
 
 ```
-Threshold-based display --> Dynamic glow (glow requires knowing what's "above threshold")
-Video-brain sync --> Activation timeline sparkline (timeline needs playback position)
-Per-vertex heatmap (DONE) --> Threshold-based display
-Threshold-based display --> Colorbar legend (legend shows threshold cutoff)
+[Profiles table + username]
+    |
+    +--requires--> [Supabase migration: create profiles table]
+    |
+    +--enables--> [Username setup flow for existing users]
+    |                  |
+    |                  +--gates--> [Public/private toggle] (can't go public without username)
+    |
+    +--enables--> [Public profile page /@username]
+    |                  |
+    |                  +--enhanced-by--> [Avatar upload]
+    |                  |
+    |                  +--enhanced-by--> [Creator stats]
+    |
+    +--enables--> [Discovery page]
+                      |
+                      +--requires--> [Public/private toggle] (need public content to discover)
+                      |
+                      +--requires--> [RLS policy update for anonymous reads]
+                      |
+                      +--includes--> [Sort by score/date/views]
+                      |
+                      +--requires--> [View count tracking]
+                      |
+                      +--enhanced-by--> [Bookmarks]
+                      |
+                      +--enhanced-by--> [Search/filter]
+                      |
+                      +--enhanced-by--> [Per-region leaderboards]
 ```
 
-## MVP Recommendation for v3.0
+### Dependency Notes
 
-### Must Do (Core Overhaul -- Subtraction)
+- **Everything requires the profiles table:** Currently no `profiles` table exists. Auth uses `auth.users` with `user_metadata`. A proper `public.profiles` table with `id` (FK to auth.users), `username`, `avatar_url`, `bio`, `created_at` is the absolute foundation. Without it, nothing else works.
+- **Public toggle requires RLS update:** Current RLS on `jobs` only allows owner access (`auth.uid() = user_id`). Must add: `SELECT` where `is_public = true` for anon/any user. This is a one-line policy addition but is a hard requirement for discovery.
+- **Discovery page requires public content to exist:** The toggle must be built and some analyses must be made public before discovery is useful. Consider seeding with the developer's own analyses.
+- **Username gates public features:** Existing users who signed up with email only must complete a username setup before they can toggle any analysis to public. This prevents anonymous public content.
+- **Per-region leaderboards require indexed scores:** Currently region scores are buried in JSONB `results` column. Need to extract `overall_score`, `attention_score`, `reward_score`, `emotional_score`, `social_score` into indexable columns (generated columns or a materialized view) for efficient sorting.
 
-1. **Threshold-based display** -- Add activation threshold (e.g., 50th percentile). Vertices below threshold render as neutral dark gray. Vertices above threshold render with hot colormap. This single change transforms the visualization from "everything is colored" to "significant regions glow." This is the number one lesson from Meta's approach.
+## MVP Definition
 
-2. **Remove toggle filter buttons** -- Delete the 9-button region toggle row entirely. Replace with a small static color legend (if regions mode is kept at all) or a continuous colorbar gradient.
+### Launch With (v4.0)
 
-3. **Remove colormap selector** -- Commit to a single colormap ("inferno" is the closest web-friendly equivalent to Meta's "hot"). Delete the dropdown.
+Minimum to call this a "social discovery platform":
 
-4. **Remove preset view buttons** -- Delete Front/Top/Left/Right buttons. Keep orbit controls. Add a single unobtrusive reset-view icon if needed.
+- [ ] Profiles table + unique username registration -- the foundation for public identity
+- [ ] Username setup flow for existing users -- gate: must have username to go public
+- [ ] `is_public` toggle on analyses -- privacy control, default false
+- [ ] RLS policy update for public reads -- anonymous users can view public analyses
+- [ ] Public profile page at `/@username` -- viewable without auth, shows public analyses
+- [ ] Discovery page with paginated grid -- the core browse experience
+- [ ] Sort by neural score / newest / most viewed -- three sort modes, score is default
+- [ ] View count tracking on public analyses -- increment on page view
+- [ ] Bookmarks -- save public analyses to personal collection
+- [ ] Avatar upload -- complete the profile identity
 
-5. **Clean header** -- Title only. No controls in the header row.
+### Add After Validation (v4.x)
 
-6. **Continuous colorbar** -- Add a vertical or horizontal gradient bar showing the activation scale from low to high, with threshold line marked.
+Features to add once users are actively sharing and browsing:
 
-### Should Do (Enhanced Experience -- Addition)
+- [ ] Search on discovery page -- add when content volume makes scrolling insufficient
+- [ ] Per-region leaderboards (sort by attention, emotion, etc.) -- add when users ask for it
+- [ ] Trending/rising tab -- add when daily content volume justifies it
+- [ ] Creator aggregate stats on public profile -- add when profiles get repeat visitors
+- [ ] OG meta tags on public analysis URLs -- add when users start sharing externally
 
-7. **Dynamic bloom on heatmap mode** -- Currently bloom only applies in regions mode. Apply bloom post-processing to heatmap mode so activated regions glow against the dark brain. This is the "wow" factor that makes it feel alive.
+### Future Consideration (v5+)
 
-8. **Activation timeline sparkline** -- Thin bar below the brain showing activation intensity over the video duration with playhead position. Clicking jumps to that timestamp.
+- [ ] Follow system -- only if platform reaches hundreds of active creators
+- [ ] Comments/annotations -- only if analytical discussion emerges as a user need
+- [ ] Brain activation preview thumbnails on cards -- high effort, defer until visualization pipeline supports static export
+- [ ] API access to leaderboard data -- if B2B interest emerges
 
-9. **Peak moment markers** -- Mark top 3-5 activation peaks on the sparkline. "Your video's brain moments."
+## Feature Prioritization Matrix
 
-### Defer
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Profiles table + usernames | HIGH | LOW | P1 |
+| Username setup flow | HIGH | LOW | P1 |
+| Public/private toggle | HIGH | LOW | P1 |
+| RLS policy for public reads | HIGH | LOW | P1 |
+| Public profile page | HIGH | MEDIUM | P1 |
+| Discovery page | HIGH | MEDIUM | P1 |
+| Sort by score/date/views | HIGH | LOW | P1 |
+| View count tracking | MEDIUM | LOW | P1 |
+| Bookmarks | MEDIUM | LOW | P1 |
+| Avatar upload | MEDIUM | LOW | P1 |
+| Search on discovery | MEDIUM | MEDIUM | P2 |
+| Per-region leaderboards | MEDIUM | MEDIUM | P2 |
+| OG meta tags | MEDIUM | LOW | P2 |
+| Trending tab | LOW | MEDIUM | P2 |
+| Creator aggregate stats | LOW | LOW | P2 |
+| Brain preview thumbnails | MEDIUM | HIGH | P3 |
+| Follow system | LOW | HIGH | P3 |
+| Comments | LOW | MEDIUM | P3 |
 
-- **Comparison/contrast mode** -- Multi-video is out of scope for v3.0
-- **Segment annotations** -- Requires additional data pipeline work
-- **Regions mode entirely** -- Consider removing from v3.0 and reintroducing later as an "explore" panel
-- **Inflated mesh toggle** -- Verify current mesh state before adding complexity
+**Priority key:**
+- P1: Must have for v4.0 launch
+- P2: Should have, add in v4.x when validated
+- P3: Future consideration, v5+
 
-## What Makes Meta's Approach Work (Summary)
+## Competitor Feature Analysis
 
-Meta's TRIBE v2 visualization is compelling because of what it does NOT show:
+| Feature | Product Hunt | YouTube Analytics | VidIQ/Tubics | NeuroCut Approach |
+|---------|--------------|-------------------|--------------|-------------------|
+| Public profiles | Maker profiles with shipped products | Channel pages | Creator dashboards (private) | `/@username` with neural stats and public analyses grid |
+| Leaderboard | Daily/weekly top products by upvotes | Trending (algorithmic) | N/A | Neural score leaderboard -- objective brain data, not votes |
+| Content discovery | Browse by category, sort by votes | Algorithm-driven recommendations | N/A | Browse public analyses, sort by neural activation |
+| Privacy controls | Public by default | Public/unlisted/private | Private by default | Private by default, explicit opt-in to public (privacy-first) |
+| Quality signal | Upvotes (subjective, gameable) | Views + algorithm (opaque) | Engagement metrics (CTR, watch time) | Neural activation score (objective, brain-data-derived) |
+| Engagement | Upvotes + comments | Views + likes + comments | N/A | View counts + bookmarks only. No subjective voting. |
+| Search | Full-text by product name | Full-text + semantic | N/A | Title search for v4.0, expand later |
 
-1. **No toggles** -- The brain surface IS the interface
-2. **No competing modes** -- One visualization, one colormap, one story
-3. **Threshold = drama** -- Only significant activation appears, creating visual "moments" as the video plays
-4. **Temporal narrative** -- The visualization changes over time, telling a story: "here the brain responded, here it didn't"
-5. **Anatomical context without labels** -- Sulcal depth map provides orientation; no region labels clutter the view
-6. **Hot colormap** -- Black-to-red-to-yellow-to-white is universally understood as "intensity"
+**Key strategic insight:** NeuroCut's differentiator is that quality ranking comes from objective brain data, not subjective votes or opaque algorithms. Do NOT add likes/upvotes -- they would undermine the core value proposition. The neural score IS the vote. Lean into this distinction hard.
 
-The current NeuroCut brain viewer has the RIGHT technical foundation (20,484 vertices, react-three-fiber, per-segment data, time sync) but the WRONG UX layer on top: too many controls, no threshold, competing modes, and no visual drama. The overhaul is about subtraction more than addition.
+## Database Schema Implications
+
+New tables and columns needed (builds on existing `jobs` table and Supabase Auth):
+
+**New table: `profiles`**
+- `id` uuid PK, FK to `auth.users(id)` ON DELETE CASCADE
+- `username` text UNIQUE NOT NULL, CHECK (`username ~ '^[a-z0-9_]{3,20}$'`)
+- `avatar_url` text nullable
+- `bio` text nullable, CHECK (char_length(bio) <= 160)
+- `created_at` timestamptz DEFAULT now()
+- `updated_at` timestamptz DEFAULT now()
+- Index on `username` for fast lookups
+- RLS: anyone can SELECT, only owner can INSERT/UPDATE
+
+**Alter table: `jobs`**
+- ADD `is_public` boolean DEFAULT false
+- ADD `view_count` integer DEFAULT 0
+- ADD `slug` text nullable (for clean URLs: `/@user/my-analysis-slug`)
+- Index on `(is_public, created_at)` for discovery queries
+- Index on `(is_public, view_count)` for popular sort
+- Update RLS: add SELECT policy where `is_public = true` (no auth required)
+
+**New table: `bookmarks`**
+- `id` uuid PK DEFAULT gen_random_uuid()
+- `user_id` uuid FK to `auth.users(id)` ON DELETE CASCADE
+- `job_id` uuid FK to `jobs(id)` ON DELETE CASCADE
+- `created_at` timestamptz DEFAULT now()
+- UNIQUE constraint on `(user_id, job_id)`
+- RLS: only owner can CRUD
+
+**Trigger: auto-create profile on signup**
+- After INSERT on `auth.users`, create a row in `profiles` with `id = new.id`, `username = NULL`
+- Username NULL = profile incomplete, gates public features
 
 ## Sources
 
-- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- Official announcement, references interactive demo
-- [TRIBE v2 Interactive Demo](https://aidemos.atmeta.com/tribev2) -- Gradio-based web demo with timestep slider and comparison mode
-- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- PlotBrain class, visualization workflow, "visual cortex lights up at t=4s" narrative
-- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- plotting/ module, fsaverage5 mesh, nilearn integration
-- [The Decoder: Meta's TRIBE v2](https://the-decoder.com/metas-new-ai-model-predicts-how-your-brain-reacts-to-images-sounds-and-speech/) -- Three-panel layout description (stimuli / prediction / actual)
-- [HF Daily Briefer: TRIBE v2](https://www.hfdailybriefer.com/post/1618) -- Confirmed Gradio demo uses nilearn.plotting.view_surf with hot colormap via Plotly WebGL
-- [nilearn.plotting.view_surf docs](https://nilearn.github.io/dev/modules/generated/nilearn.plotting.view_surf.html) -- threshold parameter, colorbar, bg_map for sulcal depth, default RdBu_r colormap
-- [DataCamp TRIBE v2 Tutorial](https://www.datacamp.com/tutorial/tribe-v2-tutorial) -- Confirmed "interactive 3D heatmaps" output
-- [facebook/tribev2 on HuggingFace](https://huggingface.co/facebook/tribev2) -- Model card, fsaverage5 mesh details, prediction shape (T, 20484)
+- [SocialLeaderBoard - Creator Discovery Platform](https://socialleaderboard.com/) -- competitor pattern for creator ranking
+- [Privacy-First UX Design Systems](https://medium.com/@harsh.mudgal_27075/privacy-first-ux-design-systems-for-trust-9f727f69a050) -- toggle and privacy control patterns
+- [UX for Privacy & Consent in 2025](https://medium.com/design-bootcamp/ux-for-privacy-consent-in-2025-designing-trust-in-a-digital-world-0e41906298e3) -- default-off sharing, opt-in principle
+- [Leaderboard Page Design Examples (Nicelydone)](https://nicelydone.club/pages/leaderboards) -- SaaS leaderboard UI patterns
+- [Leaderboard Design Strategies](https://www.numberanalytics.com/blog/leaderboard-design-strategies) -- filtering, sorting, user segmentation
+- [UI Patterns: What's in a Username (SitePoint)](https://www.sitepoint.com/ui-patterns-whats-username/) -- username UX patterns
+- [Bookmarking Case Study (Medium)](https://medium.com/design-bootcamp/bookmarking-but-its-actually-useful-12a65c49034a) -- bookmark UX patterns
+- Existing codebase: `web/supabase/migrations/00001-00003`, `web/src/lib/database.types.ts`, `web/src/app/(app)/profile/page.tsx`
+
+---
+*Feature research for: NeuroCut Social Discovery Platform (v4.0)*
+*Researched: 2026-04-11*

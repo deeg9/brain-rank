@@ -1,275 +1,281 @@
-# Domain Pitfalls: Brain Visualization UX Overhaul (v3.0)
+# Pitfalls Research
 
-**Domain:** Real-time dynamic glow/activation effects on 3D brain mesh in react-three-fiber
-**Researched:** 2026-04-10
-**Context:** Redesigning brain viewer so activation lights up dynamically as video plays, synced to playback, with 20,484-vertex mesh requiring smooth color transitions at 60fps
-**Confidence:** HIGH (based on direct codebase analysis, Three.js/R3F official docs, ecosystem research)
-
----
+**Domain:** Adding social discovery features (profiles, public/private content, leaderboards, bookmarks) to an existing private analysis tool
+**Researched:** 2026-04-11
+**Confidence:** HIGH (based on existing codebase analysis + Supabase docs + established database patterns)
 
 ## Critical Pitfalls
 
-Mistakes that cause visible jank, GPU stalls, or broken UX. Must fix before shipping.
+### Pitfall 1: RLS Policy Gap When Adding Public Read Access
 
-### Pitfall 1: CPU-Side Colormap Per Frame Kills Performance
+**What goes wrong:**
+The existing `jobs` table has three RLS policies, ALL scoped to `auth.uid() = user_id` (owner-only SELECT, INSERT, UPDATE). When adding a public/private toggle (`is_public boolean`), teams either: (a) forget to add a public SELECT policy so the leaderboard returns empty results, or (b) add an overly broad policy (`using (true)`) that exposes ALL analyses including private ones. In Supabase, RLS policies for the same operation are OR'd together -- so a single permissive policy overrides all restrictive ones.
 
-**What goes wrong:** The current `applyColormap()` in `colormap.ts` calls `interpolatePlasma(value)` then `rgb(cssString)` for each of 20,484 vertices. That is 20,484 string allocations + 20,484 CSS color parses (d3's `rgb()` runs regex matching internally) per colormap application. Currently this runs only on segment transitions (every 2 seconds) which is tolerable. When this runs every frame for smooth interpolation between segments, it creates ~30-50ms of CPU work per frame -- blowing the 16ms frame budget at 60fps and causing visible stutter.
+**Why it happens:**
+The current schema was designed as a single-user private tool. Every query assumes `auth.uid() = user_id`. Adding public access is the first time "other people read your data" exists in the system. Developers unfamiliar with RLS policy composition don't realize policies combine with OR, not AND.
 
-**Why it happens:** d3-scale-chromatic's interpolation functions return CSS color strings like `"rgb(128, 0, 255)"` which must be parsed back into floats. This string-to-number round-trip is the bottleneck, not the mathematical interpolation.
+**How to avoid:**
+- Replace the existing owner-only SELECT policy with a single combined policy: `CREATE POLICY "Public or own analyses" ON jobs FOR SELECT USING (is_public = true OR auth.uid() = user_id)`. This handles both cases in one policy.
+- Keep INSERT/UPDATE/DELETE policies strictly owner-only. Never add public write access.
+- Default `is_public` to `false` in the column definition so ALL existing analyses remain private after migration.
+- Write explicit test queries: (1) anonymous user reads public job = success, (2) anonymous user reads private job = empty, (3) owner reads own private job = success, (4) other authenticated user reads someone's private job = empty.
 
-**Consequences:** Dropped frames, the brain appears to "jump" between activation states instead of smoothly transitioning. On integrated GPUs (most laptop users), this alone can drop the viewer to 15-20fps.
+**Warning signs:**
+- Leaderboard page shows zero results despite public analyses existing
+- Or worse: leaderboard shows ALL analyses including ones never marked public
+- Users report seeing other users' private analyses
 
-**Prevention:**
-1. **Pre-bake a 256-entry lookup table (LUT)** at initialization: sample the colormap at 256 evenly-spaced points, store as `Float32Array[256 * 3]`. At render time, quantize each vertex value to an 8-bit index and look up RGB directly. Reduces per-vertex work from string parsing to a single array index -- roughly 100x faster.
-2. **Move coloring to the GPU entirely** (best long-term approach): upload activation values as a vertex attribute (`float`), upload a 256x1 RGB DataTexture as a uniform, and sample the colormap in the fragment shader with `texture2D(colormapTex, vec2(activation, 0.5))`. The GPU does the interpolation for free across all 20,484 vertices in parallel. Cost: ~0.1ms vs ~40ms on CPU.
-3. **Intermediate fix:** Replace d3's CSS-string interpolators with direct numeric interpolation functions. Pre-compute polynomial approximations of the plasma colormap that return `[r, g, b]` floats directly, avoiding all string allocation.
-
-**Detection:** Chrome DevTools Performance tab. Look for `applyColormap` or `rgb` taking >5ms per call. Use `r3f-perf` overlay to monitor JS frame time.
-
-**Phase:** Must be addressed in the FIRST phase. Everything else (smooth animation, video sync) depends on fast color computation.
-
----
-
-### Pitfall 2: Using useEffect Instead of useFrame for Per-Frame Animation
-
-**What goes wrong:** The current `BrainHeatmapMesh.tsx` (line 38-44) updates vertex colors in a `useEffect` that fires when `vertexData` or `colormap` props change. This works for discrete segment transitions. For smooth interpolation (the v3.0 goal -- brain glows dynamically as video plays), developers instinctively add animation logic inside `useEffect` with `requestAnimationFrame` or timers, or worse, call `setState` at 60fps to trigger re-renders. Both approaches fight React's render cycle.
-
-**Why it happens:** React mental model says "when data changes, re-render." But R3F's `useFrame` runs every GPU frame OUTSIDE React's reconciliation. Mixing React state updates with per-frame GPU animation creates two competing update cycles: React re-rendering the component tree + R3F rendering the 3D scene.
-
-**Consequences:** The R3F docs explicitly state: "don't setState in useFrame." If you do, React re-renders `BrainHeatmapMesh` 60x/second, causing unnecessary reconciliation, GC pressure from recreated closures and objects, and potential layout thrashing in the surrounding HTML UI (the region legend, colormap selector, etc.).
-
-**Prevention:**
-1. **Use `useFrame` for ALL per-frame visual updates.** Store interpolation state in `useRef`, never in `useState`.
-2. **Refactor pattern:** `vertexData` prop change triggers a `useEffect` that copies TARGET activation values into a ref (`targetRef.current = newVertexData`). A `useFrame` callback then lerps CURRENT vertex colors toward the target each frame, writing directly to the pre-allocated `colorBuffer`, then sets `needsUpdate = true` on the BufferAttribute.
-3. **Decouple video time from React state.** Store the video element ref in a module-level variable or Zustand store. `useFrame` reads `videoRef.current.currentTime` directly each frame without React knowing.
-
-**Detection:** React DevTools Profiler showing `BrainHeatmapMesh` re-rendering more than once per segment transition (every 2 seconds). If it re-renders 60x/second, this pitfall is active.
-
-**Phase:** Must be refactored in the first phase alongside the colormap fix. The animation architecture depends on this.
+**Phase to address:**
+Phase 1 (User Profiles + Privacy Controls) -- must be airtight before any public-facing features launch.
 
 ---
 
-### Pitfall 3: Missing DynamicDrawUsage on Frequently Updated BufferAttributes
+### Pitfall 2: Video URL Exposure When Analyses Go Public
 
-**What goes wrong:** The current `BrainHeatmapMesh.tsx` (line 30-35) creates a `BufferAttribute` for vertex colors but never calls `setUsage(THREE.DynamicDrawUsage)`. Three.js defaults to `StaticDrawUsage`, which tells the GPU driver the buffer will not change. When you then set `needsUpdate = true` every frame (required for smooth animation), the driver must use a slow re-upload path (buffer orphaning + full copy) instead of a fast streaming update.
+**What goes wrong:**
+The `jobs` table stores `video_url text not null`. When an analysis becomes public, that URL becomes readable by anyone querying the row. If videos are uploaded to Supabase Storage in a private bucket, the stored path/URL may be a signed URL (expires in 1 hour by default) or a raw storage path that requires authentication. Public leaderboard visitors either see broken video players (expired URLs) or get unauthorized access to private storage (if using a public bucket).
 
-**Why it happens:** Three.js defaults to static usage because most geometry never changes. The `setUsage()` API is poorly documented and rarely mentioned in tutorials. It works "fine" without it -- just slower.
+**Why it happens:**
+The current schema treats video URL as internal data -- only the owner ever reads it. Nobody considers that `video_url` has its own access control separate from the database row's visibility. The public/private toggle is on the analysis, not the underlying video asset.
 
-**Consequences:** On Intel integrated GPUs (common in laptops), the wrong usage hint causes 2-5ms of GPU-side stall per frame. On discrete GPUs the impact is ~0.5-1ms. At 60fps with a 16ms budget, 2-5ms is 12-31% of the frame budget wasted on a one-line fix.
+**How to avoid:**
+- Decide before building: do public analyses show the video, or just neural scores? For MVP, showing scores only (no video playback on public view) is simpler and avoids the entire problem.
+- If videos must be viewable on public analyses: use a private Supabase Storage bucket, and generate short-lived signed URLs on-demand via an API route when a user views a public analysis. Never store signed URLs in the database.
+- Never expose raw storage paths in client-facing API responses.
+- Add a `thumbnail_url` column pointing to a public-bucket thumbnail image for leaderboard cards, separate from the full video.
 
-**Prevention:**
-```typescript
-const colorAttr = new THREE.BufferAttribute(colorBuffer, 3);
-colorAttr.setUsage(THREE.DynamicDrawUsage);
-clonedGeometry.setAttribute('color', colorAttr);
-```
+**Warning signs:**
+- Broken video players on leaderboard cards (403 errors in console)
+- Signed URLs expiring mid-session (videos work on first load but fail on revisit)
+- Users discovering their "private" video is accessible via the URL even after toggling analysis to private
 
-Additionally, use `addUpdateRange(offset, count)` if only a subset of vertices change per frame (e.g., only the 3,000 vertices in a transitioning region). This avoids re-uploading the entire 61,452-float buffer when most values haven't changed.
-
-**Detection:** `r3f-perf` showing GPU frame time spikes that do not correlate with JavaScript work. Chrome `chrome://gpu` page may show buffer upload warnings.
-
-**Phase:** Simple one-line fix. Apply in the first phase alongside Pitfall 2 refactor.
-
----
-
-### Pitfall 4: Bloom Post-Processing Always-On Doubles Render Cost
-
-**What goes wrong:** The current `BrainViewerCanvas.tsx` (line 93-103) conditionally renders `<EffectComposer>` with `<Bloom>` only in regions mode. The v3.0 overhaul unifies heatmap and regions into a single dynamic view, meaning bloom will likely be always-on. EffectComposer adds a full-screen render pass: render scene to offscreen framebuffer, apply bloom (2+ Gaussian blur passes at multiple mipmap levels with `mipmapBlur`), then composite. On a 1080p canvas at DPR 1.5 (the current `dpr={[1, 1.5]}` setting), this processes ~3.1M fragments per blur pass.
-
-**Why it happens:** Bloom looks spectacular in isolation. Developers see the visual improvement and ship it without profiling on lower-end hardware.
-
-**Consequences:** Frame rate drops from 60fps to 30-40fps on integrated GPUs. Mobile browsers drop to 15-20fps. The brain viewer becomes the performance bottleneck of the entire results page, affecting scrolling and interaction of surrounding UI.
-
-**Prevention:**
-1. **Use emissive intensity on the material** instead of post-process bloom for the "glow" effect. The current `BrainNetworkMesh` already does this: `emissiveIntensity={maxScore * 2.0}` (line 129). Extend this pattern to the unified view. Set `emissive` to a tinted version of the vertex color and modulate `emissiveIntensity` by activation. This gives a soft glow appearance with ZERO post-processing cost.
-2. **If bloom is essential for the desired visual**, reduce aggressively: lower `intensity` from 1.5 to 0.3-0.5, raise `luminanceThreshold` to 0.5+ (only bloom the very brightest vertices), and cap canvas DPR to 1.0 when bloom is active. The current `dpr={[1, 1.5]}` means bloom runs at up to 2.25x the fragment cost for marginal quality improvement.
-3. **Add a performance escape hatch**: monitor frame delta in `useFrame`. If frames consistently exceed 20ms for 30+ frames, automatically disable bloom and log a console warning.
-4. **Never use SelectiveBloom** (which renders the scene twice with a selection mask) -- it is 2-3x more expensive than regular Bloom.
-
-**Detection:** Toggle `<EffectComposer>` off and compare frame times with `r3f-perf`. If removing it gains >5ms per frame, bloom is too expensive for the target hardware.
-
-**Phase:** Decision must be made early in visual design phase. Emissive-only vs bloom affects the entire visual language of the overhaul.
+**Phase to address:**
+Phase 1 (Privacy Controls) -- must define the video access model before building the discovery page.
 
 ---
 
-## Moderate Pitfalls
+### Pitfall 3: Username Uniqueness Without Case Normalization
 
-### Pitfall 5: Video-to-Brain Sync Drift (timeupdate is 4fps, Brain is 60fps)
+**What goes wrong:**
+Users register "NeuroCutter" and "neurocutter" as separate accounts. Profile URLs `/u/NeuroCutter` and `/u/neurocutter` resolve to different people. This enables impersonation, confuses search results, and creates support headaches.
 
-**What goes wrong:** The `currentTime` prop in `BrainViewer.tsx` (line 17) comes from the parent component, likely sourced from an HTML `<video>` element's `timeupdate` event. This event fires approximately every 250ms (browser-dependent, often irregular) -- effectively 4fps. If the brain animation runs at 60fps interpolating between segment targets, but receives new time references at 4fps, the brain can lead or lag the video by up to 250ms. Users perceive desynchronization, especially at segment boundaries where the brain should change exactly as the video transitions.
+**Why it happens:**
+PostgreSQL `text` columns are case-sensitive by default. A `UNIQUE` constraint on `text` allows "Foo" and "foo" as distinct values. App-level `.toLowerCase()` catches the common case but misses edge cases (direct API calls, race conditions between concurrent signups, mobile keyboard auto-capitalization).
 
-**Why it happens:** `timeupdate` is a coarse, fire-and-forget DOM event. Browsers (especially Chrome) do not guarantee consistent firing rate. Safari may fire it more frequently but with different timing characteristics.
+**How to avoid:**
+- Use PostgreSQL's `citext` extension: `CREATE EXTENSION IF NOT EXISTS citext;` then `username citext UNIQUE NOT NULL`. This enforces case-insensitive uniqueness at the database level with zero application code needed.
+- Add a CHECK constraint for character validation: `CHECK (username ~ '^[a-zA-Z0-9_]{3,20}$')` to prevent Unicode lookalikes, spaces, emoji, and special characters.
+- Maintain a blocklist of reserved usernames: "admin", "support", "neurocut", "api", "settings", "profile", "discover", "leaderboard", "null", "undefined". Check at insert time via a trigger or app-level validation.
+- Store the display version (user's chosen casing) separately from the lookup key if desired, but `citext` preserves the original casing while enforcing uniqueness case-insensitively.
 
-**Prevention:**
-1. **Poll `video.currentTime` directly in `useFrame`** instead of relying on events. Store a ref to the video DOM element. In the `useFrame` callback, read `videoRef.current.currentTime` every frame. This gives sub-frame time accuracy (~16ms resolution at 60fps instead of ~250ms).
-2. **Use `requestVideoFrameCallback`** (Chrome 83+, Firefox 98+, Safari 15.4+) which fires exactly once per decoded video frame with precise presentation timestamps. This is the gold standard for video-to-animation sync.
-3. **Decouple video time from React props entirely.** Pass the video element ref into the R3F scene (via Zustand store or module-level variable), not the current time as a React prop. This avoids React re-renders on time changes.
+**Warning signs:**
+- Users reporting "username taken" when they can't find that profile
+- Profile URL 404s due to case mismatch between stored value and URL routing
+- Support tickets about impersonation
 
-**Detection:** Play a video with rapid scene changes and watch if the brain activation trails behind by a perceivable delay. Pause the video -- the brain should stop immediately with no lingering animation drift.
-
-**Phase:** Address in the video sync integration phase. Must be designed before implementing the interpolation system.
-
----
-
-### Pitfall 6: Lerp Asymptotic Creep -- Animation Never Settles
-
-**What goes wrong:** When interpolating vertex colors between segments, the standard approach is `current = lerp(current, target, 0.1)` in each `useFrame`. Lerp approaches the target asymptotically -- it mathematically never reaches it. After a segment transition, vertices "almost" reach their target color but keep changing by sub-pixel amounts indefinitely. `needsUpdate = true` is set every frame even when the brain should be visually static, wasting ~1-3ms of GPU upload time per frame for invisible changes.
-
-**Why it happens:** Standard lerp behavior. At alpha=0.1, the remaining distance halves every ~7 frames, but it takes 70+ frames (over a second) to get within 0.001 of the target. During that time, every frame triggers a full BufferAttribute re-upload.
-
-**Consequences:** Wasted GPU bandwidth. On battery-powered devices, this prevents the GPU from entering low-power idle state, draining battery even when the video is paused. It also means `addUpdateRange` optimizations (Pitfall 3) never kick in because the system thinks "everything is still changing."
-
-**Prevention:**
-1. **Snap to target when close.** After lerping, check `if (Math.abs(current - target) < 0.005)` and set `current = target`. The threshold 0.005 is below the perceptible color difference for 8-bit displays.
-2. **Track a global "is animating" flag** using a ref. When ALL vertices have snapped to their targets, set `isAnimating.current = false` and skip the `needsUpdate = true` assignment. Resume when a new segment target arrives.
-3. **Use `THREE.MathUtils.damp(current, target, lambda, delta)`** instead of raw lerp. This is frame-rate independent (accounts for variable frame duration) and reaches the target faster than equivalent lerp.
-
-**Detection:** Pause the video for 5+ seconds. Check (via console log in `useFrame`) whether `needsUpdate` is still being set to `true`. If so, the animation never settled.
-
-**Phase:** Address alongside the animation system (Pitfall 2 refactor).
+**Phase to address:**
+Phase 1 (User Profiles) -- get this right on the first migration. Deduplicating usernames after the fact requires user communication and is disruptive.
 
 ---
 
-### Pitfall 7: Threshold-Based Activation Creates Popping Artifacts
+### Pitfall 4: Leaderboard Query Performance Degrades Silently
 
-**What goes wrong:** The v3.0 goal says "regions light up only above activation threshold (maybe 50%)." If implemented as a hard cutoff (`if (activation > 0.5) { showGlow() } else { dark() }`), vertices near the boundary flicker rapidly between visible and invisible as activation values oscillate around the threshold between adjacent 2-second segments. This "popping" looks like a rendering bug.
+**What goes wrong:**
+Leaderboard sorts analyses by neural score. The current `results` column is JSONB. Sorting by a JSONB field access (`results->>'peak_activation'`) prevents B-tree index usage, forcing a sequential scan and in-memory sort on every leaderboard page load. Combined with OFFSET-based pagination (the default tutorial pattern), page 10 requires scanning and discarding 200 rows before returning 20. This compounds: at 500+ public analyses, the leaderboard takes 1-2 seconds to load. At 2000+, it may timeout.
 
-**Why it happens:** Neural activation data from TRIBE v2 has natural variance. Values near any threshold will cross it repeatedly. With 2-second segments, a value might be 0.48 in one segment and 0.52 in the next.
+**Why it happens:**
+Developers build the leaderboard with 5-10 test analyses and it's instant. JSONB field access "just works" in WHERE and ORDER BY clauses -- Postgres handles it transparently. The performance cliff is invisible until real data accumulates.
 
-**Consequences:** Brain regions flash on and off distractingly at their edges. Users focus on the flickering instead of the activation pattern. The visualization feels unstable and untrustworthy.
+**How to avoid:**
+- At job completion (when RunPod returns results), extract key sortable metrics into dedicated indexed columns: `peak_activation numeric`, `avg_activation numeric`, `segment_count integer`. This is a one-time write cost that saves on every read.
+- Use keyset/cursor pagination from the start: `WHERE (peak_activation, id) < ($last_score, $last_id) ORDER BY peak_activation DESC, id DESC LIMIT 20`. This is O(1) regardless of page depth, unlike OFFSET which is O(N).
+- Create a partial composite index: `CREATE INDEX idx_public_leaderboard ON jobs(peak_activation DESC, id DESC) WHERE is_public = true`. Partial index only covers public rows, staying small and fast.
+- Avoid `COUNT(*)` for total result counts on the leaderboard. Use "Load More" UX instead of "Page 3 of 47" to avoid the expensive count query.
 
-**Prevention:**
-1. **Soft threshold with smoothstep.** Map activation to intensity using `smoothstep(threshold - margin, threshold + margin, activation)` where margin = 0.05-0.1. This creates a gradual fade zone instead of a hard edge. In GLSL (if using a shader): `intensity = smoothstep(0.4, 0.6, activation)`. In JavaScript: `intensity = clamp((activation - 0.4) / 0.2, 0, 1)` then square it for a smooth curve.
-2. **Hysteresis.** Once a region activates (crosses 0.55 going up), it stays active until it drops below 0.45 going down. Prevents rapid toggling at the boundary.
-3. **Temporal smoothing.** Apply exponential moving average to activation values before thresholding: `displayValue = displayValue * 0.7 + rawValue * 0.3`. This dampens inter-segment noise.
+**Warning signs:**
+- Leaderboard load time creeping up as more analyses are published
+- `pg_stat_statements` showing sequential scans on `jobs` table for leaderboard queries
+- Database CPU spikes correlated with leaderboard page traffic
 
-**Detection:** Fabricate test data with values oscillating around the threshold (0.48, 0.52, 0.49, 0.51, 0.48) and verify no visible flickering when playing through segments.
-
-**Phase:** Implement during the threshold/activation visual phase. Must be designed before user testing.
-
----
-
-### Pitfall 8: Emissive Color Washes Out Region Color Differentiation
-
-**What goes wrong:** When adding dynamic glow via `emissiveIntensity` proportional to activation, high emissive values push all color channels toward 1.0 (white). If attention (blue, `#60a5fa`) and reward (purple, `#a78bfa`) regions both have activation > 0.8, their emissive contribution makes them look nearly identical -- washed-out bright areas that lose their color-coding distinction.
-
-**Why it happens:** MeshStandardMaterial computes `finalColor = diffuse + emissive * emissiveIntensity`. When emissive is bright and intensity is high (the current code uses `maxScore * 2.0`), emissive dominates and the diffuse vertex color contribution becomes negligible.
-
-**Prevention:**
-1. **Cap emissive intensity** to 0.3-0.8 range. The glow "impression" comes more from contrast with dark surroundings than from raw brightness.
-2. **Use vertex color as emissive color** scaled down: `emissive = vertexColor * 0.3`. This preserves hue while adding glow. Requires a custom shader or `onBeforeCompile` callback since `meshStandardMaterial` only supports a single `emissive` color, not per-vertex emissive.
-3. **If using bloom, let bloom create the glow** rather than cranking emissive. Bloom preserves hue better because it works in screen-space and blurs existing colors rather than adding flat emissive contribution.
-4. **Test with multiple high-activation regions visible simultaneously.** The worst case is when 3+ regions are all above 0.8 -- they should remain visually distinct by color.
-
-**Detection:** Take a screenshot with multiple high-activation regions. If you cannot tell which region is which without reading the legend, emissive is too high.
-
-**Phase:** Address during visual tuning, after the basic glow system is working.
+**Phase to address:**
+Phase 2 (Discovery/Leaderboard) -- must use cursor pagination and indexed columns from day one. Changing pagination style later is a breaking API change for any consumers.
 
 ---
 
-### Pitfall 9: Geometry Clone Leak on Component Remount
+### Pitfall 5: Toggling Public/Private Breaks Cross-User References
 
-**What goes wrong:** Both `BrainHeatmapMesh.tsx` (line 21-24) and `BrainNetworkMesh.tsx` (line 46-48) create `clonedGeometry` in `useMemo` but never dispose it on unmount. Each clone holds GPU-side vertex buffer objects (VBOs). If the component unmounts and remounts (e.g., switching view modes, navigating away and back), the old GPU buffers leak.
+**What goes wrong:**
+User publishes an analysis, it accumulates 50 views and 12 bookmarks, then toggles it private. Now: bookmarks in other users' lists point to an inaccessible analysis, view counts are orphaned, and the leaderboard has a stale entry until the next query. Teams ship the toggle as a simple boolean flip without defining cascade behavior, leading to broken bookmark pages and confused users.
 
-**Why it happens:** Three.js GPU resources require explicit `.dispose()` calls. JavaScript's garbage collector handles the JS-side objects but cannot reach the GPU memory. React's `useMemo` has no cleanup callback -- only `useEffect` does.
+**Why it happens:**
+The toggle appears trivially simple -- it's one column update. But social features create cross-user references (bookmarks, view history) that span ownership boundaries. The database schema connects the data; the toggle behavior needs to be designed explicitly.
 
-**Consequences:** Each mount/unmount leaks ~480KB of GPU memory (20,484 vertices x 3 components x 4 bytes x 2 attributes: position + color). Over a session with frequent mode toggles, this accumulates and can cause WebGL context loss on memory-constrained devices.
+**How to avoid:**
+- Define the privacy contract BEFORE building social features:
+  - Toggle to private: analysis disappears from leaderboard (handled automatically by RLS if the leaderboard query uses anon/user context). Existing bookmarks show "This analysis is no longer public" as a graceful placeholder, not a 404 or error card. View count is preserved but hidden from public.
+  - Toggle back to public: previous bookmarks reactivate, view count resumes from where it was. Don't delete social data on toggle.
+- In the bookmarks query, use a LEFT JOIN to the jobs table with the RLS-filtered view. If the job is private, the LEFT JOIN returns NULL for job columns -- render the placeholder.
+- Add a `published_at` timestamp to track when an analysis was last made public. This enables "recently published" sorting and distinguishes republished content from newly created content.
 
-**Prevention:**
-```typescript
-useEffect(() => {
-  return () => {
-    clonedGeometry.dispose();
-  };
-}, [clonedGeometry]);
-```
+**Warning signs:**
+- Bookmark lists showing blank/broken cards
+- Users toggling public/private rapidly to game view counts or leaderboard position
+- Error logs from bookmark queries failing on missing job references
 
-**Phase:** Quick fix, apply during any refactoring phase.
+**Phase to address:**
+Phase 1 (Privacy Controls) for toggle behavior definition; Phase 3 (Social Features) for bookmark/view cascade implementation.
+
+---
+
+### Pitfall 6: No Profile Backfill for Existing Users
+
+**What goes wrong:**
+The profiles table is created with a foreign key to `auth.users`, and a database trigger is added to create a profile row `AFTER INSERT ON auth.users`. But users who signed up BEFORE the migration have no profile row. They log in, and every query that JOINs on profiles returns NULL or errors out. The app crashes or shows blank data for the most important users -- your existing ones.
+
+**Why it happens:**
+Developers test the new flow end-to-end with fresh signups and everything works. Nobody tests with an existing account because the dev environment was recently seeded. The trigger only fires on NEW signups, not existing rows.
+
+**How to avoid:**
+- In the same migration that creates the `profiles` table and trigger, include a backfill statement: `INSERT INTO profiles (user_id, username) SELECT id, 'user_' || substr(id::text, 1, 8) FROM auth.users WHERE id NOT IN (SELECT user_id FROM profiles)`. This gives every existing user a placeholder username they can change.
+- Test the migration against a database snapshot with existing users before deploying.
+- Add a "complete your profile" interstitial that shows for users with placeholder usernames.
+- Make the profiles table JOIN safe: use LEFT JOIN in all queries so a missing profile degrades gracefully instead of erroring.
+
+**Warning signs:**
+- Existing users seeing error pages after the social update deploys
+- Profile-related database constraint violations
+- Empty username displays on analysis cards
+
+**Phase to address:**
+Phase 1 (User Profiles) -- must be part of the initial migration, not an afterthought.
 
 ---
 
-## Minor Pitfalls
+## Technical Debt Patterns
 
-### Pitfall 10: Color Space Mismatch (sRGB vs Linear)
+Shortcuts that seem reasonable but create long-term problems.
 
-**What goes wrong:** d3 colormaps output colors in sRGB space. Three.js (r152+, which R3F uses) defaults to `outputColorSpace = SRGBColorSpace` and performs sRGB encoding in the shader. If vertex colors are already in sRGB and the renderer encodes them again, midtones appear washed out (gamma applied twice). Conversely, if you linearize the colors but the renderer does not re-encode, colors appear too dark.
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Storing sort scores in JSONB `results` instead of dedicated columns | No schema change needed | Every leaderboard query does JSONB extraction, can't use B-tree index, O(N) sort per page load | Never for fields used in ORDER BY |
+| OFFSET pagination for leaderboard | Simple implementation, familiar pattern | O(N) scan for deep pages, inconsistent results under concurrent writes | Only if total public analyses will never exceed ~100 |
+| Skipping username blocklist | Ship profiles faster | Impersonation risk, squatting "admin"/"support"/"neurocut", costly to reclaim later | Never |
+| Single `jobs` table for both private and public data | No new tables, simpler schema | RLS policy complexity grows, every query carries public/private filter overhead | Acceptable for MVP with a partial index on `is_public = true` |
+| Client-side view count increment via read-modify-write | No server function needed | Race conditions lose increments, trivially gameable by refresh | Never |
+| Default `is_public = true` on new analyses | Content appears on leaderboard immediately | Privacy violation -- users may not expect their analysis to be public | Never. Default must be `false`. |
 
-**Prevention:** When building the LUT (Pitfall 1 fix), convert sRGB values to linear: `linear = Math.pow(srgb, 2.2)`. Or set `colorAttribute.colorSpace = THREE.SRGBColorSpace` to tell Three.js the colors are already in sRGB and should be used as-is. Verify by comparing a test frame against the d3 colormap reference.
+## Integration Gotchas
 
-### Pitfall 11: OrbitControls Damping Fights Auto-View Transitions
+Common mistakes when connecting to existing NeuroCut systems.
 
-**What goes wrong:** The current `enableDamping` with `dampingFactor={0.08}` creates smooth manual orbiting. If the overhaul adds auto-rotation or auto-view-switching (e.g., rotate to show the most active hemisphere), damping makes programmatic camera changes feel sluggish and "floaty." Calling `setAzimuthalAngle()` while damping is active creates a fight between the target position and the damping interpolation.
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Supabase Auth -> Profiles | Assuming `auth.users` table has a corresponding profile. Works for new users (trigger creates it) but breaks for pre-existing users. | Run a backfill migration for existing users AND add a database trigger for new signups. Both are required. |
+| Supabase Storage (videos) | Using a public bucket for all videos, then trying to restrict access when analysis is toggled private. Public bucket = anyone with the URL can access, forever. | Use a private bucket for all videos. Generate short-lived signed URLs server-side for public analysis video playback. |
+| RunPod results -> Leaderboard scores | Querying JSONB `results` field in ORDER BY for leaderboard sorting. Works but prevents index usage. | At job completion, extract `peak_activation` and `avg_activation` into dedicated numeric columns. One-time write cost, saves every read. |
+| Supabase RLS + Anonymous leaderboard access | Using service role key in the leaderboard API route to "bypass RLS and just show public stuff." Defeats the entire purpose of RLS. | Use the anon key for leaderboard queries. Write RLS policies that explicitly allow anonymous reads on public rows. Let the database enforce access. |
+| Next.js API routes + Supabase auth | Using client-side Supabase client in API routes. The client-side client doesn't carry the user's session in server context. | Use `createServerClient` from `@supabase/ssr` in API routes and middleware. Pass cookies for session context. |
 
-**Prevention:** Do not auto-rotate based on activation. If programmatic view transitions are needed, temporarily disable damping, animate with spring-based interpolation (react-spring `useSpring` targeting camera position), then re-enable damping.
+## Performance Traps
 
-### Pitfall 12: Object Allocation Inside useFrame
+Patterns that work at small scale but fail as usage grows.
 
-**What goes wrong:** Inside a `useFrame` callback, allocating `new THREE.Color()`, `new THREE.Vector3()`, or even using spread operators (`{...obj}`) creates garbage every frame. At 60fps, even small allocations accumulate and trigger GC pauses that appear as periodic stutter every 2-5 seconds.
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Full table scan for leaderboard sorting on JSONB field | Slow page loads, high DB CPU, sequential scan in EXPLAIN | Dedicated indexed columns for sort fields + partial index on `is_public = true` | 500+ public analyses |
+| OFFSET pagination on deep pages | Page 10+ takes 1-2s, page 50+ times out | Cursor/keyset pagination: `WHERE (score, id) < ($last, $last_id)` | 200+ total public results |
+| COUNT(*) for "page X of Y" display | Extra full-table scan on every page load | Skip total count. Use "Load More" button instead of page numbers. | 1000+ public rows |
+| N+1 queries on leaderboard (profile per analysis) | 20 leaderboard items = 21 database queries | JOIN profiles in the leaderboard query or use a Postgres view | Always -- even 20 items = 20 extra round-trips |
+| Unbounded bookmark list fetch | User with 200+ bookmarks causes slow load | Paginate bookmark lists (20 per page), use cursor pagination | 50+ bookmarks per user |
+| Real-time subscriptions on the leaderboard | Supabase Realtime channel per leaderboard visitor, broadcast on every analysis publish | Don't use Realtime for leaderboards. Serve from cache/static query. Refresh on user action (pull-to-refresh, navigation). | 10+ concurrent leaderboard viewers |
 
-**Prevention:** Pre-allocate ALL reusable objects (temp colors, vectors) at module scope or component scope (outside `useFrame`). Call `.set()` or `.copy()` to mutate them in place. Never use `Array.map()`, `Array.filter()`, spread operators, or `new` inside `useFrame`.
+## Security Mistakes
 
----
+Domain-specific security issues beyond general web security.
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Exposing `user_id` (UUID) in public API responses | User enumeration, cross-referencing with other services, potential for targeted attacks | Use username as the public identifier. Strip `user_id` from all leaderboard/discovery responses. |
+| No rate limit on analysis publication toggle | User spams public/private to game "recently published" ranking or inflate view counts | Debounce toggle (max 1 change per minute). Rate-limit the UPDATE endpoint. |
+| Bookmark/view data revealing user behavior | Privacy leak -- if bookmark lists or view history are public, others learn what content a user consumes | Bookmarks and view history are private to the owning user by default. No public "User X bookmarked this" display. |
+| Allowing username changes without cooldown | Username squatting, impersonation, confusion when previous URLs break | 30-day cooldown between username changes. Optionally keep a previous_usernames log for redirect. |
+| Using `user_metadata` from JWT in RLS policies | Users can modify their own `user_metadata` via Supabase client. An RLS policy that trusts metadata can be bypassed. | Only use `auth.uid()` in RLS policies. Never trust claims from `raw_user_meta_data`. |
 
 ## UX Pitfalls
 
-### Pitfall 13: All 9 Regions Simultaneously = Visual Chaos
+Common user experience mistakes in this domain.
 
-**What goes wrong:** The overhaul removes toggle filters and shows dynamic glow. If all 9 brain regions display at full intensity simultaneously, the brain becomes an unintelligible multicolor light show. Users cannot extract meaning -- it looks "cool" but communicates nothing.
-
-**Prevention:**
-1. **Show only the top 2-3 regions by activation score** at any given moment. Fade others to the dark base color. Creates a clear visual narrative: "attention and reward are driving engagement in this segment."
-2. **Use a dominant-region approach:** highest-scoring region gets full intensity, second gets 50%, third gets 25%, rest suppressed. Creates visual hierarchy.
-3. **The static color legend should highlight the currently-dominant region** (bold, pulse, or increased opacity on the legend item matching the brightest region). Gives users a text anchor for what they see.
-
-### Pitfall 14: "Simplified" UI That Removes User Agency
-
-**What goes wrong:** The overhaul goal says "remove toggle filter buttons, replace with static legend." While simplification is correct, completely removing the ability to focus on a single region removes a valuable analytical tool. Power users (the content creators who care about specific metrics) lose the ability to say "show me JUST the emotional processing activation."
-
-**Prevention:** Keep the legend interactive but subtle. Clicking a legend item could isolate that region (dim everything else). Double-click or "show all" returns to the multi-region view. This preserves simplicity (no cluttered button bar) while maintaining analytical depth for users who want it.
-
----
-
-## Phase-Specific Warnings
-
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Performance foundation (do first) | Pitfall 1 (CPU colormap), Pitfall 3 (DynamicDrawUsage), Pitfall 9 (geometry leak) | Build LUT, set usage hint, add dispose cleanup. These are prerequisites for everything else. |
-| Animation system | Pitfall 2 (useEffect vs useFrame), Pitfall 6 (lerp creep), Pitfall 12 (object allocation) | Refactor to useFrame + useRef pattern; add snap-to-target epsilon; pre-allocate temp objects. |
-| Visual design (glow/bloom) | Pitfall 4 (EffectComposer cost), Pitfall 8 (emissive bleaching), Pitfall 10 (color space) | Prototype emissive-only first; only add bloom if emissive alone is insufficient. Verify color space. |
-| Threshold activation | Pitfall 7 (popping artifacts) | Implement smoothstep + hysteresis before testing with real data. |
-| Video sync | Pitfall 5 (timeupdate drift) | Poll currentTime in useFrame or use requestVideoFrameCallback. |
-| UX simplification | Pitfall 13 (visual chaos), Pitfall 14 (removed user agency) | Design top-N-regions rule; keep legend subtly interactive. |
-| Camera/interaction | Pitfall 11 (damping fights transitions) | Do not auto-rotate; use spring animations for programmatic camera moves. |
-
----
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| No confirmation before making analysis public | Users accidentally publish incomplete or embarrassing analyses | Confirmation dialog: "This analysis will appear on the public leaderboard. Continue?" with a preview of what others will see. |
+| Leaderboard only shows all-time top scores | New analyses never surface because established content dominates the top | Time-based tabs: "Recent", "This Week", "All Time". Default to "Recent" so new content gets visibility. |
+| Empty leaderboard state shows nothing | First users see a blank page, feel the product is broken or abandoned | Show a CTA: "Be the first to share a neural analysis" with explanation of how publishing works. |
+| Requiring username at signup | Adds friction to onboarding, users who just want to analyze their own videos don't need a public identity | Allow signup without username. Prompt for username only when they first try to publish (just-in-time identity). |
+| No visual distinction between public and private on own analysis list | Users forget which analyses are public and may not realize something is visible to others | Clear badge or icon on each analysis card (lock icon for private, globe icon for public). |
+| Bookmark button with no feedback | User clicks bookmark, nothing visible happens, they click again (unbookmarking), confused | Optimistic UI: immediate visual toggle (filled/unfilled icon) with toast notification. Revert on network failure. |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Frame budget verified:** Brain viewer maintains 60fps with smooth animation on a device with integrated GPU (test on a non-gaming laptop or use Chrome GPU throttling)
-- [ ] **Animation settles:** After pausing video for 5 seconds, `needsUpdate` is no longer being set (Pitfall 6)
-- [ ] **Color accuracy:** Screenshot of brain with known activation values matches expected colormap output (no double-gamma, no sRGB mismatch)
-- [ ] **Threshold stability:** Test data with values oscillating around threshold shows no flickering (Pitfall 7)
-- [ ] **Region distinction:** With 3+ regions at high activation, colors remain visually distinguishable (not washed out white)
-- [ ] **Video sync:** Scrub video rapidly, brain tracks immediately. Pause, brain stops immediately. No perceptible lag.
-- [ ] **Memory stability:** Toggle views 20 times, no increasing GPU memory (WebGL context stays healthy)
-- [ ] **Bloom off comparison:** Verified that the visualization still communicates clearly with bloom disabled (graceful degradation)
-- [ ] **Legend readability:** Non-technical user can look at the legend and identify which brain region is glowing brightest
+Things that appear complete but are missing critical pieces.
 
----
+- [ ] **User Profiles:** Often missing reserved username blocklist -- verify "admin", "support", "neurocut", "api", "settings" are rejected
+- [ ] **User Profiles:** Often missing backfill for existing users -- verify pre-v4.0 users have profile rows and can log in without errors
+- [ ] **Public Toggle:** Often missing cascade definition -- verify that toggling private makes bookmarks show placeholder (not error/blank) and leaderboard updates promptly
+- [ ] **Leaderboard:** Often missing anonymous access -- verify unauthenticated visitors can browse without signing in (RLS allows anon reads on public rows)
+- [ ] **Leaderboard:** Often missing the N+1 fix -- verify the leaderboard query JOINs profiles in a single query, not per-card
+- [ ] **View Counts:** Often missing deduplication -- verify same user refreshing doesn't inflate count indefinitely
+- [ ] **Bookmarks:** Often missing the unbookmark flow -- verify removal works and bookmark count decrements correctly
+- [ ] **Discovery Page:** Often missing Open Graph metadata -- verify shared links show title, neural score, and thumbnail in social media previews
+- [ ] **RLS Policies:** Often missing the combined public+owner policy -- verify the new policy replaces (not supplements) the old owner-only SELECT policy to avoid unintended OR behavior
+- [ ] **Video Access:** Often missing access control on the video asset itself -- verify private analysis videos are not accessible via direct URL
+
+## Recovery Strategies
+
+When pitfalls occur despite prevention, how to recover.
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Private analyses exposed via broken RLS | HIGH | Fix policy immediately. Audit Supabase logs for unauthorized reads. Notify affected users. Data exposure cannot be undone. |
+| Case-sensitive username duplicates | MEDIUM | Enable `citext` extension, identify conflicts, email affected users to choose new usernames, run deduplication migration with conflict resolution. |
+| OFFSET pagination causing slow leaderboard | MEDIUM | Implement cursor pagination (breaking change for any API consumers), add composite index, deploy new endpoint. Old clients need update. |
+| View counts inaccurate from race conditions | LOW | Create atomic RPC function. If a views log table exists, recalculate from it. If not, accept current counts and prevent future drift. |
+| Leaderboard sorting on JSONB column | MEDIUM | Add dedicated numeric columns, backfill from JSONB, create index, update queries. No downtime needed but slow queries persist until migration completes. |
+| Missing profiles for existing users | LOW | Run backfill INSERT. Add "complete your profile" prompt. Fix any JOIN queries that fail on NULL profile. |
+| Video URLs leaked for private analyses | HIGH | Rotate storage bucket to private if it was public. Regenerate signed URLs. Cannot revoke knowledge of previously exposed URLs. |
+
+## Pitfall-to-Phase Mapping
+
+How roadmap phases should address these pitfalls.
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| RLS policy gap for public access | Phase 1 (Profiles + Privacy) | Test: anon reads public = OK, anon reads private = empty, owner reads own private = OK |
+| Video URL exposure | Phase 1 (Privacy Controls) | Test: private analysis video URL returns 403 for non-owner |
+| Username case sensitivity | Phase 1 (User Profiles) | Test: creating "Foo" after "foo" exists returns unique constraint error |
+| Profile backfill for existing users | Phase 1 (User Profiles) | Test: every row in `auth.users` has a matching `profiles` row after migration |
+| Leaderboard query performance | Phase 2 (Discovery/Leaderboard) | Test: EXPLAIN ANALYZE shows index scan (not seq scan) on leaderboard query with 1000+ rows |
+| Cursor pagination | Phase 2 (Discovery/Leaderboard) | Test: page 50 loads in same time as page 1 |
+| N+1 queries on leaderboard | Phase 2 (Discovery/Leaderboard) | Test: single database query for leaderboard page (check Supabase query logs) |
+| Public/private toggle cascade | Phase 3 (Social Features) | Test: bookmark list shows placeholder for toggled-private analysis, no errors |
+| View count atomicity | Phase 3 (Social Features) | Test: 10 concurrent increment requests result in count = 10 |
+| View count deduplication | Phase 3 (Social Features) | Test: same user viewing same analysis 5 times counts as 1 unique view |
 
 ## Sources
 
-- [React Three Fiber: Performance Pitfalls (official)](https://r3f.docs.pmnd.rs/advanced/pitfalls) -- HIGH confidence. "Don't setState in useFrame" warning, object re-creation guidance.
-- [React Three Fiber: Scaling Performance (official)](https://r3f.docs.pmnd.rs/advanced/scaling-performance) -- HIGH confidence. DPR, draw call, LOD guidance.
-- [Three.js BufferAttribute docs](https://threejs.org/docs/pages/BufferAttribute.html) -- HIGH confidence. `needsUpdate`, `setUsage`, `addUpdateRange` API.
-- [Three.js BufferAttribute Usage Constants](https://threejs.org/docs/api/en/constants/BufferAttributeUsage.html) -- HIGH confidence. DynamicDrawUsage specification.
-- [Three.js forum: Buffer attribute update performance](https://discourse.threejs.org/t/updating-buffer-attribute-performance-is-incredibly-slow/36415) -- MEDIUM confidence. Community-reported performance numbers for dynamic updates.
-- [React Postprocessing: Bloom docs](https://react-postprocessing.docs.pmnd.rs/effects/bloom) -- HIGH confidence. Bloom configuration, selective bloom cost.
-- [pmndrs/react-postprocessing GitHub](https://github.com/pmndrs/react-postprocessing) -- HIGH confidence. EffectComposer merging behavior.
-- [Codrops: Building Efficient Three.js Scenes (2025)](https://tympanus.net/codrops/2025/02/11/building-efficient-three-js-scenes-optimize-performance-while-maintaining-quality/) -- MEDIUM confidence. General performance patterns.
-- [Maxime Heckel: Shaders with R3F](https://blog.maximeheckel.com/posts/the-study-of-shaders-with-react-three-fiber/) -- MEDIUM confidence. Custom shader patterns in R3F.
-- Codebase analysis: `BrainHeatmapMesh.tsx`, `BrainNetworkMesh.tsx`, `BrainViewerCanvas.tsx`, `BrainViewer.tsx`, `colormap.ts`, `brain-utils.ts` -- HIGH confidence (direct code review identifying exact line numbers of current issues).
+- NeuroCut codebase analysis: `web/supabase/migrations/00001_create_jobs_table.sql` through `00003` -- current RLS policies and schema
+- NeuroCut codebase analysis: `web/src/lib/database.types.ts` -- current TypeScript types showing JSONB results column
+- [Supabase RLS Documentation](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Supabase RLS Best Practices (Makerkit)](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices)
+- [Supabase Storage Access Control](https://supabase.com/docs/guides/storage/security/access-control)
+- [Supabase Storage Buckets](https://supabase.com/docs/guides/storage/buckets/fundamentals)
+- [Case-insensitive usernames with Postgres citext](https://paulhoffer.com/2019/04/16/case-insensitive-emails-and-usernames-with-postgres.html)
+- [The Perils of Uniqueness Validations (Thoughtbot)](https://thoughtbot.com/blog/the-perils-of-uniqueness-validations)
+- [Five Ways to Paginate in Postgres (CitusData)](https://www.citusdata.com/blog/2016/03/30/five-ways-to-paginate/)
+- [Optimizing SQL Pagination in Postgres (Readyset)](https://readyset.io/blog/optimizing-sql-pagination-in-postgres)
+- [Supabase RPC for Atomic Increments](https://medium.com/geekculture/using-stored-procedures-rpc-in-supabase-to-increment-a-like-counter-9c5b2293a65b)
+- [GitLab Pagination Performance Guidelines](https://docs.gitlab.com/ee/development/database/pagination_performance_guidelines.html)
+- [Supabase Signed URLs Discussion](https://github.com/orgs/supabase/discussions/6458)
 
 ---
-*Pitfalls research for: NeuroCut v3.0 Brain Visualization UX Overhaul -- dynamic glow, 60fps animation, video sync*
-*Researched: 2026-04-10*
+*Pitfalls research for: NeuroCut v4.0 Social Discovery Platform*
+*Researched: 2026-04-11*

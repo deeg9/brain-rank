@@ -1,408 +1,609 @@
-# Architecture: Brain Viewer UX Overhaul (Dynamic Glow)
+# Architecture Patterns: Social Discovery Platform
 
-**Domain:** 3D brain visualization simplification -- cluttered multi-mode UI to single dynamic glow
-**Researched:** 2026-04-10
-**Overall confidence:** HIGH (based on direct codebase analysis of existing components)
+**Domain:** Social discovery layer on top of existing private neural analysis tool
+**Researched:** 2026-04-11
 
-## Executive Summary
+## Existing Architecture Snapshot
 
-The current brain viewer has accumulated UI complexity that obscures its core value: showing which brain regions light up as a video plays. The architecture has a heatmap/regions toggle, a colormap selector dropdown, 9 network filter buttons (each togglable), and 4 view-angle buttons -- totaling 16 interactive controls in a component that should tell a story passively. The overhaul collapses this to a single visualization mode where the brain glows dynamically using the existing per-vertex heatmap data, with a static color legend replacing the interactive filter buttons. No new data pipelines are needed -- the vertex_data and region scoring infrastructure is already complete and working.
+Before defining new architecture, here is what exists today:
+
+```
+web/
+  src/
+    app/
+      (auth)/          -- login, signup, forgot-password (public)
+      (app)/           -- dashboard, upload, processing, results/[id], profile, settings (auth-gated)
+      api/jobs/        -- POST (create), GET/PATCH [id], status polling, retry
+    components/        -- results/, layout/, ui/, upload/, hero/
+    lib/
+      supabase/        -- server.ts, client.ts, middleware.ts
+      database.types.ts -- Job interface only
+      upload.ts        -- Supabase Storage upload to 'videos' bucket
+  middleware.ts        -- Auth redirect: unauthed -> /login, authed on /login -> /dashboard
+```
+
+**Current DB schema:** Single `jobs` table with `user_id`, `video_url`, `title`, `status`, `runpod_id`, `results`, `error_message`, timestamps. RLS filters by `user_id` (owner-only access).
+
+**Key pattern:** Server components fetch data via Supabase server client. Client components fetch via `/api/jobs/[id]`. No public-facing data paths exist.
 
 ---
 
-## Current Architecture (What Exists)
+## Recommended Architecture
 
-### Component Tree
-
-```
-BrainViewer.tsx (wrapper)
-  |-- State: viewMode ('heatmap' | 'regions'), colormap, visibleRegions (9 booleans)
-  |-- UI: mode toggle, colormap dropdown, 4 view-angle buttons, 9 region filter buttons
-  |-- Canvas (R3F)
-  |     |-- BrainViewerCanvas.tsx (forwardRef, imperative view controls)
-  |     |     |-- IF heatmap: BrainHeatmapMesh.tsx (per-vertex coloring via Float32Array)
-  |     |     |-- IF regions: BrainNetworkMesh.tsx (per-vertex coloring via region masks)
-  |     |     |-- OrbitControls (user drag rotation)
-  |     |     |-- IF regions: EffectComposer > Bloom
-  |     |-- Suspense fallback
-  |-- IF regions mode: 9 interactive filter buttons with scores
-```
-
-### Data Flow (Current)
+### High-Level Data Flow
 
 ```
-segments[] + currentTime
-  |
-  +--> getRegionsAtTime() --> SegmentRegionScores (9 floats) --> BrainNetworkMesh
-  |
-  +--> getVertexDataAtTime() --> base64 string --> decodeVertexData() --> Float32Array(20484) --> BrainHeatmapMesh
+EXISTING (private):
+  User -> Auth -> Dashboard -> Upload -> Job -> Results (owner only)
+
+NEW (public layer):
+  User -> Auth -> Profile Setup (username) -> Toggle analysis public
+  Anyone -> /discover -> Browse public analyses -> View /u/[username]/[id]
+  Anyone -> /u/[username] -> View public profile + public analyses
 ```
 
-### What Each Component Does
+### New Route Map
 
-| Component | Lines | Role | Controls Owned |
-|-----------|-------|------|----------------|
-| `BrainViewer.tsx` | 184 | Outer wrapper, all state, all control UI | Mode toggle, colormap dropdown, 4 view buttons, 9 filter buttons |
-| `BrainViewerCanvas.tsx` | 108 | R3F scene, lighting, camera, mode switching | Imperative view methods (front/top/left/right) |
-| `BrainHeatmapMesh.tsx` | 57 | Loads unified GLB, applies colormap to vertex colors | None |
-| `BrainNetworkMesh.tsx` | 134 | Loads unified GLB, colors vertices by region mask + score | None |
-| `brain-utils.ts` | 64 | Time lookup, region colors constant | N/A |
-| `colormap.ts` | 41 | d3 colormaps (plasma/inferno/viridis) | N/A |
-| `vertex-codec.ts` | 40 | Base64 decode, uint8-to-float | N/A |
+| Route | Type | Auth Required | Purpose |
+|-------|------|---------------|---------|
+| `/discover` | Server Component | NO | Public leaderboard/feed of public analyses |
+| `/u/[username]` | Server Component | NO | Public user profile page |
+| `/u/[username]/[id]` | Server Component | NO | Public analysis view (read-only results) |
+| `/api/profiles/[username]` | API Route | NO (read) / YES (write) | Profile lookup + update |
+| `/api/discover` | API Route | NO | Paginated public feed with sorting/filtering |
+| `/api/analyses/[id]/visibility` | API Route | YES | Toggle public/private |
+| `/api/analyses/[id]/bookmark` | API Route | YES | Add/remove bookmark |
+| `/api/analyses/[id]/view` | API Route | NO | Increment view count (fire-and-forget) |
+
+### Component Boundaries
+
+| Component | Responsibility | Communicates With |
+|-----------|---------------|-------------------|
+| `profiles` table | User identity (username, display_name, avatar_url, bio) | Referenced by jobs, bookmarks |
+| `jobs` table (modified) | Add `is_public`, `view_count`, `bookmark_count` columns | Queried by discover feed, public views |
+| `bookmarks` table (new) | User-analysis bookmark relationship | Queried by profile, discover sorting |
+| ProfileSetup component | Onboarding flow for username selection | `/api/profiles/[username]` |
+| DiscoverFeed component | Public feed with sorting, infinite scroll | `/api/discover` |
+| PublicResultsView component | Read-only version of results page | Direct Supabase query (server component) |
+| VisibilityToggle component | Public/private switch on analysis cards | `/api/analyses/[id]/visibility` |
+| BookmarkButton component | Bookmark toggle on public analyses | `/api/analyses/[id]/bookmark` |
 
 ---
 
-## Target Architecture (Dynamic Glow)
+## New Database Schema
 
-### Design Goal
+### Table: `profiles`
 
-The brain simply glows. As the video plays, regions that activate light up with intensity proportional to their score. Regions below threshold stay dark. No toggles, no mode switching, no colormap picker. The user watches the video and sees the brain respond. A static legend tells them what each color means.
+```sql
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT UNIQUE NOT NULL,
+  display_name TEXT,
+  avatar_url TEXT,
+  bio TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
 
-### Visual Behavior
+-- Enforce lowercase, alphanumeric + underscores, 3-30 chars
+ALTER TABLE profiles ADD CONSTRAINT username_format
+  CHECK (username ~ '^[a-z0-9_]{3,30}$');
 
-1. **Base state:** Dark brain mesh (#1a1a2e), barely visible -- like a dormant organ
-2. **Activation:** Regions with scores above threshold (~0.15) glow in their network color, intensity scaling with score
-3. **Bloom:** Post-processing bloom makes high-activation areas emanate light, creating the "glow" effect
-4. **Smooth transitions:** Vertex colors lerp between segment boundaries so the brain breathes rather than snapping
-5. **Auto-rotate:** Gentle slow rotation so the user sees all angles without needing view buttons
-
-### Component Tree (New)
-
+-- Fast lookup by username
+CREATE UNIQUE INDEX idx_profiles_username ON profiles(username);
 ```
-BrainViewer.tsx (simplified wrapper)
-  |-- State: NONE (no user-toggleable state)
-  |-- UI: Title + static NetworkLegend (non-interactive)
-  |-- Canvas (R3F)
-  |     |-- BrainGlowScene.tsx (replaces BrainViewerCanvas)
-  |     |     |-- BrainGlowMesh.tsx (replaces both BrainHeatmapMesh AND BrainNetworkMesh)
-  |     |     |-- OrbitControls (user drag, plus autoRotate)
-  |     |     |-- EffectComposer > Bloom (always on)
-  |     |-- Suspense fallback
-  |-- NetworkLegend.tsx (static, non-interactive)
+
+**Why a separate table instead of auth.users metadata:** Supabase auth.users is system-managed. You cannot add unique constraints, indexes, or RLS policies to it. A `profiles` table is the standard Supabase pattern for user-facing data. Link via `id` (same UUID as auth.users).
+
+### Columns added to `jobs` table
+
+```sql
+ALTER TABLE jobs ADD COLUMN is_public BOOLEAN DEFAULT false;
+ALTER TABLE jobs ADD COLUMN view_count INTEGER DEFAULT 0;
+ALTER TABLE jobs ADD COLUMN bookmark_count INTEGER DEFAULT 0;
+
+-- Index for discover feed queries
+CREATE INDEX idx_jobs_public_created ON jobs(is_public, created_at DESC)
+  WHERE is_public = true AND status = 'completed';
+
+-- Index for sorting by score (stored in JSONB)
+CREATE INDEX idx_jobs_public_score ON jobs(is_public, ((results->>'overall_score')::float) DESC)
+  WHERE is_public = true AND status = 'completed';
+```
+
+### Table: `bookmarks`
+
+```sql
+CREATE TABLE bookmarks (
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (user_id, job_id)
+);
+
+CREATE INDEX idx_bookmarks_user ON bookmarks(user_id, created_at DESC);
+```
+
+### View counting approach
+
+Use a simple RPC to increment `jobs.view_count` directly. Skip a separate `view_events` table for now -- it adds complexity without value at the current scale (<1000 users). If deduplication becomes important later, add a `view_events` append-only table with hashed IPs and aggregate via a cron function.
+
+---
+
+## RLS Policies
+
+### profiles
+
+```sql
+-- Anyone can read any profile (public pages)
+CREATE POLICY "Public profiles are viewable by everyone"
+  ON profiles FOR SELECT USING (true);
+
+-- Users can only update their own profile
+CREATE POLICY "Users can update own profile"
+  ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Users can insert their own profile (one-time setup)
+CREATE POLICY "Users can insert own profile"
+  ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+```
+
+### jobs (modified policies)
+
+```sql
+-- EXISTING: Owner can see all their own jobs
+CREATE POLICY "Users can view own jobs"
+  ON jobs FOR SELECT USING (auth.uid() = user_id);
+
+-- NEW: Anyone can see public completed jobs
+CREATE POLICY "Public completed jobs are viewable by everyone"
+  ON jobs FOR SELECT USING (is_public = true AND status = 'completed');
+
+-- EXISTING: Owner can update their own jobs
+CREATE POLICY "Users can update own jobs"
+  ON jobs FOR UPDATE USING (auth.uid() = user_id);
+
+-- EXISTING: Owner can insert jobs
+CREATE POLICY "Users can insert own jobs"
+  ON jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+```
+
+**Critical note on RLS OR semantics:** When multiple SELECT policies exist on the same table, Supabase evaluates them with OR. So a query returns rows where EITHER the user owns it OR it is public+completed. An unauthenticated user querying `jobs` will only see public completed ones (auth.uid() is null, so the owner policy fails, public policy succeeds). This is exactly the desired behavior.
+
+### bookmarks
+
+```sql
+-- Users can see their own bookmarks
+CREATE POLICY "Users can view own bookmarks"
+  ON bookmarks FOR SELECT USING (auth.uid() = user_id);
+
+-- Users can insert their own bookmarks
+CREATE POLICY "Users can insert own bookmarks"
+  ON bookmarks FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can delete their own bookmarks
+CREATE POLICY "Users can delete own bookmarks"
+  ON bookmarks FOR DELETE USING (auth.uid() = user_id);
 ```
 
 ---
 
-## Component Disposition
+## TypeScript Type Changes
 
-### REMOVE (delete entirely)
-
-| Component/Element | Why Remove |
-|-------------------|------------|
-| `viewMode` state + toggle buttons | Single mode now -- no heatmap/regions switching |
-| `colormap` state + dropdown | Fixed color scheme (network colors), no user choice |
-| `visibleRegions` state + 9 filter buttons | All networks always visible, static legend instead |
-| View-angle buttons (Front/Top/Left/Right) | Auto-rotate replaces preset views; OrbitControls still allows manual drag |
-| `BrainViewerCanvasHandle` imperative ref | No view-angle buttons means no imperative camera control needed |
-| `BrainHeatmapMesh.tsx` | Replaced by BrainGlowMesh which combines both approaches |
-| `BrainNetworkMesh.tsx` | Replaced by BrainGlowMesh |
-| `colormap.ts` (d3 colormaps) | No longer needed -- colors come from REGION_COLORS, not scientific colormaps |
-| `COLORMAP_OPTIONS` export | Dead code after removal |
-
-### KEEP (unchanged)
-
-| Component/Element | Why Keep |
-|-------------------|----------|
-| `brain-utils.ts` -- `getRegionsAtTime()` | Still needed: maps currentTime to region scores |
-| `brain-utils.ts` -- `REGION_COLORS` | Still needed: canonical colors for each network |
-| `brain-utils.ts` -- `getVertexDataAtTime()` | Keep for now but may not be used in glow mode (see data flow section) |
-| `vertex-codec.ts` | Keep for now, may be used if we blend vertex data with region data |
-| Brain GLB assets | Both unified and region GLBs stay on disk |
-| `OrbitControls` | Users can still manually rotate the brain |
-| R3F `Canvas` setup | Same camera, DPR, background |
-
-### MODIFY (significant changes)
-
-| Component | What Changes |
-|-----------|-------------|
-| `BrainViewer.tsx` | Gut all state management and control UI. Becomes a thin wrapper: title + canvas + legend. Props stay the same (segments, currentTime). |
-| `BrainViewerCanvas.tsx` --> rename to `BrainGlowScene.tsx` | Remove forwardRef/imperative handle. Remove mode branching. Add autoRotate to OrbitControls. Make Bloom always-on. Simplified props (just regionScores). |
-
-### CREATE (new components)
-
-| Component | Purpose | Complexity |
-|-----------|---------|------------|
-| `BrainGlowMesh.tsx` | Single mesh that colors vertices by network region + score, using REGION_COLORS with intensity scaling. Merges the best of BrainNetworkMesh (region-aware coloring) with BrainHeatmapMesh (smooth per-vertex rendering). | Medium |
-| `NetworkLegend.tsx` | Static horizontal row of colored dots + labels. Non-interactive. Shows all 9 networks. No scores, no toggles. | Low |
-
----
-
-## New Data Flow
-
-```
-segments[] + currentTime
-  |
-  +--> getRegionsAtTime() --> SegmentRegionScores {attention: 0.72, reward: 0.45, ...}
-  |
-  +--> BrainGlowMesh receives regionScores
-  |
-  +--> Loads network-vertex-map.json (which vertices belong to which network)
-  |
-  +--> For each vertex:
-  |      - Find which network(s) it belongs to
-  |      - Get that network's score from regionScores
-  |      - If score < THRESHOLD (0.15): use BASE_COLOR (dark)
-  |      - If score >= THRESHOLD: use REGION_COLORS[network] * intensity(score)
-  |      - For overlapping vertices: highest-scoring network wins
-  |
-  +--> Write to vertex color buffer attribute
-  |
-  +--> Bloom post-processing makes bright vertices glow
-```
-
-**Key difference from current BrainNetworkMesh:** The current implementation always shows visible networks at minimum 0.15 intensity (line 87: `Math.max(0.15, score)`). The new version uses a threshold -- below threshold the vertex is dark, above threshold it glows. This creates the "lights up when active" effect instead of "always visible but dim."
-
-### Threshold Behavior
-
-```
-score < 0.15  -->  BASE_COLOR (#1a1a2e)     -- dark, dormant
-score = 0.15  -->  network color at 15%      -- barely visible, just waking up
-score = 0.50  -->  network color at 50%      -- clearly active
-score = 0.80  -->  network color at 80%      -- bright, bloom catches it
-score = 1.00  -->  network color at 100%     -- peak glow
-```
-
-### What Happens to vertex_data (Per-Vertex Heatmap)?
-
-The per-vertex Float32Array(20484) from the backend is NOT used in the glow visualization. The glow mode uses region-level scores (9 floats) mapped to vertex groups via `network-vertex-map.json`. This is simpler, faster, and produces cleaner visual results because:
-
-1. Region scores are stable (mean of thousands of vertices) -- no noisy per-vertex flickering
-2. Network colors are semantically meaningful -- users see "attention is lighting up" not "vertex 12,847 is active"
-3. No base64 decode overhead per frame
-
-The `vertex_data` field and `vertex-codec.ts` should be kept in the codebase (not deleted) in case a future "expert mode" or detailed analysis view wants per-vertex resolution. But the primary glow visualization does not need it.
-
----
-
-## Detailed Component Specifications
-
-### BrainViewer.tsx (Simplified)
-
-**Before:** 184 lines, 5 state variables, 16 interactive controls
-**After:** ~50 lines, 0 state variables, 0 interactive controls
-
-```
-Props: { segments: SegmentData[], currentTime: number }
-
-Render:
-  <div className="bg-surface-container rounded-xl p-6 flex flex-col">
-    <div className="flex items-center gap-2 mb-4">
-      <icon>neurology</icon>
-      <h3>Neural Activation Map</h3>
-    </div>
-    <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden">
-      <Canvas ...>
-        <Suspense>
-          <BrainGlowScene regionScores={getRegionsAtTime(segments, currentTime)} />
-        </Suspense>
-      </Canvas>
-    </div>
-    <NetworkLegend />
-  </div>
-```
-
-All state management (viewMode, colormap, visibleRegions) is deleted. The `canvasRef` imperative handle is deleted. The colormap import is deleted. The `toggleRegion` function is deleted.
-
-### BrainGlowScene.tsx (Replaces BrainViewerCanvas)
-
-**Props:** `{ regionScores: SegmentRegionScores | null }`
-
-No more `visibleRegions`, `viewMode`, `colormap`, `vertexData` props. No `forwardRef`. No imperative handle.
-
-Key differences from current BrainViewerCanvas:
-- `autoRotate: true, autoRotateSpeed: 0.3` on OrbitControls (gentle rotation)
-- Bloom is always on (not conditional on viewMode)
-- Bloom settings tuned for glow: `luminanceThreshold: 0.15, intensity: 2.0`
-- No mode branching -- always renders BrainGlowMesh
-- Lighting adjusted: slightly dimmer ambient (0.15) to make glow pop against dark background
-
-### BrainGlowMesh.tsx (New -- Replaces Both Mesh Components)
-
-This is essentially BrainNetworkMesh with two modifications:
-1. **Threshold gating:** Below-threshold vertices go fully dark instead of dim
-2. **No visibleRegions filter:** All networks always participate
-
-The implementation is nearly identical to the current `BrainNetworkMesh.tsx` -- it loads the same GLB, fetches the same `network-vertex-map.json`, uses the same per-vertex color buffer pattern. The changes are:
-
-```diff
-- const intensity = Math.max(0.15, score);  // always somewhat visible
-+ const intensity = score < GLOW_THRESHOLD ? 0 : score;  // dark below threshold
-
-- if (!visibleRegions[network]) continue;  // skip hidden networks
-+ // removed -- all networks always visible
-```
-
-Plus emissive intensity should scale with max active score to enhance the glow:
-
-```
-emissiveIntensity = maxScore * 3.0  // stronger glow than current 2.0
-emissive = new THREE.Color(0.05, 0.05, 0.12)  // slight blue-purple tint
-```
-
-### NetworkLegend.tsx (New)
-
-Static, non-interactive legend. Simple flex row of colored dots with labels.
-
-```
-<div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
-  {Object.entries(REGION_COLORS).map(([key, color]) => (
-    <div key={key} className="flex items-center gap-1.5">
-      <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-      <span className="text-[10px] text-on-surface-variant uppercase tracking-wider font-headline">
-        {REGION_LABELS[key]}
-      </span>
-    </div>
-  ))}
-</div>
-```
-
-No click handlers. No score display. No active/inactive states. Just "here's what the colors mean."
-
----
-
-## Smooth Transitions (Optional Enhancement)
-
-The current implementation snaps vertex colors instantly when currentTime crosses a segment boundary. For a more cinematic feel, the glow mesh could lerp between the previous and next segment's region scores:
+### Updated `database.types.ts`
 
 ```typescript
-// In BrainGlowMesh, instead of receiving a single regionScores:
-// Receive currentTime + segments, and interpolate between adjacent segments
+export interface Profile {
+  id: string
+  username: string
+  display_name: string | null
+  avatar_url: string | null
+  bio: string | null
+  created_at: string
+  updated_at: string
+}
 
-const t = (currentTime - currentSegment.start) / (currentSegment.end - currentSegment.start);
-const blendedScore = prevScore * (1 - t) + nextScore * t;
+export interface Job {
+  id: string
+  user_id: string
+  video_url: string
+  title: string | null
+  status: JobStatus
+  runpod_id: string | null
+  results: Record<string, unknown> | null
+  error_message: string | null
+  is_public: boolean        // NEW
+  view_count: number        // NEW
+  bookmark_count: number    // NEW
+  created_at: string
+  updated_at: string
+}
+
+export interface Bookmark {
+  user_id: string
+  job_id: string
+  created_at: string
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      jobs: { Row: Job; Insert: ...; Update: ... }
+      profiles: { Row: Profile; Insert: ...; Update: ... }
+      bookmarks: { Row: Bookmark; Insert: ...; Update: ... }
+    }
+  }
+}
 ```
-
-**Recommendation:** Implement this as a follow-up, not in the initial overhaul. Get the simplified architecture working first, then add interpolation. The 2-second segment windows are coarse enough that snapping is noticeable but not jarring.
 
 ---
 
-## Integration Points
+## Middleware Changes
 
-### 1. Results Page (page.tsx)
+The current middleware redirects ALL unauthenticated users to `/login` except for `/login`, `/signup`, and `/welcome`. The social discovery features require public routes.
 
-The `<BrainViewer>` component call on line 294 stays exactly the same:
+```typescript
+// middleware.ts - updated route logic
+const publicRoutes = ['/login', '/signup', '/forgot-password']
+const publicPrefixes = ['/discover', '/u/']  // NEW: public discovery routes
 
-```tsx
-<BrainViewer segments={segments} currentTime={currentTime} />
+const isPublicRoute = publicRoutes.some(route =>
+  request.nextUrl.pathname.startsWith(route)
+)
+const isPublicPrefix = publicPrefixes.some(prefix =>
+  request.nextUrl.pathname.startsWith(prefix)
+)
+const isWelcomePage = request.nextUrl.pathname === '/welcome'
+const isLandingPage = request.nextUrl.pathname === '/'
+
+// Allow unauthenticated access to public routes
+if (!user && !isPublicRoute && !isPublicPrefix && !isWelcomePage && !isLandingPage) {
+  // redirect to /login
+}
 ```
 
-No props change. The simplification is entirely internal to BrainViewer and its children. This is the most important architectural property -- the overhaul is invisible to the parent.
+---
 
-### 2. Network Vertex Map (public/data/network-vertex-map.json)
+## New Pages Architecture
 
-Already exists and is loaded by BrainNetworkMesh. BrainGlowMesh uses the same file, same fetch pattern.
+### Layout Groups
 
-### 3. GLB Asset (public/models/brain-fsaverage5-unified.glb)
+Create a new `(public)` layout group alongside `(app)` and `(auth)`:
 
-Already exists. BrainGlowMesh loads it same as BrainNetworkMesh does today.
+```
+app/
+  (public)/
+    layout.tsx          -- Minimal nav (no sidebar), optional auth state
+    discover/
+      page.tsx          -- Server component: initial data fetch
+      DiscoverFeed.tsx  -- Client component: sorting, filtering, infinite scroll
+      DiscoverCard.tsx  -- Client component: analysis card with bookmark, view count
+    u/
+      [username]/
+        page.tsx        -- Public profile page
+        [id]/
+          page.tsx      -- Public analysis view
+  (app)/
+    ...existing...
+```
 
-### 4. brain-utils.ts
+**Why a separate layout group:** The `(app)` layout wraps everything in `AppShell` (sidebar, auth-gated). Public pages need a different shell -- lighter nav, no sidebar, auth optional. Next.js route groups with `(parentheses)` share no URL segment, so `(public)/discover` maps to `/discover`.
 
-No changes needed. `getRegionsAtTime()`, `REGION_COLORS`, and `REGION_LABELS` are all reused as-is.
+### `/discover` (Discovery/Leaderboard Page)
 
-### 5. Imports to Clean Up
+**Data fetching pattern:**
 
-After removing BrainHeatmapMesh and BrainNetworkMesh, dead imports in the codebase:
-- `vertex-codec.ts` -- no longer imported by any active component (keep file, remove imports)
-- `colormap.ts` -- no longer imported (keep file or delete, no other consumers)
-- `getVertexDataAtTime` from brain-utils -- no longer called from BrainViewer
-- `decodeVertexData` from vertex-codec -- no longer called from BrainViewer
-- `COLORMAP_OPTIONS` and `ColormapName` from colormap -- no longer imported
+```typescript
+// discover/page.tsx (server component)
+export default async function DiscoverPage() {
+  const supabase = await createClient()
+
+  const { data: analyses } = await supabase
+    .from('jobs')
+    .select('*, profiles!inner(username, display_name, avatar_url)')
+    .eq('is_public', true)
+    .eq('status', 'completed')
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  return <DiscoverFeed initialData={analyses} />
+}
+```
+
+**Sorting options:** Most Recent, Highest Score, Most Viewed, Most Bookmarked. Client-side re-sorting for the initial page; API call for pagination/filter changes.
+
+### `/u/[username]` (Public Profile)
+
+```typescript
+// (public)/u/[username]/page.tsx
+export default async function PublicProfilePage({ params }) {
+  const { username } = await params
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('username', username)
+    .single()
+
+  if (!profile) notFound()
+
+  const { data: publicAnalyses } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('user_id', profile.id)
+    .eq('is_public', true)
+    .eq('status', 'completed')
+    .order('created_at', { ascending: false })
+
+  return <PublicProfile profile={profile} analyses={publicAnalyses} />
+}
+```
+
+### `/u/[username]/[id]` (Public Analysis View)
+
+Reuses existing results visualization components in read-only mode:
+
+```typescript
+// (public)/u/[username]/[id]/page.tsx
+export default async function PublicAnalysisPage({ params }) {
+  const { username, id } = await params
+  const supabase = await createClient()
+
+  const { data: job } = await supabase
+    .from('jobs')
+    .select('*, profiles!inner(username)')
+    .eq('id', id)
+    .eq('is_public', true)
+    .eq('status', 'completed')
+    .single()
+
+  if (!job || job.profiles.username !== username) notFound()
+
+  // Fire view count increment (non-blocking)
+  supabase.rpc('increment_view_count', { p_job_id: id })
+
+  return <PublicResultsView job={job} username={username} />
+}
+```
+
+---
+
+## API Routes
+
+### `/api/discover` (GET)
+
+Supports: `?sort=recent|score|views|bookmarks&cursor=...&limit=20`
+
+Uses cursor-based pagination (stable under concurrent inserts, performs well). The cursor is the `created_at` timestamp of the last item. Returns `{ items, nextCursor }`.
+
+### `/api/analyses/[id]/visibility` (PATCH)
+
+Owner-only. Toggles `is_public` boolean. Only allows toggling on completed analyses.
+
+### `/api/analyses/[id]/bookmark` (POST/DELETE)
+
+Auth-required. Uses RPC functions for atomic bookmark insert/delete + count update:
+
+```sql
+CREATE OR REPLACE FUNCTION add_bookmark(p_user_id UUID, p_job_id UUID)
+RETURNS void AS $$
+BEGIN
+  INSERT INTO bookmarks (user_id, job_id) VALUES (p_user_id, p_job_id)
+    ON CONFLICT DO NOTHING;
+  UPDATE jobs SET bookmark_count = (
+    SELECT count(*) FROM bookmarks WHERE job_id = p_job_id
+  ) WHERE id = p_job_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION remove_bookmark(p_user_id UUID, p_job_id UUID)
+RETURNS void AS $$
+BEGIN
+  DELETE FROM bookmarks WHERE user_id = p_user_id AND job_id = p_job_id;
+  UPDATE jobs SET bookmark_count = (
+    SELECT count(*) FROM bookmarks WHERE job_id = p_job_id
+  ) WHERE id = p_job_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION increment_view_count(p_job_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE jobs SET view_count = view_count + 1
+  WHERE id = p_job_id AND is_public = true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+---
+
+## Profile Onboarding Strategy
+
+**Auto-create profile on signup** via a database trigger:
+
+```sql
+CREATE OR REPLACE FUNCTION create_profile_for_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, username, display_name)
+  VALUES (
+    NEW.id,
+    'user_' || substr(NEW.id::text, 1, 8),  -- temporary username
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1))
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION create_profile_for_user();
+```
+
+This guarantees every user has a profile row. The temporary `user_abc12345` username prompts them to customize it. Check for temp usernames in the `(app)` layout and show an inline banner.
+
+**Username claim function** (atomic check + update):
+
+```sql
+CREATE OR REPLACE FUNCTION claim_username(p_user_id UUID, p_username TEXT)
+RETURNS profiles AS $$
+DECLARE
+  result profiles;
+BEGIN
+  UPDATE profiles SET username = lower(p_username), updated_at = now()
+  WHERE id = p_user_id
+  RETURNING * INTO result;
+  RETURN result;
+EXCEPTION WHEN unique_violation THEN
+  RAISE EXCEPTION 'Username already taken';
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+---
+
+## Shared Results Component Extraction
+
+The key architectural move: extract visualization from `/results/[id]/page.tsx` into a shared component.
+
+**Current state:** The `ResultsDetailPage` client component (489 lines) mixes:
+- Job fetching + polling logic (owner-specific)
+- Video-timeline sync state
+- Title editing (owner-specific)
+- Results visualization (BrainViewer, NeuralTimeline, metrics, circumplex)
+
+**Target extraction:**
+
+```
+ResultsDetailPage (owner view, /results/[id])
+  |-- Job fetching, polling, title editing, export, share button
+  |-- <ResultsVisualization results={...} videoUrl={...} readOnly={false} />
+
+PublicResultsView (public view, /u/[username]/[id])
+  |-- Creator attribution, bookmark button, view count
+  |-- <ResultsVisualization results={...} videoUrl={...} readOnly={true} />
+
+ResultsVisualization (shared component)
+  |-- VideoPlayer + BrainViewer side by side
+  |-- NeuralTimeline
+  |-- Insights Summary (metrics, circumplex)
+  |-- Video-timeline sync state (useVideoTime hook)
+```
+
+The `ResultsVisualization` component owns all the video-timeline sync logic (refs, handlers, play state) and all the visualization components. The parent only provides the data and controls whether owner actions are shown.
+
+---
+
+## Patterns to Follow
+
+### Pattern 1: Join via Foreign Keys
+Add FK from `jobs.user_id` to `profiles.id` so PostgREST joins work: `jobs.select('*, profiles!inner(username)')`. The trigger ensures profiles exist before jobs are created.
+
+### Pattern 2: Cursor-Based Pagination
+For the discover feed. Cursor = `created_at` of last item. Stable under concurrent writes, efficient at any offset.
+
+### Pattern 3: Optimistic UI for Social Actions
+Bookmark toggles update UI immediately, fire API in background, revert on failure.
+
+### Pattern 4: Denormalized Counts
+`view_count` and `bookmark_count` on `jobs` directly, updated via SECURITY DEFINER RPCs. Avoids COUNT(*) aggregation on every discover feed query.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Feature Flags Instead of Deletion
-**What:** Keeping the old mode toggle behind a feature flag "just in case."
-**Why bad:** Doubles maintenance surface. The old heatmap mode served development/debugging, not users. If vertex-level detail is needed later, build it as a separate "expert view" from scratch rather than maintaining two parallel visualization modes.
-**Instead:** Delete the old code paths. Keep utility files (vertex-codec, colormap) for potential future use but remove their integration points.
+### Anti-Pattern 1: Separate Public and Private Results Components
+**What:** Building two completely separate results page components.
+**Why bad:** Massive code duplication. The visualization is identical -- only the chrome differs.
+**Instead:** Extract `ResultsVisualization` shared component. Pass `readOnly` prop.
 
-### Anti-Pattern 2: Animated Auto-Rotate with Fast Speed
-**What:** Setting autoRotateSpeed above 0.5.
-**Why bad:** Users trying to read the visualization will fight the rotation. The brain moves too fast to correlate with video content.
-**Instead:** Use 0.2-0.3 speed. The rotation should feel ambient, like the brain is slowly breathing/turning, not spinning.
+### Anti-Pattern 2: Client-Side Username Validation Only
+**What:** Checking username availability only in the browser.
+**Why bad:** Race condition -- two users could claim the same username simultaneously.
+**Instead:** Database UNIQUE constraint is the source of truth. Client check is UX sugar.
 
-### Anti-Pattern 3: Threshold Too Low
-**What:** Setting GLOW_THRESHOLD near 0 so everything always glows.
-**Why bad:** Defeats the purpose of "lights up when active." If every region is always lit, there is no contrast, no story.
-**Instead:** Use 0.15 as threshold. Most resting-state activations are below this. Only genuinely activated regions cross it.
+### Anti-Pattern 3: Using Supabase Realtime for View Counts
+**What:** WebSocket subscriptions for counter updates.
+**Why bad:** Overkill for non-time-sensitive analytics. Wastes connection resources.
+**Instead:** Fetch on page load. No live updates needed.
 
-### Anti-Pattern 4: Per-Frame Score Interpolation Without Capping
-**What:** Interpolating between segments without clamping to [0, 1].
-**Why bad:** Overshoot artifacts can produce colors > 1.0, causing visual glitches with bloom.
-**Instead:** Always `Math.min(1, Math.max(0, interpolatedScore))`.
+### Anti-Pattern 4: Making Private Job Fields Visible in Public Queries
+**What:** Returning `runpod_id`, `error_message`, `user_id` in public API responses.
+**Why bad:** Leaks internal implementation details.
+**Instead:** Define a `PublicAnalysis` type that excludes sensitive fields. Map in API route or use a Postgres VIEW.
+
+---
+
+## Scalability Considerations
+
+| Concern | At 100 users | At 10K users | At 1M users |
+|---------|--------------|--------------|-------------|
+| Discover feed | Single query, no caching | Add cache headers, consider materialized view | Full-text search, read replica |
+| View counting | Direct increment RPC | Same, dedup optional | Batch via view_events + cron |
+| Bookmark counts | RPC with subquery | Same | Trigger-based counter cache |
+| Profile lookups | Index on username | Same | CDN cache public profiles |
+| Public results | Direct query | Same | CDN cache completed analyses |
+
+For v4.0 at current scale, the simple approach is sufficient. Do not over-engineer.
 
 ---
 
 ## Suggested Build Order
 
-### Step 1: Create NetworkLegend.tsx
-- Static component, no dependencies on other changes
-- Can be visually tested in isolation
-- **Estimated effort:** 15 minutes
+Ordered by dependency chain:
 
-### Step 2: Create BrainGlowMesh.tsx
-- Fork from BrainNetworkMesh.tsx (copy, then modify)
-- Remove `visibleRegions` prop and filtering
-- Change intensity calculation to threshold-gated
-- Increase emissive intensity
-- Test with hardcoded regionScores to verify glow effect
-- **Estimated effort:** 30 minutes
-
-### Step 3: Create BrainGlowScene.tsx
-- Fork from BrainViewerCanvas.tsx (copy, then modify)
-- Remove forwardRef and imperative handle
-- Remove mode branching -- always render BrainGlowMesh
-- Add autoRotate to OrbitControls
-- Make Bloom always-on, tune settings
-- Remove vertexData, visibleRegions, viewMode, colormap from props
-- **Estimated effort:** 20 minutes
-
-### Step 4: Simplify BrainViewer.tsx
-- Remove all state (viewMode, colormap, visibleRegions)
-- Remove all control UI (toggle, dropdown, view buttons, filter buttons)
-- Remove canvasRef and imperative handle
-- Wire BrainGlowScene with regionScores only
-- Add NetworkLegend below canvas
-- Remove dead imports (colormap, vertex-codec, etc.)
-- **Estimated effort:** 20 minutes
-
-### Step 5: Delete Old Components
-- Delete BrainHeatmapMesh.tsx
-- Delete BrainNetworkMesh.tsx
-- Delete BrainViewerCanvas.tsx (replaced by BrainGlowScene)
-- Clean up any remaining dead imports
-- Verify build passes with no TypeScript errors
-- **Estimated effort:** 10 minutes
-
-### Step 6 (Optional): Add Score Interpolation
-- Modify BrainViewer to pass prev/next segment scores + blend factor
-- Add lerp logic in BrainGlowMesh
-- **Estimated effort:** 45 minutes
-
-**Total estimated effort for Steps 1-5:** ~1.5 hours
-**Dependency chain:** Step 2 and Step 1 can be done in parallel. Steps 3-5 are sequential.
+1. **Database schema + RLS + RPCs** -- everything depends on this
+2. **Middleware update** -- unblocks public routes
+3. **Profile system** -- username claim, settings UI, auto-create trigger
+4. **Visibility toggle** -- enables public content to exist
+5. **Public layout group** -- `(public)/layout.tsx` with minimal nav
+6. **ResultsVisualization extraction** -- prerequisite for public view
+7. **Public analysis view** -- `/u/[username]/[id]`, view counting
+8. **Public profile page** -- `/u/[username]`
+9. **Discovery feed** -- `/discover` + `/api/discover`, sorting, pagination
+10. **Bookmarks** -- social engagement, lowest priority
 
 ---
 
-## Risk Assessment
+## File Change Summary
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Bloom settings look bad with network colors | Medium | Low | Tune luminanceThreshold and intensity empirically. Current Bloom already works in regions mode. |
-| Auto-rotate annoys users | Low | Low | Keep speed very slow (0.2). OrbitControls still allows manual override. |
-| Removing colormap picker upsets power users | Very Low | Very Low | No evidence of power users. Product is for content creators, not neuroscientists. |
-| Dead code left behind after deletion | Low | Low | Build step (TypeScript compilation) will catch unused imports. Run lint pass after deletion. |
-| Network vertex map has incomplete coverage | Already mitigated | N/A | Vertices not in any network stay dark (BASE_COLOR). This is the desired behavior -- unmapped cortex stays dormant. |
+### New Files
+| File | Purpose |
+|------|---------|
+| `src/app/(public)/layout.tsx` | Public page layout (no sidebar) |
+| `src/app/(public)/discover/page.tsx` | Discovery/leaderboard server component |
+| `src/app/(public)/discover/DiscoverFeed.tsx` | Client feed with sorting/pagination |
+| `src/app/(public)/discover/DiscoverCard.tsx` | Analysis card for feed |
+| `src/app/(public)/u/[username]/page.tsx` | Public profile page |
+| `src/app/(public)/u/[username]/[id]/page.tsx` | Public analysis view |
+| `src/app/api/discover/route.ts` | Paginated public feed API |
+| `src/app/api/profiles/[username]/route.ts` | Profile lookup/update API |
+| `src/app/api/analyses/[id]/visibility/route.ts` | Toggle visibility API |
+| `src/app/api/analyses/[id]/bookmark/route.ts` | Bookmark toggle API |
+| `src/components/social/BookmarkButton.tsx` | Bookmark toggle UI |
+| `src/components/social/VisibilityToggle.tsx` | Public/private switch |
+| `src/components/social/ShareButton.tsx` | Copy public URL |
+| `src/components/social/ViewCount.tsx` | View count display |
+| `src/components/results/ResultsVisualization.tsx` | Extracted shared results view |
+| `src/components/profile/ProfileSetup.tsx` | Username onboarding banner |
+| `src/components/profile/UsernameInput.tsx` | Username field with availability check |
+| `supabase/migrations/XXXXXX_social_discovery.sql` | All schema changes |
 
----
+### Modified Files
+| File | Change |
+|------|--------|
+| `src/lib/database.types.ts` | Add Profile, Bookmark types; update Job with new fields |
+| `web/middleware.ts` | Add public route prefixes to allowed paths |
+| `src/components/layout/Sidebar.tsx` | Add Discover nav item |
+| `src/app/(app)/profile/page.tsx` | Show username, link to public profile |
+| `src/app/(app)/settings/SettingsForm.tsx` | Add username field |
+| `src/app/(app)/dashboard/page.tsx` | Add visibility toggle to completed job cards |
+| `src/app/(app)/results/[id]/page.tsx` | Extract visualization, add share button |
 
 ## Sources
 
-- Direct codebase analysis of all files in `web/src/components/results/Brain*.tsx`
-- Direct analysis of `web/src/lib/colormap.ts` and `web/src/lib/vertex-codec.ts`
-- Direct analysis of `web/src/components/results/brain-utils.ts`
-- Direct analysis of `web/src/app/(app)/results/[id]/page.tsx`
-- [React Three Fiber OrbitControls autoRotate](https://r3f.docs.pmnd.rs/getting-started/introduction) -- autoRotate property
-- [react-three/postprocessing Bloom](https://docs.pmnd.rs/react-postprocessing/effects/bloom) -- luminance threshold tuning
+- Supabase RLS documentation: https://supabase.com/docs/guides/database/postgres/row-level-security
+- Supabase Auth + profiles pattern: https://supabase.com/docs/guides/auth/managing-user-data
+- Next.js App Router route groups: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+- PostgREST foreign key joins: https://postgrest.org/en/stable/references/api/resource_embedding.html
