@@ -12,7 +12,6 @@ import { useVideoTime } from "@/hooks/useVideoTime";
 
 import { formatTimestamp } from "@/lib/results";
 import { SlidingNumber } from "@/components/ui/SlidingNumber";
-import { BenchmarkCards } from "@/components/results/BenchmarkCards";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import { findPeaks } from "@/lib/peak-detection";
@@ -338,9 +337,6 @@ export default function ResultsDetailPage({ params }: Props) {
           </p>
         </Card>
       </div>
-
-      {/* Benchmark Cards */}
-      <BenchmarkCards benchmark={benchmark} />
 
       {/* Arousal/Valence Display */}
       {(() => {
