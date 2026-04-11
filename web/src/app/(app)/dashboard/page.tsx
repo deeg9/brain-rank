@@ -90,7 +90,7 @@ export default async function DashboardPage() {
   const firstName = getFirstName(user);
 
   return (
-    <div className="space-y-10">
+    <div className="pt-6 space-y-10">
       {/* Welcome Header */}
       <section className="flex justify-between items-end">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface tracking-tight">
