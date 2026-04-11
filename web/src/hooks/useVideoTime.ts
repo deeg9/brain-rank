@@ -29,14 +29,28 @@ export function useVideoTime(
       handle = (video as HTMLVideoElement).requestVideoFrameCallback(tick);
       return () => (video as HTMLVideoElement).cancelVideoFrameCallback(handle);
     } else {
+      let onPlay: (() => void) | null = null;
       const tick = () => {
         if (!video.paused) {
           callbackRef.current(video.currentTime);
+          rafId = requestAnimationFrame(tick);
+        } else {
+          // Stop RAF loop when paused; resume on next play event
+          onPlay = () => {
+            video.removeEventListener('play', onPlay!);
+            onPlay = null;
+            rafId = requestAnimationFrame(tick);
+          };
+          video.addEventListener('play', onPlay);
         }
-        rafId = requestAnimationFrame(tick);
       };
       rafId = requestAnimationFrame(tick);
-      return () => cancelAnimationFrame(rafId);
+      return () => {
+        cancelAnimationFrame(rafId);
+        if (onPlay) {
+          video.removeEventListener('play', onPlay);
+        }
+      };
     }
   }, [videoRef]);
 }
@@ -59,13 +73,27 @@ export function setupVideoTimeSync(
     return () => (video as HTMLVideoElement).cancelVideoFrameCallback(handle);
   } else {
     let rafId: number;
+    let onPlay: (() => void) | null = null;
     const tick = () => {
       if (!video.paused) {
         onTimeUpdate(video.currentTime);
+        rafId = requestAnimationFrame(tick);
+      } else {
+        // Stop RAF loop when paused; resume on next play event
+        onPlay = () => {
+          video.removeEventListener('play', onPlay!);
+          onPlay = null;
+          rafId = requestAnimationFrame(tick);
+        };
+        video.addEventListener('play', onPlay);
       }
-      rafId = requestAnimationFrame(tick);
     };
     rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (onPlay) {
+        video.removeEventListener('play', onPlay);
+      }
+    };
   }
 }
