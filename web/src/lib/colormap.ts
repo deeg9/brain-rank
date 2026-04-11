@@ -16,12 +16,61 @@ const INTERPOLATORS: Record<ColormapName, (t: number) => string> = {
 };
 
 /**
- * Apply a colormap to normalized activation values, writing RGB triplets
- * into the target buffer in-place.
+ * Build a 256-entry RGBA lookup table for a colormap.
+ * Each entry is 4 bytes (R, G, B, A) stored sequentially.
+ * Total size: 256 * 4 = 1024 bytes.
  *
- * @param values - Float32Array of length 20,484 with values in [0, 1]
- * @param colormap - Colormap name to use
- * @param target - Float32Array of length 20,484 * 3 = 61,452 to write RGB into
+ * This is computed once per colormap change, not per vertex.
+ * The d3-color CSS string parsing happens here, not in the per-vertex path.
+ */
+export function buildColormapLUT(colormap: ColormapName): Uint8Array {
+  const interpolate = INTERPOLATORS[colormap];
+  const lut = new Uint8Array(256 * 4);
+
+  for (let i = 0; i < 256; i++) {
+    const cssColor = interpolate(i / 255);
+    const parsed = rgb(cssColor);
+    const offset = i * 4;
+    lut[offset] = parsed.r;
+    lut[offset + 1] = parsed.g;
+    lut[offset + 2] = parsed.b;
+    lut[offset + 3] = 255;
+  }
+
+  return lut;
+}
+
+/**
+ * Apply a pre-built colormap LUT to normalized activation values,
+ * writing RGB triplets into the target buffer in-place.
+ *
+ * This function uses only array index lookups -- no d3-color, no CSS parsing.
+ * Orders of magnitude faster than the legacy applyColormap for large vertex counts.
+ *
+ * @param values - Float32Array of normalized values in [0, 1]
+ * @param lutData - Uint8Array of length 1024 from buildColormapLUT
+ * @param target - Float32Array of length values.length * 3 to write RGB into
+ */
+export function applyColormapFromLUT(
+  values: Float32Array,
+  lutData: Uint8Array,
+  target: Float32Array,
+): void {
+  const INV_255 = 0.00392156862745098; // 1/255, avoids division per iteration
+
+  for (let i = 0; i < values.length; i++) {
+    // Fast Math.round: (v * 255 + 0.5) | 0
+    const idx = ((values[i] * 255 + 0.5) | 0) * 4;
+    const out = i * 3;
+    target[out] = lutData[idx] * INV_255;
+    target[out + 1] = lutData[idx + 1] * INV_255;
+    target[out + 2] = lutData[idx + 2] * INV_255;
+  }
+}
+
+/**
+ * @deprecated Use buildColormapLUT + applyColormapFromLUT instead.
+ * Kept for backward compatibility -- no consumers remain after BrainHeatmapMesh migration.
  */
 export function applyColormap(
   values: Float32Array,
