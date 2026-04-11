@@ -1,134 +1,153 @@
-# Feature Landscape
+# Feature Landscape: Brain Visualization UX Overhaul
 
-**Domain:** Per-vertex brain heatmaps, functional network mapping, arousal/valence display for neural engagement analytics
+**Domain:** Brain activation visualization for content creators (modeled after Meta's TRIBE v2 demo)
 **Researched:** 2026-04-10
+**Overall confidence:** MEDIUM (Meta's interactive demo is a JS app that cannot be scraped; findings synthesized from blog posts, notebook code, Gradio demo descriptions, nilearn docs, and third-party writeups)
+
+## How Meta Demos TRIBE v2 (Evidence-Based Findings)
+
+### Meta's Demo Architecture (Two Surfaces)
+
+Meta provides two visualization surfaces for TRIBE v2:
+
+1. **Colab Notebook Demo** (`tribe_demo.ipynb`) -- Uses `PlotBrain` class wrapping `nilearn.plotting.view_surf` with `pyvista` backend. Generates **one brain surface render per timestep** (1 TR = 1 second). Renders 15 frames for 15 seconds of video. Uses the fsaverage5 inflated mesh (~20,484 vertices). Output is a sequence of static brain heatmaps, NOT an animation.
+
+2. **Gradio Interactive Demo** (`aidemos.atmeta.com/tribev2`) -- Uses `nilearn.plotting.view_surf` via Plotly WebGL engine. Two modes:
+   - **Single-input mode**: Upload video/audio/text, get brain heatmap with a **timestep slider** to scrub through activation over time
+   - **Comparison mode**: Upload two inputs, visualize their **difference as a contrast heatmap** (what one stimulus activates more than the other)
+
+### What Meta Gets Right (Specific UX Decisions)
+
+**Confidence: MEDIUM** -- Synthesized from multiple sources describing the demo
+
+| Decision | What They Do | Why It Works |
+|----------|-------------|--------------|
+| Inflated mesh | Use fsaverage5 *inflated* surface, not pial | Exposes sulcal geometry hidden in brain folds -- activation in sulci becomes visible |
+| Sulcal depth background | Gray sulcal depth map rendered *under* the heatmap | Provides anatomical landmark context without adding UI clutter |
+| Hot colormap | Uses "hot" colormap (black -> red -> yellow -> white) on Gradio demo | Intuitive "heat = activation" metaphor. No cognitive load interpreting colors |
+| Threshold-based display | `view_surf` has `threshold` parameter -- only show activation above a cutoff | Brain appears mostly neutral gray; only significantly activated regions "glow." This is the key storytelling mechanism |
+| No toggles or filters | No per-region toggle buttons in their demo | The data speaks for itself. Visual cortex lights up when imagery appears. Language areas light up during speech. The spatial pattern IS the information |
+| Timestep slider | Single slider to scrub through time | Lets the viewer see activation *change* over time without animation complexity |
+| Colorbar legend | Single continuous colorbar showing activation scale | Replaces discrete category toggles. One legend, always visible, minimal space |
+| Two hemispheres side-by-side | Left and right hemisphere rendered separately via `nilearn.plotting.view_surf` | Standard neuroimaging convention. Each hemisphere gets its own interactive WebGL view |
+| Comparison mode | Difference heatmap: Input A minus Input B | Shows what makes one stimulus neurally distinct from another -- directly useful for A/B testing concept |
+
+### Meta's Storytelling Pattern (From Demo Notebook)
+
+The notebook explicitly narrates: "As the image appears on the screen, the visual cortex lights up (t=4s), followed by the language network when the character starts to speak (t=12s)."
+
+This is the core insight: **the visualization tells a temporal story**. You do not need labels saying "Visual Cortex" or "Language Network" -- the spatial pattern of activation on the brain surface, combined with knowledge of what was happening in the video at that moment, IS the story. The brain speaks for itself when the visualization is clean enough.
+
+### Three-Panel Layout (From The Decoder)
+
+Meta's research presentations use a three-panel comparison layout:
+- **Top panel**: Images/stimuli shown to subjects
+- **Middle panel**: Model prediction activation pattern
+- **Bottom panel**: Actual measured fMRI brain activity
+
+This layout immediately communicates accuracy and builds trust. For NeuroCut, the equivalent is: **video frame + predicted brain activation side-by-side**.
 
 ## Table Stakes
 
-Features users expect when moving from 4-region blobs to full cortical visualization. Missing = upgrade feels half-baked.
+Features users expect for a brain visualization to feel credible and useful.
 
-| Feature | Why Expected | Complexity | Dependencies | Notes |
-|---------|--------------|------------|--------------|-------|
-| Per-vertex color attribute on brain mesh | This IS the heatmap. Without per-vertex coloring, there is no spatial resolution upgrade. Three.js supports this natively via `BufferGeometry.setAttribute('color', ...)` with `vertexColors: true` on the material. | Medium | Existing `brain-fsaverage5.glb` mesh (20,484 vertices), TRIBE v2 raw predictions piped to frontend | Replace current `BrainRegionMesh` emissive glow with per-vertex color array. Each vertex gets an RGB value mapped from its activation scalar via a colormap. Must update every time segment changes. |
-| Sequential colormap (cool-to-hot) | Standard in neuroimaging. Users familiar with brain activation maps expect blue-to-red or viridis-like gradients. A single emissive color per region is not a heatmap. | Low | Per-vertex color attribute | Implement as a JS function mapping 0-1 scalar to RGB. Use diverging cool-warm palette (blue=low, white=neutral, red=high) -- matches fMRI convention. Viridis is perceptually uniform but less intuitive for "brain heat." |
-| Color scale legend | Without a legend, the heatmap is uninterpretable. Must show min/max values and color gradient. | Low | Colormap function | Simple horizontal gradient bar with "Low" / "High" labels. Position below or beside the 3D viewer. |
-| Expanded functional networks (5 new regions) | PROJECT.md explicitly lists: visual processing, auditory processing, language/narrative, default mode, motion processing. These align with TRIBE v2's ICA-discovered networks. | Medium | Backend: new Destrieux parcel mappings in `regions.py`. Frontend: extended `SegmentRegionScores` type, new toggle buttons, new timeline tracks. | TRIBE v2's own ICA analysis reveals these 5 networks naturally. They are NOT arbitrary -- they reflect the model's learned functional organization. Yeo 7-network parcellation provides neuroscience backing. |
-| Region toggle buttons for all 9 networks | Current UI has 4 toggle buttons. Must extend to 9. Critical for usability -- 9 simultaneous overlays would be visual noise. | Low | Expanded regions in data model | Layout challenge: 9 buttons in a row may overflow. Use 2-row grid or scrollable chip bar. Keep existing toggle pattern. |
-| Arousal metric display | Already in `SegmentData` (computed as avg of attention + emotional_processing). Must be surfaced prominently on results page, not just buried in segment table. | Low | Existing `arousal` field in segment data | Currently only shown as a number in SegmentTable. Needs a dedicated MetricCard or gauge. |
-| Valence metric display | Same as arousal -- already computed (avg of reward + social_cognition), needs prominent display. | Low | Existing `valence` field in segment data | Pair with arousal display. These two dimensions together map to Russell's circumplex model of affect. |
-| Timeline tracks for new networks | Current NeuralTimeline shows 4 tracks. Must support 9. Cannot just add 5 more stacked rows -- would be too tall. | Medium | Expanded region data in API response | Need track grouping or selective display. Show 4 default, let user toggle additional tracks on/off. Or group by category: "Sensory" (visual, auditory, motion), "Cognitive" (attention, language, DMN), "Affective" (reward, emotional, social). |
+| Feature | Why Expected | Complexity | Status in Current UI |
+|---------|--------------|------------|---------------------|
+| 3D brain surface with orbit controls | Users expect to rotate/zoom a brain model | Med | DONE -- react-three-fiber + OrbitControls |
+| Per-vertex activation heatmap | Vertex-level data is what makes this "real" vs a cartoon | High | DONE -- BrainHeatmapMesh with 20,484 vertices |
+| Time-synced activation | Brain should reflect what's happening in video NOW | Low | DONE -- currentTime prop drives getVertexDataAtTime |
+| Threshold-based display | Only show activation above a meaningful cutoff; rest is neutral gray | Low | NOT DONE -- currently shows all vertices with color |
+| Continuous colorbar legend | Show what the colors mean with a gradient bar + min/max labels | Low | NOT DONE -- currently uses toggle buttons per region |
+| Dark background | Black/very dark background behind brain for contrast | Low | DONE -- #151520 background |
+| Inflated mesh view | Expose sulci for full activation visibility | Med | PARTIALLY DONE -- using unified GLB, unclear if inflated |
+| Single committed colormap | One colormap, no user choice. Meta uses "hot" | Low | NOT DONE -- currently offers dropdown with plasma, viridis, etc. |
 
 ## Differentiators
 
-Features that set NeuroCut apart. Not expected in a basic upgrade, but valued by content creators.
+Features that would set NeuroCut apart from a generic brain viewer.
 
-| Feature | Value Proposition | Complexity | Dependencies | Notes |
-|---------|-------------------|------------|--------------|-------|
-| Arousal-Valence scatter plot (circumplex) | Maps each segment as a dot on a 2D arousal (Y) x valence (X) plane. Shows emotional trajectory of the video at a glance. No competitor does this for video content. Based on Russell's circumplex model of affect -- instantly communicates "this segment is exciting and positive" vs "calm and negative." | Medium | Arousal and valence per segment (already computed) | Use Recharts ScatterChart or custom SVG. Quadrant labels: "Exciting/Positive" (top-right), "Exciting/Negative" (top-left), "Calm/Positive" (bottom-right), "Calm/Negative" (bottom-left). Color dots by time position to show trajectory. |
-| Per-vertex data in API response | Send the full 20,484-vertex activation array per segment to the frontend for true spatial heatmap. Currently the backend aggregates to 4 scalar region scores and discards vertex data. | High | Backend schema change: add optional `vertex_activations: float[]` to Segment. Significant payload increase. | Key architectural decision. Options: (A) send all vertices for all segments (~2.4MB gzipped for 30 segments), (B) separate `/vertices/{job_id}` endpoint, (C) pre-compute vertex colors server-side. Recommend (A) with gzip for simplicity -- 2.4MB is acceptable for a results page that loads once. |
-| Heatmap animation synced to video playback | As video plays, brain heatmap smoothly transitions between segment activations. Lerp between consecutive vertex arrays for fluid animation. | Medium | Per-vertex data available on frontend, video time sync (already exists via `currentTime`) | Use `useFrame` to lerp vertex color arrays between keyframes. Already have the pattern in `BrainRegionMesh` with `emissiveIntensity` lerping. Extend to lerp full Float32Array of colors. |
-| Network overlay isolation mode | Click a network name to show ONLY that network's vertices highlighted, with the rest dimmed to base color. Different from toggle (which shows/hides geometry) -- this filters the heatmap to show activation only within one network's vertices. | Medium | Per-vertex data + region masks available on frontend | Requires shipping region mask definitions (vertex index arrays) to the frontend. ~40KB for all 9 masks as typed arrays. |
-| Arousal/Valence timeline overlay | Add arousal and valence as overlay lines on the existing NeuralTimeline, providing a composite engagement view alongside individual region tracks. | Low | Existing arousal/valence data | Two additional line series on existing chart. Use dashed lines or different stroke style to distinguish from region tracks. |
-| Peak moment highlighting | Auto-identify and visually mark the highest-activation moments on the brain viewer and timeline. "Your video peaks at 0:24 -- here's what the brain looks like." | Low | Existing `summary.peak_second` | Combine existing peak data with a "Jump to peak" button. Show the brain heatmap at that moment. |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Dynamic glow above threshold | Regions above activation threshold emit soft bloom; below threshold = dark gray. Brain "breathes" as video plays | Med | Bloom already exists in regions mode. Apply threshold logic to heatmap mode. This is the hero feature |
+| Video-brain sync playback | Video plays in adjacent panel; brain updates in real-time as video plays. Creator sees EXACTLY which moments light up the brain | Low | Core wiring exists. Need to make it feel like a single integrated experience |
+| Activation timeline sparkline | Thin sparkline below brain showing overall activation over time, with playhead indicator. Shows "shape" of engagement at a glance | Med | Complements brain view. Meta's timestep slider serves similar purpose but NeuroCut can do better for creators |
+| Peak moment markers | Automatically mark the top 3-5 activation peaks on timeline. "Your video's brain moments" | Low | High value for content creators. Easy to compute from existing data |
+| Comparison contrast mode | Side-by-side two videos, difference heatmap showing what Video A activates MORE than Video B | High | Directly inspired by Meta's comparison mode. Core to A/B testing value prop. Out of scope for v3.0 |
+| Segment annotation overlay | When activation spikes, show what was happening in the video at that moment | High | Requires transcript/scene detection. Defer |
 
 ## Anti-Features
 
-Features to explicitly NOT build in this milestone.
+Features to explicitly NOT build. Things the current UI does that should be removed.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Real-time vertex streaming via WebSocket | Massive over-engineering. Video is pre-processed, not live. All data is known upfront. | Load all vertex data at page load or lazy-fetch per segment via REST. |
-| Volumetric (voxel) rendering | TRIBE v2 outputs on fsaverage5 surface mesh, not in volumetric MNI space. Building a volume renderer solves the wrong problem. NiiVue exists for this but is irrelevant here. | Stay with surface mesh rendering. The GLB already has the correct topology. |
-| Custom atlas parcellation UI | Letting users define their own brain regions is a neuroscience research tool feature, not a content creator feature. | Ship 9 pre-defined networks. Hardcode in backend. |
-| Statistical significance / p-values | TRIBE v2 predictions are point estimates, not statistical tests. Showing "p < 0.05" would be scientifically misleading. | Show raw activation values with clear "predicted activation" labeling. |
-| Comparison between multiple videos | Explicitly out of scope per PROJECT.md. Requires solving normalization across different-length videos. | Single video analysis only. Defer to future milestone. |
-| PDF/image export of brain visualization | Nice-to-have but not core to the analytics upgrade. Three.js canvas screenshots are unreliable across browsers. | Defer. If needed later, use `canvas.toDataURL()` as a quick path. |
-| Subcortical structure rendering | Amygdala, ventral striatum, hippocampus are not on the cortical surface. TRIBE v2 does not predict subcortical activations (fsaverage5 is cortex only). | Acknowledge limitation in UI: "Cortical activation only." |
+| Per-region toggle buttons (9 buttons) | Creates decision paralysis. Meta shows zero toggles. The spatial pattern IS the information -- toggles add cognitive load without insight | Remove entirely. Replace with a small static color legend showing network colors (display-only, not interactive) |
+| Heatmap/Regions mode toggle | Two competing visualization modes confuses users. Switching between them breaks flow | Default to heatmap mode (this is what Meta uses). Remove regions as a primary toggle. If kept, make it a secondary option accessible through a settings menu |
+| Colormap selector dropdown | Letting users pick between plasma, viridis, etc. is a power-user feature that confuses casual creators. Meta uses ONE colormap | Pick one colormap and commit. Use "inferno" or "hot" (black-red-yellow-white) to match Meta's convention and the intuitive "heat" metaphor |
+| Preset view buttons (Front/Top/Left/Right) | Four buttons in header add visual noise. Orbit controls already let users rotate freely | Remove buttons. Keep orbit controls. Optionally add a single subtle "reset view" icon overlay on the canvas |
+| Crowded header with title + controls on one line | Current header jams: title + dropdown + mode toggle + 4 view buttons into one row | Clean header: title only. Any remaining controls become subtle overlaid icons on the canvas itself |
 
 ## Feature Dependencies
 
 ```
-Backend: New region masks (regions.py)
-  --> Backend: Extended RegionScores schema (schema.py)
-    --> Backend: Per-vertex data in API response (postprocessor.py)
-      --> Frontend: Parse extended API response (results.ts)
-        --> Frontend: Per-vertex color attribute on mesh (BrainViewerCanvas.tsx)
-          --> Frontend: Colormap function (brain-utils.ts)
-            --> Frontend: Color scale legend (BrainViewer.tsx)
-        --> Frontend: Heatmap animation sync (BrainRegionMesh.tsx)
-        --> Frontend: Network overlay isolation
-
-Backend: Extended RegionScores schema
-  --> Frontend: Extended SegmentRegionScores type
-    --> Frontend: Region toggle buttons for 9 networks
-    --> Frontend: Timeline tracks for new networks
-    --> Frontend: Arousal/Valence recalculation (if formula changes with new regions)
-
-Existing arousal/valence data (no backend change needed)
-  --> Frontend: Arousal metric card
-  --> Frontend: Valence metric card
-  --> Frontend: Arousal-Valence circumplex scatter plot
-  --> Frontend: Arousal/Valence timeline overlay
+Threshold-based display --> Dynamic glow (glow requires knowing what's "above threshold")
+Video-brain sync --> Activation timeline sparkline (timeline needs playback position)
+Per-vertex heatmap (DONE) --> Threshold-based display
+Threshold-based display --> Colorbar legend (legend shows threshold cutoff)
 ```
 
-## New Functional Network Definitions
+## MVP Recommendation for v3.0
 
-Based on Yeo 7-network parcellation and TRIBE v2's ICA-discovered networks, the 5 new networks mapped to Destrieux atlas parcels:
+### Must Do (Core Overhaul -- Subtraction)
 
-| Network | Neuroscience Basis | Key Destrieux Parcels | Confidence |
-|---------|-------------------|----------------------|------------|
-| Visual Processing | Yeo Visual Network; TRIBE v2 ICA component | `S_calcarine`, `G_cuneus`, `S_oc_sup_and_transversal`, `G_occipital_sup`, `G_occipital_middle`, `S_oc_middle_and_Lunatus`, `Pole_occipital` | HIGH -- well-established primary visual cortex parcels |
-| Auditory Processing | Yeo Somatomotor (auditory sub); TRIBE v2 ICA component | `G_temp_sup-G_T_transv` (Heschl's gyrus), `G_temp_sup-Plan_tempo`, `S_temporal_transverse`, `G_temp_sup-Lateral` | HIGH -- primary auditory cortex is well-localized |
-| Language/Narrative | TRIBE v2 ICA component; Broca + Wernicke areas | `G_front_inf-Triangul` (Broca), `G_front_inf-Opercular`, `G_temp_sup-Lateral` (Wernicke overlap), `S_temporal_sup`, `G_pariet_inf-Angular` (semantic) | MEDIUM -- overlaps with attention and social networks |
-| Default Mode Network | Yeo DMN; TRIBE v2 ICA component | `G_precuneus`, `G_cingul-Post-ventral`, `G_cingul-Post-dorsal`, `G_front_sup` (medial), `G_pariet_inf-Angular`, `G_temp_sup-Lateral` | HIGH -- one of the most replicated findings in neuroimaging |
-| Motion Processing | TRIBE v2 ICA component; MT+/V5 complex | `G_occipital_middle` (V5/MT+), `G_temporal_middle`, `S_occipital_ant`, `G_and_S_occipital_inf` | MEDIUM -- MT+ localization on Destrieux requires careful vertex selection |
+1. **Threshold-based display** -- Add activation threshold (e.g., 50th percentile). Vertices below threshold render as neutral dark gray. Vertices above threshold render with hot colormap. This single change transforms the visualization from "everything is colored" to "significant regions glow." This is the number one lesson from Meta's approach.
 
-**Note:** Some parcels appear in multiple networks (e.g., `G_pariet_inf-Angular` in social_cognition, language, and DMN). This is neuroanatomically valid -- the same cortical region participates in multiple functional networks. This is already the pattern in the existing `regions.py` (e.g., `Pole_temporal` shared between emotional_processing and social_cognition).
+2. **Remove toggle filter buttons** -- Delete the 9-button region toggle row entirely. Replace with a small static color legend (if regions mode is kept at all) or a continuous colorbar gradient.
 
-## Data Size Estimates
+3. **Remove colormap selector** -- Commit to a single colormap ("inferno" is the closest web-friendly equivalent to Meta's "hot"). Delete the dropdown.
 
-| Data | Size (raw) | Size (gzipped) | Notes |
-|------|-----------|----------------|-------|
-| 1 segment vertex array (20,484 float32) | 80 KB | ~20 KB | Per-segment cost |
-| 30 segments vertex data | 2.4 MB | ~600 KB | Typical 60s video |
-| 9 region masks (boolean arrays) | 23 KB | ~3 KB | Ship once, cache forever |
-| Current API response (30 segments, 4 regions) | ~8 KB | ~2 KB | Current baseline |
+4. **Remove preset view buttons** -- Delete Front/Top/Left/Right buttons. Keep orbit controls. Add a single unobtrusive reset-view icon if needed.
 
-**Recommendation:** Add vertex data as optional field with `include_vertices: true` input parameter (InputSchema already has `include_raw: bool`). Reuse that flag or add a new one. Keep default response lean for clients that only need region scores.
+5. **Clean header** -- Title only. No controls in the header row.
 
-## MVP Recommendation
+6. **Continuous colorbar** -- Add a vertical or horizontal gradient bar showing the activation scale from low to high, with threshold line marked.
 
-**Phase 1 -- Backend extensions (no frontend changes):**
-1. Add 5 new region definitions to `regions.py` -- Low complexity, pure data
-2. Rebuild `region_masks.npz` with 9 regions -- Run `build_region_masks()` once
-3. Extend `RegionScores` schema to include 9 region fields -- Breaking change for frontend type
-4. Add per-vertex activation data to API response (optional field, gzipped)
-5. Reconsider arousal/valence formulas now that 9 regions exist
+### Should Do (Enhanced Experience -- Addition)
 
-**Phase 2 -- Frontend quick wins (uses existing data patterns):**
-1. Arousal and Valence metric cards -- Low complexity, immediate visible improvement
-2. Extended region toggle buttons (9 networks) -- Low complexity, extend existing pattern
-3. Timeline track grouping with selective display
+7. **Dynamic bloom on heatmap mode** -- Currently bloom only applies in regions mode. Apply bloom post-processing to heatmap mode so activated regions glow against the dark brain. This is the "wow" factor that makes it feel alive.
 
-**Phase 3 -- Frontend heatmap (the headline feature):**
-1. Per-vertex heatmap coloring on brain mesh -- Medium-High, replaces BrainRegionMesh pattern
-2. Colormap function + legend -- Completes the heatmap UX
-3. Heatmap animation synced to video playback
+8. **Activation timeline sparkline** -- Thin bar below the brain showing activation intensity over the video duration with playhead position. Clicking jumps to that timestamp.
 
-**Defer to later:**
-- Arousal-Valence circumplex scatter plot
-- Network overlay isolation mode
-- Peak moment jump-to button
+9. **Peak moment markers** -- Mark top 3-5 activation peaks on the sparkline. "Your video's brain moments."
+
+### Defer
+
+- **Comparison/contrast mode** -- Multi-video is out of scope for v3.0
+- **Segment annotations** -- Requires additional data pipeline work
+- **Regions mode entirely** -- Consider removing from v3.0 and reintroducing later as an "explore" panel
+- **Inflated mesh toggle** -- Verify current mesh state before adding complexity
+
+## What Makes Meta's Approach Work (Summary)
+
+Meta's TRIBE v2 visualization is compelling because of what it does NOT show:
+
+1. **No toggles** -- The brain surface IS the interface
+2. **No competing modes** -- One visualization, one colormap, one story
+3. **Threshold = drama** -- Only significant activation appears, creating visual "moments" as the video plays
+4. **Temporal narrative** -- The visualization changes over time, telling a story: "here the brain responded, here it didn't"
+5. **Anatomical context without labels** -- Sulcal depth map provides orientation; no region labels clutter the view
+6. **Hot colormap** -- Black-to-red-to-yellow-to-white is universally understood as "intensity"
+
+The current NeuroCut brain viewer has the RIGHT technical foundation (20,484 vertices, react-three-fiber, per-segment data, time sync) but the WRONG UX layer on top: too many controls, no threshold, competing modes, and no visual drama. The overhaul is about subtraction more than addition.
 
 ## Sources
 
-- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- output format, ICA network analysis
-- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- architecture, functional networks
-- [Yeo 2011 parcellation (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC3174820/) -- 7-network functional parcellation
-- [FreeSurfer Yeo2011 atlas](https://surfer.nmr.mgh.harvard.edu/fswiki/CorticalParcellation_Yeo2011) -- atlas availability on fsaverage5
-- [BrainBrowser](https://brainbrowser.cbrain.mcgill.ca/) -- reference web-based per-vertex surface visualization
-- [three.js vertex colors example](https://threejs.org/examples/webgl_geometry_colors.html) -- native BufferGeometry vertex color support
-- [three-brain-js](https://github.com/dipterix/three-brain-js) -- reference WebGL brain viewer
-- [Russell's Circumplex Model](https://psychologyfanatic.com/circumplex-model-of-arousal-and-valence/) -- arousal-valence 2D emotion space
-- [Colormap best practices (Matplotlib)](https://matplotlib.org/stable/users/explain/colors/colormaps.html) -- perceptual uniformity guidance
-- Existing NeuroCut codebase: `src/region_mapping/`, `web/src/components/results/`
+- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- Official announcement, references interactive demo
+- [TRIBE v2 Interactive Demo](https://aidemos.atmeta.com/tribev2) -- Gradio-based web demo with timestep slider and comparison mode
+- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- PlotBrain class, visualization workflow, "visual cortex lights up at t=4s" narrative
+- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- plotting/ module, fsaverage5 mesh, nilearn integration
+- [The Decoder: Meta's TRIBE v2](https://the-decoder.com/metas-new-ai-model-predicts-how-your-brain-reacts-to-images-sounds-and-speech/) -- Three-panel layout description (stimuli / prediction / actual)
+- [HF Daily Briefer: TRIBE v2](https://www.hfdailybriefer.com/post/1618) -- Confirmed Gradio demo uses nilearn.plotting.view_surf with hot colormap via Plotly WebGL
+- [nilearn.plotting.view_surf docs](https://nilearn.github.io/dev/modules/generated/nilearn.plotting.view_surf.html) -- threshold parameter, colorbar, bg_map for sulcal depth, default RdBu_r colormap
+- [DataCamp TRIBE v2 Tutorial](https://www.datacamp.com/tutorial/tribe-v2-tutorial) -- Confirmed "interactive 3D heatmaps" output
+- [facebook/tribev2 on HuggingFace](https://huggingface.co/facebook/tribev2) -- Model card, fsaverage5 mesh details, prediction shape (T, 20484)

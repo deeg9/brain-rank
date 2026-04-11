@@ -1,256 +1,275 @@
-# Pitfalls Research
+# Domain Pitfalls: Brain Visualization UX Overhaul (v3.0)
 
-**Domain:** Per-vertex brain heatmaps, functional network expansion, arousal/valence display -- added to existing NeuroCut Three.js brain viewer
+**Domain:** Real-time dynamic glow/activation effects on 3D brain mesh in react-three-fiber
 **Researched:** 2026-04-10
-**Confidence:** HIGH (based on codebase analysis, Three.js ecosystem knowledge, neuroscience domain patterns)
+**Context:** Redesigning brain viewer so activation lights up dynamically as video plays, synced to playback, with 20,484-vertex mesh requiring smooth color transitions at 60fps
+**Confidence:** HIGH (based on direct codebase analysis, Three.js/R3F official docs, ecosystem research)
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Sending 20,484 Floats Per Segment as JSON
+Mistakes that cause visible jank, GPU stalls, or broken UX. Must fix before shipping.
 
-**What goes wrong:**
-The current system sends 4 region averages per segment (~28 segments x 4 floats = 112 floats total). Per-vertex heatmaps would need 20,484 floats per segment. For 28 segments, that is ~573K floats. As JSON, each float like `-0.4827` takes 7-13 bytes of text encoding, ballooning the payload to 4-7 MB of JSON text. JSON parsing of this volume blocks the main thread for 50-200ms, causing visible UI jank during segment transitions.
+### Pitfall 1: CPU-Side Colormap Per Frame Kills Performance
 
-**Why it happens:**
-The existing API returns JSON with region scores. The naive approach is to add a `vertex_activations` array to the same JSON response. Developers think "it's just numbers" without calculating the actual payload size or parse cost.
+**What goes wrong:** The current `applyColormap()` in `colormap.ts` calls `interpolatePlasma(value)` then `rgb(cssString)` for each of 20,484 vertices. That is 20,484 string allocations + 20,484 CSS color parses (d3's `rgb()` runs regex matching internally) per colormap application. Currently this runs only on segment transitions (every 2 seconds) which is tolerable. When this runs every frame for smooth interpolation between segments, it creates ~30-50ms of CPU work per frame -- blowing the 16ms frame budget at 60fps and causing visible stutter.
 
-**How to avoid:**
-- Transfer vertex data as binary: Float32Array via ArrayBuffer, served as a separate binary endpoint or embedded as base64 in the response
-- Use a separate endpoint that returns raw binary (`application/octet-stream`) with a known layout: `n_segments * 20484 * 4 bytes` = ~2.3 MB as raw Float32
-- Alternative: quantize to Uint8 (0-255 range) if full float precision is unnecessary for visualization -- reduces to ~573 KB
-- Keep the existing JSON response for region averages, arousal, valence; add a separate `vertex_data_url` field pointing to the binary blob
+**Why it happens:** d3-scale-chromatic's interpolation functions return CSS color strings like `"rgb(128, 0, 255)"` which must be parsed back into floats. This string-to-number round-trip is the bottleneck, not the mathematical interpolation.
 
-**Warning signs:**
-- API response time increases by >500ms with no server-side change
-- Browser devtools show >3 MB response size for results endpoint
-- `JSON.parse` appearing in performance profiles during segment playback
+**Consequences:** Dropped frames, the brain appears to "jump" between activation states instead of smoothly transitioning. On integrated GPUs (most laptop users), this alone can drop the viewer to 15-20fps.
 
-**Phase to address:**
-Backend/API phase -- must design the binary transfer format before building the frontend consumer
+**Prevention:**
+1. **Pre-bake a 256-entry lookup table (LUT)** at initialization: sample the colormap at 256 evenly-spaced points, store as `Float32Array[256 * 3]`. At render time, quantize each vertex value to an 8-bit index and look up RGB directly. Reduces per-vertex work from string parsing to a single array index -- roughly 100x faster.
+2. **Move coloring to the GPU entirely** (best long-term approach): upload activation values as a vertex attribute (`float`), upload a 256x1 RGB DataTexture as a uniform, and sample the colormap in the fragment shader with `texture2D(colormapTex, vec2(activation, 0.5))`. The GPU does the interpolation for free across all 20,484 vertices in parallel. Cost: ~0.1ms vs ~40ms on CPU.
+3. **Intermediate fix:** Replace d3's CSS-string interpolators with direct numeric interpolation functions. Pre-compute polynomial approximations of the plasma colormap that return `[r, g, b]` floats directly, avoiding all string allocation.
+
+**Detection:** Chrome DevTools Performance tab. Look for `applyColormap` or `rgb` taking >5ms per call. Use `r3f-perf` overlay to monitor JS frame time.
+
+**Phase:** Must be addressed in the FIRST phase. Everything else (smooth animation, video sync) depends on fast color computation.
 
 ---
 
-### Pitfall 2: Rebuilding GLB Mesh Architecture Without Migration Strategy
+### Pitfall 2: Using useEffect Instead of useFrame for Per-Frame Animation
 
-**What goes wrong:**
-The current brain model (`brain-fsaverage5.glb`) uses 5 separate named submeshes (attention, reward, emotional_processing, social_cognition, base) -- visible in `export_brain_glb.py` and consumed by `BrainViewerCanvas.tsx` which iterates `REGION_NAMES` and looks up `nodes[name]`. Per-vertex heatmaps require a fundamentally different approach: a single unified mesh with vertex color attributes, because you cannot apply per-vertex colors across mesh boundaries where vertices have been duplicated and re-indexed. The existing `extract_submesh()` function remaps vertices into independent coordinate spaces -- the original 20,484 vertex indexing is lost. Attempting to map TRIBE v2's vertex-indexed output back onto split submeshes requires reverse-mapping that is error-prone and lossy (boundary vertices between regions get dropped by the `all(axis=1)` face extraction in `export_brain_glb.py` line 53).
+**What goes wrong:** The current `BrainHeatmapMesh.tsx` (line 38-44) updates vertex colors in a `useEffect` that fires when `vertexData` or `colormap` props change. This works for discrete segment transitions. For smooth interpolation (the v3.0 goal -- brain glows dynamically as video plays), developers instinctively add animation logic inside `useEffect` with `requestAnimationFrame` or timers, or worse, call `setState` at 60fps to trigger re-renders. Both approaches fight React's render cycle.
 
-**Why it happens:**
-The original design was correct for its purpose: 4 discrete colored blobs with emissive intensity driven by a single score per mesh. But per-vertex heatmaps are a fundamentally different rendering paradigm. Teams try to retrofit vertex colors onto the existing split-mesh structure instead of creating a new unified mesh.
+**Why it happens:** React mental model says "when data changes, re-render." But R3F's `useFrame` runs every GPU frame OUTSIDE React's reconciliation. Mixing React state updates with per-frame GPU animation creates two competing update cycles: React re-rendering the component tree + R3F rendering the 3D scene.
 
-**How to avoid:**
-- Create a NEW GLB export alongside the existing one: a single unified mesh preserving the original fsaverage5 vertex ordering (20,484 vertices, both hemispheres concatenated)
-- Keep the existing split-mesh GLB for the region overlay visualization (the toggle buttons in `BrainViewer.tsx` still work for discrete region highlights)
-- The unified mesh vertex ordering will naturally match TRIBE v2's output if exported directly from `nilearn.datasets.fetch_surf_fsaverage` without re-indexing
-- `BrainViewerCanvas.tsx` needs a new code path: load unified mesh for heatmap mode, load split meshes for region mode
+**Consequences:** The R3F docs explicitly state: "don't setState in useFrame." If you do, React re-renders `BrainHeatmapMesh` 60x/second, causing unnecessary reconciliation, GC pressure from recreated closures and objects, and potential layout thrashing in the surrounding HTML UI (the region legend, colormap selector, etc.).
 
-**Warning signs:**
-- Vertex colors appear on wrong brain areas
-- Gaps or seams visible at region boundaries
-- Colors "pop" instead of smoothly interpolating across sulci
+**Prevention:**
+1. **Use `useFrame` for ALL per-frame visual updates.** Store interpolation state in `useRef`, never in `useState`.
+2. **Refactor pattern:** `vertexData` prop change triggers a `useEffect` that copies TARGET activation values into a ref (`targetRef.current = newVertexData`). A `useFrame` callback then lerps CURRENT vertex colors toward the target each frame, writing directly to the pre-allocated `colorBuffer`, then sets `needsUpdate = true` on the BufferAttribute.
+3. **Decouple video time from React state.** Store the video element ref in a module-level variable or Zustand store. `useFrame` reads `videoRef.current.currentTime` directly each frame without React knowing.
 
-**Phase to address:**
-First phase -- mesh export/data pipeline must be resolved before any frontend heatmap work
+**Detection:** React DevTools Profiler showing `BrainHeatmapMesh` re-rendering more than once per segment transition (every 2 seconds). If it re-renders 60x/second, this pitfall is active.
+
+**Phase:** Must be refactored in the first phase alongside the colormap fix. The animation architecture depends on this.
 
 ---
 
-### Pitfall 3: useFrame Per-Vertex Color Updates Causing GC Pressure
+### Pitfall 3: Missing DynamicDrawUsage on Frequently Updated BufferAttributes
 
-**What goes wrong:**
-The current `BrainRegionMesh.tsx` uses `useFrame` to lerp a single `emissiveIntensity` float per mesh -- trivially cheap. With per-vertex heatmaps, developers naively create a new `Float32Array` or `Color` array every frame to update vertex colors during segment transitions. Allocating 20,484 x 3 (RGB) = 61,452 floats per frame at 60fps creates massive garbage collection pressure. GC pauses cause visible stuttering in the 3D viewer.
+**What goes wrong:** The current `BrainHeatmapMesh.tsx` (line 30-35) creates a `BufferAttribute` for vertex colors but never calls `setUsage(THREE.DynamicDrawUsage)`. Three.js defaults to `StaticDrawUsage`, which tells the GPU driver the buffer will not change. When you then set `needsUpdate = true` every frame (required for smooth animation), the driver must use a slow re-upload path (buffer orphaning + full copy) instead of a fast streaming update.
 
-**Why it happens:**
-React-three-fiber's declarative model encourages creating new objects. Three.js's `BufferAttribute` requires calling `setAttribute` or setting `needsUpdate = true`. Developers allocate new arrays instead of mutating existing ones in place.
+**Why it happens:** Three.js defaults to static usage because most geometry never changes. The `setUsage()` API is poorly documented and rarely mentioned in tutorials. It works "fine" without it -- just slower.
 
-**How to avoid:**
-- Pre-allocate a single `Float32Array(20484 * 3)` for vertex colors and a matching `BufferAttribute` at component mount
-- During segment transitions, write new color values directly into the pre-allocated array using a for-loop, then set `colorAttribute.needsUpdate = true`
-- For smooth lerping between segments, pre-allocate TWO arrays (current and target), and lerp in-place during `useFrame`
-- Never use `Array.map()`, spread operators, or `new Float32Array()` inside `useFrame`
-- Use `vertexColors: true` on the material and set `mesh.geometry.setAttribute('color', colorAttribute)` once
+**Consequences:** On Intel integrated GPUs (common in laptops), the wrong usage hint causes 2-5ms of GPU-side stall per frame. On discrete GPUs the impact is ~0.5-1ms. At 60fps with a 16ms budget, 2-5ms is 12-31% of the frame budget wasted on a one-line fix.
 
-**Warning signs:**
-- Chrome DevTools Memory tab shows sawtooth pattern with frequent GC
-- Frame drops correlate with segment boundaries
-- "Jank" reports in React Three Fiber performance monitor
+**Prevention:**
+```typescript
+const colorAttr = new THREE.BufferAttribute(colorBuffer, 3);
+colorAttr.setUsage(THREE.DynamicDrawUsage);
+clonedGeometry.setAttribute('color', colorAttr);
+```
 
-**Phase to address:**
-Frontend heatmap rendering phase -- core rendering loop design
+Additionally, use `addUpdateRange(offset, count)` if only a subset of vertices change per frame (e.g., only the 3,000 vertices in a transitioning region). This avoids re-uploading the entire 61,452-float buffer when most values haven't changed.
+
+**Detection:** `r3f-perf` showing GPU frame time spikes that do not correlate with JavaScript work. Chrome `chrome://gpu` page may show buffer upload warnings.
+
+**Phase:** Simple one-line fix. Apply in the first phase alongside Pitfall 2 refactor.
 
 ---
 
-### Pitfall 4: Region Overlap Creates Double-Counting in Expanded Networks
+### Pitfall 4: Bloom Post-Processing Always-On Doubles Render Cost
 
-**What goes wrong:**
-The current system already has intentional overlap: `Pole_temporal` appears in both `emotional_processing` and `social_cognition` (documented in `regions.py` line 49 and line 60). Adding 5 new networks (visual, auditory, language, default mode, motion) dramatically increases the overlap surface. A vertex belonging to 3 networks would have its activation counted 3 times in aggregate scores, inflating overall engagement metrics. Worse, the heatmap visualization must decide WHICH network's color to show for overlapping vertices.
+**What goes wrong:** The current `BrainViewerCanvas.tsx` (line 93-103) conditionally renders `<EffectComposer>` with `<Bloom>` only in regions mode. The v3.0 overhaul unifies heatmap and regions into a single dynamic view, meaning bloom will likely be always-on. EffectComposer adds a full-screen render pass: render scene to offscreen framebuffer, apply bloom (2+ Gaussian blur passes at multiple mipmap levels with `mipmapBlur`), then composite. On a 1080p canvas at DPR 1.5 (the current `dpr={[1, 1.5]}` setting), this processes ~3.1M fragments per blur pass.
 
-**Why it happens:**
-Brain networks genuinely overlap -- this is neuroanatomically correct. But the visualization and scoring systems were designed for mostly-disjoint regions. The current `combined_mask |= mask` in `export_brain_glb.py` (line 81) handles overlap by assigning shared vertices to whichever region is processed first in the loop.
+**Why it happens:** Bloom looks spectacular in isolation. Developers see the visual improvement and ship it without profiling on lower-end hardware.
 
-**How to avoid:**
-- For scoring: keep per-region scores independent (already done correctly in `scoring.py` -- each region averages its own mask independently). Document that regions overlap and scores should NOT be summed
-- For visualization: implement a priority/blending system. Options:
-  1. Show the network with highest activation at each vertex (winner-takes-all)
-  2. Blend colors based on relative activation strength across overlapping networks
-  3. Let the user select one network at a time (simplest, avoids the problem entirely)
-- For the heatmap (single unified metric): use the raw vertex activation value, not the per-region average. This sidesteps the overlap problem entirely since you are visualizing raw data, not derived regions
-- Track and document which Destrieux parcels are shared across networks
+**Consequences:** Frame rate drops from 60fps to 30-40fps on integrated GPUs. Mobile browsers drop to 15-20fps. The brain viewer becomes the performance bottleneck of the entire results page, affecting scrolling and interaction of surrounding UI.
 
-**Warning signs:**
-- Summed engagement scores exceed the theoretical maximum
-- Adding a new network changes scores of existing networks (it should not -- but if scoring changes, this is a regression)
-- Users report "everything lights up" because most of the cortex is covered
+**Prevention:**
+1. **Use emissive intensity on the material** instead of post-process bloom for the "glow" effect. The current `BrainNetworkMesh` already does this: `emissiveIntensity={maxScore * 2.0}` (line 129). Extend this pattern to the unified view. Set `emissive` to a tinted version of the vertex color and modulate `emissiveIntensity` by activation. This gives a soft glow appearance with ZERO post-processing cost.
+2. **If bloom is essential for the desired visual**, reduce aggressively: lower `intensity` from 1.5 to 0.3-0.5, raise `luminanceThreshold` to 0.5+ (only bloom the very brightest vertices), and cap canvas DPR to 1.0 when bloom is active. The current `dpr={[1, 1.5]}` means bloom runs at up to 2.25x the fragment cost for marginal quality improvement.
+3. **Add a performance escape hatch**: monitor frame delta in `useFrame`. If frames consistently exceed 20ms for 30+ frames, automatically disable bloom and log a console warning.
+4. **Never use SelectiveBloom** (which renders the scene twice with a selection mask) -- it is 2-3x more expensive than regular Bloom.
 
-**Phase to address:**
-Region mapping expansion phase -- define overlap policy before adding new networks
+**Detection:** Toggle `<EffectComposer>` off and compare frame times with `r3f-perf`. If removing it gains >5ms per frame, bloom is too expensive for the target hardware.
+
+**Phase:** Decision must be made early in visual design phase. Emissive-only vs bloom affects the entire visual language of the overhaul.
 
 ---
 
-### Pitfall 5: Destrieux Atlas Coverage Gaps Create Misleading "Dead Zones"
+## Moderate Pitfalls
 
-**What goes wrong:**
-The current system covers ~46% of cortical vertices across 4 networks. Expanding to 9 networks will increase coverage but the Destrieux atlas has 148 parcels (74 per hemisphere), and not all map cleanly to functional networks. Vertices in the "base" mesh (uncovered areas) will appear dark/inactive in the heatmap view even though TRIBE v2 produces activation values for ALL 20,484 vertices. Users will misinterpret dark areas as "no brain activity" when they are actually "activity not mapped to any named network."
+### Pitfall 5: Video-to-Brain Sync Drift (timeupdate is 4fps, Brain is 60fps)
 
-**Why it happens:**
-The Destrieux atlas is a structural parcellation based on gyral/sulcal anatomy, not a functional one. Functional networks like "default mode" do not align perfectly with anatomical boundaries. Research shows that structurally-informed parcellations may not consistently reflect underlying functional network topography, and that atlases imposing network assignments based on gyral-based neuroanatomy perpetuate misconceptions about brain function.
+**What goes wrong:** The `currentTime` prop in `BrainViewer.tsx` (line 17) comes from the parent component, likely sourced from an HTML `<video>` element's `timeupdate` event. This event fires approximately every 250ms (browser-dependent, often irregular) -- effectively 4fps. If the brain animation runs at 60fps interpolating between segment targets, but receives new time references at 4fps, the brain can lead or lag the video by up to 250ms. Users perceive desynchronization, especially at segment boundaries where the brain should change exactly as the video transitions.
 
-**How to avoid:**
-- The per-vertex heatmap should show ALL vertices with raw activation colors, independent of region assignment. This is the primary visualization
-- Region overlays should be a SECONDARY layer -- toggle-able outlines or boundaries drawn on top of the continuous heatmap
-- Never show a brain view where unmapped areas are invisible or visually indistinguishable from zero activation
-- Add a tooltip or legend explaining "activation values are shown for all cortical vertices; named regions highlight areas associated with specific cognitive functions"
+**Why it happens:** `timeupdate` is a coarse, fire-and-forget DOM event. Browsers (especially Chrome) do not guarantee consistent firing rate. Safari may fire it more frequently but with different timing characteristics.
 
-**Warning signs:**
-- Large dark patches on the brain surface in areas known to be active (e.g., visual cortex when watching video)
-- Users ask "why is half the brain not doing anything?"
-- Coverage percentage does not increase as much as expected despite adding 5 networks
+**Prevention:**
+1. **Poll `video.currentTime` directly in `useFrame`** instead of relying on events. Store a ref to the video DOM element. In the `useFrame` callback, read `videoRef.current.currentTime` every frame. This gives sub-frame time accuracy (~16ms resolution at 60fps instead of ~250ms).
+2. **Use `requestVideoFrameCallback`** (Chrome 83+, Firefox 98+, Safari 15.4+) which fires exactly once per decoded video frame with precise presentation timestamps. This is the gold standard for video-to-animation sync.
+3. **Decouple video time from React props entirely.** Pass the video element ref into the R3F scene (via Zustand store or module-level variable), not the current time as a React prop. This avoids React re-renders on time changes.
 
-**Phase to address:**
-Both the region mapping phase (ensure coverage is documented) and the frontend heatmap phase (ensure raw activation is the primary view)
+**Detection:** Play a video with rapid scene changes and watch if the brain activation trails behind by a perceivable delay. Pause the video -- the brain should stop immediately with no lingering animation drift.
+
+**Phase:** Address in the video sync integration phase. Must be designed before implementing the interpolation system.
 
 ---
 
-### Pitfall 6: Bloom Post-Processing Destroys Heatmap Readability
+### Pitfall 6: Lerp Asymptotic Creep -- Animation Never Settles
 
-**What goes wrong:**
-The current `BrainViewerCanvas.tsx` uses `<EffectComposer>` with `<Bloom luminanceThreshold={0.2} intensity={1.5} />`. This works for the current design where emissive regions glow against a dark base mesh. But per-vertex heatmaps use continuous color gradients where precision matters -- bloom will bleed bright vertices into neighboring dim ones, washing out the heatmap and making it impossible to see fine-grained spatial patterns. High-activation regions will appear larger than they are, and the color-to-value mapping becomes unreliable.
+**What goes wrong:** When interpolating vertex colors between segments, the standard approach is `current = lerp(current, target, 0.1)` in each `useFrame`. Lerp approaches the target asymptotically -- it mathematically never reaches it. After a segment transition, vertices "almost" reach their target color but keep changing by sub-pixel amounts indefinitely. `needsUpdate = true` is set every frame even when the brain should be visually static, wasting ~1-3ms of GPU upload time per frame for invisible changes.
 
-**Why it happens:**
-The bloom effect was tuned for aesthetic appeal with 4 glowing blobs, not for data visualization accuracy. Developers add the heatmap without revisiting post-processing settings.
+**Why it happens:** Standard lerp behavior. At alpha=0.1, the remaining distance halves every ~7 frames, but it takes 70+ frames (over a second) to get within 0.001 of the target. During that time, every frame triggers a full BufferAttribute re-upload.
 
-**How to avoid:**
-- Disable bloom when heatmap mode is active, or drastically reduce intensity (0.2-0.3 instead of 1.5)
-- Use separate render layers: bloom applies only to region overlay meshes, not the heatmap mesh
-- Consider replacing bloom with a subtle ambient occlusion effect that enhances the 3D perception without distorting colors
-- Test the heatmap with bloom off first, then add back only if it genuinely improves readability
+**Consequences:** Wasted GPU bandwidth. On battery-powered devices, this prevents the GPU from entering low-power idle state, draining battery even when the video is paused. It also means `addUpdateRange` optimizations (Pitfall 3) never kick in because the system thinks "everything is still changing."
 
-**Warning signs:**
-- Heatmap colors appear washed out or overly bright
-- Small hot spots appear much larger than their actual vertex extent
-- Users cannot distinguish between adjacent activation levels
+**Prevention:**
+1. **Snap to target when close.** After lerping, check `if (Math.abs(current - target) < 0.005)` and set `current = target`. The threshold 0.005 is below the perceptible color difference for 8-bit displays.
+2. **Track a global "is animating" flag** using a ref. When ALL vertices have snapped to their targets, set `isAnimating.current = false` and skip the `needsUpdate = true` assignment. Resume when a new segment target arrives.
+3. **Use `THREE.MathUtils.damp(current, target, lambda, delta)`** instead of raw lerp. This is frame-rate independent (accounts for variable frame duration) and reaches the target faster than equivalent lerp.
 
-**Phase to address:**
-Frontend heatmap rendering phase -- post-processing configuration
+**Detection:** Pause the video for 5+ seconds. Check (via console log in `useFrame`) whether `needsUpdate` is still being set to `true`. If so, the animation never settled.
+
+**Phase:** Address alongside the animation system (Pitfall 2 refactor).
 
 ---
 
-## Technical Debt Patterns
+### Pitfall 7: Threshold-Based Activation Creates Popping Artifacts
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| JSON for vertex data | No API changes needed | 3-5x payload bloat, main-thread parse blocking | Never for production; acceptable for a single-segment proof-of-concept |
-| Keeping split meshes only | No GLB pipeline changes | Cannot render per-vertex heatmaps correctly | Never -- must create unified mesh for heatmaps |
-| Hardcoded color scale range | Quick to implement | Cannot adapt to different video content ranges; TRIBE v2 value ranges vary by content | MVP only -- add auto-scaling in next iteration |
-| Skipping segment interpolation | Simpler rendering logic | Jarring color jumps during playback | MVP only -- visually poor but functional |
-| Single color ramp for all metrics | Fewer design decisions | Arousal, valence, and activation have different semantics (diverging vs sequential) | MVP only |
-| Duplicating BrainViewerCanvas for heatmap mode | Avoid refactoring existing component | Two components to maintain, diverging behavior | Never -- use a mode prop or composition pattern |
+**What goes wrong:** The v3.0 goal says "regions light up only above activation threshold (maybe 50%)." If implemented as a hard cutoff (`if (activation > 0.5) { showGlow() } else { dark() }`), vertices near the boundary flicker rapidly between visible and invisible as activation values oscillate around the threshold between adjacent 2-second segments. This "popping" looks like a rendering bug.
 
-## Integration Gotchas
+**Why it happens:** Neural activation data from TRIBE v2 has natural variance. Values near any threshold will cross it repeatedly. With 2-second segments, a value might be 0.48 in one segment and 0.52 in the next.
 
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| TRIBE v2 vertex output -> frontend heatmap | Assuming vertex order in binary data matches GLB mesh vertex order | Verify fsaverage5 vertex ordering is preserved in GLB export. Use the same `nilearn.datasets.fetch_surf_fsaverage` source for both export and mapping |
-| RunPod response -> binary vertex data | Trying to return binary data through RunPod's JSON response handler | Return vertex data as base64-encoded string in JSON, or store binary blob in a temporary URL (S3/R2) and return the URL in the JSON response |
-| Bloom post-processing -> vertex colors | Bloom amplifies bright vertex colors, making low-activation areas invisible | Disable or reduce bloom when heatmap is active; apply bloom only to region overlay meshes |
-| OrbitControls -> heatmap vertex inspection | Raycasting for vertex identification conflicts with orbit control drag events | Use `onPointerMove` with a debounce; only raycast when pointer is stationary for >200ms; disable raycasting during active orbiting |
-| New regions -> existing toggle UI | Adding 9 toggle buttons to the existing horizontal button bar in `BrainViewer.tsx` | 9 buttons will not fit the current layout (currently 4 fit). Redesign as a grouped/collapsible panel or dropdown |
-| Existing region scores -> new region scores | Assuming the scoring function needs changes when adding new regions | `scoring.py` already handles arbitrary region masks -- just pass the expanded `REGION_DEFINITIONS` to `build_region_masks()`. No scoring code changes needed |
+**Consequences:** Brain regions flash on and off distractingly at their edges. Users focus on the flickering instead of the activation pattern. The visualization feels unstable and untrustworthy.
 
-## Performance Traps
+**Prevention:**
+1. **Soft threshold with smoothstep.** Map activation to intensity using `smoothstep(threshold - margin, threshold + margin, activation)` where margin = 0.05-0.1. This creates a gradual fade zone instead of a hard edge. In GLSL (if using a shader): `intensity = smoothstep(0.4, 0.6, activation)`. In JavaScript: `intensity = clamp((activation - 0.4) / 0.2, 0, 1)` then square it for a smooth curve.
+2. **Hysteresis.** Once a region activates (crosses 0.55 going up), it stays active until it drops below 0.45 going down. Prevents rapid toggling at the boundary.
+3. **Temporal smoothing.** Apply exponential moving average to activation values before thresholding: `displayValue = displayValue * 0.7 + rawValue * 0.3`. This dampens inter-segment noise.
 
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Re-uploading vertex colors to GPU every frame | GPU usage spikes, frame rate drops below 30fps | Only call `needsUpdate = true` when segment actually changes, not every frame. Use a dirty flag | Immediately on integrated GPUs (laptops, most users) |
-| Full 20,484-vertex color array computation on every segment change | 100-200ms pause during segment transitions | Pre-compute all segment color arrays client-side after data load; swap by reference on segment change | With >15 segments on mobile devices |
-| Rendering heatmap + bloom + 9 region overlays simultaneously | Draw calls explode from 6 to 20+, frame budget exceeded | Heatmap mode disables region mesh overlays. Show one visualization paradigm at a time | On any mid-range device when all features enabled simultaneously |
-| Fetching vertex data synchronously before showing results page | Results page blank for 2-5 seconds while binary data loads | Show region averages immediately (existing small payload); load vertex data in background; progressively enhance the viewer from blobs to heatmap | Always -- vertex data is 20-60x larger than region scores |
-| Color-mapping 20,484 vertices from scalar to RGB in JavaScript per segment | 5-15ms per segment change, blocks main thread | Pre-compute color lookup table (256 entries); quantize vertex values to uint8; index into LUT instead of computing HSL/RGB per vertex | Noticeable on mobile; cumulative with other per-segment work |
+**Detection:** Fabricate test data with values oscillating around the threshold (0.48, 0.52, 0.49, 0.51, 0.48) and verify no visible flickering when playing through segments.
+
+**Phase:** Implement during the threshold/activation visual phase. Must be designed before user testing.
+
+---
+
+### Pitfall 8: Emissive Color Washes Out Region Color Differentiation
+
+**What goes wrong:** When adding dynamic glow via `emissiveIntensity` proportional to activation, high emissive values push all color channels toward 1.0 (white). If attention (blue, `#60a5fa`) and reward (purple, `#a78bfa`) regions both have activation > 0.8, their emissive contribution makes them look nearly identical -- washed-out bright areas that lose their color-coding distinction.
+
+**Why it happens:** MeshStandardMaterial computes `finalColor = diffuse + emissive * emissiveIntensity`. When emissive is bright and intensity is high (the current code uses `maxScore * 2.0`), emissive dominates and the diffuse vertex color contribution becomes negligible.
+
+**Prevention:**
+1. **Cap emissive intensity** to 0.3-0.8 range. The glow "impression" comes more from contrast with dark surroundings than from raw brightness.
+2. **Use vertex color as emissive color** scaled down: `emissive = vertexColor * 0.3`. This preserves hue while adding glow. Requires a custom shader or `onBeforeCompile` callback since `meshStandardMaterial` only supports a single `emissive` color, not per-vertex emissive.
+3. **If using bloom, let bloom create the glow** rather than cranking emissive. Bloom preserves hue better because it works in screen-space and blurs existing colors rather than adding flat emissive contribution.
+4. **Test with multiple high-activation regions visible simultaneously.** The worst case is when 3+ regions are all above 0.8 -- they should remain visually distinct by color.
+
+**Detection:** Take a screenshot with multiple high-activation regions. If you cannot tell which region is which without reading the legend, emissive is too high.
+
+**Phase:** Address during visual tuning, after the basic glow system is working.
+
+---
+
+### Pitfall 9: Geometry Clone Leak on Component Remount
+
+**What goes wrong:** Both `BrainHeatmapMesh.tsx` (line 21-24) and `BrainNetworkMesh.tsx` (line 46-48) create `clonedGeometry` in `useMemo` but never dispose it on unmount. Each clone holds GPU-side vertex buffer objects (VBOs). If the component unmounts and remounts (e.g., switching view modes, navigating away and back), the old GPU buffers leak.
+
+**Why it happens:** Three.js GPU resources require explicit `.dispose()` calls. JavaScript's garbage collector handles the JS-side objects but cannot reach the GPU memory. React's `useMemo` has no cleanup callback -- only `useEffect` does.
+
+**Consequences:** Each mount/unmount leaks ~480KB of GPU memory (20,484 vertices x 3 components x 4 bytes x 2 attributes: position + color). Over a session with frequent mode toggles, this accumulates and can cause WebGL context loss on memory-constrained devices.
+
+**Prevention:**
+```typescript
+useEffect(() => {
+  return () => {
+    clonedGeometry.dispose();
+  };
+}, [clonedGeometry]);
+```
+
+**Phase:** Quick fix, apply during any refactoring phase.
+
+---
+
+## Minor Pitfalls
+
+### Pitfall 10: Color Space Mismatch (sRGB vs Linear)
+
+**What goes wrong:** d3 colormaps output colors in sRGB space. Three.js (r152+, which R3F uses) defaults to `outputColorSpace = SRGBColorSpace` and performs sRGB encoding in the shader. If vertex colors are already in sRGB and the renderer encodes them again, midtones appear washed out (gamma applied twice). Conversely, if you linearize the colors but the renderer does not re-encode, colors appear too dark.
+
+**Prevention:** When building the LUT (Pitfall 1 fix), convert sRGB values to linear: `linear = Math.pow(srgb, 2.2)`. Or set `colorAttribute.colorSpace = THREE.SRGBColorSpace` to tell Three.js the colors are already in sRGB and should be used as-is. Verify by comparing a test frame against the d3 colormap reference.
+
+### Pitfall 11: OrbitControls Damping Fights Auto-View Transitions
+
+**What goes wrong:** The current `enableDamping` with `dampingFactor={0.08}` creates smooth manual orbiting. If the overhaul adds auto-rotation or auto-view-switching (e.g., rotate to show the most active hemisphere), damping makes programmatic camera changes feel sluggish and "floaty." Calling `setAzimuthalAngle()` while damping is active creates a fight between the target position and the damping interpolation.
+
+**Prevention:** Do not auto-rotate based on activation. If programmatic view transitions are needed, temporarily disable damping, animate with spring-based interpolation (react-spring `useSpring` targeting camera position), then re-enable damping.
+
+### Pitfall 12: Object Allocation Inside useFrame
+
+**What goes wrong:** Inside a `useFrame` callback, allocating `new THREE.Color()`, `new THREE.Vector3()`, or even using spread operators (`{...obj}`) creates garbage every frame. At 60fps, even small allocations accumulate and trigger GC pauses that appear as periodic stutter every 2-5 seconds.
+
+**Prevention:** Pre-allocate ALL reusable objects (temp colors, vectors) at module scope or component scope (outside `useFrame`). Call `.set()` or `.copy()` to mutate them in place. Never use `Array.map()`, `Array.filter()`, spread operators, or `new` inside `useFrame`.
+
+---
 
 ## UX Pitfalls
 
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Showing arousal and valence as raw numbers (-1.48 to 1.80) | Users have no reference frame for what "arousal: 0.73" means | Use labeled zones: "high energy + positive" = excited; "low energy + negative" = bored. Or use normalized 0-100 scales with descriptive labels |
-| Using a rainbow colormap for heatmap | Perceptually non-uniform -- users see false boundaries; colorblind users cannot read it | Use a sequential colormap (viridis, inferno) or a diverging scale (blue-white-red) centered on zero |
-| Labeling metrics with neuroscience jargon | Content creators do not know what "default mode network" or "dorsal attention" means | Use plain-language labels: "Mind Wandering" instead of "Default Mode Network", "Visual Processing" instead of "Dorsal Visual Stream" |
-| Displaying arousal/valence without actionable context | Numbers without interpretation are meaningless to non-scientists | Show what the values MEAN for the video: "This segment is emotionally intense and positive -- viewers feel excited" |
-| Showing all 9 regions simultaneously by default | Visual overload, nothing stands out, cognitive burden | Default to heatmap-only view; let users opt into specific region overlays. Show top 2-3 most activated regions as a starting point |
-| Arousal and valence as separate line charts | Users cannot relate arousal to valence -- they are interdependent dimensions | Use a 2D scatter/trajectory plot (circumplex) showing how the video moves through arousal-valence space over time. Each segment is a point; connect sequentially to show emotional trajectory |
-| Presenting arousal/valence alongside the already-rejected "virality score" pattern | Users who rejected hook/retention scores may distrust arousal/valence if presented as authoritative composite scores | Frame as descriptive ("what viewers likely feel") not predictive ("this will perform well"). The user explicitly rejected virality/hook/retention scores as unreliable |
+### Pitfall 13: All 9 Regions Simultaneously = Visual Chaos
+
+**What goes wrong:** The overhaul removes toggle filters and shows dynamic glow. If all 9 brain regions display at full intensity simultaneously, the brain becomes an unintelligible multicolor light show. Users cannot extract meaning -- it looks "cool" but communicates nothing.
+
+**Prevention:**
+1. **Show only the top 2-3 regions by activation score** at any given moment. Fade others to the dark base color. Creates a clear visual narrative: "attention and reward are driving engagement in this segment."
+2. **Use a dominant-region approach:** highest-scoring region gets full intensity, second gets 50%, third gets 25%, rest suppressed. Creates visual hierarchy.
+3. **The static color legend should highlight the currently-dominant region** (bold, pulse, or increased opacity on the legend item matching the brightest region). Gives users a text anchor for what they see.
+
+### Pitfall 14: "Simplified" UI That Removes User Agency
+
+**What goes wrong:** The overhaul goal says "remove toggle filter buttons, replace with static legend." While simplification is correct, completely removing the ability to focus on a single region removes a valuable analytical tool. Power users (the content creators who care about specific metrics) lose the ability to say "show me JUST the emotional processing activation."
+
+**Prevention:** Keep the legend interactive but subtle. Clicking a legend item could isolate that region (dim everything else). Double-click or "show all" returns to the multi-region view. This preserves simplicity (no cluttered button bar) while maintaining analytical depth for users who want it.
+
+---
+
+## Phase-Specific Warnings
+
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Performance foundation (do first) | Pitfall 1 (CPU colormap), Pitfall 3 (DynamicDrawUsage), Pitfall 9 (geometry leak) | Build LUT, set usage hint, add dispose cleanup. These are prerequisites for everything else. |
+| Animation system | Pitfall 2 (useEffect vs useFrame), Pitfall 6 (lerp creep), Pitfall 12 (object allocation) | Refactor to useFrame + useRef pattern; add snap-to-target epsilon; pre-allocate temp objects. |
+| Visual design (glow/bloom) | Pitfall 4 (EffectComposer cost), Pitfall 8 (emissive bleaching), Pitfall 10 (color space) | Prototype emissive-only first; only add bloom if emissive alone is insufficient. Verify color space. |
+| Threshold activation | Pitfall 7 (popping artifacts) | Implement smoothstep + hysteresis before testing with real data. |
+| Video sync | Pitfall 5 (timeupdate drift) | Poll currentTime in useFrame or use requestVideoFrameCallback. |
+| UX simplification | Pitfall 13 (visual chaos), Pitfall 14 (removed user agency) | Design top-N-regions rule; keep legend subtly interactive. |
+| Camera/interaction | Pitfall 11 (damping fights transitions) | Do not auto-rotate; use spring animations for programmatic camera moves. |
+
+---
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Vertex color mapping:** Verified that vertex index 0 in TRIBE v2 output maps to vertex index 0 in the GLB mesh -- if misaligned, the heatmap shows scrambled colors across the brain
-- [ ] **Hemisphere ordering:** Left hemisphere is vertices 0-10241 and right is 10242-20483 in BOTH the binary data and the GLB mesh -- swapping hemispheres creates a mirrored-brain bug that is hard to detect visually
-- [ ] **Color scale normalization:** Confirmed the color scale is normalized per-video (not globally) -- TRIBE v2 value ranges vary by content (-1.48 to 1.80 for Sintel trailer but will differ for other videos)
-- [ ] **Zero activation rendering:** Vertices with activation near zero are visually distinct from unmapped/hidden vertices -- dark blue should look different from invisible/black
-- [ ] **Mobile WebGL compatibility:** Tested that the unified mesh + vertex colors render on mobile Safari/Chrome -- WebGL 1 has limits on vertex attribute count
-- [ ] **Region score regression:** After adding new regions, verified that existing 4 region scores (attention, reward, emotional_processing, social_cognition) have NOT changed -- the scoring is independent per-mask but a bug in mask building could alter results
-- [ ] **Arousal/valence sign convention:** Confirmed that positive valence means "positive emotion" and positive arousal means "high energy" in TRIBE v2's output -- sign conventions vary between neuroscience models
-- [ ] **Segment boundary alignment:** Per-vertex data segments align temporally with the existing region-average segments -- an off-by-one in HRF delay application would misalign brain state with video position
-- [ ] **Colormap accessibility:** Tested the heatmap colormap with colorblindness simulation tools (protanopia, deuteranopia) -- ~8% of male users are colorblind
+- [ ] **Frame budget verified:** Brain viewer maintains 60fps with smooth animation on a device with integrated GPU (test on a non-gaming laptop or use Chrome GPU throttling)
+- [ ] **Animation settles:** After pausing video for 5 seconds, `needsUpdate` is no longer being set (Pitfall 6)
+- [ ] **Color accuracy:** Screenshot of brain with known activation values matches expected colormap output (no double-gamma, no sRGB mismatch)
+- [ ] **Threshold stability:** Test data with values oscillating around threshold shows no flickering (Pitfall 7)
+- [ ] **Region distinction:** With 3+ regions at high activation, colors remain visually distinguishable (not washed out white)
+- [ ] **Video sync:** Scrub video rapidly, brain tracks immediately. Pause, brain stops immediately. No perceptible lag.
+- [ ] **Memory stability:** Toggle views 20 times, no increasing GPU memory (WebGL context stays healthy)
+- [ ] **Bloom off comparison:** Verified that the visualization still communicates clearly with bloom disabled (graceful degradation)
+- [ ] **Legend readability:** Non-technical user can look at the legend and identify which brain region is glowing brightest
 
-## Recovery Strategies
-
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| JSON vertex payload too large | LOW | Add binary endpoint alongside existing JSON; frontend fetches both in parallel; no breaking change to existing API |
-| Wrong vertex ordering in GLB | MEDIUM | Re-export GLB preserving original fsaverage5 vertex indices; frontend changes minimal if API contract is stable |
-| GC pressure from per-frame allocations | LOW | Refactor to pre-allocated arrays; isolated to heatmap component; no API changes |
-| Region overlap double-counting | LOW | Scoring already handles this correctly; only visualization layer needs fix |
-| Rainbow colormap deployed | LOW | Swap colormap lookup table; purely visual change, no data impact |
-| Arousal/valence misinterpreted by users | MEDIUM | Requires UX redesign of metric display; data is correct but presentation must change |
-| Hemisphere swap bug | HIGH | Requires re-export of GLB AND re-verification of all region masks; subtle bug that could ship undetected for weeks |
-| Bloom washing out heatmap | LOW | Toggle bloom off in heatmap mode; single line change in BrainViewerCanvas.tsx |
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| JSON payload bloat | Backend API / data pipeline | Response size <3 MB; binary endpoint returns ArrayBuffer; `Content-Type: application/octet-stream` |
-| GLB mesh architecture mismatch | Data pipeline / mesh export | New GLB has single mesh with 20,484 vertices matching TRIBE v2 output indices |
-| useFrame GC pressure | Frontend heatmap rendering | Chrome Memory tab shows flat heap during 30s of segment playback; no GC pauses >16ms |
-| Region overlap double-counting | Region mapping expansion | Unit test: existing 4 region scores unchanged after adding 5 new regions; overlap documented |
-| Coverage gaps misleading users | Frontend heatmap rendering + UX | Raw activation heatmap is the default view; region overlays are secondary toggle |
-| Bloom destroys heatmap | Frontend heatmap rendering | Bloom disabled or reduced in heatmap mode; colors match the colormap legend accurately |
-| Arousal/valence presentation | UX / results display | User testing confirms creators understand what the metrics mean; framed as descriptive not predictive |
-| Vertex ordering mismatch | Data pipeline / mesh export | Integration test: known activation pattern (e.g., visual cortex hot) renders on occipital lobe |
-| Colormap accessibility | Frontend heatmap rendering | Colormap passes colorblindness simulation; diverging scale has luminance variation not just hue |
-| Toggle UI overflow | Frontend UI | 9+ regions fit the layout without horizontal scrolling; grouped or collapsible design |
+---
 
 ## Sources
 
-- Codebase analysis: `export_brain_glb.py` (split mesh architecture, vertex remapping), `atlas.py` (Destrieux atlas loading, mask building), `regions.py` (region definitions, documented overlap), `scoring.py` (independent per-mask scoring), `BrainViewerCanvas.tsx` (current mesh loading, bloom post-processing), `BrainRegionMesh.tsx` (current emissive intensity lerping pattern)
-- [Three.js forum: single mesh vs multiple meshes performance](https://discourse.threejs.org/t/performance-one-single-mesh-with-multiple-materials-or-scene-graph-multiple-objects-with-single-material/35157) -- 450% performance improvement from batching into single mesh
-- [React Three Fiber: scaling performance](https://r3f.docs.pmnd.rs/advanced/scaling-performance) -- LOD, buffer attribute management
-- [React Three Fiber: buffer attribute update patterns](https://github.com/pmndrs/react-three-fiber/discussions/2318) -- ref-based mutation, needsUpdate flag
-- [JSON vs binary payload performance](https://medium.com/hoppinger/profiling-the-hidden-costs-of-json-and-http-s-c8f327d5db89) -- float text encoding 3x larger than binary
-- [Binary format benchmarks](https://github.com/zeenix/json-vs-bin) -- binary 10-16x faster than JSON for array data
-- [Brain atlas concordance problem](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0007200) -- structural vs functional parcellation mismatch
-- [Cortical atlas morphometricity](https://www.sciencedirect.com/science/article/pii/S0010945222003008) -- information loss in atlas-based parcellation
-- [Russell's circumplex model of affect](https://psu.pb.unizin.org/psych425/chapter/circumplex-models/) -- arousal-valence visualization framework
-- [Emotion-aware design](https://arxiv.org/html/2502.16038v3) -- valence-arousal-dominance space in UX
+- [React Three Fiber: Performance Pitfalls (official)](https://r3f.docs.pmnd.rs/advanced/pitfalls) -- HIGH confidence. "Don't setState in useFrame" warning, object re-creation guidance.
+- [React Three Fiber: Scaling Performance (official)](https://r3f.docs.pmnd.rs/advanced/scaling-performance) -- HIGH confidence. DPR, draw call, LOD guidance.
+- [Three.js BufferAttribute docs](https://threejs.org/docs/pages/BufferAttribute.html) -- HIGH confidence. `needsUpdate`, `setUsage`, `addUpdateRange` API.
+- [Three.js BufferAttribute Usage Constants](https://threejs.org/docs/api/en/constants/BufferAttributeUsage.html) -- HIGH confidence. DynamicDrawUsage specification.
+- [Three.js forum: Buffer attribute update performance](https://discourse.threejs.org/t/updating-buffer-attribute-performance-is-incredibly-slow/36415) -- MEDIUM confidence. Community-reported performance numbers for dynamic updates.
+- [React Postprocessing: Bloom docs](https://react-postprocessing.docs.pmnd.rs/effects/bloom) -- HIGH confidence. Bloom configuration, selective bloom cost.
+- [pmndrs/react-postprocessing GitHub](https://github.com/pmndrs/react-postprocessing) -- HIGH confidence. EffectComposer merging behavior.
+- [Codrops: Building Efficient Three.js Scenes (2025)](https://tympanus.net/codrops/2025/02/11/building-efficient-three-js-scenes-optimize-performance-while-maintaining-quality/) -- MEDIUM confidence. General performance patterns.
+- [Maxime Heckel: Shaders with R3F](https://blog.maximeheckel.com/posts/the-study-of-shaders-with-react-three-fiber/) -- MEDIUM confidence. Custom shader patterns in R3F.
+- Codebase analysis: `BrainHeatmapMesh.tsx`, `BrainNetworkMesh.tsx`, `BrainViewerCanvas.tsx`, `BrainViewer.tsx`, `colormap.ts`, `brain-utils.ts` -- HIGH confidence (direct code review identifying exact line numbers of current issues).
 
 ---
-*Pitfalls research for: NeuroCut v2.2 Enhanced Brain Analytics -- per-vertex heatmaps, functional network expansion, arousal/valence display*
+*Pitfalls research for: NeuroCut v3.0 Brain Visualization UX Overhaul -- dynamic glow, 60fps animation, video sync*
 *Researched: 2026-04-10*

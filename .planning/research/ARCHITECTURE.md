@@ -1,487 +1,408 @@
-# Architecture Patterns: Per-Vertex Heatmaps, Functional Networks, Arousal/Valence
+# Architecture: Brain Viewer UX Overhaul (Dynamic Glow)
 
-**Domain:** Enhanced brain analytics integration into existing NeuroCut pipeline
+**Domain:** 3D brain visualization simplification -- cluttered multi-mode UI to single dynamic glow
 **Researched:** 2026-04-10
-**Overall confidence:** HIGH (based on direct codebase analysis + established Three.js/neuroscience patterns)
+**Overall confidence:** HIGH (based on direct codebase analysis of existing components)
 
-## Current Architecture Summary
+## Executive Summary
 
-The existing pipeline flows:
-
-```
-TRIBE v2 model
-  -> raw predictions: np.ndarray (n_segments, 20484)
-  -> postprocessor: aggregate 20,484 vertices into 4 region means
-  -> JSON API response: per-segment { activation, arousal, valence, regions: {4 floats} }
-  -> Frontend: 4 named GLB submeshes colored uniformly by region score
-```
-
-**Key insight:** The raw 20,484-vertex data already exists at the postprocessor stage. It is discarded during aggregation. The new features recover and transmit this data.
+The current brain viewer has accumulated UI complexity that obscures its core value: showing which brain regions light up as a video plays. The architecture has a heatmap/regions toggle, a colormap selector dropdown, 9 network filter buttons (each togglable), and 4 view-angle buttons -- totaling 16 interactive controls in a component that should tell a story passively. The overhaul collapses this to a single visualization mode where the brain glows dynamically using the existing per-vertex heatmap data, with a static color legend replacing the interactive filter buttons. No new data pipelines are needed -- the vertex_data and region scoring infrastructure is already complete and working.
 
 ---
 
-## Recommended Architecture
+## Current Architecture (What Exists)
 
-### Data Flow: Per-Vertex Heatmaps
+### Component Tree
 
 ```
-Backend (postprocessor.py)
-  |
-  | predictions: (n_segments, 20484) float32
-  |
-  v
-  robust_normalize(aligned) -- already happens
-  |
-  v
-  NEW: Encode full vertex array per 2-second window
-  |     average 2 consecutive 1s segments -> (20484,) float32
-  |     quantize float32 -> uint8 (0-255) -- 80x size reduction
-  |     base64 encode -> ~27KB string per window
-  |
-  v
-  JSON response with vertex_data field per segment
-  |
-  v
-Frontend (BrainViewer)
-  |
-  | Decode base64 -> Uint8Array -> Float32Array (0.0-1.0)
-  |
-  v
-  Set as vertex color attribute on UNIFIED brain mesh
-  |
-  v
-  Three.js renders per-vertex heatmap via vertexColors
+BrainViewer.tsx (wrapper)
+  |-- State: viewMode ('heatmap' | 'regions'), colormap, visibleRegions (9 booleans)
+  |-- UI: mode toggle, colormap dropdown, 4 view-angle buttons, 9 region filter buttons
+  |-- Canvas (R3F)
+  |     |-- BrainViewerCanvas.tsx (forwardRef, imperative view controls)
+  |     |     |-- IF heatmap: BrainHeatmapMesh.tsx (per-vertex coloring via Float32Array)
+  |     |     |-- IF regions: BrainNetworkMesh.tsx (per-vertex coloring via region masks)
+  |     |     |-- OrbitControls (user drag rotation)
+  |     |     |-- IF regions: EffectComposer > Bloom
+  |     |-- Suspense fallback
+  |-- IF regions mode: 9 interactive filter buttons with scores
 ```
 
-### Why Send Vertex Data to Frontend (Not Pre-Rendered Textures)
+### Data Flow (Current)
 
-**Decision: Send quantized vertex arrays. Do NOT pre-render on backend.**
+```
+segments[] + currentTime
+  |
+  +--> getRegionsAtTime() --> SegmentRegionScores (9 floats) --> BrainNetworkMesh
+  |
+  +--> getVertexDataAtTime() --> base64 string --> decodeVertexData() --> Float32Array(20484) --> BrainHeatmapMesh
+```
 
-Rationale:
-1. The GLB mesh already has 20,484 vertices matching the TRIBE v2 output 1:1 (both use fsaverage5)
-2. Three.js `BufferGeometry.setAttribute('color', ...)` maps vertex colors directly -- no UV mapping needed
-3. Backend rendering would require headless GL context on RunPod (unnecessary complexity)
-4. Quantized uint8 vertex data is ~27KB/segment gzipped to ~8-12KB -- acceptable for 30 segments (~300KB total)
-5. Frontend can interpolate between segments, apply custom colormaps, and respond to user interaction
+### What Each Component Does
 
-### Why Quantize to uint8
-
-- Raw float32: 20,484 * 4 bytes = ~80KB per window
-- uint8: 20,484 * 1 byte = ~20KB per window
-- Base64 of uint8: ~27KB per window
-- With gzip: ~8-12KB per window (float data compresses well)
-- For 30 windows (60s video): ~300-360KB total -- well within API limits
-- Perceptual difference between 256 levels of activation is negligible on a color gradient
+| Component | Lines | Role | Controls Owned |
+|-----------|-------|------|----------------|
+| `BrainViewer.tsx` | 184 | Outer wrapper, all state, all control UI | Mode toggle, colormap dropdown, 4 view buttons, 9 filter buttons |
+| `BrainViewerCanvas.tsx` | 108 | R3F scene, lighting, camera, mode switching | Imperative view methods (front/top/left/right) |
+| `BrainHeatmapMesh.tsx` | 57 | Loads unified GLB, applies colormap to vertex colors | None |
+| `BrainNetworkMesh.tsx` | 134 | Loads unified GLB, colors vertices by region mask + score | None |
+| `brain-utils.ts` | 64 | Time lookup, region colors constant | N/A |
+| `colormap.ts` | 41 | d3 colormaps (plasma/inferno/viridis) | N/A |
+| `vertex-codec.ts` | 40 | Base64 decode, uint8-to-float | N/A |
 
 ---
 
-## Component Boundaries
+## Target Architecture (Dynamic Glow)
 
-### Backend Changes
+### Design Goal
 
-| Component | Change Type | Responsibility |
-|-----------|-------------|----------------|
-| `src/schema.py` | **MODIFY** | Add `vertex_data: Optional[str]` to `Segment`, add new region fields to `RegionScores`, add arousal/valence composite fields to `Summary` |
-| `src/postprocessor.py` | **MODIFY** | Encode per-window vertex arrays as base64 uint8, compute new network scores, compute arousal/valence composites for summary |
-| `src/region_mapping/regions.py` | **MODIFY** | Add 5 new network definitions (visual, auditory, language, default_mode, motion) |
-| `src/region_mapping/constants.py` | **MODIFY** | Add new region names to `NEUROCUT_REGIONS` list |
-| `data/region_masks.npz` | **REGENERATE** | Run `scripts/generate_masks.py` after updating region definitions |
-| `scripts/export_brain_glb.py` | **NO CHANGE** | Heatmap uses a single unified mesh, not per-region submeshes |
+The brain simply glows. As the video plays, regions that activate light up with intensity proportional to their score. Regions below threshold stay dark. No toggles, no mode switching, no colormap picker. The user watches the video and sees the brain respond. A static legend tells them what each color means.
 
-### Frontend Changes
+### Visual Behavior
 
-| Component | Change Type | Responsibility |
-|-----------|-------------|----------------|
-| `web/src/components/results/SegmentTable.tsx` | **MODIFY** | Extend `SegmentRegionScores` interface with 5 new regions |
-| `web/src/components/results/brain-utils.ts` | **MODIFY** | Add colors for new regions, add vertex data decode utility |
-| `web/src/components/results/BrainViewerCanvas.tsx` | **MAJOR REWRITE** | Replace per-region submesh rendering with single unified mesh + vertex color heatmap |
-| `web/src/components/results/BrainRegionMesh.tsx` | **REPLACE** | Replace with `BrainHeatmapMesh.tsx` using vertex color buffer attribute |
-| `web/src/components/results/BrainViewer.tsx` | **MODIFY** | Add heatmap/region toggle, update legend for 9 networks |
-| `web/src/app/(app)/results/[id]/page.tsx` | **MODIFY** | Add arousal/valence display cards |
-| `web/src/components/results/BrainHeatmapMesh.tsx` | **NEW** | Unified brain mesh with per-vertex color attribute |
-| `web/src/components/results/ArousalValenceCard.tsx` | **NEW** | Display component for arousal/valence metrics |
-| `web/src/components/results/NetworkLegend.tsx` | **NEW** | Expandable legend for 9 functional networks |
-| `web/src/lib/vertex-codec.ts` | **NEW** | Base64 decode + uint8-to-float conversion + colormap application |
+1. **Base state:** Dark brain mesh (#1a1a2e), barely visible -- like a dormant organ
+2. **Activation:** Regions with scores above threshold (~0.15) glow in their network color, intensity scaling with score
+3. **Bloom:** Post-processing bloom makes high-activation areas emanate light, creating the "glow" effect
+4. **Smooth transitions:** Vertex colors lerp between segment boundaries so the brain breathes rather than snapping
+5. **Auto-rotate:** Gentle slow rotation so the user sees all angles without needing view buttons
+
+### Component Tree (New)
+
+```
+BrainViewer.tsx (simplified wrapper)
+  |-- State: NONE (no user-toggleable state)
+  |-- UI: Title + static NetworkLegend (non-interactive)
+  |-- Canvas (R3F)
+  |     |-- BrainGlowScene.tsx (replaces BrainViewerCanvas)
+  |     |     |-- BrainGlowMesh.tsx (replaces both BrainHeatmapMesh AND BrainNetworkMesh)
+  |     |     |-- OrbitControls (user drag, plus autoRotate)
+  |     |     |-- EffectComposer > Bloom (always on)
+  |     |-- Suspense fallback
+  |-- NetworkLegend.tsx (static, non-interactive)
+```
 
 ---
 
-## Detailed Integration Points
+## Component Disposition
 
-### 1. Backend: Vertex Data Encoding (postprocessor.py)
+### REMOVE (delete entirely)
 
-The existing `postprocess()` function already computes 2-second windows by averaging consecutive 1s segments. The vertex encoding slots into the existing window loop.
+| Component/Element | Why Remove |
+|-------------------|------------|
+| `viewMode` state + toggle buttons | Single mode now -- no heatmap/regions switching |
+| `colormap` state + dropdown | Fixed color scheme (network colors), no user choice |
+| `visibleRegions` state + 9 filter buttons | All networks always visible, static legend instead |
+| View-angle buttons (Front/Top/Left/Right) | Auto-rotate replaces preset views; OrbitControls still allows manual drag |
+| `BrainViewerCanvasHandle` imperative ref | No view-angle buttons means no imperative camera control needed |
+| `BrainHeatmapMesh.tsx` | Replaced by BrainGlowMesh which combines both approaches |
+| `BrainNetworkMesh.tsx` | Replaced by BrainGlowMesh |
+| `colormap.ts` (d3 colormaps) | No longer needed -- colors come from REGION_COLORS, not scientific colormaps |
+| `COLORMAP_OPTIONS` export | Dead code after removal |
 
-```python
-# In the existing window construction loop (postprocessor.py line ~118-143):
+### KEEP (unchanged)
 
-import base64
+| Component/Element | Why Keep |
+|-------------------|----------|
+| `brain-utils.ts` -- `getRegionsAtTime()` | Still needed: maps currentTime to region scores |
+| `brain-utils.ts` -- `REGION_COLORS` | Still needed: canonical colors for each network |
+| `brain-utils.ts` -- `getVertexDataAtTime()` | Keep for now but may not be used in glow mode (see data flow section) |
+| `vertex-codec.ts` | Keep for now, may be used if we blend vertex data with region data |
+| Brain GLB assets | Both unified and region GLBs stay on disk |
+| `OrbitControls` | Users can still manually rotate the brain |
+| R3F `Canvas` setup | Same camera, DPR, background |
 
-# After computing window_preds (already a (1-2, 20484) array):
-vertex_mean = window_preds.mean(axis=0)  # (20484,) -- mean of 1-2 segments
-# Quantize to uint8 (0-255), already normalized to 0-1 by robust_normalize
-vertex_uint8 = (np.clip(vertex_mean, 0, 1) * 255).astype(np.uint8)
-vertex_b64 = base64.b64encode(vertex_uint8.tobytes()).decode('ascii')
+### MODIFY (significant changes)
 
-# Pass to Segment constructor:
-seg = Segment(
-    ...,
-    vertex_data=vertex_b64,  # NEW field
-)
+| Component | What Changes |
+|-----------|-------------|
+| `BrainViewer.tsx` | Gut all state management and control UI. Becomes a thin wrapper: title + canvas + legend. Props stay the same (segments, currentTime). |
+| `BrainViewerCanvas.tsx` --> rename to `BrainGlowScene.tsx` | Remove forwardRef/imperative handle. Remove mode branching. Add autoRotate to OrbitControls. Make Bloom always-on. Simplified props (just regionScores). |
+
+### CREATE (new components)
+
+| Component | Purpose | Complexity |
+|-----------|---------|------------|
+| `BrainGlowMesh.tsx` | Single mesh that colors vertices by network region + score, using REGION_COLORS with intensity scaling. Merges the best of BrainNetworkMesh (region-aware coloring) with BrainHeatmapMesh (smooth per-vertex rendering). | Medium |
+| `NetworkLegend.tsx` | Static horizontal row of colored dots + labels. Non-interactive. Shows all 9 networks. No scores, no toggles. | Low |
+
+---
+
+## New Data Flow
+
+```
+segments[] + currentTime
+  |
+  +--> getRegionsAtTime() --> SegmentRegionScores {attention: 0.72, reward: 0.45, ...}
+  |
+  +--> BrainGlowMesh receives regionScores
+  |
+  +--> Loads network-vertex-map.json (which vertices belong to which network)
+  |
+  +--> For each vertex:
+  |      - Find which network(s) it belongs to
+  |      - Get that network's score from regionScores
+  |      - If score < THRESHOLD (0.15): use BASE_COLOR (dark)
+  |      - If score >= THRESHOLD: use REGION_COLORS[network] * intensity(score)
+  |      - For overlapping vertices: highest-scoring network wins
+  |
+  +--> Write to vertex color buffer attribute
+  |
+  +--> Bloom post-processing makes bright vertices glow
 ```
 
-**Integration risk: LOW.** This is additive -- existing fields unchanged.
+**Key difference from current BrainNetworkMesh:** The current implementation always shows visible networks at minimum 0.15 intensity (line 87: `Math.max(0.15, score)`). The new version uses a threshold -- below threshold the vertex is dark, above threshold it glows. This creates the "lights up when active" effect instead of "always visible but dim."
 
-### 2. Backend: New Functional Network Definitions (regions.py)
+### Threshold Behavior
 
-Add 5 new networks using Destrieux atlas parcels that are neuroanatomically validated:
-
-```python
-# NEW entries in REGION_DEFINITIONS dict:
-
-"visual_processing": [
-    # Primary and early visual cortex (V1, V2, V3)
-    "S_calcarine",              # Calcarine sulcus (V1)
-    "G_cuneus",                 # Cuneus (V2/V3)
-    "G_occipital_sup",          # Superior occipital gyrus
-    "S_oc_sup_and_transversal", # Superior occipital sulcus
-    "G_and_S_occipital_inf",    # Inferior occipital gyrus
-    "G_oc-temp_lat-fusifor",    # Fusiform gyrus (face/object processing)
-    "Pole_occipital",           # Occipital pole
-    "S_oc_middle_and_Lunatus",  # Lunate sulcus
-],
-
-"auditory_processing": [
-    # Primary and secondary auditory cortex
-    "G_temp_sup-G_T_transv",    # Transverse temporal gyrus (Heschl's - A1)
-    "S_temporal_transverse",    # Transverse temporal sulcus
-    "G_temp_sup-Plan_polar",    # Planum polare (already in emotional_processing)
-    "G_temp_sup-Plan_tempo",    # Planum temporale (already in social_cognition)
-    "G_temp_sup-Lateral",       # Lateral STG (already in social_cognition)
-],
-
-"language_narrative": [
-    # Broca's + Wernicke's + supporting areas
-    "G_front_inf-Triangul",     # Pars triangularis (Broca's area)
-    "G_front_inf-Opercular",    # Pars opercularis (Broca's - already in attention)
-    "S_temporal_sup",           # Superior temporal sulcus (already in social_cognition)
-    "G_pariet_inf-Angular",     # Angular gyrus (already in social_cognition)
-    "G_temp_sup-Lateral",       # Lateral STG / Wernicke's area
-    "G_temp_sup-Plan_tempo",    # Planum temporale
-],
-
-"default_mode": [
-    # Default mode network (Raichle 2001, Buckner 2008)
-    "G_precuneus",              # Precuneus (already in social_cognition)
-    "G_cingul-Post-ventral",    # Posterior cingulate (already in social_cognition)
-    "G_cingul-Post-dorsal",     # Dorsal posterior cingulate (already in emotional)
-    "G_front_sup",              # Medial prefrontal (already in social_cognition)
-    "G_front_middle",           # Middle frontal (already in attention)
-    "G_pariet_inf-Angular",     # Angular gyrus (already in social_cognition)
-    "G_rectus",                 # Medial orbital (already in reward)
-    "Pole_temporal",            # Temporal pole (already in emotional/social)
-],
-
-"motion_processing": [
-    # MT/V5 complex + associated motion areas
-    "G_temporal_middle",        # Middle temporal gyrus (MT/V5 area)
-    "S_temporal_inf",           # Inferior temporal sulcus
-    "G_occipital_middle",       # Middle occipital gyrus (V3A/V3B)
-    "G_oc-temp_med-Lingual",    # Lingual gyrus (motion processing)
-    "S_oc-temp_lat",            # Lateral occipito-temporal sulcus
-],
+```
+score < 0.15  -->  BASE_COLOR (#1a1a2e)     -- dark, dormant
+score = 0.15  -->  network color at 15%      -- barely visible, just waking up
+score = 0.50  -->  network color at 50%      -- clearly active
+score = 0.80  -->  network color at 80%      -- bright, bloom catches it
+score = 1.00  -->  network color at 100%     -- peak glow
 ```
 
-**Integration risk: LOW.** Parcels can overlap across networks (already the case with existing regions). The `build_region_masks()` function handles this -- each network gets its own boolean mask. Shared parcels are neuroanatomically valid (brain areas serve multiple functions).
+### What Happens to vertex_data (Per-Vertex Heatmap)?
 
-**Confidence: MEDIUM.** The Destrieux-to-functional-network mapping is approximate. The Destrieux atlas is anatomical, not functional. These mappings are based on well-established neuroscience literature but are population-level approximations. This is acceptable for NeuroCut's purpose (engagement visualization, not clinical diagnosis).
+The per-vertex Float32Array(20484) from the backend is NOT used in the glow visualization. The glow mode uses region-level scores (9 floats) mapped to vertex groups via `network-vertex-map.json`. This is simpler, faster, and produces cleaner visual results because:
 
-### 3. Backend: Schema Changes (schema.py)
+1. Region scores are stable (mean of thousands of vertices) -- no noisy per-vertex flickering
+2. Network colors are semantically meaningful -- users see "attention is lighting up" not "vertex 12,847 is active"
+3. No base64 decode overhead per frame
 
-```python
-class RegionScores(BaseModel):
-    # Existing (keep for backward compatibility)
-    attention: float
-    reward: float
-    emotional_processing: float
-    social_cognition: float
-    # New networks
-    visual_processing: float = 0.0      # default for backward compat
-    auditory_processing: float = 0.0
-    language_narrative: float = 0.0
-    default_mode: float = 0.0
-    motion_processing: float = 0.0
+The `vertex_data` field and `vertex-codec.ts` should be kept in the codebase (not deleted) in case a future "expert mode" or detailed analysis view wants per-vertex resolution. But the primary glow visualization does not need it.
 
-class Segment(BaseModel):
-    start: float
-    end: float
-    activation_score: float
-    arousal: float
-    valence: float
-    regions: RegionScores
-    vertex_data: Optional[str] = None  # base64-encoded uint8 vertex activations
+---
+
+## Detailed Component Specifications
+
+### BrainViewer.tsx (Simplified)
+
+**Before:** 184 lines, 5 state variables, 16 interactive controls
+**After:** ~50 lines, 0 state variables, 0 interactive controls
+
+```
+Props: { segments: SegmentData[], currentTime: number }
+
+Render:
+  <div className="bg-surface-container rounded-xl p-6 flex flex-col">
+    <div className="flex items-center gap-2 mb-4">
+      <icon>neurology</icon>
+      <h3>Neural Activation Map</h3>
+    </div>
+    <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden">
+      <Canvas ...>
+        <Suspense>
+          <BrainGlowScene regionScores={getRegionsAtTime(segments, currentTime)} />
+        </Suspense>
+      </Canvas>
+    </div>
+    <NetworkLegend />
+  </div>
 ```
 
-**Backward compatibility:** New fields have defaults. Existing consumers see the same 4 regions plus optional new ones.
+All state management (viewMode, colormap, visibleRegions) is deleted. The `canvasRef` imperative handle is deleted. The colormap import is deleted. The `toggleRegion` function is deleted.
 
-### 4. Frontend: Unified Heatmap Mesh (BrainHeatmapMesh.tsx)
+### BrainGlowScene.tsx (Replaces BrainViewerCanvas)
 
-The current architecture splits the brain GLB into 5 named submeshes (4 regions + base). For per-vertex heatmaps, we need a SINGLE unified mesh where each vertex gets an individual color.
+**Props:** `{ regionScores: SegmentRegionScores | null }`
 
-**Two approaches considered:**
+No more `visibleRegions`, `viewMode`, `colormap`, `vertexData` props. No `forwardRef`. No imperative handle.
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| A: Load original fsaverage5 mesh as single geometry | Perfect 1:1 vertex mapping to TRIBE data | Need a new GLB with unified mesh |
-| B: Merge existing submeshes in frontend | No new GLB needed | Vertex order scrambled by trimesh export -- CANNOT map back to TRIBE indices |
+Key differences from current BrainViewerCanvas:
+- `autoRotate: true, autoRotateSpeed: 0.3` on OrbitControls (gentle rotation)
+- Bloom is always on (not conditional on viewMode)
+- Bloom settings tuned for glow: `luminanceThreshold: 0.15, intensity: 2.0`
+- No mode branching -- always renders BrainGlowMesh
+- Lighting adjusted: slightly dimmer ambient (0.15) to make glow pop against dark background
 
-**Decision: Approach A -- generate a new unified GLB.**
+### BrainGlowMesh.tsx (New -- Replaces Both Mesh Components)
 
-The existing `export_brain_glb.py` splits vertices into submeshes using `extract_submesh()`, which remaps vertex indices. This means `nodes.attention.geometry` vertex 0 is NOT TRIBE v2 vertex 0. Reconstructing the original ordering from split submeshes is fragile and error-prone.
+This is essentially BrainNetworkMesh with two modifications:
+1. **Threshold gating:** Below-threshold vertices go fully dark instead of dim
+2. **No visibleRegions filter:** All networks always participate
 
-Instead, export a second GLB (`brain-fsaverage5-unified.glb`) with a single mesh node containing all 20,484 vertices in their original order. The existing region-split GLB remains for the legacy region view.
+The implementation is nearly identical to the current `BrainNetworkMesh.tsx` -- it loads the same GLB, fetches the same `network-vertex-map.json`, uses the same per-vertex color buffer pattern. The changes are:
 
-```python
-# Addition to export_brain_glb.py:
-unified_mesh = trimesh.Trimesh(vertices=coords, faces=faces, process=False)
-trimesh.repair.fix_normals(unified_mesh)
-unified_scene = trimesh.Scene()
-unified_scene.add_geometry(unified_mesh, node_name="brain", geom_name="brain")
-unified_scene.export(UNIFIED_OUTPUT_PATH)
+```diff
+- const intensity = Math.max(0.15, score);  // always somewhat visible
++ const intensity = score < GLOW_THRESHOLD ? 0 : score;  // dark below threshold
+
+- if (!visibleRegions[network]) continue;  // skip hidden networks
++ // removed -- all networks always visible
 ```
 
-**Frontend component pattern:**
+Plus emissive intensity should scale with max active score to enhance the glow:
 
-```tsx
-// BrainHeatmapMesh.tsx
-function BrainHeatmapMesh({ vertexData }: { vertexData: Float32Array }) {
-  const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb');
-  const meshRef = useRef<THREE.Mesh>(null);
-  const geometry = nodes.brain.geometry;
-
-  useEffect(() => {
-    // Apply per-vertex colors from decoded activation data
-    const colors = applyColormap(vertexData); // (20484 * 3) RGB float array
-    geometry.setAttribute('color',
-      new THREE.Float32BufferAttribute(colors, 3)
-    );
-    geometry.attributes.color.needsUpdate = true;
-  }, [vertexData, geometry]);
-
-  return (
-    <mesh ref={meshRef} geometry={geometry}>
-      <meshStandardMaterial vertexColors roughness={0.6} metalness={0.3} />
-    </mesh>
-  );
-}
+```
+emissiveIntensity = maxScore * 3.0  // stronger glow than current 2.0
+emissive = new THREE.Color(0.05, 0.05, 0.12)  // slight blue-purple tint
 ```
 
-### 5. Frontend: Dual View Mode (BrainViewer.tsx)
+### NetworkLegend.tsx (New)
 
-The BrainViewer should support two modes:
+Static, non-interactive legend. Simple flex row of colored dots with labels.
 
-1. **Heatmap mode** (NEW, default): Shows per-vertex activation intensity on unified mesh
-2. **Network mode** (EXISTING): Shows 4-9 functional networks as colored regions
-
-```tsx
-// BrainViewer.tsx additions:
-const [viewMode, setViewMode] = useState<'heatmap' | 'networks'>('heatmap');
-
-// In render:
-{viewMode === 'heatmap' ? (
-  <BrainHeatmapMesh vertexData={currentVertexData} />
-) : (
-  // Existing BrainRegionMesh components (4 or 9 networks)
-  {REGION_NAMES.map(name => (
-    <BrainRegionMesh key={name} ... />
+```
+<div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
+  {Object.entries(REGION_COLORS).map(([key, color]) => (
+    <div key={key} className="flex items-center gap-1.5">
+      <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+      <span className="text-[10px] text-on-surface-variant uppercase tracking-wider font-headline">
+        {REGION_LABELS[key]}
+      </span>
+    </div>
   ))}
-)}
+</div>
 ```
 
-### 6. Frontend: Vertex Data Decoding (vertex-codec.ts)
+No click handlers. No score display. No active/inactive states. Just "here's what the colors mean."
+
+---
+
+## Smooth Transitions (Optional Enhancement)
+
+The current implementation snaps vertex colors instantly when currentTime crosses a segment boundary. For a more cinematic feel, the glow mesh could lerp between the previous and next segment's region scores:
 
 ```typescript
-// vertex-codec.ts
-export function decodeVertexData(base64: string): Float32Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  // Convert uint8 (0-255) back to float (0.0-1.0)
-  const floats = new Float32Array(bytes.length);
-  for (let i = 0; i < bytes.length; i++) {
-    floats[i] = bytes[i] / 255;
-  }
-  return floats;
-}
+// In BrainGlowMesh, instead of receiving a single regionScores:
+// Receive currentTime + segments, and interpolate between adjacent segments
 
-export function applyColormap(
-  activations: Float32Array,
-  colormap: 'plasma' | 'viridis' | 'hot' = 'plasma'
-): Float32Array {
-  // Returns (N * 3) float array of RGB values
-  const colors = new Float32Array(activations.length * 3);
-  for (let i = 0; i < activations.length; i++) {
-    const [r, g, b] = colormapLookup(activations[i], colormap);
-    colors[i * 3] = r;
-    colors[i * 3 + 1] = g;
-    colors[i * 3 + 2] = b;
-  }
-  return colors;
-}
+const t = (currentTime - currentSegment.start) / (currentSegment.end - currentSegment.start);
+const blendedScore = prevScore * (1 - t) + nextScore * t;
 ```
 
-### 7. Frontend: Arousal/Valence Display (ArousalValenceCard.tsx)
-
-Arousal and valence are already computed per-segment in the backend (postprocessor.py lines 146-147). They are simple composites:
-
-- **Arousal** = (attention + emotional_processing) / 2
-- **Valence** = (reward + social_cognition) / 2
-
-The results page already has these values in the segment data. The new component displays them prominently:
-
-**Placement:** Below the video player, above the Neural Timeline + Brain Viewer grid. A horizontal card with two gauges/meters showing current arousal and valence at the playback position, plus sparklines showing their trajectory over the video.
-
-```
-[ Video Player                                                      ]
-[ Arousal: [=====>     ] 0.67  |  Valence: [========>  ] 0.82      ] <-- NEW
-[ Neural Timeline (col-span-6) | Brain Viewer (col-span-6)         ]
-```
-
-**No backend changes needed** for basic arousal/valence display -- the data already exists in `Segment.arousal` and `Segment.valence`.
-
-**For summary-level composites** (overall arousal/valence), add to `Summary` schema:
-
-```python
-class Summary(BaseModel):
-    overall: float
-    hook_score: float
-    retention_score: float
-    peak_second: float
-    peak_score: float
-    # NEW
-    mean_arousal: float = 0.0
-    mean_valence: float = 0.0
-    peak_arousal: float = 0.0
-    peak_valence: float = 0.0
-```
+**Recommendation:** Implement this as a follow-up, not in the initial overhaul. Get the simplified architecture working first, then add interpolation. The 2-second segment windows are coarse enough that snapping is noticeable but not jarring.
 
 ---
 
-## Patterns to Follow
+## Integration Points
 
-### Pattern 1: Additive Schema Evolution
-**What:** Add new fields with defaults rather than changing existing fields.
-**When:** Any schema change that could break existing stored results.
-**Why:** Jobs already stored in Supabase have the old schema. New fields with defaults ensure old results still render.
+### 1. Results Page (page.tsx)
 
-### Pattern 2: Lazy Decode on Frontend
-**What:** Only decode vertex_data for the segment currently being viewed, not all segments at once.
-**When:** User scrubs the timeline.
-**Why:** Decoding 30 base64 strings of 27KB each on page load would create a 200ms+ jank spike. Decode on demand and cache the last 3-5 decoded frames.
+The `<BrainViewer>` component call on line 294 stays exactly the same:
 
-### Pattern 3: GLB Separation
-**What:** Keep two GLB files -- region-split (existing) and unified (new).
-**When:** Supporting both heatmap and network view modes.
-**Why:** The region-split GLB has scrambled vertex indices that cannot map to TRIBE data. The unified GLB preserves the original fsaverage5 vertex ordering.
+```tsx
+<BrainViewer segments={segments} currentTime={currentTime} />
+```
+
+No props change. The simplification is entirely internal to BrainViewer and its children. This is the most important architectural property -- the overhaul is invisible to the parent.
+
+### 2. Network Vertex Map (public/data/network-vertex-map.json)
+
+Already exists and is loaded by BrainNetworkMesh. BrainGlowMesh uses the same file, same fetch pattern.
+
+### 3. GLB Asset (public/models/brain-fsaverage5-unified.glb)
+
+Already exists. BrainGlowMesh loads it same as BrainNetworkMesh does today.
+
+### 4. brain-utils.ts
+
+No changes needed. `getRegionsAtTime()`, `REGION_COLORS`, and `REGION_LABELS` are all reused as-is.
+
+### 5. Imports to Clean Up
+
+After removing BrainHeatmapMesh and BrainNetworkMesh, dead imports in the codebase:
+- `vertex-codec.ts` -- no longer imported by any active component (keep file, remove imports)
+- `colormap.ts` -- no longer imported (keep file or delete, no other consumers)
+- `getVertexDataAtTime` from brain-utils -- no longer called from BrainViewer
+- `decodeVertexData` from vertex-codec -- no longer called from BrainViewer
+- `COLORMAP_OPTIONS` and `ColormapName` from colormap -- no longer imported
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Sending Raw Float32 Arrays in JSON
-**What:** Serializing 20,484 float32 values as JSON numbers per segment.
-**Why bad:** 20,484 floats * ~8 chars each = ~160KB per segment as JSON text. For 30 segments = ~4.8MB of just vertex data. Base64 uint8 is 27KB/segment, ~810KB total, gzips to ~300KB.
-**Instead:** Quantize to uint8, base64 encode.
+### Anti-Pattern 1: Feature Flags Instead of Deletion
+**What:** Keeping the old mode toggle behind a feature flag "just in case."
+**Why bad:** Doubles maintenance surface. The old heatmap mode served development/debugging, not users. If vertex-level detail is needed later, build it as a separate "expert view" from scratch rather than maintaining two parallel visualization modes.
+**Instead:** Delete the old code paths. Keep utility files (vertex-codec, colormap) for potential future use but remove their integration points.
 
-### Anti-Pattern 2: Reconstructing Vertex Order from Split Meshes
-**What:** Trying to merge the 5 existing GLB submeshes back into a 20,484-vertex mesh and map vertices.
-**Why bad:** `export_brain_glb.py` uses `extract_submesh()` which remaps vertex indices. The "base" mesh vertices also lose their original indices. Reconstruction is fragile and requires maintaining a vertex index mapping.
-**Instead:** Export a unified GLB that preserves original vertex ordering.
+### Anti-Pattern 2: Animated Auto-Rotate with Fast Speed
+**What:** Setting autoRotateSpeed above 0.5.
+**Why bad:** Users trying to read the visualization will fight the rotation. The brain moves too fast to correlate with video content.
+**Instead:** Use 0.2-0.3 speed. The rotation should feel ambient, like the brain is slowly breathing/turning, not spinning.
 
-### Anti-Pattern 3: Running Colormap on Backend
-**What:** Computing RGB colors for each vertex on the backend and sending RGB triples.
-**Why bad:** Triples the data size (3x). Prevents the user from switching colormaps without re-requesting. Couples display logic to the inference pipeline.
-**Instead:** Send scalar activation values, apply colormap on frontend.
+### Anti-Pattern 3: Threshold Too Low
+**What:** Setting GLOW_THRESHOLD near 0 so everything always glows.
+**Why bad:** Defeats the purpose of "lights up when active." If every region is always lit, there is no contrast, no story.
+**Instead:** Use 0.15 as threshold. Most resting-state activations are below this. Only genuinely activated regions cross it.
 
-### Anti-Pattern 4: Modifying the Existing GLB
-**What:** Changing `brain-fsaverage5.glb` to be unified instead of region-split.
-**Why bad:** Breaks the existing network view mode, which is still useful and already working.
-**Instead:** Add a second GLB file. Load the one needed based on view mode.
-
----
-
-## Scalability Considerations
-
-| Concern | Current (30 segments) | At 120 segments (2min video) | At 300 segments (5min video) |
-|---------|----------------------|------------------------------|------------------------------|
-| JSON payload size | ~300KB gzipped | ~1.2MB gzipped | ~3MB gzipped |
-| Frontend memory (decoded) | ~2.4MB (30 * 80KB) | ~9.6MB | ~24MB |
-| Decode latency | <5ms per frame | <5ms per frame | <5ms per frame |
-
-For videos beyond 2 minutes, consider:
-- Sending vertex data at reduced temporal resolution (every 2nd window)
-- Making vertex_data an optional field requested via `include_vertex_data: true` input parameter
-- Streaming vertex data separately from the main JSON response
+### Anti-Pattern 4: Per-Frame Score Interpolation Without Capping
+**What:** Interpolating between segments without clamping to [0, 1].
+**Why bad:** Overshoot artifacts can produce colors > 1.0, causing visual glitches with bloom.
+**Instead:** Always `Math.min(1, Math.max(0, interpolatedScore))`.
 
 ---
 
 ## Suggested Build Order
 
-Based on dependency analysis, the recommended implementation order is:
+### Step 1: Create NetworkLegend.tsx
+- Static component, no dependencies on other changes
+- Can be visually tested in isolation
+- **Estimated effort:** 15 minutes
 
-### Phase 1: New Functional Networks (Backend Only)
-1. Update `regions.py` with 5 new network definitions
-2. Update `constants.py` with new region names
-3. Regenerate `data/region_masks.npz`
-4. Update `schema.py` (RegionScores with new fields)
-5. Update `postprocessor.py` to compute new network scores
-6. Test: existing pipeline still works, new regions appear in output
+### Step 2: Create BrainGlowMesh.tsx
+- Fork from BrainNetworkMesh.tsx (copy, then modify)
+- Remove `visibleRegions` prop and filtering
+- Change intensity calculation to threshold-gated
+- Increase emissive intensity
+- Test with hardcoded regionScores to verify glow effect
+- **Estimated effort:** 30 minutes
 
-**Why first:** Zero frontend risk. Pure additive. Validates neuroscience mappings.
+### Step 3: Create BrainGlowScene.tsx
+- Fork from BrainViewerCanvas.tsx (copy, then modify)
+- Remove forwardRef and imperative handle
+- Remove mode branching -- always render BrainGlowMesh
+- Add autoRotate to OrbitControls
+- Make Bloom always-on, tune settings
+- Remove vertexData, visibleRegions, viewMode, colormap from props
+- **Estimated effort:** 20 minutes
 
-### Phase 2: Vertex Data Pipeline (Backend)
-1. Add vertex data encoding to `postprocessor.py`
-2. Add `vertex_data` field to `Segment` schema
-3. Add `include_vertex_data` option to `InputSchema` (default false for backward compat)
-4. Test: vertex_data appears in output, correct size, decodable
+### Step 4: Simplify BrainViewer.tsx
+- Remove all state (viewMode, colormap, visibleRegions)
+- Remove all control UI (toggle, dropdown, view buttons, filter buttons)
+- Remove canvasRef and imperative handle
+- Wire BrainGlowScene with regionScores only
+- Add NetworkLegend below canvas
+- Remove dead imports (colormap, vertex-codec, etc.)
+- **Estimated effort:** 20 minutes
 
-**Why second:** Backend must produce data before frontend can consume it.
+### Step 5: Delete Old Components
+- Delete BrainHeatmapMesh.tsx
+- Delete BrainNetworkMesh.tsx
+- Delete BrainViewerCanvas.tsx (replaced by BrainGlowScene)
+- Clean up any remaining dead imports
+- Verify build passes with no TypeScript errors
+- **Estimated effort:** 10 minutes
 
-### Phase 3: Unified GLB Export
-1. Modify `export_brain_glb.py` to also export unified mesh
-2. Generate `brain-fsaverage5-unified.glb`
-3. Verify vertex count matches N_VERTICES (20,484)
+### Step 6 (Optional): Add Score Interpolation
+- Modify BrainViewer to pass prev/next segment scores + blend factor
+- Add lerp logic in BrainGlowMesh
+- **Estimated effort:** 45 minutes
 
-**Why third:** Frontend heatmap component needs this asset.
+**Total estimated effort for Steps 1-5:** ~1.5 hours
+**Dependency chain:** Step 2 and Step 1 can be done in parallel. Steps 3-5 are sequential.
 
-### Phase 4: Frontend Heatmap Viewer
-1. Create `vertex-codec.ts` (decode + colormap)
-2. Create `BrainHeatmapMesh.tsx` (unified mesh + vertex colors)
-3. Update `BrainViewerCanvas.tsx` with dual mode support
-4. Update `BrainViewer.tsx` with heatmap/network toggle
-5. Test: vertex data renders as smooth heatmap on brain
+---
 
-**Why fourth:** Depends on unified GLB + backend vertex data.
+## Risk Assessment
 
-### Phase 5: Arousal/Valence Display + Network Legend
-1. Create `ArousalValenceCard.tsx`
-2. Create `NetworkLegend.tsx` for 9 networks
-3. Update results page layout
-4. Update `brain-utils.ts` with new region colors
-5. Update `SegmentTable.tsx` types
-
-**Why last:** Pure UI, no data dependencies, can be done in parallel with Phase 4.
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| Bloom settings look bad with network colors | Medium | Low | Tune luminanceThreshold and intensity empirically. Current Bloom already works in regions mode. |
+| Auto-rotate annoys users | Low | Low | Keep speed very slow (0.2). OrbitControls still allows manual override. |
+| Removing colormap picker upsets power users | Very Low | Very Low | No evidence of power users. Product is for content creators, not neuroscientists. |
+| Dead code left behind after deletion | Low | Low | Build step (TypeScript compilation) will catch unused imports. Run lint pass after deletion. |
+| Network vertex map has incomplete coverage | Already mitigated | N/A | Vertices not in any network stay dark (BASE_COLOR). This is the desired behavior -- unmapped cortex stays dormant. |
 
 ---
 
 ## Sources
 
-- Codebase analysis: `src/postprocessor.py`, `src/schema.py`, `src/region_mapping/`, `scripts/export_brain_glb.py`, `web/src/components/results/`
-- [Three.js BufferGeometry vertex colors](https://dustinpfister.github.io/2023/01/20/threejs-buffer-geometry-attributes-color/) -- pattern for per-vertex coloring
-- [Three.js Custom Shader Materials](https://blog.cjgammon.com/threejs-custom-shader-material/) -- custom attributes in shaders
-- [Destrieux Atlas - Nilearn](https://nilearn.github.io/dev/modules/description/destrieux_surface.html) -- atlas label reference
-- [Destrieux et al. 2010 - Automatic parcellation of cortical gyri and sulci](https://pmc.ncbi.nlm.nih.gov/articles/PMC2937159/) -- anatomical parcellation reference
-- [Default Mode Network regions from Destrieux atlas](https://www.researchgate.net/figure/The-25-default-mode-network-regions-and-seed-points-are-based-on-the-Destrieux-atlas-The_fig1_377579316) -- DMN-to-Destrieux mapping
-- [JSON compression with gzip](https://zuplo.com/learning-center/implementing-data-compression-in-rest-apis-with-gzip-and-brotli) -- payload size optimization
-- [React Three Fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction) -- R3F patterns
+- Direct codebase analysis of all files in `web/src/components/results/Brain*.tsx`
+- Direct analysis of `web/src/lib/colormap.ts` and `web/src/lib/vertex-codec.ts`
+- Direct analysis of `web/src/components/results/brain-utils.ts`
+- Direct analysis of `web/src/app/(app)/results/[id]/page.tsx`
+- [React Three Fiber OrbitControls autoRotate](https://r3f.docs.pmnd.rs/getting-started/introduction) -- autoRotate property
+- [react-three/postprocessing Bloom](https://docs.pmnd.rs/react-postprocessing/effects/bloom) -- luminance threshold tuning
