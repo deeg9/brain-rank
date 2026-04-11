@@ -635,9 +635,9 @@ Plans:
   1. The top 3-5 activation peaks are automatically identified and marked on the neural timeline with visible indicators
   2. Each peak marker shows the timestamp and relative activation intensity on hover or tap
   3. Peak markers do not interfere with existing timeline interactions (playhead scrubbing, click-to-seek)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 43-01-PLAN.md — Peak detection logic, timeline marker rendering, results page wiring
+- [x] 43-01-PLAN.md — Peak detection logic, timeline marker rendering, results page wiring
 **UI hint**: yes
 
 ## Progress
@@ -695,4 +695,4 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 40. UI Subtraction & Consolidation | v3.0 | 1/1 | Complete    | 2026-04-11 |
 | 41. Threshold Glow & Legend | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 42. Smooth Transitions | v3.0 | 2/2 | Complete    | 2026-04-11 |
-| 43. Timeline Peak Markers | v3.0 | 0/0 | Not started | - |
+| 43. Timeline Peak Markers | v3.0 | 1/1 | Complete    | 2026-04-11 |
