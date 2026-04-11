@@ -8,16 +8,36 @@ import { VERTEX_COUNT } from '@/lib/vertex-codec';
 import { buildColormapLUT, applyThresholdGlow } from '@/lib/colormap';
 
 interface BrainGlowMeshProps {
-  vertexData: Float32Array; // 20,484 normalized values from decodeVertexData
+  vertexDataA: Float32Array;          // Current segment's decoded vertex data
+  vertexDataB: Float32Array | null;   // Next segment's decoded vertex data (null = no lerp)
+  blendFactor: number;                // 0.0-1.0, from BrainViewer
+}
+
+/**
+ * Linearly interpolate two vertex arrays into a pre-allocated output buffer.
+ * No allocations -- writes directly into `out`.
+ */
+function lerpVertexData(
+  a: Float32Array,
+  b: Float32Array,
+  t: number,
+  out: Float32Array,
+): void {
+  for (let i = 0; i < a.length; i++) {
+    out[i] = a[i] + (b[i] - a[i]) * t;
+  }
 }
 
 type GLTFNodes = Record<string, THREE.Mesh>;
 
-export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
+export function BrainGlowMesh({ vertexDataA, vertexDataB, blendFactor }: BrainGlowMeshProps) {
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
   // Build 256-entry LUT once (inferno colormap for threshold glow)
   const lutData = useMemo(() => buildColormapLUT('inferno'), []);
+
+  // Pre-allocate lerp buffer for blending between segments (never allocate in render loop)
+  const lerpBuffer = useMemo(() => new Float32Array(VERTEX_COUNT), []);
 
   // Pre-allocate color buffer (never allocate in render loop)
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
@@ -48,9 +68,16 @@ export function BrainGlowMesh({ vertexData }: BrainGlowMeshProps) {
 
   // Update color data when inputs change, mark dirty for GPU upload
   useEffect(() => {
-    applyThresholdGlow(vertexData, lutData, colorBuffer);
+    if (blendFactor > 0 && vertexDataB !== null) {
+      // Lerp between current and next segment into pre-allocated buffer
+      lerpVertexData(vertexDataA, vertexDataB, blendFactor, lerpBuffer);
+      applyThresholdGlow(lerpBuffer, lutData, colorBuffer);
+    } else {
+      // No blending needed -- use current segment directly
+      applyThresholdGlow(vertexDataA, lutData, colorBuffer);
+    }
     needsColorUpdate.current = true;
-  }, [vertexData, lutData, colorBuffer]);
+  }, [vertexDataA, vertexDataB, blendFactor, lutData, colorBuffer, lerpBuffer]);
 
   // Sync dirty flag to GPU inside the render loop (not useEffect)
   useFrame(() => {
