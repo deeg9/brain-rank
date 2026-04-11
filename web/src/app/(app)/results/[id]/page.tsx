@@ -275,32 +275,32 @@ export default function ResultsDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* Video Player */}
-      <VideoPlayer
-        src={results.video_url}
-        videoRef={videoRef}
-        currentTime={currentTime}
-        duration={videoDuration}
-        isPlaying={isPlaying}
-        onTimeUpdate={handleTimeUpdate}
-        onPlayStateChange={setIsPlaying}
-        onSeek={handleSeek}
-        onLoadedMetadata={handleLoadedMetadata}
-      />
-
-      {/* Neural Timeline + Brain Viewer — side by side */}
+      {/* Video Player + Brain Viewer — side by side */}
       <div className="grid grid-cols-2 gap-6">
-        <NeuralTimeline
-          segments={segments}
-          duration={results.duration_seconds}
+        <VideoPlayer
+          src={results.video_url}
+          videoRef={videoRef}
           currentTime={currentTime}
+          duration={videoDuration}
+          isPlaying={isPlaying}
+          onTimeUpdate={handleTimeUpdate}
+          onPlayStateChange={setIsPlaying}
           onSeek={handleSeek}
-          zones={zones}
-          peakMarkers={peakMarkers}
-          iconMarkers={iconMarkers}
+          onLoadedMetadata={handleLoadedMetadata}
         />
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
+
+      {/* Neural Activation Timeline — full width */}
+      <NeuralTimeline
+        segments={segments}
+        duration={results.duration_seconds}
+        currentTime={currentTime}
+        onSeek={handleSeek}
+        zones={zones}
+        peakMarkers={peakMarkers}
+        iconMarkers={iconMarkers}
+      />
 
       {/* Neural Metrics + Emotional State — side by side */}
       {(() => {
