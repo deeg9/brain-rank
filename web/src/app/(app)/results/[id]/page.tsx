@@ -299,7 +299,7 @@ export default function ResultsDetailPage({ params }: Props) {
           zones={zones}
           iconMarkers={iconMarkers}
         />
-        <BrainViewer segments={segments} currentTimeRef={currentTimeRef} />
+        <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
       {/* Summary Stat Cards */}

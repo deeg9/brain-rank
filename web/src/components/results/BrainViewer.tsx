@@ -14,6 +14,7 @@ import type { ColormapName } from '@/lib/colormap';
 interface BrainViewerProps {
   segments: SegmentData[];
   currentTimeRef: React.RefObject<number>;
+  currentTime: number; // React state (~4Hz) — drives vertex data updates at segment boundaries
 }
 
 const REGION_LABELS: Record<string, string> = {
@@ -30,10 +31,10 @@ const REGION_LABELS: Record<string, string> = {
 
 type RegionKey = keyof SegmentRegionScores;
 
-export function BrainViewer({ segments, currentTimeRef }: BrainViewerProps) {
-  // Read time from ref — avoids 60fps React re-renders
-  const currentTime = currentTimeRef.current;
-  const regionScores = getRegionsAtTime(segments, currentTime);
+export function BrainViewer({ segments, currentTimeRef, currentTime }: BrainViewerProps) {
+  // Read time from ref for region scores — avoids 60fps React re-renders
+  const refTime = currentTimeRef.current;
+  const regionScores = getRegionsAtTime(segments, refTime);
   const canvasRef = useRef<BrainViewerCanvasHandle>(null);
   const [viewMode, setViewMode] = useState<'heatmap' | 'regions'>('heatmap');
   const [colormap, setColormap] = useState<ColormapName>('plasma');
@@ -49,8 +50,8 @@ export function BrainViewer({ segments, currentTimeRef }: BrainViewerProps) {
     motion_processing: true,
   });
 
-  // Decode vertex data for current time (reads from ref for latest value)
-  const vertexDataBase64 = getVertexDataAtTime(segments, currentTimeRef.current);
+  // Decode vertex data using React state time (~4Hz) so useMemo re-evaluates at segment boundaries
+  const vertexDataBase64 = getVertexDataAtTime(segments, currentTime);
   const vertexData = useMemo(() => {
     if (!vertexDataBase64) return null;
     try {
