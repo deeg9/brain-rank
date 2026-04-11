@@ -19,6 +19,7 @@ interface BrainViewerProps {
 export interface HoverInfo {
   network: keyof SegmentRegionScores;
   label: string;
+  anatomy: string;
   score: number;
   color: string;
   screenX: number;
@@ -35,6 +36,18 @@ const NETWORK_LABELS: Record<keyof SegmentRegionScores, string> = {
   language_narrative: 'Language & Narrative',
   default_mode: 'Default Mode',
   motion_processing: 'Motion Processing',
+};
+
+const NETWORK_ANATOMY: Record<keyof SegmentRegionScores, string> = {
+  attention: 'Prefrontal & Parietal Cortex',
+  reward: 'Orbitofrontal & Anterior Cingulate',
+  emotional_processing: 'Amygdala & Temporal Pole',
+  social_cognition: 'Temporal-Parietal Junction',
+  visual_processing: 'Occipital Lobe',
+  auditory_processing: 'Superior Temporal Gyrus',
+  language_narrative: 'Broca\'s & Wernicke\'s Areas',
+  default_mode: 'Medial Prefrontal & Posterior Cingulate',
+  motion_processing: 'MT/V5 & Premotor Cortex',
 };
 
 function hexToRGB(hex: string): [number, number, number] {
@@ -152,6 +165,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
     setHoverInfo({
       network,
       label: NETWORK_LABELS[network],
+      anatomy: NETWORK_ANATOMY[network],
       score: regions[network] ?? 0,
       color: REGION_COLORS[network],
       screenX,
@@ -221,8 +235,6 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
               blendFactor={blendFactor}
               regionColors={regionColors}
               onHoverVertex={handleHoverVertex}
-              vertexMap={vertexMap}
-              regions={regions}
             />
           </Suspense>
         </Canvas>
@@ -246,7 +258,10 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
                   {hoverInfo.label}
                 </span>
               </div>
-              <p className="text-[11px] text-on-surface-variant">
+              <p className="text-[10px] text-on-surface-variant/70 -mt-0.5">
+                {hoverInfo.anatomy}
+              </p>
+              <p className="text-[11px] text-on-surface-variant mt-1">
                 Activation: <span className="font-mono font-bold text-on-surface">{Math.round(hoverInfo.score * 100)}%</span>
               </p>
             </div>
