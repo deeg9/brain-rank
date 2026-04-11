@@ -577,10 +577,10 @@ Plans:
   2. Buffer attributes use DynamicDrawUsage and the animation loop runs in useFrame instead of useEffect
   3. Video-to-brain sync polls currentTime at display refresh rate via requestVideoFrameCallback (or useFrame fallback)
   4. The brain viewer maintains 60fps during video playback with all 20,484 vertices updating per segment change
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [x] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [x] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 40: UI Subtraction & Component Consolidation
@@ -594,8 +594,8 @@ Plans:
   4. BrainViewer.tsx has zero useState calls for view mode, colormap selection, or region filters
 **Plans:** 2 plans
 Plans:
-- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [x] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [x] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 41: Threshold Glow & Legend
@@ -609,8 +609,8 @@ Plans:
   4. The brain viewer uses a single committed colormap (inferno or hot) with no user-selectable alternatives
 **Plans:** 2 plans
 Plans:
-- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [x] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [x] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 42: Smooth Transitions
@@ -692,7 +692,7 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete    | 2026-04-10 |
 | 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
-| 39. Performance Foundation | v3.0 | 0/2 | Planning | - |
+| 39. Performance Foundation | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 40. UI Subtraction & Consolidation | v3.0 | 0/0 | Not started | - |
 | 41. Threshold Glow & Legend | v3.0 | 0/0 | Not started | - |
 | 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
