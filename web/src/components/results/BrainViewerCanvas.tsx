@@ -9,12 +9,13 @@ interface BrainViewerCanvasProps {
   vertexDataA: Float32Array | null;
   vertexDataB: Float32Array | null;
   blendFactor: number;
+  regionColors: Float32Array | null;
 }
 
 const IDLE_TIMEOUT_MS = 3000;
 const AUTO_ROTATE_SPEED = 0.5; // slow rotation (drei default is 2.0)
 
-export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor }: BrainViewerCanvasProps) {
+export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors }: BrainViewerCanvasProps) {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const [isIdle, setIsIdle] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,7 +48,11 @@ export function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor }: Bra
       <Center>
         {/* Rotate -90deg on X to convert neuroimaging Z-up to Three.js Y-up */}
         <group rotation={[-Math.PI / 2, 0, 0]}>
-          {vertexDataA && <BrainGlowMesh vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} />}
+          {vertexDataA ? (
+            <BrainGlowMesh vertexDataA={vertexDataA} vertexDataB={vertexDataB} blendFactor={blendFactor} />
+          ) : regionColors ? (
+            <BrainGlowMesh regionColors={regionColors} />
+          ) : null}
         </group>
       </Center>
 
