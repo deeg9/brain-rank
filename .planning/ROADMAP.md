@@ -592,9 +592,9 @@ Plans:
   2. The brain viewer header shows only a clean title with no crowded controls
   3. BrainHeatmapMesh and BrainNetworkMesh are merged into a single BrainGlowMesh component
   4. BrainViewer.tsx has zero useState calls for view mode, colormap selection, or region filters
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 40-01-PLAN.md — Strip controls, merge meshes into BrainGlowMesh, clean header
+- [x] 40-01-PLAN.md — Strip controls, merge meshes into BrainGlowMesh, clean header
 
 **UI hint**: yes
 
@@ -693,7 +693,7 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete    | 2026-04-10 |
 | 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
 | 39. Performance Foundation | v3.0 | 2/2 | Complete    | 2026-04-11 |
-| 40. UI Subtraction & Consolidation | v3.0 | 0/0 | Not started | - |
+| 40. UI Subtraction & Consolidation | v3.0 | 1/1 | Complete    | 2026-04-11 |
 | 41. Threshold Glow & Legend | v3.0 | 0/0 | Not started | - |
 | 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
 | 43. Timeline Peak Markers | v3.0 | 0/0 | Not started | - |
