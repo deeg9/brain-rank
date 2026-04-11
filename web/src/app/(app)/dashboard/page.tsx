@@ -93,11 +93,12 @@ export default async function DashboardPage() {
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface tracking-tight">
           Welcome back, {firstName}!
         </h1>
-        <Link href="/upload">
-          <Button variant="primary" size="md">
-            <span className="material-symbols-outlined text-xl">add</span>
-            New Analysis
-          </Button>
+        <Link
+          href="/upload"
+          className="group relative inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-on-surface bg-surface-container-high border border-outline-variant/30 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+        >
+          <span className="material-symbols-outlined text-lg text-on-surface-variant group-hover:text-primary transition-colors">add</span>
+          New Analysis
         </Link>
       </section>
 
@@ -173,7 +174,7 @@ export default async function DashboardPage() {
                           <div className="space-y-2 mt-4">
                             <div className="flex justify-between text-xs font-headline uppercase tracking-widest font-bold">
                               <span>Retention Score</span>
-                              <span className="text-primary">{score}/100</span>
+                              <span className="text-on-surface">{score}/100</span>
                             </div>
                             <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
                               <div
@@ -201,7 +202,7 @@ export default async function DashboardPage() {
             <Link href="/upload">
               <div className="bg-surface-container-high rounded-xl overflow-hidden border border-dashed border-outline-variant/30 flex items-center justify-center min-h-[220px] hover:border-primary/50 transition-colors cursor-pointer">
                 <div className="text-center p-8">
-                  <div className="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
+                  <div className="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center mx-auto mb-4 text-on-surface-variant">
                     <span className="material-symbols-outlined text-2xl">
                       add_circle
                     </span>
@@ -226,7 +227,7 @@ export default async function DashboardPage() {
               <div className="relative z-10 flex flex-col items-center">
                 <div className="w-24 h-24 bg-surface-container-highest rounded-2xl flex items-center justify-center mb-8 shadow-2xl">
                   <span
-                    className="material-symbols-outlined text-5xl text-primary"
+                    className="material-symbols-outlined text-5xl text-on-surface-variant"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
                     psychology
@@ -256,7 +257,7 @@ export default async function DashboardPage() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-on-primary transition-all">
+                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
                   <span className="material-symbols-outlined">upload_file</span>
                 </div>
                 <h4 className="font-headline text-lg font-bold mb-3">
@@ -268,7 +269,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-all">
+                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
                   <span className="material-symbols-outlined">analytics</span>
                 </div>
                 <h4 className="font-headline text-lg font-bold mb-3">
@@ -280,7 +281,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-tertiary-fixed-dim group-hover:bg-tertiary-fixed-dim group-hover:text-on-tertiary-fixed transition-all">
+                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
                   <span className="material-symbols-outlined">
                     auto_fix_high
                   </span>
