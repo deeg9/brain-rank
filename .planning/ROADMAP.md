@@ -101,8 +101,8 @@ Plans:
 
 **Plans:** 2 plans
 Plans:
-- [ ] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
-- [ ] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
+- [x] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
+- [x] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
 - [ ] **Phase 45: Profile Customization** - Avatar upload, bio editing on user profiles
 - [ ] **Phase 46: Public Profile Pages** - Public profile at /u/username with stats and public analyses
 - [ ] **Phase 47: Privacy Controls & Sharing** - Public/private toggle on analyses, shareable links
@@ -669,7 +669,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. A profiles table exists in Supabase with username (citext, unique), avatar_url, and bio columns, linked to auth.users
   2. User can claim a unique username from the settings or onboarding flow, with real-time availability checking
-  3. Username validation enforces rules (lowercase, no spaces, 3-30 chars) and case-insensitive uniqueness (e.g., "Diego" and "diego" conflict)
+  3. Username validation enforces rules (lowercase, no spaces, 3-20 chars) and case-insensitive uniqueness (e.g., "Diego" and "diego" conflict)
   4. RLS policies on the profiles table allow users to read any profile but only update their own
   5. An is_public boolean column exists on the jobs table (default false) with RLS allowing public read access for public analyses
 **Plans**: TBD
@@ -814,7 +814,7 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 41. Threshold Glow & Legend | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 42. Smooth Transitions | v3.0 | 2/2 | Complete    | 2026-04-11 |
 | 43. Timeline Peak Markers | v3.0 | 1/1 | Complete    | 2026-04-11 |
-| 44. Social Schema & Identity | v4.0 | 0/0 | Not started | - |
+| 44. Social Schema & Identity | v4.0 | 2/2 | Complete   | 2026-04-11 |
 | 45. Profile Customization | v4.0 | 0/0 | Not started | - |
 | 46. Public Profile Pages | v4.0 | 0/0 | Not started | - |
 | 47. Privacy Controls & Sharing | v4.0 | 0/0 | Not started | - |
