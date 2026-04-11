@@ -622,9 +622,9 @@ Plans:
   2. The brain auto-rotates slowly when the user has not touched OrbitControls for 3+ seconds
   3. Auto-rotation pauses immediately when the user grabs the brain and resumes after idle timeout
 **Plans:** 2 plans
-Plans:
-- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [ ] 42-01-PLAN.md — Smooth vertex interpolation between 2-second segments (~300ms lerp)
+- [ ] 42-02-PLAN.md — Auto-rotation with 3s idle timeout, immediate pause on grab
+
 **UI hint**: yes
 
 ### Phase 43: Timeline Peak Markers
