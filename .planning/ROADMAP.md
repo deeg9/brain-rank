@@ -577,7 +577,10 @@ Plans:
   2. Buffer attributes use DynamicDrawUsage and the animation loop runs in useFrame instead of useEffect
   3. Video-to-brain sync polls currentTime at display refresh rate via requestVideoFrameCallback (or useFrame fallback)
   4. The brain viewer maintains 60fps during video playback with all 20,484 vertices updating per segment change
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 40: UI Subtraction & Component Consolidation
@@ -589,7 +592,10 @@ Plans:
   2. The brain viewer header shows only a clean title with no crowded controls
   3. BrainHeatmapMesh and BrainNetworkMesh are merged into a single BrainGlowMesh component
   4. BrainViewer.tsx has zero useState calls for view mode, colormap selection, or region filters
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 41: Threshold Glow & Legend
@@ -601,7 +607,10 @@ Plans:
   2. Threshold transitions use smoothstep blending -- no hard-edge popping or flickering at the activation boundary
   3. A static non-interactive color legend below the brain viewer shows which color maps to which functional network
   4. The brain viewer uses a single committed colormap (inferno or hot) with no user-selectable alternatives
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 42: Smooth Transitions
@@ -612,7 +621,10 @@ Plans:
   1. When the video crosses a segment boundary, vertex activation values lerp smoothly over ~300ms instead of snapping instantly
   2. The brain auto-rotates slowly when the user has not touched OrbitControls for 3+ seconds
   3. Auto-rotation pauses immediately when the user grabs the brain and resumes after idle timeout
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ### Phase 43: Timeline Peak Markers
@@ -623,7 +635,10 @@ Plans:
   1. The top 3-5 activation peaks are automatically identified and marked on the neural timeline with visible indicators
   2. Each peak marker shows the timestamp and relative activation intensity on hover or tap
   3. Peak markers do not interfere with existing timeline interactions (playhead scrubbing, click-to-seek)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
+- [ ] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
 **UI hint**: yes
 
 ## Progress
@@ -677,7 +692,7 @@ Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 | 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete    | 2026-04-10 |
 | 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
-| 39. Performance Foundation | v3.0 | 0/0 | Not started | - |
+| 39. Performance Foundation | v3.0 | 0/2 | Planning | - |
 | 40. UI Subtraction & Consolidation | v3.0 | 0/0 | Not started | - |
 | 41. Threshold Glow & Legend | v3.0 | 0/0 | Not started | - |
 | 42. Smooth Transitions | v3.0 | 0/0 | Not started | - |
