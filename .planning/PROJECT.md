@@ -8,16 +8,15 @@ A web app that lets content creators upload videos and get brain-activation-base
 
 Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out, so creators can re-edit for maximum impact.
 
-## Current Milestone: v3.0 Brain Visualization UX Overhaul
+## Current Milestone: v4.0 Social Discovery Platform
 
-**Goal:** Research Meta's TRIBE v2 demo approach and redesign the brain viewer so activation lights up dynamically as the video plays — matching how Meta successfully demos their model. Simplify the UI from cluttered controls to a clean, story-telling visualization.
+**Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform where users have identities (usernames), can share neural analyses publicly, and anyone can browse a leaderboard of brain reactions to videos.
 
 **Target features:**
-- Research Meta's TRIBE v2 demo patterns and brain visualization UX
-- Dynamic brain glow — regions light up in real-time as video plays, only above activation threshold
-- Remove toggle filter buttons — replace with static color legend
-- Clean up crowded brain viewer header
-- Simplified, visually compelling brain viewer that tells a story as the video plays
+- User profiles with unique usernames (foundation for public identity)
+- Public/private toggle on analyses (privacy controls)
+- Discovery/leaderboard page with browsable public neural data
+- Social features — view counts, bookmarks, sorting by neural scores
 
 ## Requirements
 
