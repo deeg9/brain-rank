@@ -592,10 +592,10 @@ Plans:
   2. The brain viewer header shows only a clean title with no crowded controls
   3. BrainHeatmapMesh and BrainNetworkMesh are merged into a single BrainGlowMesh component
   4. BrainViewer.tsx has zero useState calls for view mode, colormap selection, or region filters
-**Plans:** 2 plans
+**Plans:** 1 plan
 Plans:
-- [x] 39-01-PLAN.md — GPU colormap LUT, DynamicDrawUsage, useFrame for BrainHeatmapMesh
-- [x] 39-02-PLAN.md — requestVideoFrameCallback hook, ref-based video-to-brain sync
+- [ ] 40-01-PLAN.md — Strip controls, merge meshes into BrainGlowMesh, clean header
+
 **UI hint**: yes
 
 ### Phase 41: Threshold Glow & Legend
