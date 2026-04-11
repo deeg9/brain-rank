@@ -79,7 +79,7 @@
 
 **Plans:** 1 plan
 Plans:
-- [ ] 38-01-PLAN.md — Fix 9-network regions mode, add retry route, remove dead code
+- [x] 38-01-PLAN.md — Fix 9-network regions mode, add retry route, remove dead code
 
 ## Phase Details
 
@@ -606,4 +606,4 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 | 35. Unified GLB Mesh Export | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 36. Cortical Heatmap Viewer | v2.2 | 1/1 | Complete   | 2026-04-10 |
 | 37. Arousal/Valence & Network Legend | v2.2 | 1/1 | Complete    | 2026-04-10 |
-| 38. Code Cleanup & Missing Wiring | Gap | 0/1 | Planning | - |
+| 38. Code Cleanup & Missing Wiring | Gap | 1/1 | Complete    | 2026-04-11 |
