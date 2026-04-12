@@ -82,12 +82,105 @@ function extractFilename(url: string): string {
 }
 
 
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button type="button" role="switch" aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? "bg-black" : "bg-gray-300"}`}>
+      <span className={`${checked ? "translate-x-5" : "translate-x-0"} pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out bg-white`} />
+    </button>
+  );
+}
+
 export default function ResultsDetailPage({ params }: Props) {
   const { id } = use(params);
   const router = useRouter();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Visibility toggle state
+  const [isPublic, setIsPublic] = useState(false);
+  const [visibilityStatus, setVisibilityStatus] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState<string | null>(null);
+
+  // Editable title state
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync isPublic when job loads
+  useEffect(() => {
+    if (job) setIsPublic(job.is_public ?? false);
+  }, [job]);
+
+  const displayTitle = job?.title || extractFilename(job?.video_url ?? "");
+
+  const handleTogglePublic = useCallback(async () => {
+    const newValue = !isPublic;
+    setIsPublic(newValue); // optimistic
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_public: newValue }),
+      });
+      if (res.ok) {
+        setVisibilityStatus(newValue ? "Now public" : "Now private");
+      } else {
+        setIsPublic(!newValue); // revert
+        setVisibilityStatus("Failed to update");
+      }
+    } catch {
+      setIsPublic(!newValue); // revert
+      setVisibilityStatus("Failed to update");
+    }
+    setTimeout(() => setVisibilityStatus(null), 2000);
+  }, [isPublic, id]);
+
+  const handleCopyLink = useCallback(async () => {
+    if (!isPublic) return;
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/analysis/${id}`);
+      setCopyStatus("Copied!");
+    } catch {
+      setCopyStatus("Failed");
+    }
+    setTimeout(() => setCopyStatus(null), 2000);
+  }, [isPublic, id]);
+
+  const handleTitleEdit = useCallback(() => {
+    setEditTitle(displayTitle);
+    setIsEditingTitle(true);
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  }, [displayTitle]);
+
+  const handleTitleSave = useCallback(async () => {
+    const trimmed = editTitle.trim();
+    if (!trimmed || trimmed === displayTitle) {
+      setIsEditingTitle(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/jobs/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trimmed }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setJob(updated);
+      }
+    } catch {
+      // silently fail — title stays as-is
+    }
+    setIsEditingTitle(false);
+  }, [editTitle, displayTitle, id]);
+
+  const handleTitleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleTitleSave();
+    if (e.key === "Escape") setIsEditingTitle(false);
+  }, [handleTitleSave]);
 
   // Video-timeline sync state
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -247,13 +340,11 @@ export default function ResultsDetailPage({ params }: Props) {
 
   const peakMarkers = findPeaks(segments);
 
-  const filename = extractFilename(job.video_url);
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       {/* Top Bar */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-6">
+      <div className="grid grid-cols-3 items-center">
+        <div className="flex items-center">
           <Link
             href="/dashboard"
             className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -265,14 +356,51 @@ export default function ResultsDetailPage({ params }: Props) {
               Back
             </span>
           </Link>
-          <h2 className="text-on-surface font-black text-lg tracking-tight">
-            {filename}
-          </h2>
         </div>
-        <ExportButton
-          data={job.results as Record<string, unknown>}
-          filename={`neurocut-${id}.json`}
-        />
+        <div className="flex justify-center">
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              onBlur={handleTitleSave}
+              onKeyDown={handleTitleKeyDown}
+              className="bg-transparent text-on-surface font-black text-lg tracking-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-[200px] text-center"
+              maxLength={200}
+            />
+          ) : (
+            <button
+              onClick={handleTitleEdit}
+              className="flex items-center gap-2 group"
+            >
+              <h2 className="text-on-surface font-black text-lg tracking-tight">
+                {displayTitle}
+              </h2>
+              <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity text-base">
+                edit
+              </span>
+            </button>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex justify-end items-center gap-3">
+            <span className="text-xs font-headline uppercase tracking-widest font-bold text-on-surface-variant">Public</span>
+            <Toggle checked={isPublic} onChange={handleTogglePublic} />
+            {isPublic && (
+              <button onClick={handleCopyLink} className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors">
+                <span className="material-symbols-outlined text-sm">link</span>
+                {copyStatus || "Copy Link"}
+              </button>
+            )}
+            <ExportButton
+              data={job.results as Record<string, unknown>}
+              filename={`neurocut-${id}.json`}
+            />
+          </div>
+          {visibilityStatus && (
+            <p className="text-[10px] text-green-600">{visibilityStatus}</p>
+          )}
+        </div>
       </div>
 
       {/* Video Player + Brain Viewer — side by side */}
@@ -291,111 +419,134 @@ export default function ResultsDetailPage({ params }: Props) {
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
-      {/* Neural Activation Timeline + Emotional State — side by side */}
+      {/* Neural Activation Timeline — full width hero chart */}
+      <NeuralTimeline
+        segments={segments}
+        duration={results.duration_seconds}
+        currentTime={currentTime}
+        onSeek={handleSeek}
+        zones={zones}
+        peakMarkers={peakMarkers}
+        iconMarkers={iconMarkers}
+      />
+
+      {/* Insights Summary — metrics + emotional state strip */}
       {(() => {
         const currentSegment = getSegmentAtTime(segments, currentTime);
         const arousal = currentSegment?.arousal ?? 0;
         const valence = currentSegment?.valence ?? 0;
         return (
-          <>
-            <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
-              <NeuralTimeline
-                segments={segments}
-                duration={results.duration_seconds}
-                currentTime={currentTime}
-                onSeek={handleSeek}
-                zones={zones}
-                peakMarkers={peakMarkers}
-                iconMarkers={iconMarkers}
-              />
-              <CircumplexChart arousal={arousal} valence={valence} />
+          <Card className="p-5 glass-surface">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-on-surface-variant">monitoring</span>
+              <h3 className="font-headline text-base font-bold">Insights Summary</h3>
             </div>
+            <div className="flex items-stretch gap-4">
+              {/* Metrics — staggered grid */}
+              <div className="flex-1 flex flex-col justify-center gap-4">
+                {/* Row 1: Hook, Retention, Peak */}
+                <div className="grid grid-cols-6 gap-x-1">
+                  <div className="col-span-2">
+                    <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
+                      Hook Strength
+                      <MetricInfo
+                        title="Hook Strength"
+                        description="How effectively your video captures attention in the opening seconds."
+                        calculation="Average neural activation (attention + reward regions) during the first 10 seconds of the video."
+                        interpretation="Higher = stronger opening. Above 50% means your intro triggers both focus and reward circuits. Below 30% suggests a weak hook that may lose viewers."
+                      />
+                    </div>
+                    <p className="font-headline text-3xl font-bold text-on-surface">
+                      <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
+                    </p>
+                    <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s</p>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
+                      Retention
+                      <MetricInfo
+                        title="Retention"
+                        description="How well your video maintains neural engagement through the end."
+                        calculation="Average neural activation across all brain regions during the last 10 seconds of the video."
+                        interpretation="Higher = viewers stay engaged. Compare to Hook Strength: if retention > hook, your content builds momentum. If lower, viewers may be dropping off."
+                      />
+                    </div>
+                    <p className="font-headline text-3xl font-bold text-on-surface">
+                      <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
+                    </p>
+                    <p className="text-on-surface-variant text-[10px] mt-0.5">Last 10s</p>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
+                      Peak Moment
+                      <MetricInfo
+                        title="Peak Moment"
+                        description="The exact timestamp where brain activation reaches its maximum across all regions."
+                        calculation="The 2-second segment with the highest overall activation_score in the video."
+                        interpretation="This is your video's most neurally engaging moment. Use it as a thumbnail frame, clip highlight, or to understand what content type drives the strongest brain response."
+                      />
+                    </div>
+                    <p className="font-headline text-3xl font-bold text-on-surface">
+                      <SlidingNumber value={summary.peak_second} suffix="s" />
+                    </p>
+                    <p className="text-on-surface-variant text-[10px] mt-0.5">{Math.round(summary.peak_score * 100)}% activation</p>
+                  </div>
+                </div>
+                {/* Row 2: Arousal, Valence — staggered between top row */}
+                <div className="grid grid-cols-6 gap-x-1">
+                  <div className="col-span-2 col-start-2">
+                    <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
+                      Arousal
+                      <MetricInfo
+                        title="Arousal"
+                        description="The viewer's physiological activation level — how alert or stimulated their nervous system is."
+                        calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
+                        interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
+                      />
+                    </div>
+                    <p className="font-headline text-3xl font-bold text-on-surface">
+                      <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
+                    </p>
+                    <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
+                  </div>
+                  <div className="col-span-2 col-start-4">
+                    <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
+                      Valence
+                      <MetricInfo
+                        title="Valence"
+                        description="The emotional positivity or negativity of the viewer's response."
+                        calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
+                        interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
+                      />
+                    </div>
+                    <p className="font-headline text-3xl font-bold text-on-surface">
+                      <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
+                    </p>
+                    <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional positivity</p>
+                  </div>
+                </div>
+              </div>
 
-            {/* Neural Metrics — full width */}
-            <Card className="p-6 glass-surface">
-              <div className="flex items-center gap-2 mb-5">
-                <span className="material-symbols-outlined text-on-surface-variant">monitoring</span>
-                <h3 className="font-headline text-lg font-bold">Neural Metrics</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-                <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                    Hook Strength
-                    <MetricInfo
-                      title="Hook Strength"
-                      description="How effectively your video captures attention in the opening seconds."
-                      calculation="Average neural activation (attention + reward regions) during the first 10 seconds of the video."
-                      interpretation="Higher = stronger opening. Above 50% means your intro triggers both focus and reward circuits. Below 30% suggests a weak hook that may lose viewers."
-                    />
-                  </p>
-                  <p className="font-headline text-2xl font-bold text-on-surface">
-                    <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
-                  </p>
-                  <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s activation</p>
+              {/* Divider */}
+              <div className="w-px self-stretch bg-outline-variant/20" />
+
+              {/* Circumplex — half width, right side, vertically centered */}
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-2 text-center">
+                  Emotional State
+                  <MetricInfo
+                    title="Emotional State"
+                    description="Where your content falls on the Russell Circumplex Model — a 2D map of human emotion used in affective neuroscience."
+                    calculation="TRIBE v2 predicts arousal (vertical axis: calm to excited) and valence (horizontal axis: negative to positive) from brain activation patterns at the current timestamp."
+                    interpretation="Top-right (Excited) = high energy positive emotions. Bottom-left (Bored) = low engagement. The dot moves in real-time as the video plays, showing how the emotional tone shifts."
+                  />
                 </div>
-                <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                    Retention
-                    <MetricInfo
-                      title="Retention"
-                      description="How well your video maintains neural engagement through the end."
-                      calculation="Average neural activation across all brain regions during the last 10 seconds of the video."
-                      interpretation="Higher = viewers stay engaged. Compare to Hook Strength: if retention > hook, your content builds momentum. If lower, viewers may be dropping off."
-                    />
-                  </p>
-                  <p className="font-headline text-2xl font-bold text-on-surface">
-                    <SlidingNumber value={Math.round(summary.retention_score * 100)} suffix="%" />
-                  </p>
-                  <p className="text-on-surface-variant text-[10px] mt-0.5">Last 10s activation</p>
-                </div>
-                <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                    Peak Moment
-                    <MetricInfo
-                      title="Peak Moment"
-                      description="The exact timestamp where brain activation reaches its maximum across all regions."
-                      calculation="The 2-second segment with the highest overall activation_score in the video."
-                      interpretation="This is your video's most neurally engaging moment. Use it as a thumbnail frame, clip highlight, or to understand what content type drives the strongest brain response."
-                    />
-                  </p>
-                  <p className="font-headline text-2xl font-bold text-on-surface">
-                    <SlidingNumber value={summary.peak_second} suffix="s" />
-                  </p>
-                  <p className="text-on-surface-variant text-[10px] mt-0.5">{Math.round(summary.peak_score * 100)}% activation</p>
-                </div>
-                <div>
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                    Arousal
-                    <MetricInfo
-                      title="Arousal"
-                      description="The viewer's physiological activation level — how alert or stimulated their nervous system is."
-                      calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
-                      interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
-                    />
-                  </p>
-                  <p className="font-headline text-2xl font-bold text-on-surface">
-                    <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
-                  </p>
-                  <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="font-headline text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">
-                    Valence
-                    <MetricInfo
-                      title="Valence"
-                      description="The emotional positivity or negativity of the viewer's response."
-                      calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
-                      interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
-                    />
-                  </p>
-                  <p className="font-headline text-2xl font-bold text-on-surface">
-                    <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
-                  </p>
-                  <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional positivity</p>
+                <div className="w-full max-w-[240px]">
+                  <CircumplexChart arousal={arousal} valence={valence} inline />
                 </div>
               </div>
-            </Card>
-          </>
+            </div>
+          </Card>
         );
       })()}
     </div>
