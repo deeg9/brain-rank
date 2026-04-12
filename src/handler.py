@@ -12,6 +12,7 @@ from pathlib import Path
 import requests
 import runpod
 
+from src.image_converter import convert_image_to_video
 from src.inference import run_inference
 from src.model_loader import get_model
 from src.postprocessor import postprocess
@@ -56,12 +57,20 @@ def handler(job):
         logger.warning("Job %s: validation failed: %s", job_id, e)
         return ErrorResponse(error=str(e), error_type="validation").model_dump()
 
-    # Steps 2-4: Download, infer, postprocess (with cleanup in finally)
+    # Steps 2-4: Download/convert, infer, postprocess (with cleanup in finally)
     video_path = None
     stage = "download"
     try:
-        video_path = download_video(params.video_url, job_id)
-        logger.info("Job %s: video downloaded to %s", job_id, video_path)
+        # Step 2: Download/convert media based on input type
+        if params.input_type == "image":
+            stage = "conversion"
+            video_path = convert_image_to_video(
+                params.video_url, job_id, duration=params.image_duration
+            )
+            logger.info("Job %s: image converted to video at %s", job_id, video_path)
+        else:
+            video_path = download_video(params.video_url, job_id)
+            logger.info("Job %s: video downloaded to %s", job_id, video_path)
 
         # Step 3: Run inference (HDLR-05)
         stage = "inference"
