@@ -1,0 +1,20 @@
+[     504ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     523ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1006ms] [ERROR] Access to video at 'https://example.com/travel-vlog.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1006ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/travel-vlog.mp4:0
+[    1024ms] [ERROR] Access to video at 'https://example.com/comedy.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1024ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/comedy.mp4:0
+[    1024ms] [ERROR] Access to video at 'https://example.com/music.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1024ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/music.mp4:0
+[    1024ms] [ERROR] Access to video at 'https://example.com/cooking-tutorial.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1024ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/cooking-tutorial.mp4:0
+[    1024ms] [ERROR] Access to video at 'https://example.com/science.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1024ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/science.mp4:0
+[    1033ms] [ERROR] Access to video at 'https://example.com/workout.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1033ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/workout.mp4:0
+[    1033ms] [ERROR] Access to video at 'https://example.com/asmr.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1033ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/asmr.mp4:0
+[    1033ms] [ERROR] Access to video at 'https://example.com/review.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/dashboard:0
+[    1033ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/review.mp4:0
+[   30181ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   30234ms] [LOG] [Fast Refresh] done in 52ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431

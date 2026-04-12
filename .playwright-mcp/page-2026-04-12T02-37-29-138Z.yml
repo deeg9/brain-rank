@@ -1,0 +1,158 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: diego
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e23]:
+        - generic [ref=e26]: person
+        - generic [ref=e27]:
+          - heading "@diego" [level=2] [ref=e28]
+          - paragraph [ref=e29]: Content creator exploring neural engagement
+          - paragraph [ref=e30]: Member since April 2026
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: Public Analyses
+          - generic [ref=e34]: "10"
+        - generic [ref=e35]:
+          - generic [ref=e36]: Average Retention Score
+          - generic [ref=e37]: "82.5"
+        - generic [ref=e38]:
+          - generic [ref=e39]: Best Retention Score
+          - generic [ref=e40]: "95.0"
+      - generic [ref=e41]:
+        - heading "Public Analyses" [level=3] [ref=e43]
+        - generic [ref=e45]:
+          - link "movie Tokyo Street Food Night Walk Apr 10, 2026 trophy 76.0 Retention Score" [ref=e46] [cursor=pointer]:
+            - /url: /analysis/990cd81b-50f5-4eb5-9b47-b81d12044675
+            - generic [ref=e49]: movie
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - paragraph [ref=e53]: Tokyo Street Food Night Walk
+                - paragraph [ref=e54]: Apr 10, 2026
+              - generic [ref=e55]:
+                - generic [ref=e56]: trophy
+                - text: "76.0"
+                - generic [ref=e57]: Retention Score
+          - link "test 0:41 test Apr 9, 2026 trophy N/A Retention Score" [ref=e58] [cursor=pointer]:
+            - /url: /analysis/d2357b7b-3b1a-41b3-9015-06c9a8b5edcb
+            - generic [ref=e59]:
+              - img "test" [ref=e60]
+              - generic [ref=e61]: 0:41
+            - generic [ref=e63]:
+              - generic [ref=e64]:
+                - paragraph [ref=e65]: test
+                - paragraph [ref=e66]: Apr 9, 2026
+              - generic [ref=e67]:
+                - generic [ref=e68]: trophy
+                - text: N/A
+                - generic [ref=e69]: Retention Score
+          - link "Untitled Analysis 0:41 Untitled Analysis Apr 9, 2026 trophy N/A Retention Score" [ref=e70] [cursor=pointer]:
+            - /url: /analysis/bdf77a41-4027-4653-937c-31dfe283ea4b
+            - generic [ref=e71]:
+              - img "Untitled Analysis" [ref=e72]
+              - generic [ref=e73]: 0:41
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - paragraph [ref=e77]: Untitled Analysis
+                - paragraph [ref=e78]: Apr 9, 2026
+              - generic [ref=e79]:
+                - generic [ref=e80]: trophy
+                - text: N/A
+                - generic [ref=e81]: Retention Score
+          - link "movie Stand-Up Comedy Open Mic Set Apr 9, 2026 trophy 95.0 Retention Score" [ref=e82] [cursor=pointer]:
+            - /url: /analysis/043ff1d9-d9eb-4f55-9916-7648efca332e
+            - generic [ref=e85]: movie
+            - generic [ref=e87]:
+              - generic [ref=e88]:
+                - paragraph [ref=e89]: Stand-Up Comedy Open Mic Set
+                - paragraph [ref=e90]: Apr 9, 2026
+              - generic [ref=e91]:
+                - generic [ref=e92]: trophy
+                - text: "95.0"
+                - generic [ref=e93]: Retention Score
+          - link "movie Pasta Making Tutorial - Italian Kitchen Apr 8, 2026 trophy 82.0 Retention Score" [ref=e94] [cursor=pointer]:
+            - /url: /analysis/6ad8d7be-eea8-47b8-9c5d-367eaa5b953a
+            - generic [ref=e97]: movie
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - paragraph [ref=e101]: Pasta Making Tutorial - Italian Kitchen
+                - paragraph [ref=e102]: Apr 8, 2026
+              - generic [ref=e103]:
+                - generic [ref=e104]: trophy
+                - text: "82.0"
+                - generic [ref=e105]: Retention Score
+          - link "movie Guitar Cover - Bohemian Rhapsody Apr 7, 2026 trophy 87.0 Retention Score" [ref=e106] [cursor=pointer]:
+            - /url: /analysis/4f7ccf65-8f6c-4690-a2df-f25028cc35e3
+            - generic [ref=e109]: movie
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - paragraph [ref=e113]: Guitar Cover - Bohemian Rhapsody
+                - paragraph [ref=e114]: Apr 7, 2026
+              - generic [ref=e115]:
+                - generic [ref=e116]: trophy
+                - text: "87.0"
+                - generic [ref=e117]: Retention Score
+          - link "movie Morning HIIT Workout Routine Apr 6, 2026 trophy 91.0 Retention Score" [ref=e118] [cursor=pointer]:
+            - /url: /analysis/7bd995ab-0664-43cf-80ce-6bf53962ce85
+            - generic [ref=e121]: movie
+            - generic [ref=e123]:
+              - generic [ref=e124]:
+                - paragraph [ref=e125]: Morning HIIT Workout Routine
+                - paragraph [ref=e126]: Apr 6, 2026
+              - generic [ref=e127]:
+                - generic [ref=e128]: trophy
+                - text: "91.0"
+                - generic [ref=e129]: Retention Score
+          - link "movie ASMR Rain Sounds for Sleep Apr 5, 2026 trophy 73.0 Retention Score" [ref=e130] [cursor=pointer]:
+            - /url: /analysis/7fde0151-4d61-4c09-ab87-935a11bff81c
+            - generic [ref=e133]: movie
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - paragraph [ref=e137]: ASMR Rain Sounds for Sleep
+                - paragraph [ref=e138]: Apr 5, 2026
+              - generic [ref=e139]:
+                - generic [ref=e140]: trophy
+                - text: "73.0"
+                - generic [ref=e141]: Retention Score
+          - link "movie iPhone 17 Pro - Honest Review Apr 4, 2026 trophy 68.0 Retention Score" [ref=e142] [cursor=pointer]:
+            - /url: /analysis/5118b679-5167-4ace-a561-7a1afa7a1613
+            - generic [ref=e145]: movie
+            - generic [ref=e147]:
+              - generic [ref=e148]:
+                - paragraph [ref=e149]: iPhone 17 Pro - Honest Review
+                - paragraph [ref=e150]: Apr 4, 2026
+              - generic [ref=e151]:
+                - generic [ref=e152]: trophy
+                - text: "68.0"
+                - generic [ref=e153]: Retention Score
+          - link "movie How Black Holes Actually Work Apr 3, 2026 trophy 88.0 Retention Score" [ref=e154] [cursor=pointer]:
+            - /url: /analysis/0dc4ce8b-ade6-427a-bd43-87f890781743
+            - generic [ref=e157]: movie
+            - generic [ref=e159]:
+              - generic [ref=e160]:
+                - paragraph [ref=e161]: How Black Holes Actually Work
+                - paragraph [ref=e162]: Apr 3, 2026
+              - generic [ref=e163]:
+                - generic [ref=e164]: trophy
+                - text: "88.0"
+                - generic [ref=e165]: Retention Score
+  - button "Open Next.js Dev Tools" [ref=e171] [cursor=pointer]:
+    - img [ref=e172]
+  - alert [ref=e175]

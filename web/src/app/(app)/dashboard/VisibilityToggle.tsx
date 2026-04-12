@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export function VisibilityToggle({ jobId, initialPublic }: { jobId: string; initialPublic: boolean }) {
+export function VisibilityToggle({ jobId, initialPublic, viewCount }: { jobId: string; initialPublic: boolean; viewCount?: number }) {
   const [isPublic, setIsPublic] = useState(initialPublic);
   const [updating, setUpdating] = useState(false);
 
@@ -23,18 +23,26 @@ export function VisibilityToggle({ jobId, initialPublic }: { jobId: string; init
   }
 
   return (
-    <button
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggle(); }}
-      disabled={updating}
-      className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors"
-      title={isPublic ? "Public - click to make private" : "Private - click to make public"}
-    >
-      <span className="material-symbols-outlined text-sm">
-        {isPublic ? "public" : "lock"}
-      </span>
-      {isPublic && (
-        <span className="text-[10px] font-headline uppercase tracking-widest font-bold text-primary">Public</span>
+    <div className="flex items-center gap-2">
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggle(); }}
+        disabled={updating}
+        className="flex items-center gap-1 text-xs hover:opacity-70 transition-opacity"
+        title={isPublic ? "Public - click to make private" : "Private - click to make public"}
+      >
+        <span className="material-symbols-outlined text-sm text-black">
+          {isPublic ? "public" : "lock"}
+        </span>
+        <span className="text-[10px] font-headline uppercase tracking-widest font-bold text-black">
+          {isPublic ? "Public" : "Private"}
+        </span>
+      </button>
+      {isPublic && viewCount !== undefined && (
+        <span className="flex items-center gap-1 text-[10px] text-gray-500">
+          <span className="material-symbols-outlined text-sm">visibility</span>
+          {viewCount}
+        </span>
       )}
-    </button>
+    </div>
   );
 }

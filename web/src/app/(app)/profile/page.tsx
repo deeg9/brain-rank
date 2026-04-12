@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
+import { VideoThumb } from "../dashboard/VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
-import { AvatarDisplay } from "./AvatarDisplay";
 
 const statusMap: Record<JobStatus, "queued" | "processing" | "complete" | "failed"> = {
   pending: "queued",
@@ -76,12 +76,12 @@ export default async function ProfilePage() {
   const recentJobs = allJobs.slice(0, 5);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 pt-6">
       {/* Hero Profile Card */}
-      <section className="bg-surface-container-high rounded-xl p-10 flex flex-col md:flex-row items-center justify-between shadow-2xl">
+      <section className="bg-white rounded-xl p-10 flex flex-col md:flex-row items-center justify-between shadow-sm">
         <div className="flex flex-col md:flex-row items-center text-center md:text-left">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full p-1 neural-gradient">
+            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -89,25 +89,18 @@ export default async function ProfilePage() {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <AvatarDisplay
-                  username={profile?.username ?? null}
-                  email={email}
-                />
+                <span className="material-symbols-outlined text-4xl text-gray-400">person</span>
               )}
             </div>
           </div>
           <div className="md:ml-8 mt-4 md:mt-0">
-            <h2 className="text-3xl font-headline font-bold text-on-surface">
-              {displayName}
+            <h2 className="text-3xl font-headline font-bold text-black">
+              @{profile?.username || "username"}
             </h2>
-            {profile?.username && (
-              <p className="text-gray-500 text-sm">@{profile.username}</p>
-            )}
             {profile?.bio && (
-              <p className="text-gray-600 text-sm mt-2">{profile.bio}</p>
+              <p className="text-black font-bold text-sm mt-2">{profile.bio}</p>
             )}
-            <p className="text-on-surface-variant mt-1">{email}</p>
-            <p className="text-on-surface-variant text-xs mt-2">
+            <p className="text-black font-bold text-xs mt-2">
               Member since {memberSince}
             </p>
           </div>
@@ -115,7 +108,7 @@ export default async function ProfilePage() {
         <div className="mt-8 md:mt-0">
           <Link
             href="/settings"
-            className="bg-surface-container-highest text-on-surface px-8 py-3 rounded-lg font-headline font-bold text-sm uppercase tracking-widest hover:bg-surface-bright transition-colors inline-block"
+            className="bg-black text-white px-8 py-3 rounded-lg font-headline font-bold text-sm uppercase tracking-widest hover:bg-gray-800 transition-colors inline-block"
           >
             Edit Profile
           </Link>
@@ -124,49 +117,49 @@ export default async function ProfilePage() {
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-surface-container rounded-xl p-8 flex flex-col">
-          <span className="text-on-surface-variant font-headline uppercase tracking-widest text-[10px] mb-2">
+        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+          <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Total Analyses
           </span>
-          <span className="text-5xl font-headline font-black text-on-surface">
+          <span className="text-5xl font-headline font-black text-black">
             {totalAnalyses.toLocaleString()}
           </span>
         </div>
-        <div className="bg-surface-container rounded-xl p-8 flex flex-col">
-          <span className="text-on-surface-variant font-headline uppercase tracking-widest text-[10px] mb-2">
-            Average Score
+        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+          <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
+            Average Attention Score
           </span>
-          <span className="text-5xl font-headline font-black text-secondary">
+          <span className="text-5xl font-headline font-black text-black">
             {averageScore}
           </span>
         </div>
-        <div className="bg-surface-container rounded-xl p-8 flex flex-col">
-          <span className="text-on-surface-variant font-headline uppercase tracking-widest text-[10px] mb-2">
-            Best Score
+        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+          <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
+            Best Attention Score
           </span>
-          <span className="text-5xl font-headline font-black text-primary-fixed">
+          <span className="text-5xl font-headline font-black text-black">
             {bestScore}
           </span>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-surface-container rounded-xl overflow-hidden">
-        <div className="px-8 py-6 flex items-center justify-between border-b border-outline-variant/10">
-          <h3 className="font-headline font-bold text-lg uppercase tracking-wider text-on-surface">
+      <div className="bg-white rounded-xl overflow-hidden shadow-sm">
+        <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
+          <h3 className="font-headline font-bold text-lg uppercase tracking-wider text-black">
             Recent Activity
           </h3>
         </div>
         <div className="p-4">
           {recentJobs.length === 0 ? (
-            <div className="py-12 text-center text-on-surface-variant">
+            <div className="py-12 text-center text-gray-400">
               No activity yet
             </div>
           ) : (
             <div className="space-y-2">
               {recentJobs.map((job) => {
                 const filename =
-                  job.video_url.split("/").pop() || "Untitled Video";
+                  job.title || job.video_url.split("/").pop() || "Untitled Video";
                 const date = new Date(job.created_at).toLocaleDateString(
                   "en-US",
                   {
@@ -176,27 +169,28 @@ export default async function ProfilePage() {
                   }
                 );
                 return (
-                  <div
+                  <Link
                     key={job.id}
-                    className="flex items-center p-4 bg-surface-container-low rounded-lg hover:bg-surface-container-high transition-colors"
+                    href={`/results/${job.id}`}
+                    className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary-fixed">
-                      <span className="material-symbols-outlined">movie</span>
+                    <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 relative">
+                      <VideoThumb src={job.video_url} alt={filename} />
                     </div>
                     <div className="ml-4 flex-1">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="text-sm font-bold text-on-surface truncate max-w-[300px]">
+                          <p className="text-sm font-bold text-black truncate max-w-[300px]">
                             {filename}
                           </p>
-                          <p className="text-[10px] text-on-surface-variant font-headline tracking-widest uppercase mt-0.5">
+                          <p className="text-[10px] text-black font-bold font-headline tracking-widest uppercase mt-0.5">
                             {date}
                           </p>
                         </div>
                         <StatusBadge status={statusMap[job.status]} />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

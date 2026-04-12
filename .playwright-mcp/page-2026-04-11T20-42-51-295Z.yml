@@ -1,0 +1,87 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "settings" [ref=e11] [cursor=pointer]:
+        - /url: /settings
+        - generic [ref=e12]: settings
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: User
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Settings" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Manage your account, security, and notification preferences.
+      - generic [ref=e26]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - heading "Profile Information" [level=3] [ref=e30]
+            - paragraph [ref=e31]: Update your public identity and account contact details.
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - text: Display Name
+              - textbox [ref=e34]: christopherfill9
+            - generic [ref=e35]:
+              - text: Email Address
+              - generic [ref=e36]:
+                - generic [ref=e37]: buyer@example.com
+                - generic [ref=e38]: lock
+              - paragraph [ref=e39]: Email cannot be changed.
+            - button "Save Changes" [ref=e41]
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - heading "Security" [level=3] [ref=e45]
+            - paragraph [ref=e46]: Keep your account secure by updating your password regularly.
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - text: Current Password
+                - textbox "Current Password" [ref=e50]:
+                  - /placeholder: ••••••••
+              - generic [ref=e51]:
+                - generic [ref=e52]:
+                  - text: New Password
+                  - textbox "New Password" [ref=e53]
+                - generic [ref=e54]:
+                  - text: Confirm New Password
+                  - textbox "Confirm New Password" [ref=e55]
+            - button "Update Security" [ref=e57]
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - heading "Notifications" [level=3] [ref=e61]
+            - paragraph [ref=e62]: Control how NeuroCut communicates with you.
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - paragraph [ref=e66]: Analysis Complete
+                - paragraph [ref=e67]: When your content is fully processed.
+              - switch [checked] [ref=e68] [cursor=pointer]
+            - generic [ref=e69]:
+              - generic [ref=e70]:
+                - paragraph [ref=e71]: Processing Failed
+                - paragraph [ref=e72]: Urgent alerts for technical interruptions.
+              - switch [checked] [ref=e73] [cursor=pointer]
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - paragraph [ref=e76]: Weekly Summary
+                - paragraph [ref=e77]: A digest of your channel performance.
+              - switch [ref=e78] [cursor=pointer]
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - paragraph [ref=e81]: Product Updates
+                - paragraph [ref=e82]: New features and neural model releases.
+              - switch [checked] [ref=e83] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e89] [cursor=pointer]:
+    - img [ref=e90]
+  - alert [ref=e93]

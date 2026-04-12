@@ -98,7 +98,7 @@ export default async function DashboardPage() {
       {/* Welcome Header */}
       <section className="flex justify-between items-end">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface tracking-tight">
-          Welcome back, {firstName}!
+          Welcome back, {(profile as any)?.username || firstName}
         </h1>
         <Link
           href="/upload"
@@ -187,7 +187,7 @@ export default async function DashboardPage() {
                             {filename}
                           </h4>
                         </div>
-                        <p className="text-xs text-on-surface-variant mb-4 flex items-center gap-2">
+                        <p className="text-xs font-bold text-black mb-4 flex items-center gap-2">
                           <span className="material-symbols-outlined text-sm">
                             calendar_today
                           </span>
@@ -197,20 +197,21 @@ export default async function DashboardPage() {
                           <StatusBadge status={mapStatus(job.status)} />
                           <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
                         </div>
-                        {score !== null && (
-                          <div className="space-y-2 mt-4">
-                            <div className="flex justify-between text-xs font-headline uppercase tracking-widest font-bold">
-                              <span>Retention Score</span>
-                              <span className="text-on-surface">{score}/100</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                              <div
-                                className="h-full neural-gradient"
-                                style={{ width: `${score}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-3">
+                          {job.is_public && (job as any).view_count > 0 && (
+                            <span className="flex items-center gap-1 text-xs font-bold text-black">
+                              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+                              {(job as any).view_count} views
+                            </span>
+                          )}
+                          {score !== null && (
+                            <span className="inline-flex items-center gap-1 text-sm font-headline font-bold text-black">
+                              <span className="material-symbols-outlined text-sm leading-none">trophy</span>
+                              {score}
+                              <span className="text-xs font-bold text-black">Attention Score</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="mt-6">
                         <Link

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -15,7 +16,7 @@ interface TopBarProps {
 const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
   { icon: "cloud_upload", label: "Upload", href: "/upload" },
-  { icon: "settings", label: "Settings", href: "/settings" },
+  { icon: "trophy", label: "Discover", href: "/discover" },
 ];
 
 export function TopBar({
@@ -25,6 +26,28 @@ export function TopBar({
 }: TopBarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          const profile = data as { username: string | null } | null;
+          setDisplayName(
+            profile?.username ||
+            (user.user_metadata?.display_name as string) ||
+            user.email?.split("@")[0] ||
+            "User"
+          );
+        });
+    });
+  }, []);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -81,7 +104,7 @@ export function TopBar({
 
           {/* User Name + Credits */}
           <div className="text-right mr-2">
-            <p className="text-sm font-medium text-on-surface font-headline leading-tight">User</p>
+            <p className="text-sm font-medium text-on-surface font-headline leading-tight">{displayName || "User"}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold leading-tight">
               250 credits
             </p>
@@ -107,6 +130,13 @@ export function TopBar({
               >
                 <span className="material-symbols-outlined text-[18px]">credit_card</span>
                 Billing
+              </Link>
+              <Link
+                href="/settings"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">settings</span>
+                Settings
               </Link>
               <div className="h-[1px] bg-outline-variant/10 my-1 mx-4" />
               <button

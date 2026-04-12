@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: User
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - link "chevron_left Back" [ref=e22] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e23]: chevron_left
+        - generic [ref=e24]: Back
+      - generic [ref=e25]:
+        - heading "test" [level=1] [ref=e26]
+        - generic [ref=e27]:
+          - link "by @diego" [ref=e28] [cursor=pointer]:
+            - /url: /u/diego
+          - generic [ref=e29]: ·
+          - paragraph [ref=e30]: April 9, 2026
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: visibility
+            - generic [ref=e34]: 8 views
+          - button "Loading bookmark status" [disabled] [ref=e35]:
+            - generic [ref=e36]: bookmark
+      - generic [ref=e37]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - button "Play" [ref=e46]:
+              - generic [ref=e47]: play_arrow
+            - button "Mute" [ref=e48]:
+              - generic [ref=e49]: volume_up
+            - generic [ref=e50]: 00:00 / 00:41
+          - generic [ref=e52]:
+            - button "0.5x" [ref=e53]
+            - button "1x" [ref=e54]
+            - button "1.5x" [ref=e55]
+            - button "2x" [ref=e56]
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]: monitoring
+            - heading "Insights Summary" [level=3] [ref=e62]
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - generic [ref=e66]:
+                  - generic [ref=e67]:
+                    - text: Hook Strength
+                    - generic "Info about Hook Strength" [ref=e69]:
+                      - generic [ref=e70]: info
+                  - paragraph [ref=e71]: 0%
+                  - paragraph [ref=e72]: First 10s
+                - generic [ref=e73]:
+                  - generic [ref=e74]:
+                    - text: Retention
+                    - generic "Info about Retention" [ref=e76]:
+                      - generic [ref=e77]: info
+                  - paragraph [ref=e78]: 0%
+                  - paragraph [ref=e79]: Last 10s
+                - generic [ref=e80]:
+                  - generic [ref=e81]:
+                    - text: Peak Moment
+                    - generic "Info about Peak Moment" [ref=e83]:
+                      - generic [ref=e84]: info
+                  - paragraph [ref=e85]: 0s
+                  - paragraph [ref=e86]: 58% activation
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]:
+                    - text: Arousal
+                    - generic "Info about Arousal" [ref=e91]:
+                      - generic [ref=e92]: info
+                  - paragraph [ref=e93]: 0%
+                  - paragraph [ref=e94]: Physiological activation
+                - generic [ref=e95]:
+                  - generic [ref=e96]:
+                    - text: Valence
+                    - generic "Info about Valence" [ref=e98]:
+                      - generic [ref=e99]: info
+                  - paragraph [ref=e100]: 0%
+                  - paragraph [ref=e101]: Emotional positivity
+            - generic [ref=e104]:
+              - text: Emotional State
+              - generic "Info about Emotional State" [ref=e106]:
+                - generic [ref=e107]: info
+  - button "Open Next.js Dev Tools" [ref=e115] [cursor=pointer]:
+    - img [ref=e116]
+  - alert [ref=e119]

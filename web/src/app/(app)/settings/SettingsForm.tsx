@@ -296,15 +296,8 @@ export function SettingsForm({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div
-                    className={`w-full h-full flex items-center justify-center ${getInitialsColor(
-                      currentUsername,
-                      email
-                    )}`}
-                  >
-                    <span className="text-white text-2xl font-bold">
-                      {getInitials(currentUsername, email)}
-                    </span>
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded-full">
+                    <span className="material-symbols-outlined text-4xl text-gray-400">person</span>
                   </div>
                 )}
 

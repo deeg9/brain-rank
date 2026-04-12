@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "settings" [ref=e11] [cursor=pointer]:
+        - /url: /settings
+        - generic [ref=e12]: settings
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: User
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Upload Media" [level=2] [ref=e24]
+        - paragraph [ref=e25]: "Supported formats: MP4, WebM, MOV. Max 2GB, 30 min runtime."
+      - generic [ref=e29] [cursor=pointer]:
+        - generic [ref=e31]: cloud_upload
+        - heading "Drop videos here or click to browse" [level=3] [ref=e32]
+        - paragraph [ref=e33]: MP4, WebM, MOV. Max 2GB per file.
+        - button "Browse Files" [ref=e34]
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e39]: token
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: Estimated Cost
+            - paragraph [ref=e42]: 10 Credits
+        - button "Analyze Video bolt" [disabled] [ref=e44]:
+          - text: Analyze Video
+          - generic [ref=e45]: bolt
+      - generic [ref=e46]:
+        - generic [ref=e48] [cursor=pointer]:
+          - generic [ref=e51]: psychology
+          - generic [ref=e52]:
+            - heading "TRIBE v2 by Meta" [level=4] [ref=e53]
+            - paragraph [ref=e54]: Powered by Meta's brain-predictive foundation model. Predicts real human neural activation patterns from video, audio, and text.
+        - generic [ref=e56] [cursor=pointer]:
+          - generic [ref=e59]: hub
+          - generic [ref=e60]:
+            - heading "9 Brain Networks" [level=4] [ref=e61]
+            - paragraph [ref=e62]: Tracks attention, reward, emotion, social cognition, and 5 more neural networks across every 2-second segment of your content.
+        - generic [ref=e64] [cursor=pointer]:
+          - generic [ref=e67]: neurology
+          - generic [ref=e68]:
+            - heading "3D Brain Mapping" [level=4] [ref=e69]
+            - paragraph [ref=e70]: Visualize activation on an interactive 3D brain model with 20,000+ cortical vertices mapped to real neuroscience data.
+  - button "Open Next.js Dev Tools" [ref=e76] [cursor=pointer]:
+    - img [ref=e77]
+  - alert [ref=e80]

@@ -1,0 +1,332 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: diego
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Welcome back, diego" [level=1] [ref=e24]
+        - link "add New Analysis" [ref=e25] [cursor=pointer]:
+          - /url: /upload
+          - generic [ref=e26]: add
+          - text: New Analysis
+      - generic [ref=e27]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - paragraph [ref=e32]: Total Analyses
+            - generic [ref=e34]: "12"
+          - generic [ref=e36]: analytics
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: Credits Remaining
+            - generic [ref=e43]: "250"
+          - generic [ref=e45]: toll
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: Avg Neural Score
+            - generic [ref=e51]:
+              - generic [ref=e52]: "83"
+              - generic [ref=e53]: /100
+          - generic [ref=e55]: neurology
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - heading "Analysis History" [level=3] [ref=e58]
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: search
+              - textbox "Search analyses..." [ref=e62]
+            - generic [ref=e63]: 12 Total
+        - generic [ref=e64]:
+          - generic [ref=e66] [cursor=pointer]:
+            - generic [ref=e67]:
+              - generic [ref=e69]: movie
+              - generic [ref=e71]: download
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - heading "travel-vlog.mp4" [level=4] [ref=e75]
+                - paragraph [ref=e76]:
+                  - generic [ref=e77]: calendar_today
+                  - text: Apr 10, 2026
+                - generic [ref=e78]:
+                  - generic [ref=e79]: Complete
+                  - button "public Public" [ref=e81]:
+                    - generic [ref=e82]: public
+                    - generic [ref=e83]: Public
+                - generic [ref=e84]:
+                  - generic [ref=e85]:
+                    - generic [ref=e86]: visibility
+                    - text: 89 views
+                  - generic [ref=e87]:
+                    - generic [ref=e88]: trophy
+                    - text: "76"
+                    - generic [ref=e89]: Retention Score
+              - link "View Results" [ref=e91]:
+                - /url: /results/990cd81b-50f5-4eb5-9b47-b81d12044675
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]:
+              - generic [ref=e96]: movie
+              - generic [ref=e98]: download
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - heading "fa347ebd-96eb-4036-b1d0-1d30c8057c6b.MP4" [level=4] [ref=e102]
+                - paragraph [ref=e103]:
+                  - generic [ref=e104]: calendar_today
+                  - text: Apr 10, 2026
+                - generic [ref=e105]:
+                  - generic [ref=e106]: Failed
+                  - button "lock Private" [ref=e108]:
+                    - generic [ref=e109]: lock
+                    - generic [ref=e110]: Private
+              - link "View Results" [ref=e112]:
+                - /url: /results/180b9fe2-4ce4-4b50-b51e-cbd2fd46bacc
+          - generic [ref=e114] [cursor=pointer]:
+            - generic [ref=e115]:
+              - generic [ref=e117]: movie
+              - generic [ref=e119]: download
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - heading "fdfbf939-830c-419f-9eed-a90f8fb07b68.MP4" [level=4] [ref=e123]
+                - paragraph [ref=e124]:
+                  - generic [ref=e125]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e126]:
+                  - generic [ref=e127]: Complete
+                  - button "public Public" [ref=e129]:
+                    - generic [ref=e130]: public
+                    - generic [ref=e131]: Public
+              - link "View Results" [ref=e133]:
+                - /url: /results/d2357b7b-3b1a-41b3-9015-06c9a8b5edcb
+          - generic [ref=e135] [cursor=pointer]:
+            - generic [ref=e136]:
+              - generic [ref=e138]: movie
+              - generic [ref=e140]: download
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - heading "1970bf37-844d-43f5-a429-112b5309f598.MP4" [level=4] [ref=e144]
+                - paragraph [ref=e145]:
+                  - generic [ref=e146]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e147]:
+                  - generic [ref=e148]: Complete
+                  - button "public Public" [ref=e150]:
+                    - generic [ref=e151]: public
+                    - generic [ref=e152]: Public
+              - link "View Results" [ref=e154]:
+                - /url: /results/bdf77a41-4027-4653-937c-31dfe283ea4b
+          - generic [ref=e156] [cursor=pointer]:
+            - generic [ref=e157]:
+              - generic [ref=e159]: movie
+              - generic [ref=e161]: download
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - heading "c1bcfc8d-7f05-44c1-9d67-02c6f4d80a03.MP4" [level=4] [ref=e165]
+                - paragraph [ref=e166]:
+                  - generic [ref=e167]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e168]:
+                  - generic [ref=e169]: Queued
+                  - button "lock Private" [ref=e171]:
+                    - generic [ref=e172]: lock
+                    - generic [ref=e173]: Private
+              - link "View Results" [ref=e175]:
+                - /url: /results/ae1e9637-14c8-4ff1-813c-a92bfd532ddf
+          - generic [ref=e177] [cursor=pointer]:
+            - generic [ref=e178]:
+              - generic [ref=e180]: movie
+              - generic [ref=e182]: download
+            - generic [ref=e183]:
+              - generic [ref=e184]:
+                - heading "comedy.mp4" [level=4] [ref=e186]
+                - paragraph [ref=e187]:
+                  - generic [ref=e188]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e189]:
+                  - generic [ref=e190]: Complete
+                  - button "public Public" [ref=e192]:
+                    - generic [ref=e193]: public
+                    - generic [ref=e194]: Public
+                - generic [ref=e195]:
+                  - generic [ref=e196]:
+                    - generic [ref=e197]: visibility
+                    - text: 519 views
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: trophy
+                    - text: "95"
+                    - generic [ref=e200]: Retention Score
+              - link "View Results" [ref=e202]:
+                - /url: /results/043ff1d9-d9eb-4f55-9916-7648efca332e
+          - generic [ref=e204] [cursor=pointer]:
+            - generic [ref=e205]:
+              - generic [ref=e207]: movie
+              - generic [ref=e209]: download
+            - generic [ref=e210]:
+              - generic [ref=e211]:
+                - heading "cooking-tutorial.mp4" [level=4] [ref=e213]
+                - paragraph [ref=e214]:
+                  - generic [ref=e215]: calendar_today
+                  - text: Apr 8, 2026
+                - generic [ref=e216]:
+                  - generic [ref=e217]: Complete
+                  - button "public Public" [ref=e219]:
+                    - generic [ref=e220]: public
+                    - generic [ref=e221]: Public
+                - generic [ref=e222]:
+                  - generic [ref=e223]:
+                    - generic [ref=e224]: visibility
+                    - text: 142 views
+                  - generic [ref=e225]:
+                    - generic [ref=e226]: trophy
+                    - text: "82"
+                    - generic [ref=e227]: Retention Score
+              - link "View Results" [ref=e229]:
+                - /url: /results/6ad8d7be-eea8-47b8-9c5d-367eaa5b953a
+          - generic [ref=e231] [cursor=pointer]:
+            - generic [ref=e232]:
+              - generic [ref=e234]: movie
+              - generic [ref=e236]: download
+            - generic [ref=e237]:
+              - generic [ref=e238]:
+                - heading "music.mp4" [level=4] [ref=e240]
+                - paragraph [ref=e241]:
+                  - generic [ref=e242]: calendar_today
+                  - text: Apr 7, 2026
+                - generic [ref=e243]:
+                  - generic [ref=e244]: Complete
+                  - button "public Public" [ref=e246]:
+                    - generic [ref=e247]: public
+                    - generic [ref=e248]: Public
+                - generic [ref=e249]:
+                  - generic [ref=e250]:
+                    - generic [ref=e251]: visibility
+                    - text: 267 views
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: trophy
+                    - text: "87"
+                    - generic [ref=e254]: Retention Score
+              - link "View Results" [ref=e256]:
+                - /url: /results/4f7ccf65-8f6c-4690-a2df-f25028cc35e3
+          - generic [ref=e258] [cursor=pointer]:
+            - generic [ref=e259]:
+              - generic [ref=e261]: movie
+              - generic [ref=e263]: download
+            - generic [ref=e264]:
+              - generic [ref=e265]:
+                - heading "workout.mp4" [level=4] [ref=e267]
+                - paragraph [ref=e268]:
+                  - generic [ref=e269]: calendar_today
+                  - text: Apr 6, 2026
+                - generic [ref=e270]:
+                  - generic [ref=e271]: Complete
+                  - button "public Public" [ref=e273]:
+                    - generic [ref=e274]: public
+                    - generic [ref=e275]: Public
+                - generic [ref=e276]:
+                  - generic [ref=e277]:
+                    - generic [ref=e278]: visibility
+                    - text: 328 views
+                  - generic [ref=e279]:
+                    - generic [ref=e280]: trophy
+                    - text: "91"
+                    - generic [ref=e281]: Retention Score
+              - link "View Results" [ref=e283]:
+                - /url: /results/7bd995ab-0664-43cf-80ce-6bf53962ce85
+          - generic [ref=e285] [cursor=pointer]:
+            - generic [ref=e286]:
+              - generic [ref=e288]: movie
+              - generic [ref=e290]: download
+            - generic [ref=e291]:
+              - generic [ref=e292]:
+                - heading "asmr.mp4" [level=4] [ref=e294]
+                - paragraph [ref=e295]:
+                  - generic [ref=e296]: calendar_today
+                  - text: Apr 5, 2026
+                - generic [ref=e297]:
+                  - generic [ref=e298]: Complete
+                  - button "public Public" [ref=e300]:
+                    - generic [ref=e301]: public
+                    - generic [ref=e302]: Public
+                - generic [ref=e303]:
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: visibility
+                    - text: 445 views
+                  - generic [ref=e306]:
+                    - generic [ref=e307]: trophy
+                    - text: "73"
+                    - generic [ref=e308]: Retention Score
+              - link "View Results" [ref=e310]:
+                - /url: /results/7fde0151-4d61-4c09-ab87-935a11bff81c
+          - generic [ref=e312] [cursor=pointer]:
+            - generic [ref=e313]:
+              - generic [ref=e315]: movie
+              - generic [ref=e317]: download
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - heading "review.mp4" [level=4] [ref=e321]
+                - paragraph [ref=e322]:
+                  - generic [ref=e323]: calendar_today
+                  - text: Apr 4, 2026
+                - generic [ref=e324]:
+                  - generic [ref=e325]: Complete
+                  - button "public Public" [ref=e327]:
+                    - generic [ref=e328]: public
+                    - generic [ref=e329]: Public
+                - generic [ref=e330]:
+                  - generic [ref=e331]:
+                    - generic [ref=e332]: visibility
+                    - text: 215 views
+                  - generic [ref=e333]:
+                    - generic [ref=e334]: trophy
+                    - text: "68"
+                    - generic [ref=e335]: Retention Score
+              - link "View Results" [ref=e337]:
+                - /url: /results/5118b679-5167-4ace-a561-7a1afa7a1613
+          - generic [ref=e339] [cursor=pointer]:
+            - generic [ref=e340]:
+              - generic [ref=e342]: movie
+              - generic [ref=e344]: download
+            - generic [ref=e345]:
+              - generic [ref=e346]:
+                - heading "science.mp4" [level=4] [ref=e348]
+                - paragraph [ref=e349]:
+                  - generic [ref=e350]: calendar_today
+                  - text: Apr 3, 2026
+                - generic [ref=e351]:
+                  - generic [ref=e352]: Complete
+                  - button "public Public" [ref=e354]:
+                    - generic [ref=e355]: public
+                    - generic [ref=e356]: Public
+                - generic [ref=e357]:
+                  - generic [ref=e358]:
+                    - generic [ref=e359]: visibility
+                    - text: 178 views
+                  - generic [ref=e360]:
+                    - generic [ref=e361]: trophy
+                    - text: "88"
+                    - generic [ref=e362]: Retention Score
+              - link "View Results" [ref=e364]:
+                - /url: /results/0dc4ce8b-ade6-427a-bd43-87f890781743
+          - link "add_circle Analyze New Content Upload video or drag and drop files" [ref=e365] [cursor=pointer]:
+            - /url: /upload
+            - generic [ref=e367]:
+              - generic [ref=e369]: add_circle
+              - paragraph [ref=e370]: Analyze New Content
+              - paragraph [ref=e371]: Upload video or drag and drop files
+  - button "Open Next.js Dev Tools" [ref=e377] [cursor=pointer]:
+    - img [ref=e378]
+  - alert [ref=e381]
