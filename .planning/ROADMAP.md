@@ -712,8 +712,8 @@ Plans:
   4. The rendered image card follows the image-to-video conversion path (Pillow render, FFmpeg conversion, video-only inference)
 **Plans**: 2 plans
 Plans:
-- [ ] 55-01-PLAN.md — Pillow text card renderer (3 templates) and RunPod handler text_visual branch
-- [ ] 55-02-PLAN.md — Upload page visual mode UI with style pills and submit flow
+- [x] 55-01-PLAN.md — Pillow text card renderer (3 templates) and RunPod handler text_visual branch
+- [x] 55-02-PLAN.md — Upload page visual mode UI with style pills and submit flow
 
 
 
@@ -831,7 +831,7 @@ Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54
 | 52. Schema & Upload Type Selector | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 53. Image Upload Pipeline | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 54. Text Spoken Mode | v5.0 | 2/2 | Complete    | 2026-04-12 |
-| 55. Text Visual Mode | v5.0 | 0/0 | Not started | - |
+| 55. Text Visual Mode | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 56. Results Adaptations | v5.0 | 0/0 | Not started | - |
 | 57. Content Type Badges | v5.0 | 0/0 | Not started | - |
 | 58. Comparison Page | v5.0 | 0/0 | Not started | - |
