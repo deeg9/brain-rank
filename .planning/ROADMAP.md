@@ -656,7 +656,88 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full phase details.
 
 **Milestone Goal:** Expand beyond video-only to support image and text neural testing, with a side-by-side comparison view.
 
-See [v5.0-ROADMAP.md](milestones/v5.0-ROADMAP.md) for full phase details.
+### Phase 52: Schema & Upload Type Selector
+**Goal**: The database, TypeScript types, and upload UI support multiple content types so all subsequent phases can store and route non-video jobs
+**Depends on**: Phase 51 (v4.0 complete)
+**Requirements**: UX-01
+**Success Criteria** (what must be TRUE):
+  1. The jobs table has an `input_type` column (defaulting to 'video') and all existing jobs are backfilled without breakage
+  2. The upload page shows a type selector (Video / Image / Text) that shows the appropriate input UI
+  3. TypeScript types and the RunPod input schema accept `input_type`, `text_content`, and `text_style` fields
+  4. Selecting Video on the upload page shows the existing drag-and-drop video upload (no regression)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 53: Image Upload Pipeline
+**Goal**: Users can upload a JPEG/PNG image and get neural activation scores back, with the image-to-video conversion handled transparently server-side
+**Depends on**: Phase 52
+**Requirements**: IMG-01, IMG-02, IMG-03
+**Success Criteria** (what must be TRUE):
+  1. User can select an image file (JPEG or PNG) and see a live preview before submitting
+  2. Invalid files are rejected with clear error messages for wrong type, size over 10MB, or dimensions below 256px
+  3. User can configure how long the static image is held for inference (6s default, 2-15s slider)
+  4. Submitting an image creates a job, the RunPod worker converts it to a silent video via FFmpeg, runs inference, and returns scores
+  5. The user receives results identical in structure to a video job (same polling, same results page)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 54: Text Spoken Mode
+**Goal**: Users can submit text and get neural activation scores via TRIBE v2's native text-to-speech-to-audio inference path
+**Depends on**: Phase 52
+**Requirements**: TXT-01, TXT-04
+**Success Criteria** (what must be TRUE):
+  1. User can enter text in a text area and submit it in spoken mode
+  2. Text input is capped at 500 characters with a visible live counter
+  3. Submitting text in spoken mode creates a job that uses TRIBE v2's native `text_path` (gTTS internally), runs inference on the generated audio, and returns scores
+  4. The user receives results with the same structure and polling flow as video/image jobs
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 55: Text Visual Mode
+**Goal**: Users can submit text as a rendered visual card for video-path inference, with style template selection and an Experimental label
+**Depends on**: Phase 53 (reuses image-to-video conversion code)
+**Requirements**: TXT-02, TXT-03
+**Success Criteria** (what must be TRUE):
+  1. User can enter text and submit it in visual mode, which renders the text as a styled image card
+  2. User can choose a style template (Billboard, Social Post, General) that changes the card's visual appearance
+  3. The visual mode submission is labeled "Experimental" in the UI before and after submission
+  4. The rendered image card follows the image-to-video conversion path (Pillow render, FFmpeg conversion, video-only inference)
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 56: Results Adaptations
+**Goal**: The results page renders appropriately for non-video content instead of showing a broken or irrelevant video player
+**Depends on**: Phase 53, Phase 54 (at least one non-video input type must be working)
+**Requirements**: UX-03
+**Success Criteria** (what must be TRUE):
+  1. Image job results show the original uploaded image as a static preview instead of a video player
+  2. Text job results show the submitted text content (and style card for visual mode) instead of a video player
+  3. The neural timeline, brain viewer, and all metric displays work identically regardless of content type
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 57: Content Type Badges
+**Goal**: Users can immediately identify the content type and confidence level of any analysis across the entire app
+**Depends on**: Phase 52 (input_type column must exist)
+**Requirements**: UX-02
+**Success Criteria** (what must be TRUE):
+  1. Every analysis card on the dashboard shows a badge indicating its content type (Video, Image, or Text)
+  2. Non-video analyses display an "Exploratory" badge indicating scores are from out-of-distribution input
+  3. Content type badges appear consistently on the results page header, discovery feed cards, and public analysis views
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 58: Comparison Page
+**Goal**: Users can pick any two completed analyses and view their results side by side with metric differences highlighted
+**Depends on**: Phase 52 (input_type in schema), Phase 56 (results adaptations for rendering)
+**Requirements**: CMP-01, CMP-02, CMP-03
+**Success Criteria** (what must be TRUE):
+  1. User can navigate to /compare and select any two completed analyses from a picker
+  2. The comparison view displays both analyses side by side with their brain viewers, timelines, and key metrics
+  3. Metric deltas (+/-) are shown between the two analyses for overall score and region breakdowns
+  4. When comparing analyses of different content types, a disclaimer is displayed warning that scores may not be directly comparable
+**Plans**: TBD
+**UI hint**: yes
 
 ## Progress
 
