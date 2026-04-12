@@ -8,17 +8,16 @@ A web app that lets content creators upload videos and get brain-activation-base
 
 Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out, so creators can re-edit for maximum impact.
 
-## Current Milestone: v4.0 Social Discovery Platform
+## Shipped: v4.0 Social Discovery Platform (2026-04-12)
 
-**Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform where users have identities (usernames), can share neural analyses publicly, and anyone can browse a leaderboard of brain reactions to videos.
+All 8 phases complete. NeuroCut is now a public discovery platform:
+- User profiles with unique usernames, avatars, and bios
+- Public/private toggle on analyses with shareable links
+- Public analysis view with brain viewer, timeline, and metrics
+- Discovery feed at /discover with neural score ranking, search, sort, and filters
+- View counts and bookmarks with /bookmarks page
 
-**Target features:**
-- User profiles with unique usernames (foundation for public identity) — Phase 44 complete
-- Public/private toggle on analyses (privacy controls)
-- Discovery/leaderboard page with browsable public neural data
-- Social features — view counts, bookmarks, sorting by neural scores
-
-**Current state:** Phase 44 complete — profiles table, username claiming, RLS policies, is_public flag on jobs all implemented. Last updated: 2026-04-11.
+**Next milestone:** Not yet defined. Run `/gsd-new-milestone` to start planning.
 
 ## Requirements
 

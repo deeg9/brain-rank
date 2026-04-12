@@ -8,7 +8,7 @@
 - 📋 **v2.1 21st.dev Component Integration** - Phases 27-32 (planned)
 - 📋 **v2.2 Enhanced Brain Analytics** - Phases 33-37 (planned)
 - 📋 **v3.0 Brain Visualization UX Overhaul** - Phases 39-43 (planned)
-- 📋 **v4.0 Social Discovery Platform** - Phases 44-51 (planned)
+- ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12)
 
 ## Phases
 
@@ -93,18 +93,7 @@ Plans:
 - [ ] **Phase 42: Smooth Transitions** - Segment interpolation, auto-rotate idle behavior
 - [ ] **Phase 43: Timeline Peak Markers** - Mark top activation moments on neural timeline
 
-### v4.0 Social Discovery Platform (Planned)
-
-**Milestone Goal:** Transform NeuroCut from a private analysis tool into a public discovery platform with user identities, public/private analysis sharing, a neural-score-ranked discovery feed, and social engagement features.
-
-- [x] **Phase 44: Social Schema & Identity Foundation** - Database tables, username claiming, RLS policies for social features (completed 2026-04-11)
-- [ ] **Phase 45: Profile Customization** - Avatar upload, bio editing on user profiles
-- [ ] **Phase 46: Public Profile Pages** - Public profile at /u/username with stats and public analyses
-- [ ] **Phase 47: Privacy Controls & Sharing** - Public/private toggle on analyses, shareable links
-- [ ] **Phase 48: Public Analysis View** - Public analysis page with brain viewer, timeline, metrics (no video)
-- [ ] **Phase 49: Discovery Feed** - Browsable /discover page with thumbnails, usernames, and neural scores
-- [ ] **Phase 50: Discovery Search & Filters** - Sort by score, search by title/username, filter by type/range
-- [ ] **Phase 51: Social Engagement** - View counts, bookmarks, /bookmarks page
+- ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12) — [Archive](milestones/v4.0-ROADMAP.md)
 
 
 ## Phase Details
@@ -655,122 +644,12 @@ Plans:
 - [x] 43-01-PLAN.md — Peak detection logic, timeline marker rendering, results page wiring
 **UI hint**: yes
 
-### v4.0 Social Discovery Platform - Phase Details
+<details>
+<summary>✅ v4.0 Social Discovery Platform (Phases 44-51) - SHIPPED 2026-04-12</summary>
 
-### Phase 44: Social Schema & Identity Foundation
-**Goal**: Users can claim a unique username that becomes their public identity across the platform
-**Depends on**: Phase 16 (Supabase database foundation)
-**Requirements**: PROF-01
-**Success Criteria** (what must be TRUE):
-  1. A profiles table exists in Supabase with username (citext, unique), avatar_url, and bio columns, linked to auth.users
-  2. User can claim a unique username from the settings or onboarding flow, with real-time availability checking
-  3. Username validation enforces rules (lowercase, no spaces, 3-20 chars) and case-insensitive uniqueness (e.g., "Diego" and "diego" conflict)
-  4. RLS policies on the profiles table allow users to read any profile but only update their own
-  5. An is_public boolean column exists on the jobs table (default false) with RLS allowing public read access for public analyses
-**Plans:** 2/2 plans complete
-Plans:
-- [x] 44-01-PLAN.md — Database migrations (profiles table, is_public) and TypeScript types
-- [x] 44-02-PLAN.md — Username check API, profile update API, settings UI, dashboard banner
+See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full phase details.
 
-### Phase 45: Profile Customization
-**Goal**: Users can personalize their profile with an avatar image and short bio
-**Depends on**: Phase 44 (profiles table and username exist)
-**Requirements**: PROF-03, PROF-04
-**Success Criteria** (what must be TRUE):
-  1. User can upload a profile avatar image from the settings page and see it reflected on their profile
-  2. Avatar images are stored in Supabase Storage and served via public URL
-  3. User can write and save a short bio (max 160 chars) that appears on their profile
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
-**UI hint**: yes
-
-### Phase 46: Public Profile Pages
-**Goal**: Anyone can view a user's public profile at /u/username showing their public analyses and stats
-**Depends on**: Phase 45 (profile data exists), Phase 44 (username routing)
-**Requirements**: PROF-02
-**Success Criteria** (what must be TRUE):
-  1. Navigating to /u/username shows the user's avatar, username, bio, and aggregate stats (total public analyses, average neural score)
-  2. The profile page lists all of that user's public analyses with thumbnails and scores
-  3. Visiting /u/nonexistent-user shows a 404 page
-  4. The profile page is accessible without authentication (public route)
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 46-01-PLAN.md — Public profile page at /u/[username] with stats and analyses
-
-
-**UI hint**: yes
-
-### Phase 47: Privacy Controls & Sharing
-**Goal**: Users control which analyses are public and can share links to public ones
-**Depends on**: Phase 44 (is_public column on jobs table)
-**Requirements**: PRIV-01, PRIV-03
-**Success Criteria** (what must be TRUE):
-  1. User can toggle any analysis between public and private from the results page or dashboard, with the change persisting immediately
-  2. New analyses default to private (is_public = false)
-  3. User can copy a shareable link for any public analysis with one click
-  4. Attempting to access a private analysis URL while not the owner returns a 404 (not a 403, to avoid leaking existence)
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 47-01-PLAN.md — Privacy toggle, shareable links, dashboard visibility controls
-**UI hint**: yes
-
-### Phase 48: Public Analysis View
-**Goal**: Anyone can view a public analysis page with brain viewer, timeline, and metrics without needing an account
-**Depends on**: Phase 47 (public/private controls exist), Phase 46 (public routing pattern established)
-**Requirements**: PRIV-02
-**Success Criteria** (what must be TRUE):
-  1. A public analysis page at /analysis/{id} renders the brain viewer, neural timeline, and metric scores for any public analysis
-  2. The page does not include video playback (scores only, per v4.0 scope)
-  3. The page shows the creator's username (linked to their profile) and analysis metadata (date, video title)
-  4. The page is accessible without authentication
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 48-01-PLAN.md — Public analysis page with brain viewer, timeline, metrics, creator attribution
-**UI hint**: yes
-
-### Phase 49: Discovery Feed
-**Goal**: Users can browse a discovery page showing all public analyses ranked by neural scores
-**Depends on**: Phase 48 (public analysis pages exist to link to), Phase 44 (is_public flag on jobs)
-**Requirements**: DISC-01
-**Success Criteria** (what must be TRUE):
-  1. A /discover page displays a grid/list of all public analyses with video thumbnails, creator usernames, and neural scores
-  2. Analyses are paginated or infinitely scrolled (not all loaded at once)
-  3. Each card links to the public analysis view page
-  4. The page loads within 2 seconds for up to 100 public analyses
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 49-01-PLAN.md — Discovery feed page with grid of public analyses, pagination, and neural score ranking
-**UI hint**: yes
-
-### Phase 50: Discovery Search & Filters
-**Goal**: Users can sort, search, and filter the discovery feed to find specific content
-**Depends on**: Phase 49 (discovery feed exists)
-**Requirements**: DISC-02, DISC-03, DISC-04
-**Success Criteria** (what must be TRUE):
-  1. User can sort the discovery feed by overall neural score, hook strength, or retention (default: neural score descending)
-  2. User can search public analyses by video title or creator username with results updating as they type
-  3. User can filter analyses by content type or score range and see the feed update accordingly
-  4. Sorting, searching, and filtering can be combined (e.g., search "cooking" + sort by neural score + filter score > 70)
-**Plans:** 1/1 plans complete
-Plans:
-- [x] 50-01-PLAN.md — Sort, search, and score filter controls for discovery feed
-**UI hint**: yes
-
-### Phase 51: Social Engagement
-**Goal**: Public analyses track views and users can bookmark analyses for later
-**Depends on**: Phase 48 (public analysis pages exist), Phase 44 (profiles exist for bookmark ownership)
-**Requirements**: SOC-01, SOC-02, SOC-03
-**Success Criteria** (what must be TRUE):
-  1. Each public analysis page displays a view count that increments on page load (debounced, no double-counting on refresh)
-  2. Authenticated users can bookmark any public analysis with a single click, and the bookmark state persists
-  3. User can view all their saved bookmarks at /bookmarks with the same card format as the discovery feed
-  4. Unbookmarking removes the analysis from /bookmarks immediately
-**Plans:** 2/2 plans complete
-Plans:
-- [x] 51-01-PLAN.md — Database schema, API routes, view counts and bookmark UI
-- [x] 51-02-PLAN.md — Bookmarks page and sidebar navigation
-**UI hint**: yes
+</details>
 
 ## Progress
 
