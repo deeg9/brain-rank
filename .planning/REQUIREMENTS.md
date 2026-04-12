@@ -1,99 +1,108 @@
 # Requirements: NeuroCut
 
-**Defined:** 2026-04-11
+**Defined:** 2026-04-12
 **Core Value:** Content creators upload a video and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out
 
-## v4.0 Requirements
+## v5.0 Requirements
 
-Requirements for Social Discovery Platform milestone. Add user identities, public sharing, and a neural-score-ranked discovery feed.
+Requirements for Multi-Modal Input & Comparison milestone. Expand beyond video-only to support image and text neural testing, with side-by-side comparison.
+
+### Image Input
+
+- [ ] **IMG-01**: User can upload a JPEG or PNG image file with a live preview
+- [ ] **IMG-02**: System validates image file type, size (max 10MB), and dimensions (min 256px) with clear error messages
+- [ ] **IMG-03**: User can configure how long the static image is held for inference (6s default, 2-15s range)
+
+### Text Input
+
+- [ ] **TXT-01**: User can enter text and submit it in spoken mode (TRIBE v2 native text-to-speech-to-audio path)
+- [ ] **TXT-02**: User can enter text and submit it in visual mode (rendered as styled image card then converted to video, labeled "Experimental")
+- [ ] **TXT-03**: User can choose a style template for visual mode (Billboard, Social Post, General)
+- [ ] **TXT-04**: Text input is capped at 500 characters with a visible counter
+
+### Comparison
+
+- [ ] **CMP-01**: User can select any two completed analyses and view results side by side on a /compare page
+- [ ] **CMP-02**: Comparison view shows metric deltas (+/-) between the two analyses
+- [ ] **CMP-03**: Cross-content-type comparisons display a disclaimer that scores may not be directly comparable
+
+### UX Adaptations
+
+- [ ] **UX-01**: Upload page has a type selector (Video / Image / Text) that shows the appropriate input UI
+- [ ] **UX-02**: Content type badges (Video/Image/Text + Exploratory for non-video) appear on dashboard, results, and discovery feed
+- [ ] **UX-03**: Results page adapts for non-video content (static image preview or text display instead of video player)
+
+## Previous Milestone Requirements (v4.0)
 
 ### Identity & Profiles
 
-- [ ] **PROF-01**: User can claim a unique username (case-insensitive, citext)
-- [ ] **PROF-02**: User can view a public profile page at /u/username showing public analyses and stats
-- [ ] **PROF-03**: User can upload a profile avatar
-- [ ] **PROF-04**: User can set a short bio on their profile
+- [x] **PROF-01**: User can claim a unique username (case-insensitive, citext)
+- [x] **PROF-02**: User can view a public profile page at /u/username showing public analyses and stats
+- [x] **PROF-03**: User can upload a profile avatar
+- [x] **PROF-04**: User can set a short bio on their profile
 
 ### Privacy & Sharing
 
-- [ ] **PRIV-01**: User can toggle each analysis between public and private (default private)
-- [ ] **PRIV-02**: User can view a public analysis page with brain viewer, timeline, and metrics (scores only, no video playback)
-- [ ] **PRIV-03**: User can copy a shareable link for public analyses
+- [x] **PRIV-01**: User can toggle each analysis between public and private (default private)
+- [x] **PRIV-02**: User can view a public analysis page with brain viewer, timeline, and metrics (scores only, no video playback)
+- [x] **PRIV-03**: User can copy a shareable link for public analyses
 
 ### Discovery & Leaderboard
 
-- [ ] **DISC-01**: User can browse a /discover feed of all public analyses with thumbnails, usernames, and neural scores
-- [ ] **DISC-02**: User can sort the leaderboard by neural score, hook strength, or retention
-- [ ] **DISC-03**: User can search public analyses by video title or username
-- [ ] **DISC-04**: User can filter public analyses by content type or score range
+- [x] **DISC-01**: User can browse a /discover feed of all public analyses with thumbnails, usernames, and neural scores
+- [x] **DISC-02**: User can sort the leaderboard by neural score, hook strength, or retention
+- [x] **DISC-03**: User can search public analyses by video title or username
+- [x] **DISC-04**: User can filter public analyses by content type or score range
 
 ### Social Engagement
 
-- [ ] **SOC-01**: Public analyses track view counts
-- [ ] **SOC-02**: User can bookmark public analyses
-- [ ] **SOC-03**: User can view their saved bookmarks at /bookmarks
-
-## Previous Milestone Requirements (v3.0)
-
-### Performance
-
-- [x] **PERF-01**: Brain viewer renders per-vertex activation colors using GPU-side LUT instead of CPU d3-color parsing
-- [x] **PERF-02**: Activation values interpolate smoothly between 2-second segments instead of snapping
-- [x] **PERF-03**: Video-to-brain sync polls currentTime at 60fps via requestVideoFrameCallback
-
-### Visualization
-
-- [x] **VIS-01**: Brain regions glow only above an activation threshold
-- [x] **VIS-02**: All toggle controls removed
-- [x] **VIS-03**: Static non-interactive color legend shows which color maps to which brain network
-- [x] **VIS-04**: Brain viewer header is clean
-
-### Polish
-
-- [x] **POL-01**: Brain auto-rotates slowly when user is not interacting
-- [x] **POL-02**: Peak activation moments are marked on the neural timeline
+- [x] **SOC-01**: Public analyses track view counts
+- [x] **SOC-02**: User can bookmark public analyses
+- [x] **SOC-03**: User can view their saved bookmarks at /bookmarks
 
 ## Future Requirements
 
 - Follow system — users can follow other creators
 - Video playback on public views (pending licensing resolution)
 - Real payment processing (Stripe integration)
+- Batch comparison (3+ assets side by side)
+- Shareable comparison links
+- AI-generated recommendations based on brain scores
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Likes/upvotes | Neural score IS the ranking mechanism — social votes undermine data integrity |
-| Comments on analyses | Scope creep, not aligned with data-first positioning |
-| Follow system | Deferred to future milestone |
-| Gamification badges | Adds complexity without clear value |
-| Video playback on public views | Privacy/licensing concern — show scores only for v4.0 |
-| Real payment processing | Still mocked for v4.0 |
+| Synchronized 3D brain viewer rotation in comparison | Two Three.js canvases sharing camera state is a performance risk — defer |
+| Batch comparison (3+ assets) | Two-at-a-time is sufficient for v5.0 |
+| AI recommendations | Requires more data and model refinement |
+| Heatmap overlay on images | TRIBE v2 outputs cortical activation, not spatial attention — would be dishonest |
+| Live A/B testing (traffic splitting) | Different paradigm from neural prediction — tools like TubeBuddy do this |
+| Offline TTS fallback | Test gTTS reliability first; build fallback only if needed |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PROF-01 | Phase 44 | Pending |
-| PROF-02 | Phase 46 | Pending |
-| PROF-03 | Phase 45 | Pending |
-| PROF-04 | Phase 45 | Pending |
-| PRIV-01 | Phase 47 | Pending |
-| PRIV-02 | Phase 48 | Pending |
-| PRIV-03 | Phase 47 | Pending |
-| DISC-01 | Phase 49 | Pending |
-| DISC-02 | Phase 50 | Pending |
-| DISC-03 | Phase 50 | Pending |
-| DISC-04 | Phase 50 | Pending |
-| SOC-01 | Phase 51 | Pending |
-| SOC-02 | Phase 51 | Pending |
-| SOC-03 | Phase 51 | Pending |
+| IMG-01 | Pending | Pending |
+| IMG-02 | Pending | Pending |
+| IMG-03 | Pending | Pending |
+| TXT-01 | Pending | Pending |
+| TXT-02 | Pending | Pending |
+| TXT-03 | Pending | Pending |
+| TXT-04 | Pending | Pending |
+| CMP-01 | Pending | Pending |
+| CMP-02 | Pending | Pending |
+| CMP-03 | Pending | Pending |
+| UX-01 | Pending | Pending |
+| UX-02 | Pending | Pending |
+| UX-03 | Pending | Pending |
 
 **Coverage:**
-- v4.0 requirements: 14 total
-- Mapped: 14/14
-- Unmapped: 0
+- v5.0 requirements: 13 total
+- Mapped: 0/13
+- Unmapped: 13
 
 ---
-*Requirements defined: 2026-04-11*
-*Traceability updated: 2026-04-11*
+*Requirements defined: 2026-04-12*
+*Traceability updated: 2026-04-12*
