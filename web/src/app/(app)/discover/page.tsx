@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { DiscoverCard, type DiscoverAnalysis } from "./DiscoverCard";
+import { CONTENT_CATEGORIES } from "@/lib/categories";
+import { ComparisonTray } from "@/components/compare/ComparisonTray";
+import { ComparisonModal } from "@/components/compare/ComparisonModal";
 
 const PAGE_SIZE = 20;
 
@@ -17,6 +20,31 @@ export default function DiscoverPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [scoreFilter, setScoreFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  // Comparison state
+  const [compareA, setCompareA] = useState<DiscoverAnalysis | null>(null);
+  const [compareB, setCompareB] = useState<DiscoverAnalysis | null>(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleCompareSelect = useCallback((analysis: DiscoverAnalysis) => {
+    if (compareA?.id === analysis.id) {
+      setCompareA(null);
+      return;
+    }
+    if (compareB?.id === analysis.id) {
+      setCompareB(null);
+      return;
+    }
+    if (!compareA) {
+      setCompareA(analysis);
+    } else if (!compareB) {
+      setCompareB(analysis);
+    } else {
+      // Both slots full — replace B
+      setCompareB(analysis);
+    }
+  }, [compareA, compareB]);
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -29,7 +57,7 @@ export default function DiscoverPage() {
   // Reset visibleCount when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [sortOption, debouncedSearch, scoreFilter]);
+  }, [sortOption, debouncedSearch, scoreFilter, categoryFilter]);
 
   const fetchAnalyses = useCallback(async () => {
     setLoading(true);
@@ -38,7 +66,7 @@ export default function DiscoverPage() {
     // Fetch all public completed jobs
     const { data: jobs, error: jobsError } = await supabase
       .from("jobs")
-      .select("id, title, video_url, results, created_at, user_id, view_count")
+      .select("id, title, video_url, results, created_at, user_id, view_count, category")
       .eq("is_public", true)
       .eq("status", "completed");
 
@@ -58,6 +86,7 @@ export default function DiscoverPage() {
       created_at: string;
       user_id: string;
       view_count: number;
+      category: string | null;
     };
     type ProfileRow = {
       id: string;
@@ -98,6 +127,7 @@ export default function DiscoverPage() {
         view_count: job.view_count ?? 0,
         creator_username: profile?.username ?? null,
         creator_avatar_url: profile?.avatar_url ?? null,
+        category: job.category ?? null,
       };
     });
 
@@ -122,6 +152,11 @@ export default function DiscoverPage() {
           (a.title && a.title.toLowerCase().includes(term)) ||
           (a.creator_username && a.creator_username.toLowerCase().includes(term))
       );
+    }
+
+    // Category filter
+    if (categoryFilter !== "all") {
+      result = result.filter((a) => a.category === categoryFilter);
     }
 
     // Score filter
@@ -156,7 +191,7 @@ export default function DiscoverPage() {
   const visibleAnalyses = filteredAnalyses.slice(0, visibleCount);
   const hasMore = visibleCount < filteredAnalyses.length;
 
-  const isFiltering = searchQuery !== "" || scoreFilter !== "all";
+  const isFiltering = searchQuery !== "" || scoreFilter !== "all" || categoryFilter !== "all";
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
@@ -207,6 +242,18 @@ export default function DiscoverPage() {
           <option value="80">80+</option>
           <option value="70">70+</option>
         </select>
+
+        {/* Category filter dropdown */}
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
+        >
+          <option value="all">All Categories</option>
+          {CONTENT_CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Active filter indicator */}
@@ -244,13 +291,18 @@ export default function DiscoverPage() {
                 </div>
               : // Analysis cards
                 visibleAnalyses.map((a) => (
-                  <DiscoverCard key={a.id} analysis={a} />
+                  <DiscoverCard
+                    key={a.id}
+                    analysis={a}
+                    isSelected={compareA?.id === a.id || compareB?.id === a.id}
+                    onCompareSelect={() => handleCompareSelect(a)}
+                  />
                 ))}
       </div>
 
       {/* Load More */}
       {!initialLoad && hasMore && (
-        <div className="text-center">
+        <div className="text-center pb-20">
           <button
             onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
             className="px-6 py-3 bg-surface-container-high text-on-surface font-headline text-sm uppercase tracking-widest rounded-lg hover:bg-surface-container-highest transition-colors"
@@ -258,6 +310,28 @@ export default function DiscoverPage() {
             Load More
           </button>
         </div>
+      )}
+
+      {/* Bottom padding when tray is visible */}
+      {(compareA || compareB) && <div className="h-20" />}
+
+      {/* Comparison Tray */}
+      <ComparisonTray
+        slotA={compareA}
+        slotB={compareB}
+        onRemoveA={() => setCompareA(null)}
+        onRemoveB={() => setCompareB(null)}
+        onCompare={() => setShowModal(true)}
+      />
+
+      {/* Comparison Modal */}
+      {compareA && compareB && (
+        <ComparisonModal
+          jobIdA={compareA.id}
+          jobIdB={compareB.id}
+          open={showModal}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   );

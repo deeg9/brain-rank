@@ -24,9 +24,11 @@ export interface DiscoverAnalysis {
 
 interface DiscoverCardProps {
   analysis: DiscoverAnalysis;
+  isSelected?: boolean;
+  onCompareSelect?: () => void;
 }
 
-export function DiscoverCard({ analysis }: DiscoverCardProps) {
+export function DiscoverCard({ analysis, isSelected, onCompareSelect }: DiscoverCardProps) {
   const router = useRouter();
   const title = analysis.title || "Untitled";
   const date = new Date(analysis.created_at).toLocaleDateString("en-US", {
@@ -41,11 +43,30 @@ export function DiscoverCard({ analysis }: DiscoverCardProps) {
 
   return (
     <Link href={`/analysis/${analysis.id}`}>
-      <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group hover:-translate-y-0.5">
+      <div className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
         {/* Thumbnail */}
         <div className="relative aspect-video bg-gray-100">
           <VideoThumb src={analysis.video_url} alt={title} />
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-10 flex gap-1.5">
+            {onCompareSelect && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onCompareSelect();
+                }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                  isSelected
+                    ? 'bg-black text-white'
+                    : 'bg-white/90 text-gray-600 hover:bg-white hover:text-black'
+                }`}
+                title={isSelected ? "Remove from comparison" : "Add to comparison"}
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {isSelected ? 'check' : 'compare_arrows'}
+                </span>
+              </button>
+            )}
             <BookmarkButton jobId={analysis.id} />
           </div>
         </div>

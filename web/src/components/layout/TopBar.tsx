@@ -16,7 +16,6 @@ interface TopBarProps {
 const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
   { icon: "cloud_upload", label: "Upload", href: "/upload" },
-  { icon: "compare_arrows", label: "Compare", href: "/compare" },
   { icon: "trophy", label: "Discover", href: "/discover" },
 ];
 
