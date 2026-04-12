@@ -28,6 +28,8 @@ export default function UploadPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageDuration, setImageDuration] = useState(6);
   const [textContent, setTextContent] = useState('');
+  const [textStyle, setTextStyle] = useState<'billboard' | 'social_post' | 'general'>('general');
+  const [visualTextContent, setVisualTextContent] = useState('');
   const [category, setCategory] = useState("");
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
@@ -136,6 +138,21 @@ export default function UploadPage() {
     try {
       const textUrl = await uploadText(textContent);
       const jobId = await createJob(textUrl, 'text_spoken', textContent);
+      router.push(`/processing?jobId=${jobId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed.');
+      setUploading(false);
+    }
+  }
+
+  async function handleAnalyzeTextVisual() {
+    if (!visualTextContent.trim()) return;
+    setUploading(true);
+    setError(null);
+
+    try {
+      const textUrl = await uploadText(visualTextContent);
+      const jobId = await createJob(textUrl, 'text_visual', visualTextContent, textStyle);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
@@ -267,7 +284,7 @@ export default function UploadPage() {
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!imageFile || uploading}
+              disabled={!imageFile || uploading || !category}
               onClick={handleAnalyzeImage}
               className="!w-auto px-10 py-4"
             >
@@ -327,17 +344,53 @@ export default function UploadPage() {
                 </p>
               </div>
             ) : (
-              <div className="text-center space-y-4 py-8">
-                <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">text_fields</span>
-                <p className="text-on-surface-variant font-medium">Visual mode coming in Phase 55</p>
-                <p className="text-on-surface-variant/60 text-sm">Render text as a styled visual card for neural analysis</p>
+              <div className="space-y-4">
+                {/* Style Template Pills */}
+                <div className="flex gap-2 justify-center">
+                  {([
+                    { id: 'billboard' as const, label: 'Billboard', desc: 'Large bold text on gradient' },
+                    { id: 'social_post' as const, label: 'Social Post', desc: 'Card-style platform layout' },
+                    { id: 'general' as const, label: 'General', desc: 'Clean centered typography' },
+                  ]).map((style) => (
+                    <button
+                      key={style.id}
+                      onClick={() => setTextStyle(style.id)}
+                      disabled={uploading}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                        textStyle === style.id
+                          ? 'bg-white/10 text-on-surface border-white/20'
+                          : 'bg-transparent text-on-surface-variant border-white/5 hover:border-white/10'
+                      } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {style.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Visual Mode Textarea */}
+                <textarea
+                  maxLength={500}
+                  rows={6}
+                  value={visualTextContent}
+                  onChange={(e) => setVisualTextContent(e.target.value)}
+                  disabled={uploading}
+                  placeholder={
+                    textStyle === 'billboard' ? 'Enter billboard copy — e.g., "Just Do It" or "Think Different"...' :
+                    textStyle === 'social_post' ? 'Enter social media copy — e.g., caption, tweet, post text...' :
+                    'Enter your text — e.g., tagline, headline, ad copy...'
+                  }
+                  className="bg-white/[0.04] border border-white/10 rounded-xl p-4 text-on-surface font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                />
+                <p className={`text-right text-sm ${visualTextContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
+                  {visualTextContent.length}/500
+                </p>
               </div>
             )}
           </div>
         </motion.section>
       )}
 
-      {/* Text Cost Panel + Analyze Button */}
+      {/* Text Cost Panel + Analyze Button (Spoken) */}
       {inputType === 'text' && textMode === 'spoken' && textContent.trim().length > 0 && (
         <motion.section
           className="flex justify-center"
@@ -369,6 +422,45 @@ export default function UploadPage() {
               className="!w-auto px-10 py-4"
             >
               Analyze Text
+              <span className="material-symbols-outlined text-lg">bolt</span>
+            </Button>
+          </GlassPanel>
+        </motion.section>
+      )}
+
+      {/* Text Cost Panel + Analyze Button (Visual) */}
+      {inputType === 'text' && textMode === 'visual' && visualTextContent.trim().length > 0 && (
+        <motion.section
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+        >
+          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                <span className="material-symbols-outlined">token</span>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                  Estimated Cost
+                </p>
+                <p className="text-lg font-headline font-bold text-on-surface">
+                  10 Credits
+                </p>
+              </div>
+            </div>
+            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <Button
+              variant="primary"
+              size="lg"
+              loading={uploading}
+              disabled={!visualTextContent.trim() || uploading}
+              onClick={handleAnalyzeTextVisual}
+              className="!w-auto px-10 py-4"
+            >
+              Analyze Visual
+              <span className="ml-1.5 text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
               <span className="material-symbols-outlined text-lg">bolt</span>
             </Button>
           </GlassPanel>
@@ -415,7 +507,7 @@ export default function UploadPage() {
             onChange={(e) => setCategory(e.target.value)}
             className="px-4 py-2.5 bg-white text-black text-sm rounded-lg border border-gray-200 focus:outline-none appearance-none cursor-pointer font-headline font-bold"
           >
-            <option value="">Category (optional)</option>
+            <option value="">Select Category</option>
             {CONTENT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
@@ -425,7 +517,7 @@ export default function UploadPage() {
             variant="primary"
             size="lg"
             loading={uploading}
-            disabled={files.length === 0 || uploading}
+            disabled={files.length === 0 || uploading || !category}
             onClick={handleAnalyze}
             className="!w-auto px-10 py-4"
           >
