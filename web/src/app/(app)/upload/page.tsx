@@ -12,6 +12,7 @@ import {
 } from "@/components/upload/AnimatedFileUpload";
 import { uploadVideo } from "@/lib/upload";
 import { createJob } from "./actions";
+import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function UploadPage() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputType, setInputType] = useState<TabType>('video');
+  const [textMode, setTextMode] = useState<'spoken' | 'visual'>('spoken');
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
     const newItems: FileItem[] = incoming.map((file) => ({
@@ -136,13 +139,28 @@ export default function UploadPage() {
           Upload Media
         </h2>
         <p className="text-on-surface-variant font-body">
-          Supported formats: MP4, WebM, MOV.{" "}
-          <span className="text-on-surface-variant/80">Max 2GB, 30 min runtime.</span>
+          {inputType === 'video' && <>Supported formats: MP4, WebM, MOV.{" "}<span className="text-on-surface-variant/80">Max 2GB, 30 min runtime.</span></>}
+          {inputType === 'image' && <>Supported formats: JPEG, PNG.{" "}<span className="text-on-surface-variant/80">Max 10MB.</span></>}
+          {inputType === 'text' && <>Enter text for neural analysis.{" "}<span className="text-on-surface-variant/80">Max 500 characters.</span></>}
         </p>
       </motion.header>
 
-      {/* Upload Zone with ambient glow */}
-      <motion.section
+      {/* Input Type Selector */}
+      <motion.div
+        className="flex justify-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
+      >
+        <InputTypeSelector
+          selected={inputType}
+          onChange={setInputType}
+          disabled={uploading}
+        />
+      </motion.div>
+
+      {/* Video Upload Zone */}
+      {inputType === 'video' && (<motion.section
         className="relative"
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -157,7 +175,66 @@ export default function UploadPage() {
           onThumbnailGenerated={handleThumbnailGenerated}
           disabled={uploading}
         />
-      </motion.section>
+      </motion.section>)}
+
+      {/* Image Placeholder */}
+      {inputType === 'image' && (
+        <motion.section
+          className="relative"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+        >
+          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-16 text-center space-y-4">
+            <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">image</span>
+            <p className="text-on-surface-variant font-medium">Image upload coming soon</p>
+            <p className="text-on-surface-variant/60 text-sm">Upload JPEG or PNG images for neural analysis</p>
+          </div>
+        </motion.section>
+      )}
+
+      {/* Text Placeholder */}
+      {inputType === 'text' && (
+        <motion.section
+          className="relative"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+        >
+          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-16 text-center space-y-6">
+            <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10 w-fit mx-auto">
+              <button
+                onClick={() => setTextMode('spoken')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  textMode === 'spoken'
+                    ? 'bg-white/10 text-on-surface border border-white/10'
+                    : 'text-on-surface-variant hover:text-on-surface/80'
+                }`}
+              >
+                Spoken
+              </button>
+              <button
+                onClick={() => setTextMode('visual')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  textMode === 'visual'
+                    ? 'bg-white/10 text-on-surface border border-white/10'
+                    : 'text-on-surface-variant hover:text-on-surface/80'
+                }`}
+              >
+                Visual
+                <span className="ml-1.5 text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
+              </button>
+            </div>
+            <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">text_fields</span>
+            <p className="text-on-surface-variant font-medium">Text input coming soon</p>
+            <p className="text-on-surface-variant/60 text-sm">
+              {textMode === 'spoken'
+                ? 'Enter text for neural speech analysis via TRIBE v2'
+                : 'Render text as a styled visual card for neural analysis'}
+            </p>
+          </div>
+        </motion.section>
+      )}
 
       {/* Error display */}
       {error && (
@@ -170,8 +247,8 @@ export default function UploadPage() {
         </motion.p>
       )}
 
-      {/* Cost Estimate Glass Panel */}
-      <motion.section
+      {/* Cost Estimate Glass Panel (video only) */}
+      {inputType === 'video' && (<motion.section
         className="flex justify-center"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -206,7 +283,7 @@ export default function UploadPage() {
             <span className="material-symbols-outlined text-lg">bolt</span>
           </Button>
         </GlassPanel>
-      </motion.section>
+      </motion.section>)}
 
       {/* Feature Cards with spotlight glow */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
