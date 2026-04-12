@@ -36,6 +36,14 @@ class InputSchema(BaseModel):
     input_type: Literal["video", "image", "text_spoken", "text_visual"] = "video"
     text_content: Optional[str] = None
     text_style: Optional[str] = None
+    image_duration: float = 6.0  # seconds to hold image as video (2-15s range)
+
+    @field_validator("image_duration")
+    @classmethod
+    def validate_image_duration(cls, v: float) -> float:
+        if v < 2.0 or v > 15.0:
+            raise ValueError("image_duration must be between 2 and 15 seconds")
+        return v
 
     @field_validator("video_url")
     @classmethod
