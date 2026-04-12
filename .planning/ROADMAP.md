@@ -754,7 +754,7 @@ Plans:
   4. Sorting, searching, and filtering can be combined (e.g., search "cooking" + sort by neural score + filter score > 70)
 **Plans:** 1 plan
 Plans:
-- [ ] 50-01-PLAN.md — [To be planned]
+- [ ] 50-01-PLAN.md — Sort, search, and score filter controls for discovery feed
 **UI hint**: yes
 
 ### Phase 51: Social Engagement
