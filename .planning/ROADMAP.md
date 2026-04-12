@@ -696,7 +696,9 @@ Plans:
   4. The profile page is accessible without authentication (public route)
 **Plans:** 1 plan
 Plans:
-- [x] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 46-01-PLAN.md — Public profile page at /u/[username] with stats and analyses
+
+
 **UI hint**: yes
 
 ### Phase 47: Privacy Controls & Sharing
