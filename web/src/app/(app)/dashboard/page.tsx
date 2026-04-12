@@ -5,6 +5,7 @@ import { Button, Card, StatusBadge } from "@/components/ui";
 import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { VideoThumb } from "./VideoThumb";
+import { VisibilityToggle } from "./VisibilityToggle";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -192,8 +193,9 @@ export default async function DashboardPage() {
                           </span>
                           {formatDate(job.created_at)}
                         </p>
-                        <div className="mb-2">
+                        <div className="flex items-center gap-2 mb-2">
                           <StatusBadge status={mapStatus(job.status)} />
+                          <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
                         </div>
                         {score !== null && (
                           <div className="space-y-2 mt-4">
