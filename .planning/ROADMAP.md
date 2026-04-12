@@ -766,9 +766,10 @@ Plans:
   2. Authenticated users can bookmark any public analysis with a single click, and the bookmark state persists
   3. User can view all their saved bookmarks at /bookmarks with the same card format as the discovery feed
   4. Unbookmarking removes the analysis from /bookmarks immediately
-**Plans:** 1 plan
+**Plans:** 2 plans
 Plans:
-- [ ] 51-01-PLAN.md — [To be planned]
+- [ ] 51-01-PLAN.md — Database schema, API routes, view counts and bookmark UI
+- [ ] 51-02-PLAN.md — Bookmarks page and sidebar navigation
 **UI hint**: yes
 
 ## Progress
