@@ -10,9 +10,11 @@ import {
   AnimatedFileUpload,
   type FileItem,
 } from "@/components/upload/AnimatedFileUpload";
-import { uploadVideo } from "@/lib/upload";
+import { uploadVideo, uploadImage } from "@/lib/upload";
 import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
+import { ImageUploadZone } from "./ImageUploadZone";
+import { DurationSlider } from "./DurationSlider";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -22,6 +24,8 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [inputType, setInputType] = useState<TabType>('video');
   const [textMode, setTextMode] = useState<'spoken' | 'visual'>('spoken');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageDuration, setImageDuration] = useState(6);
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
     const newItems: FileItem[] = incoming.map((file) => ({
@@ -106,6 +110,21 @@ export default function UploadPage() {
     }
   }
 
+  async function handleAnalyzeImage() {
+    if (!imageFile) return;
+    setUploading(true);
+    setError(null);
+
+    try {
+      const imageUrl = await uploadImage(imageFile);
+      const jobId = await createJob(imageUrl, 'image', null, null, imageDuration);
+      router.push(`/processing?jobId=${jobId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+      setUploading(false);
+    }
+  }
+
   const totalCredits = files.length * 10;
 
   const FEATURES = [
@@ -177,7 +196,7 @@ export default function UploadPage() {
         />
       </motion.section>)}
 
-      {/* Image Placeholder */}
+      {/* Image Upload Zone */}
       {inputType === 'image' && (
         <motion.section
           className="relative"
@@ -185,11 +204,59 @@ export default function UploadPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         >
-          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-16 text-center space-y-4">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">image</span>
-            <p className="text-on-surface-variant font-medium">Image upload coming soon</p>
-            <p className="text-on-surface-variant/60 text-sm">Upload JPEG or PNG images for neural analysis</p>
+          <div className="absolute -inset-4 -z-10 rounded-3xl opacity-40 blur-3xl bg-gradient-to-br from-primary/15 via-transparent to-tertiary-fixed/10 pointer-events-none" />
+          <div className="space-y-6">
+            <ImageUploadZone
+              file={imageFile}
+              onFileSelect={setImageFile}
+              disabled={uploading}
+            />
+            {imageFile && (
+              <DurationSlider
+                value={imageDuration}
+                onChange={setImageDuration}
+                disabled={uploading}
+              />
+            )}
           </div>
+        </motion.section>
+      )}
+
+      {/* Image Cost Panel + Analyze Button */}
+      {inputType === 'image' && imageFile && (
+        <motion.section
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+        >
+          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                <span className="material-symbols-outlined">token</span>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                  Estimated Cost
+                </p>
+                <p className="text-lg font-headline font-bold text-on-surface">
+                  10 Credits
+                </p>
+              </div>
+            </div>
+            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <Button
+              variant="primary"
+              size="lg"
+              loading={uploading}
+              disabled={!imageFile || uploading}
+              onClick={handleAnalyzeImage}
+              className="!w-auto px-10 py-4"
+            >
+              Analyze Image
+              <span className="material-symbols-outlined text-lg">bolt</span>
+            </Button>
+          </GlassPanel>
         </motion.section>
       )}
 

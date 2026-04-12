@@ -7,7 +7,8 @@ export async function createJob(
   videoUrl: string,
   inputType: InputType = 'video',
   textContent?: string | null,
-  textStyle?: string | null
+  textStyle?: string | null,
+  imageDuration?: number | null
 ): Promise<string> {
   const supabase = await createClient()
 
@@ -51,6 +52,7 @@ export async function createJob(
               job_id: data.id,
               ...(textContent ? { text_content: textContent } : {}),
               ...(textStyle ? { text_style: textStyle } : {}),
+              ...(inputType === 'image' && imageDuration ? { image_duration: imageDuration } : {}),
             },
           }),
         }
