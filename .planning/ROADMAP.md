@@ -694,9 +694,9 @@ Plans:
   2. The profile page lists all of that user's public analyses with thumbnails and scores
   3. Visiting /u/nonexistent-user shows a 404 page
   4. The profile page is accessible without authentication (public route)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 46-01-PLAN.md — Public profile page at /u/[username] with stats and analyses
+- [x] 46-01-PLAN.md — Public profile page at /u/[username] with stats and analyses
 
 
 **UI hint**: yes
@@ -830,7 +830,7 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 43. Timeline Peak Markers | v3.0 | 1/1 | Complete    | 2026-04-11 |
 | 44. Social Schema & Identity | v4.0 | 2/2 | Complete    | 2026-04-11 |
 | 45. Profile Customization | v4.0 | 1/1 | Complete    | 2026-04-12 |
-| 46. Public Profile Pages | v4.0 | 0/0 | Not started | - |
+| 46. Public Profile Pages | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 47. Privacy Controls & Sharing | v4.0 | 0/0 | Not started | - |
 | 48. Public Analysis View | v4.0 | 0/0 | Not started | - |
 | 49. Discovery Feed | v4.0 | 0/0 | Not started | - |
