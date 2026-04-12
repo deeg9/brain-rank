@@ -740,7 +740,7 @@ Plans:
   4. The page loads within 2 seconds for up to 100 public analyses
 **Plans:** 1 plan
 Plans:
-- [ ] 49-01-PLAN.md — [To be planned]
+- [ ] 49-01-PLAN.md — Discovery feed page with grid of public analyses, pagination, and neural score ranking
 **UI hint**: yes
 
 ### Phase 50: Discovery Search & Filters
