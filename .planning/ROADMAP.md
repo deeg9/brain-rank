@@ -712,8 +712,11 @@ Plans:
   4. The rendered image card follows the image-to-video conversion path (Pillow render, FFmpeg conversion, video-only inference)
 **Plans**: 2 plans
 Plans:
-- [ ] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [ ] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [ ] 55-01-PLAN.md — Pillow text card renderer (3 templates) and RunPod handler text_visual branch
+- [ ] 55-02-PLAN.md — Upload page visual mode UI with style pills and submit flow
+
+
+
 **UI hint**: yes
 
 ### Phase 56: Results Adaptations
