@@ -1,214 +1,125 @@
-# Feature Research: Social Discovery Platform
+# Feature Landscape: Multi-Modal Input & Comparison
 
-**Domain:** Social content sharing + discovery/leaderboard for neural video analysis
+**Domain:** Neural content testing / neuromarketing creative pre-testing
 **Researched:** 2026-04-11
-**Confidence:** HIGH (well-established patterns; NeuroCut-specific domain is novel but features map to known social/leaderboard patterns)
+**Milestone:** v5.0 Multi-Modal Input & Comparison
 
-## Feature Landscape
+## Table Stakes
 
-### Table Stakes (Users Expect These)
+Features users expect when a tool claims to support multiple input types and comparison. Missing = product feels broken or half-baked.
 
-Features users assume exist once you add "public profiles" and "discovery." Missing these = broken social experience.
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| **Content type selector on upload page** | Every multi-modal tool (Neurons AI, alpha.one) uses a clear type picker before upload. Users must know what they're about to do. | Low | Existing upload page | Segmented control or tab bar: Video / Image / Text. Neurons AI auto-detects, but explicit selection is better for NeuroCut because conversion pipeline differs per type. |
+| **Image upload with drag-and-drop** | Neurons AI supports drag-and-drop for "almost any visual asset." Users expect the same UX quality as video upload. | Low | Existing AnimatedFileUpload component | Extend current component to accept JPEG/PNG/WebP. Show image thumbnail preview instead of video frame. Max file size can be lower (50MB). |
+| **Text input with rich preview** | alpha.one and Neurons AI both accept text/copy as input. A bare textarea feels cheap. | Medium | New component | Styled text card preview showing how the text will look when rendered. Font size, alignment controls. Live preview of the rendered card. |
+| **Transparent server-side conversion** | Users upload an image or text, and the system handles conversion to video format for TRIBE v2. User should never see "converting to video." | Medium | New API route, ffmpeg/canvas on server | Image: static frame held for N seconds as silent video. Text visual mode: render to image then same path. Text spoken mode: native TRIBE v2 text->TTS->audio. Conversion status shown as "Preparing analysis" not "Converting to video." |
+| **Content type badge on results** | Every result in dashboard/discover needs to show what type of content was analyzed. Without this, users can't distinguish image analyses from video analyses. | Low | Database schema (add `content_type` column to jobs), dashboard/discover UI | Badge: "Video" / "Image" / "Text". Neurons AI labels assets by type in their file browser. |
+| **Results page adapted for non-video content** | Current results page has VideoPlayer taking 50% of the hero area. Showing a video player for a static image is confusing. | Medium | Results page, conditional rendering | Image: show the source image (no player controls, no timeline scrubbing). Text: show the rendered text card. Brain viewer and metrics still work identically. Timeline becomes a single-point or simplified view for static content. |
+| **Side-by-side comparison of two analyses** | Neurons AI supports comparing up to 6 assets. TubeBuddy shows A vs B results. This is the core value prop of "A/B testing." | High | New /compare page, analysis picker | Two-column layout. Each column shows: source content preview, overall score, key metrics, mini brain viewer or heatmap. Metric deltas highlighted (e.g., "+12% activation"). Neurons AI shows heatmaps side by side with metric bars. |
+| **Analysis picker for comparison** | Users need to select which two analyses to compare. Neurons AI uses a file browser with checkboxes. | Medium | Dashboard data, new picker component | Modal or inline picker showing completed analyses with thumbnails, titles, dates, content type badges. Filter by content type. Select exactly 2. |
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Unique usernames | Public identity requires a handle; email is private and must stay private | LOW | Add `username` column to profiles table with unique constraint. Real-time availability check on keystroke (debounced). Regex: `^[a-z0-9_]{3,20}$`. Existing users must set username before going public. |
-| Public profile page (`/@username`) | Anyone sharing content needs a viewable profile | MEDIUM | New public route outside `(app)` layout group. Shows username, avatar, stats (total analyses, avg score, best score), grid of public analyses. No auth required to view. Reuses existing profile card pattern. |
-| Public/private toggle on analyses | Privacy control is non-negotiable when making content shareable | LOW | Add `is_public` boolean (default `false`) to `jobs` table. Toggle on results page and dashboard list item. Update RLS: public jobs readable by anyone, private only by owner. Default private = privacy-first. |
-| Discovery/browse page | Core feature of a "platform" -- users need to find public content | MEDIUM | `/discover` route. Paginated grid of public analyses. Each card: video thumbnail, title, overall neural score, username, date. Cursor-based pagination preferred but offset acceptable at this scale. |
-| Sort options on discovery | Users expect to organize content by what matters to them | LOW | Three sort modes: highest neural score (default = the leaderboard), newest, most viewed. Single `order_by` query param. Default to score because the neural ranking IS the product. |
-| View count on public analyses | Basic social proof; users expect to see content popularity | LOW | Add `view_count` integer to `jobs` table. Increment via Supabase RPC on page view. Approximate counts are fine -- no need for exact deduplication at this stage. |
-| Avatar upload | Profile identity needs a face; initials icon is not enough for a social platform | LOW | Supabase Storage bucket for avatars. Upload on settings page. Display on profile and discovery cards. Fallback to initials/default icon (existing pattern). Crop to square, max 500KB. |
-| Privacy-by-default | All content private until user explicitly chooses to share | LOW | `is_public` defaults to `false`. No pre-checked toggles. Matches privacy-first UX consensus: opt-in to sharing, not opt-out. |
+## Differentiators
 
-### Differentiators (Competitive Advantage)
+Features that set NeuroCut apart from Neurons AI and alpha.one. Not expected, but valuable.
 
-Features that make NeuroCut's social layer unique vs generic content platforms.
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| **Brain viewer in comparison mode** | Neurons AI shows heatmaps. NeuroCut already has a 3D brain viewer with 20K+ vertices. Showing two brain viewers side by side with the same rotation/zoom sync is visually stunning and scientifically differentiated. | High | BrainViewer component, WebGL performance | Sync camera rotation between two brain viewers so they rotate together. This is technically challenging (two Three.js canvases sharing camera state) but very impressive. Fallback: static brain snapshots at peak moment. |
+| **Metric delta annotations** | Instead of just showing two numbers, highlight the difference: "Thumbnail B drives +18% more reward activation." This is what TubeBuddy does with CTR deltas. | Low | Comparison page | Simple math. Green for positive delta, red for negative. Percentage and absolute shown. Low effort, high value. |
+| **Cross-type comparison** | Compare a video hook against a thumbnail. Compare ad copy (text) against the visual it describes. No competitor does cross-modal comparison with brain data. | Low (UI) | Comparison page already handles different types | The comparison UI just needs to handle different content previews in each column. The data format (segments, scores) is identical regardless of input type because TRIBE v2 outputs the same schema. |
+| **Text input dual-mode toggle** | Visual mode (render text as image card -> video -> TRIBE v2 video path) vs. Spoken mode (text -> TTS -> TRIBE v2 audio path). Tests different brain responses: "how does this look?" vs. "how does this sound?" No competitor offers this distinction. | Medium | Two separate conversion pipelines | Clear toggle with explanation: "Visual: test how your copy looks as a graphic" vs "Spoken: test how your copy sounds when read aloud." Results may differ significantly, which is the insight. |
+| **Quick re-test with variation** | From results page, "Test a variation" button that pre-fills the upload page with the same content type and links the new analysis for easy comparison. | Medium | Upload page state, job metadata | Reduces friction for iterative testing. Neurons AI has unlimited testing but no explicit "re-test" flow. This creates a natural comparison pair. |
+| **Comparison shareable links** | Like individual analyses can be public, comparisons should be shareable: `/compare/abc123-vs-def456`. | Medium | New route, URL structure, public access check | Builds on existing public/private toggle infrastructure. Shareable comparison links are valuable for teams and social sharing. |
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Neural score leaderboard | No other platform ranks content by brain activation data. The discovery page sorted by neural score IS inherently a leaderboard. This is the entire differentiator. | LOW | Not a separate feature -- it is the default sort on discovery. Add explicit "#1, #2, #3" rank indicators. Label the tab "Leaderboard." |
-| Bookmarks/saves | Users want to privately save interesting analyses to revisit later | LOW | New `bookmarks` junction table (user_id, job_id, created_at). Bookmark toggle icon on analysis cards in discovery. Section on dashboard or profile to view saved items. |
-| Per-region leaderboards | Sort by attention, reward, emotional processing, or social cognition scores separately | MEDIUM | Requires extracting region scores from JSONB `results` into sortable columns or a generated column index. Powerful: "Top videos for emotional response" is a genuinely unique filter no other platform offers. |
-| Brain activation preview on cards | Show mini brain heatmap or neural sparkline on discovery cards | HIGH | Requires generating a static preview image or compact visualization at analysis completion time. Significant work. Defer unless a lightweight sparkline approach proves quick. |
-| Creator stats on public profile | Aggregate neural metrics visible on profile: avg attention score, best emotional score, total views across all public analyses | LOW | Computed from existing job data via aggregate queries. Makes profiles interesting to visit and compare. |
-| Trending/rising content | Surface recently-posted analyses gaining views quickly | MEDIUM | "Most viewed in last 7 days" query approximates trending without complex velocity tracking. More interesting than pure all-time leaderboard after content volume grows. |
+## Anti-Features
 
-### Anti-Features (Commonly Requested, Often Problematic)
+Features to explicitly NOT build. Based on competitor analysis and NeuroCut's constraints.
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Likes/upvotes | Standard social pattern, seems obvious | Creates subjective popularity metric that COMPETES with the neural score. The neural score is the objective quality signal -- adding likes dilutes it and introduces popularity bias. The whole point is brain data replaces human voting. | Bookmarks (private saves) only. Neural score IS the public quality signal. |
-| Comments on analyses | Social engagement, discussion | Moderation burden at any scale. Spam risk. Comments on a brain activation chart add minimal analytical value. Premature community feature. | Defer entirely. If needed v5+, start with creator-only annotations on their own analyses. |
-| Follow/follower system | Standard social graph | Requires notification infrastructure, feed generation, graph queries, follower counts. Creates "influencer" dynamics that distract from the data-first mission. Massive scope for a v4.0. | Bookmarks serve "save for later." Follow is v5+ at earliest, if ever. |
-| Real-time activity feed | "See what others are analyzing now" | Privacy concern: users may not want analysis activity broadcast. Requires Supabase Realtime channels. Near-zero value at small user base. | Discovery page with "newest" sort serves this without privacy risk. |
-| Share-to-social buttons | Drive virality | Generic share buttons have near-zero click-through. Better to invest in making the public URL itself shareable with rich previews. | OG meta tags (title, neural score, preview image) on public analysis pages. The URL is the share mechanism. |
-| Gamification (badges, streaks, points) | Increase engagement loops | Over-engineered for a data platform. "Uploaded 10 videos" badges do not align with the analytical value prop. Creates busy-work incentives. | The leaderboard rank IS the gamification. Your position on the neural leaderboard is your badge. |
-| User-customizable profile themes | Self-expression | Scope creep. Design system is already established (Neural Architect theme). Custom themes create visual inconsistency and double frontend work. | Consistent profile layout. Avatar + bio is sufficient self-expression for a data platform. |
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| **Heatmap overlay on content** | Neurons AI's core feature is attention heatmaps overlaid on images. TRIBE v2 outputs per-vertex cortical activation, NOT spatial attention on the image. Faking a heatmap would be scientifically dishonest. | Use the 3D brain viewer. NeuroCut's differentiator is actual brain activation, not predicted eye-tracking. |
+| **Auto-detection of content type** | Tempting to auto-detect whether upload is image vs video. But the conversion pipeline is different, and text input has no file to detect. | Explicit type selector. Clear, predictable, no magic. |
+| **More than 2 items in comparison** | Neurons AI supports up to 6. But NeuroCut's results are data-dense (brain viewer, timeline, segments, metrics). More than 2 becomes unreadable. | Start with 2. If users demand more, add a summary table view for 3+ (no brain viewers, just metric bars). |
+| **Real-time A/B testing (live traffic splitting)** | TubeBuddy splits real YouTube traffic. NeuroCut uses predictive neural inference, not live traffic. These are fundamentally different paradigms. | Call it "neural comparison" not "A/B testing." The value is predictive brain response, not CTR measurement. |
+| **AI-generated recommendations / copy suggestions** | Neurons AI gives "AI insights with actionable recommendations." Adding an LLM layer on top of brain data is a separate product feature with its own complexity. | Show the data clearly. Let creators interpret their own brain activation scores. Save AI recommendations for a future milestone. |
+| **Batch comparison (upload many, auto-compare all)** | Over-engineering for v5.0. Neurons AI's folder comparison is for enterprise teams testing dozens of variants. | Support manual 1:1 comparison. Batch is a v6+ feature if demand exists. |
+| **Video-length text rendering** | Rendering text as a long video (30+ seconds) makes no sense. A static text card held for 2-5 seconds is sufficient for TRIBE v2 to process. | Cap text-to-visual conversion at 5 seconds. For spoken mode, duration is natural TTS length. |
 
 ## Feature Dependencies
 
 ```
-[Profiles table + username]
-    |
-    +--requires--> [Supabase migration: create profiles table]
-    |
-    +--enables--> [Username setup flow for existing users]
-    |                  |
-    |                  +--gates--> [Public/private toggle] (can't go public without username)
-    |
-    +--enables--> [Public profile page /@username]
-    |                  |
-    |                  +--enhanced-by--> [Avatar upload]
-    |                  |
-    |                  +--enhanced-by--> [Creator stats]
-    |
-    +--enables--> [Discovery page]
-                      |
-                      +--requires--> [Public/private toggle] (need public content to discover)
-                      |
-                      +--requires--> [RLS policy update for anonymous reads]
-                      |
-                      +--includes--> [Sort by score/date/views]
-                      |
-                      +--requires--> [View count tracking]
-                      |
-                      +--enhanced-by--> [Bookmarks]
-                      |
-                      +--enhanced-by--> [Search/filter]
-                      |
-                      +--enhanced-by--> [Per-region leaderboards]
+Content Type Selector (upload page)
+  |-> Image Upload (extends AnimatedFileUpload)
+  |-> Text Input Component (new)
+  |     |-> Visual Mode (text -> image -> video pipeline)
+  |     |-> Spoken Mode (text -> TTS -> audio pipeline, native TRIBE v2)
+  |-> Server-side Conversion API (image->video, text->image->video, text->TTS)
+
+Database Schema Update (add content_type to jobs)
+  |-> Content Type Badge (dashboard, discover, results)
+  |-> Results Page Adaptations (conditional VideoPlayer vs ImageViewer vs TextCard)
+  |-> Analysis Picker (filter by content type)
+
+Analysis Picker
+  |-> Comparison Page (/compare)
+  |     |-> Metric Deltas
+  |     |-> Synced Brain Viewers (differentiator, can defer)
+  |     |-> Shareable Comparison Links (differentiator, can defer)
+
+Results Page "Test Variation" button -> Upload page with pre-fill
 ```
 
-### Dependency Notes
+## MVP Recommendation
 
-- **Everything requires the profiles table:** Currently no `profiles` table exists. Auth uses `auth.users` with `user_metadata`. A proper `public.profiles` table with `id` (FK to auth.users), `username`, `avatar_url`, `bio`, `created_at` is the absolute foundation. Without it, nothing else works.
-- **Public toggle requires RLS update:** Current RLS on `jobs` only allows owner access (`auth.uid() = user_id`). Must add: `SELECT` where `is_public = true` for anon/any user. This is a one-line policy addition but is a hard requirement for discovery.
-- **Discovery page requires public content to exist:** The toggle must be built and some analyses must be made public before discovery is useful. Consider seeding with the developer's own analyses.
-- **Username gates public features:** Existing users who signed up with email only must complete a username setup before they can toggle any analysis to public. This prevents anonymous public content.
-- **Per-region leaderboards require indexed scores:** Currently region scores are buried in JSONB `results` column. Need to extract `overall_score`, `attention_score`, `reward_score`, `emotional_score`, `social_score` into indexable columns (generated columns or a materialized view) for efficient sorting.
+**Must ship (table stakes):**
+1. Content type selector on upload page (Video / Image / Text)
+2. Image upload with preview and server-side silent video conversion
+3. Text input with visual mode (render to styled card -> image -> video)
+4. Text input with spoken mode (native TRIBE v2 TTS path)
+5. `content_type` column in jobs table + badges everywhere
+6. Results page conditional rendering (no video player for images/text)
+7. Comparison page with analysis picker and side-by-side metrics
 
-## MVP Definition
+**Should ship (high-value differentiators):**
+8. Metric delta annotations in comparison (trivial to add)
+9. Cross-type comparison support (UI already handles it if comparison page is type-agnostic)
+10. Text input dual-mode toggle with clear explanation
 
-### Launch With (v4.0)
+**Defer:**
+- Synced brain viewers in comparison (performance risk, can add later)
+- Shareable comparison links (nice but not blocking)
+- Quick re-test with variation (quality-of-life, not core)
+- Any form of batch comparison
 
-Minimum to call this a "social discovery platform":
+## Competitive Positioning
 
-- [ ] Profiles table + unique username registration -- the foundation for public identity
-- [ ] Username setup flow for existing users -- gate: must have username to go public
-- [ ] `is_public` toggle on analyses -- privacy control, default false
-- [ ] RLS policy update for public reads -- anonymous users can view public analyses
-- [ ] Public profile page at `/@username` -- viewable without auth, shows public analyses
-- [ ] Discovery page with paginated grid -- the core browse experience
-- [ ] Sort by neural score / newest / most viewed -- three sort modes, score is default
-- [ ] View count tracking on public analyses -- increment on page view
-- [ ] Bookmarks -- save public analyses to personal collection
-- [ ] Avatar upload -- complete the profile identity
+| Capability | Neurons AI | alpha.one | TubeBuddy | NeuroCut v5.0 |
+|-----------|------------|-----------|-----------|----------------|
+| Image input | Yes (drag-drop) | Yes | No (thumbnail only) | Yes |
+| Video input | Yes | Yes (YouTube ads) | No | Yes |
+| Text/copy input | Indirect (render first) | No | Title testing only | Yes (visual + spoken) |
+| Comparison | Up to 6 assets | A/B with benchmarks | A/B with live traffic | 2 analyses, any type |
+| Brain data | No (attention prediction) | No (attention prediction) | No (CTR only) | Yes (20K-vertex fMRI) |
+| Heatmap overlay | Yes (core feature) | Yes | No | No (3D brain instead) |
+| Metrics | Focus, Memory, Engagement, Clarity, Cognitive Demand (0-100) | Attention, Stand-out, Brand linkage (traffic light) | CTR, Views, Watch time | Activation, Arousal, Valence, 9 brain regions (0-100) |
+| Pricing | Enterprise ($$$) | Enterprise ($$$) | $8-50/mo | TBD (credits) |
 
-### Add After Validation (v4.x)
-
-Features to add once users are actively sharing and browsing:
-
-- [ ] Search on discovery page -- add when content volume makes scrolling insufficient
-- [ ] Per-region leaderboards (sort by attention, emotion, etc.) -- add when users ask for it
-- [ ] Trending/rising tab -- add when daily content volume justifies it
-- [ ] Creator aggregate stats on public profile -- add when profiles get repeat visitors
-- [ ] OG meta tags on public analysis URLs -- add when users start sharing externally
-
-### Future Consideration (v5+)
-
-- [ ] Follow system -- only if platform reaches hundreds of active creators
-- [ ] Comments/annotations -- only if analytical discussion emerges as a user need
-- [ ] Brain activation preview thumbnails on cards -- high effort, defer until visualization pipeline supports static export
-- [ ] API access to leaderboard data -- if B2B interest emerges
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority |
-|---------|------------|---------------------|----------|
-| Profiles table + usernames | HIGH | LOW | P1 |
-| Username setup flow | HIGH | LOW | P1 |
-| Public/private toggle | HIGH | LOW | P1 |
-| RLS policy for public reads | HIGH | LOW | P1 |
-| Public profile page | HIGH | MEDIUM | P1 |
-| Discovery page | HIGH | MEDIUM | P1 |
-| Sort by score/date/views | HIGH | LOW | P1 |
-| View count tracking | MEDIUM | LOW | P1 |
-| Bookmarks | MEDIUM | LOW | P1 |
-| Avatar upload | MEDIUM | LOW | P1 |
-| Search on discovery | MEDIUM | MEDIUM | P2 |
-| Per-region leaderboards | MEDIUM | MEDIUM | P2 |
-| OG meta tags | MEDIUM | LOW | P2 |
-| Trending tab | LOW | MEDIUM | P2 |
-| Creator aggregate stats | LOW | LOW | P2 |
-| Brain preview thumbnails | MEDIUM | HIGH | P3 |
-| Follow system | LOW | HIGH | P3 |
-| Comments | LOW | MEDIUM | P3 |
-
-**Priority key:**
-- P1: Must have for v4.0 launch
-- P2: Should have, add in v4.x when validated
-- P3: Future consideration, v5+
-
-## Competitor Feature Analysis
-
-| Feature | Product Hunt | YouTube Analytics | VidIQ/Tubics | NeuroCut Approach |
-|---------|--------------|-------------------|--------------|-------------------|
-| Public profiles | Maker profiles with shipped products | Channel pages | Creator dashboards (private) | `/@username` with neural stats and public analyses grid |
-| Leaderboard | Daily/weekly top products by upvotes | Trending (algorithmic) | N/A | Neural score leaderboard -- objective brain data, not votes |
-| Content discovery | Browse by category, sort by votes | Algorithm-driven recommendations | N/A | Browse public analyses, sort by neural activation |
-| Privacy controls | Public by default | Public/unlisted/private | Private by default | Private by default, explicit opt-in to public (privacy-first) |
-| Quality signal | Upvotes (subjective, gameable) | Views + algorithm (opaque) | Engagement metrics (CTR, watch time) | Neural activation score (objective, brain-data-derived) |
-| Engagement | Upvotes + comments | Views + likes + comments | N/A | View counts + bookmarks only. No subjective voting. |
-| Search | Full-text by product name | Full-text + semantic | N/A | Title search for v4.0, expand later |
-
-**Key strategic insight:** NeuroCut's differentiator is that quality ranking comes from objective brain data, not subjective votes or opaque algorithms. Do NOT add likes/upvotes -- they would undermine the core value proposition. The neural score IS the vote. Lean into this distinction hard.
-
-## Database Schema Implications
-
-New tables and columns needed (builds on existing `jobs` table and Supabase Auth):
-
-**New table: `profiles`**
-- `id` uuid PK, FK to `auth.users(id)` ON DELETE CASCADE
-- `username` text UNIQUE NOT NULL, CHECK (`username ~ '^[a-z0-9_]{3,20}$'`)
-- `avatar_url` text nullable
-- `bio` text nullable, CHECK (char_length(bio) <= 160)
-- `created_at` timestamptz DEFAULT now()
-- `updated_at` timestamptz DEFAULT now()
-- Index on `username` for fast lookups
-- RLS: anyone can SELECT, only owner can INSERT/UPDATE
-
-**Alter table: `jobs`**
-- ADD `is_public` boolean DEFAULT false
-- ADD `view_count` integer DEFAULT 0
-- ADD `slug` text nullable (for clean URLs: `/@user/my-analysis-slug`)
-- Index on `(is_public, created_at)` for discovery queries
-- Index on `(is_public, view_count)` for popular sort
-- Update RLS: add SELECT policy where `is_public = true` (no auth required)
-
-**New table: `bookmarks`**
-- `id` uuid PK DEFAULT gen_random_uuid()
-- `user_id` uuid FK to `auth.users(id)` ON DELETE CASCADE
-- `job_id` uuid FK to `jobs(id)` ON DELETE CASCADE
-- `created_at` timestamptz DEFAULT now()
-- UNIQUE constraint on `(user_id, job_id)`
-- RLS: only owner can CRUD
-
-**Trigger: auto-create profile on signup**
-- After INSERT on `auth.users`, create a row in `profiles` with `id = new.id`, `username = NULL`
-- Username NULL = profile incomplete, gates public features
+**NeuroCut's moat:** Real brain activation data (not attention prediction), multi-modal input with dual text modes, cross-type neural comparison. Competitors predict where eyes look; NeuroCut predicts how brains respond.
 
 ## Sources
 
-- [SocialLeaderBoard - Creator Discovery Platform](https://socialleaderboard.com/) -- competitor pattern for creator ranking
-- [Privacy-First UX Design Systems](https://medium.com/@harsh.mudgal_27075/privacy-first-ux-design-systems-for-trust-9f727f69a050) -- toggle and privacy control patterns
-- [UX for Privacy & Consent in 2025](https://medium.com/design-bootcamp/ux-for-privacy-consent-in-2025-designing-trust-in-a-digital-world-0e41906298e3) -- default-off sharing, opt-in principle
-- [Leaderboard Page Design Examples (Nicelydone)](https://nicelydone.club/pages/leaderboards) -- SaaS leaderboard UI patterns
-- [Leaderboard Design Strategies](https://www.numberanalytics.com/blog/leaderboard-design-strategies) -- filtering, sorting, user segmentation
-- [UI Patterns: What's in a Username (SitePoint)](https://www.sitepoint.com/ui-patterns-whats-username/) -- username UX patterns
-- [Bookmarking Case Study (Medium)](https://medium.com/design-bootcamp/bookmarking-but-its-actually-useful-12a65c49034a) -- bookmark UX patterns
-- Existing codebase: `web/supabase/migrations/00001-00003`, `web/src/lib/database.types.ts`, `web/src/app/(app)/profile/page.tsx`
+- [Neurons AI Product Page](https://www.neuronsinc.com/neurons-ai) -- feature overview, comparison up to 6 assets
+- [Neurons AI Knowledge Base: Running Predictions](https://knowledge.neuronsinc.com/how-to-run-your-first-prediction) -- upload flow, drag-drop, auto-prediction
+- [Neurons AI Knowledge Base: Comparison Tool](https://knowledge.neuronsinc.com/comparison-tool) -- side-by-side UI, folder comparison
+- [Neurons AI Knowledge Base: Metrics](https://knowledge.neuronsinc.com/neurons-ai-metrics-and-explanations) -- Focus, Cognitive Demand, Engagement, Memory scores (0-100)
+- [alpha.one Homepage](https://www.alpha.one/) -- junbi (video) and expoze (static) products, traffic-light scoring
+- [alpha.one YouTube Ad Testing](https://www.alpha.one/use-cases/youtube-ad-testing) -- second-by-second insights, benchmark database
+- [TubeBuddy Thumbnail A/B Testing](https://www.tubebuddy.com/tools/youtube-thumbnail-test) -- live traffic splitting, 95% statistical significance, CTR tracking
+- [ThumbnailTest.com Features](https://thumbnailtest.com/features/) -- unlimited variants, CTR/impressions/clicks filtering
+- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- multi-modal inference API (video, audio, text)
+- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- architecture, three frozen encoders, cortical surface mapping
 
 ---
-*Feature research for: NeuroCut Social Discovery Platform (v4.0)*
+*Feature research for: NeuroCut Multi-Modal Input & Comparison (v5.0)*
 *Researched: 2026-04-11*

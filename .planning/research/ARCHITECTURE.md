@@ -1,609 +1,456 @@
-# Architecture Patterns: Social Discovery Platform
+# Architecture: Multi-Modal Input & Comparison Integration
 
-**Domain:** Social discovery layer on top of existing private neural analysis tool
+**Domain:** Neural engagement testing platform (multi-modal expansion)
 **Researched:** 2026-04-11
 
-## Existing Architecture Snapshot
+## Executive Summary
 
-Before defining new architecture, here is what exists today:
+NeuroCut v5.0 adds image upload, text input (visual + spoken modes), and a comparison page to the existing video-only pipeline. The core insight driving the architecture: **TRIBE v2 natively supports `text_path` (`.txt` file) via `get_events_dataframe(text_path=...)`**, which converts text to speech internally using gTTS, then runs audio-only inference. This means the "spoken text" path requires zero media conversion -- just save text to a file and pass it directly. Image and "visual text" paths require server-side conversion to video (via ffmpeg on the RunPod worker), since TRIBE v2 only accepts `video_path`, `audio_path`, or `text_path`.
+
+The comparison page is purely a frontend concern -- two existing result views side-by-side with no backend changes needed beyond querying two jobs.
+
+## Current Architecture (Baseline)
 
 ```
-web/
-  src/
-    app/
-      (auth)/          -- login, signup, forgot-password (public)
-      (app)/           -- dashboard, upload, processing, results/[id], profile, settings (auth-gated)
-      api/jobs/        -- POST (create), GET/PATCH [id], status polling, retry
-    components/        -- results/, layout/, ui/, upload/, hero/
-    lib/
-      supabase/        -- server.ts, client.ts, middleware.ts
-      database.types.ts -- Job interface only
-      upload.ts        -- Supabase Storage upload to 'videos' bucket
-  middleware.ts        -- Auth redirect: unauthed -> /login, authed on /login -> /dashboard
+Browser                    Next.js API Routes          Supabase              RunPod
+  |                              |                        |                    |
+  |-- uploadVideo(file) -------->|-- Storage.upload ------>| videos bucket      |
+  |                              |                        |                    |
+  |-- createJob(videoUrl) ------>|-- jobs.insert --------->| jobs table         |
+  |                              |-- POST /run ----------->|                    |-- handler(job)
+  |                              |                        |                    |    download_video()
+  |-- GET /api/jobs/[id] ------->|-- poll /status/[rpid] ->|                    |    run_inference()
+  |                              |-- jobs.update --------->|                    |    postprocess()
+  |                              |                        |                    |
+  |-- /results/[id] page ------->|                        |                    |
 ```
 
-**Current DB schema:** Single `jobs` table with `user_id`, `video_url`, `title`, `status`, `runpod_id`, `results`, `error_message`, timestamps. RLS filters by `user_id` (owner-only access).
-
-**Key pattern:** Server components fetch data via Supabase server client. Client components fetch via `/api/jobs/[id]`. No public-facing data paths exist.
-
----
+Key touchpoints for modification:
+- `web/src/app/(app)/upload/page.tsx` -- upload UI (video-only)
+- `web/src/app/(app)/upload/actions.ts` -- `createJob(videoUrl)` server action
+- `web/src/lib/upload.ts` -- `uploadVideo(file)` to Supabase Storage
+- `web/src/lib/database.types.ts` -- `Job` interface (video_url field, no input_type)
+- `src/handler.py` -- RunPod handler (video_url only in InputSchema)
+- `src/schema.py` -- `InputSchema(video_url: str)` 
+- `src/inference.py` -- `run_inference(model, video_path, job_id)`
+- `web/src/app/(app)/results/[id]/page.tsx` -- shows VideoPlayer + BrainViewer
 
 ## Recommended Architecture
 
-### High-Level Data Flow
+### Three Input Paths, One Inference Output
+
+All three input types ultimately produce the same `OutputSchema` (segments, summary, raw_shape). The difference is what happens *before* inference.
 
 ```
-EXISTING (private):
-  User -> Auth -> Dashboard -> Upload -> Job -> Results (owner only)
+INPUT TYPE        FRONTEND           SERVER ACTION          RUNPOD HANDLER
+-----------       --------           -------------          ---------------
+Video             File upload        createJob(videoUrl)    download_video() -> run_inference(video_path=...)
+                  (existing)         (existing)             (existing, no changes)
 
-NEW (public layer):
-  User -> Auth -> Profile Setup (username) -> Toggle analysis public
-  Anyone -> /discover -> Browse public analyses -> View /u/[username]/[id]
-  Anyone -> /u/[username] -> View public profile + public analyses
+Image             File upload        createJob(mediaUrl,    download_image() -> ffmpeg_to_video() ->
+                  (JPEG/PNG)         inputType='image')     run_inference(video_path=...)
+
+Text (visual)     Text textarea      createJob(null,        render_text_card() -> ffmpeg_to_video() ->
+                  + style picker     inputType='text_v',    run_inference(video_path=...)
+                                     textContent='...')
+
+Text (spoken)     Text textarea      createJob(null,        save_text_to_file() ->
+                                     inputType='text_s',    model.get_events_dataframe(text_path=...)
+                                     textContent='...')     -> model.predict()
 ```
-
-### New Route Map
-
-| Route | Type | Auth Required | Purpose |
-|-------|------|---------------|---------|
-| `/discover` | Server Component | NO | Public leaderboard/feed of public analyses |
-| `/u/[username]` | Server Component | NO | Public user profile page |
-| `/u/[username]/[id]` | Server Component | NO | Public analysis view (read-only results) |
-| `/api/profiles/[username]` | API Route | NO (read) / YES (write) | Profile lookup + update |
-| `/api/discover` | API Route | NO | Paginated public feed with sorting/filtering |
-| `/api/analyses/[id]/visibility` | API Route | YES | Toggle public/private |
-| `/api/analyses/[id]/bookmark` | API Route | YES | Add/remove bookmark |
-| `/api/analyses/[id]/view` | API Route | NO | Increment view count (fire-and-forget) |
 
 ### Component Boundaries
 
 | Component | Responsibility | Communicates With |
 |-----------|---------------|-------------------|
-| `profiles` table | User identity (username, display_name, avatar_url, bio) | Referenced by jobs, bookmarks |
-| `jobs` table (modified) | Add `is_public`, `view_count`, `bookmark_count` columns | Queried by discover feed, public views |
-| `bookmarks` table (new) | User-analysis bookmark relationship | Queried by profile, discover sorting |
-| ProfileSetup component | Onboarding flow for username selection | `/api/profiles/[username]` |
-| DiscoverFeed component | Public feed with sorting, infinite scroll | `/api/discover` |
-| PublicResultsView component | Read-only version of results page | Direct Supabase query (server component) |
-| VisibilityToggle component | Public/private switch on analysis cards | `/api/analyses/[id]/visibility` |
-| BookmarkButton component | Bookmark toggle on public analyses | `/api/analyses/[id]/bookmark` |
+| Upload Page (modified) | Input type selector, type-specific UI, validation | Server action, Supabase Storage |
+| `createJob` action (modified) | Insert job with input_type, text_content; dispatch to RunPod with new payload | Supabase, RunPod API |
+| `uploadMedia` lib (new) | Upload image/video to Supabase Storage, return public URL | Supabase Storage |
+| RunPod InputSchema (modified) | Accept video_url OR text_content + input_type | handler.py |
+| Media Converter (new, RunPod-side) | Image-to-video, text-card-to-video via ffmpeg/Pillow | handler.py, ffmpeg |
+| Inference wrapper (modified) | Route to correct `get_events_dataframe` call based on input_type | TRIBE v2 model |
+| Results page (modified) | Conditionally show/hide VideoPlayer based on input_type | API, components |
+| Comparison page (new) | Side-by-side two completed analyses | API (two job fetches) |
 
----
+### Data Flow: Image Upload
 
-## New Database Schema
-
-### Table: `profiles`
-
-```sql
-CREATE TABLE profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username TEXT UNIQUE NOT NULL,
-  display_name TEXT,
-  avatar_url TEXT,
-  bio TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Enforce lowercase, alphanumeric + underscores, 3-30 chars
-ALTER TABLE profiles ADD CONSTRAINT username_format
-  CHECK (username ~ '^[a-z0-9_]{3,30}$');
-
--- Fast lookup by username
-CREATE UNIQUE INDEX idx_profiles_username ON profiles(username);
+```
+1. User drops JPEG/PNG on upload zone
+2. Frontend uploads to Supabase Storage (same 'videos' bucket, or new 'media' bucket)
+3. createJob(mediaUrl, inputType='image') inserts job + dispatches to RunPod:
+   { input: { media_url: "https://...", input_type: "image", job_id: "..." } }
+4. RunPod handler:
+   a. Downloads image to /tmp/job_id.jpg
+   b. Converts to 2-second silent video via ffmpeg:
+      ffmpeg -loop 1 -i input.jpg -c:v libx264 -t 2 -pix_fmt yuv420p -r 1 output.mp4
+   c. Calls model.get_events_dataframe(video_path=output.mp4)
+   d. Calls model.predict(events=df)
+   e. Returns OutputSchema (will have 1 segment for the 2s window)
+5. Polling + results display as normal (but no video player -- show static image)
 ```
 
-**Why a separate table instead of auth.users metadata:** Supabase auth.users is system-managed. You cannot add unique constraints, indexes, or RLS policies to it. A `profiles` table is the standard Supabase pattern for user-facing data. Link via `id` (same UUID as auth.users).
+**Why 2 seconds:** TRIBE v2 uses 2-second windows. A single still frame stretched to 2s gives exactly one segment of brain activation data -- which is all you need for a thumbnail/image test.
 
-### Columns added to `jobs` table
+### Data Flow: Text (Spoken Mode)
 
-```sql
-ALTER TABLE jobs ADD COLUMN is_public BOOLEAN DEFAULT false;
-ALTER TABLE jobs ADD COLUMN view_count INTEGER DEFAULT 0;
-ALTER TABLE jobs ADD COLUMN bookmark_count INTEGER DEFAULT 0;
-
--- Index for discover feed queries
-CREATE INDEX idx_jobs_public_created ON jobs(is_public, created_at DESC)
-  WHERE is_public = true AND status = 'completed';
-
--- Index for sorting by score (stored in JSONB)
-CREATE INDEX idx_jobs_public_score ON jobs(is_public, ((results->>'overall_score')::float) DESC)
-  WHERE is_public = true AND status = 'completed';
+```
+1. User types text in textarea, selects "Spoken" mode
+2. createJob(null, inputType='text_s', textContent='...') inserts job + dispatches:
+   { input: { text_content: "...", input_type: "text_spoken", job_id: "..." } }
+3. RunPod handler:
+   a. Saves text to /tmp/job_id.txt (UTF-8 .txt file)
+   b. Calls model.get_events_dataframe(text_path="/tmp/job_id.txt")
+      - TRIBE v2 internally: gTTS converts text to speech -> WhisperX transcribes
+        for word-level timings -> extracts LLaMA + Wav2Vec features
+   c. Calls model.predict(events=df)
+   d. Returns OutputSchema (segments based on text duration)
+4. Results page shows text content + brain viewer + timeline (no video player)
 ```
 
-### Table: `bookmarks`
+**Key finding:** `get_events_dataframe` accepts `text_path` natively. No conversion needed. TRIBE v2 handles TTS internally. This is the simplest path -- HIGH confidence from GitHub source.
 
-```sql
-CREATE TABLE bookmarks (
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (user_id, job_id)
-);
+### Data Flow: Text (Visual Mode)
 
-CREATE INDEX idx_bookmarks_user ON bookmarks(user_id, created_at DESC);
+```
+1. User types text in textarea, selects "Visual" mode, picks style/font/color
+2. createJob(null, inputType='text_v', textContent='...', textStyle={...}) 
+   inserts job + dispatches:
+   { input: { text_content: "...", input_type: "text_visual", 
+              text_style: { font: "Inter", bg: "#000", color: "#fff" }, job_id: "..." } }
+3. RunPod handler:
+   a. Renders text onto a 1920x1080 image using Pillow:
+      - Create blank canvas with bg color
+      - Draw text centered with specified font/color
+   b. Converts image to 2-second silent video via ffmpeg (same as image path)
+   c. Calls model.get_events_dataframe(video_path=output.mp4)
+   d. Calls model.predict(events=df)
+   e. Returns OutputSchema (1 segment for 2s window)
+4. Results page shows rendered text card + brain viewer (no video player)
 ```
 
-### View counting approach
+### Data Flow: Comparison Page
 
-Use a simple RPC to increment `jobs.view_count` directly. Skip a separate `view_events` table for now -- it adds complexity without value at the current scale (<1000 users). If deduplication becomes important later, add a `view_events` append-only table with hashed IPs and aggregate via a cron function.
-
----
-
-## RLS Policies
-
-### profiles
-
-```sql
--- Anyone can read any profile (public pages)
-CREATE POLICY "Public profiles are viewable by everyone"
-  ON profiles FOR SELECT USING (true);
-
--- Users can only update their own profile
-CREATE POLICY "Users can update own profile"
-  ON profiles FOR UPDATE USING (auth.uid() = id);
-
--- Users can insert their own profile (one-time setup)
-CREATE POLICY "Users can insert own profile"
-  ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+```
+1. User navigates to /compare?a=job_id_1&b=job_id_2
+   (or picks two analyses from dashboard via checkboxes)
+2. Page fetches both jobs via /api/jobs/[id] (two parallel requests)
+3. Renders two ResultsDetailPage-like views side by side:
+   - Left: Job A results (brain viewer, timeline, metrics)
+   - Right: Job B results (brain viewer, timeline, metrics)
+   - Bottom: Delta comparison strip (which regions differ most)
+4. No new API routes needed -- reuses existing GET /api/jobs/[id]
 ```
 
-### jobs (modified policies)
+## Schema Changes
+
+### Supabase `jobs` Table
 
 ```sql
--- EXISTING: Owner can see all their own jobs
-CREATE POLICY "Users can view own jobs"
-  ON jobs FOR SELECT USING (auth.uid() = user_id);
+-- New columns
+ALTER TABLE jobs ADD COLUMN input_type TEXT NOT NULL DEFAULT 'video'
+  CHECK (input_type IN ('video', 'image', 'text_spoken', 'text_visual'));
 
--- NEW: Anyone can see public completed jobs
-CREATE POLICY "Public completed jobs are viewable by everyone"
-  ON jobs FOR SELECT USING (is_public = true AND status = 'completed');
+ALTER TABLE jobs ADD COLUMN text_content TEXT;
+-- text_content stores the raw text for text_spoken and text_visual modes
+-- NULL for video and image types
 
--- EXISTING: Owner can update their own jobs
-CREATE POLICY "Users can update own jobs"
-  ON jobs FOR UPDATE USING (auth.uid() = user_id);
-
--- EXISTING: Owner can insert jobs
-CREATE POLICY "Users can insert own jobs"
-  ON jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+ALTER TABLE jobs ADD COLUMN text_style JSONB;
+-- text_style stores font/color/bg preferences for text_visual mode
+-- NULL for all other types
 ```
 
-**Critical note on RLS OR semantics:** When multiple SELECT policies exist on the same table, Supabase evaluates them with OR. So a query returns rows where EITHER the user owns it OR it is public+completed. An unauthenticated user querying `jobs` will only see public completed ones (auth.uid() is null, so the owner policy fails, public policy succeeds). This is exactly the desired behavior.
+**Migration strategy:** Add `input_type` with default 'video' so all existing rows remain valid. The `video_url` column stays as-is -- existing video jobs keep working. Image uploads also use `video_url` to store the Supabase Storage URL. Text jobs have `video_url = NULL` and `text_content` populated.
 
-### bookmarks
+**Why NOT rename video_url:** Renaming to `media_url` would break every existing query, component, and API response. The semantic mismatch (video_url holding an image URL) is acceptable -- document it and move on. New TypeScript code can alias: `const mediaUrl = job.video_url`.
 
-```sql
--- Users can see their own bookmarks
-CREATE POLICY "Users can view own bookmarks"
-  ON bookmarks FOR SELECT USING (auth.uid() = user_id);
-
--- Users can insert their own bookmarks
-CREATE POLICY "Users can insert own bookmarks"
-  ON bookmarks FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Users can delete their own bookmarks
-CREATE POLICY "Users can delete own bookmarks"
-  ON bookmarks FOR DELETE USING (auth.uid() = user_id);
-```
-
----
-
-## TypeScript Type Changes
-
-### Updated `database.types.ts`
+### TypeScript Types Update
 
 ```typescript
-export interface Profile {
-  id: string
-  username: string
-  display_name: string | null
-  avatar_url: string | null
-  bio: string | null
-  created_at: string
-  updated_at: string
-}
+export type InputType = 'video' | 'image' | 'text_spoken' | 'text_visual'
 
 export interface Job {
   id: string
   user_id: string
-  video_url: string
+  video_url: string           // kept for backward compat; stores image URLs too
   title: string | null
+  is_public: boolean
+  view_count: number
   status: JobStatus
+  input_type: InputType       // NEW
+  text_content: string | null // NEW: raw text for text modes
+  text_style: Record<string, string> | null // NEW: visual mode styling
   runpod_id: string | null
   results: Record<string, unknown> | null
   error_message: string | null
-  is_public: boolean        // NEW
-  view_count: number        // NEW
-  bookmark_count: number    // NEW
   created_at: string
   updated_at: string
 }
-
-export interface Bookmark {
-  user_id: string
-  job_id: string
-  created_at: string
-}
-
-export interface Database {
-  public: {
-    Tables: {
-      jobs: { Row: Job; Insert: ...; Update: ... }
-      profiles: { Row: Profile; Insert: ...; Update: ... }
-      bookmarks: { Row: Bookmark; Insert: ...; Update: ... }
-    }
-  }
-}
 ```
 
----
+### RunPod InputSchema Update
 
-## Middleware Changes
-
-The current middleware redirects ALL unauthenticated users to `/login` except for `/login`, `/signup`, and `/welcome`. The social discovery features require public routes.
-
-```typescript
-// middleware.ts - updated route logic
-const publicRoutes = ['/login', '/signup', '/forgot-password']
-const publicPrefixes = ['/discover', '/u/']  // NEW: public discovery routes
-
-const isPublicRoute = publicRoutes.some(route =>
-  request.nextUrl.pathname.startsWith(route)
-)
-const isPublicPrefix = publicPrefixes.some(prefix =>
-  request.nextUrl.pathname.startsWith(prefix)
-)
-const isWelcomePage = request.nextUrl.pathname === '/welcome'
-const isLandingPage = request.nextUrl.pathname === '/'
-
-// Allow unauthenticated access to public routes
-if (!user && !isPublicRoute && !isPublicPrefix && !isWelcomePage && !isLandingPage) {
-  // redirect to /login
-}
+```python
+class InputSchema(BaseModel):
+    # Existing
+    video_url: str | None = None     # was required, now optional
+    include_raw: bool = False
+    include_vertex_data: bool = True
+    
+    # New
+    input_type: Literal["video", "image", "text_spoken", "text_visual"] = "video"
+    text_content: str | None = None  # for text_spoken and text_visual
+    text_style: dict | None = None   # for text_visual (font, bg, color)
+    
+    @model_validator(mode="after")
+    def validate_input_combination(self):
+        if self.input_type == "video" and not self.video_url:
+            raise ValueError("video_url required for video input")
+        if self.input_type == "image" and not self.video_url:
+            raise ValueError("video_url (media URL) required for image input")
+        if self.input_type in ("text_spoken", "text_visual") and not self.text_content:
+            raise ValueError("text_content required for text input")
+        return self
 ```
 
----
+## New API Routes
 
-## New Pages Architecture
+No new API routes are strictly needed. The existing routes handle everything:
 
-### Layout Groups
+| Route | Current | Change Needed |
+|-------|---------|---------------|
+| `POST /api/jobs` (via server action) | Creates job with video_url | Accept input_type, text_content, text_style; dispatch with new payload |
+| `GET /api/jobs/[id]` | Returns job + polls RunPod | No changes -- already returns full job row |
+| `PATCH /api/jobs/[id]` | Updates title, is_public | No changes needed |
 
-Create a new `(public)` layout group alongside `(app)` and `(auth)`:
+**Optional new route:** `GET /api/compare?a=id1&b=id2` could batch-fetch two jobs in one request, but two parallel `GET /api/jobs/[id]` calls are simpler and reuse existing auth/visibility logic.
 
-```
-app/
-  (public)/
-    layout.tsx          -- Minimal nav (no sidebar), optional auth state
-    discover/
-      page.tsx          -- Server component: initial data fetch
-      DiscoverFeed.tsx  -- Client component: sorting, filtering, infinite scroll
-      DiscoverCard.tsx  -- Client component: analysis card with bookmark, view count
-    u/
-      [username]/
-        page.tsx        -- Public profile page
-        [id]/
-          page.tsx      -- Public analysis view
-  (app)/
-    ...existing...
-```
+## New & Modified Files
 
-**Why a separate layout group:** The `(app)` layout wraps everything in `AppShell` (sidebar, auth-gated). Public pages need a different shell -- lighter nav, no sidebar, auth optional. Next.js route groups with `(parentheses)` share no URL segment, so `(public)/discover` maps to `/discover`.
+### New Files (Frontend)
 
-### `/discover` (Discovery/Leaderboard Page)
+| File | Purpose |
+|------|---------|
+| `web/src/app/(app)/upload/InputTypeSelector.tsx` | Tab/pill selector: Video / Image / Text |
+| `web/src/app/(app)/upload/ImageUploadZone.tsx` | Drop zone for JPEG/PNG (reuses AnimatedFileUpload pattern with image types) |
+| `web/src/app/(app)/upload/TextInputForm.tsx` | Textarea + mode toggle (Visual/Spoken) + style picker for visual mode |
+| `web/src/app/(app)/compare/page.tsx` | Side-by-side comparison of two analyses |
+| `web/src/components/results/StaticMediaViewer.tsx` | Shows original image or rendered text card instead of VideoPlayer |
+| `web/src/lib/upload-media.ts` | `uploadMedia(file)` -- accepts image or video, uploads to Supabase Storage |
 
-**Data fetching pattern:**
+### Modified Files (Frontend)
 
-```typescript
-// discover/page.tsx (server component)
-export default async function DiscoverPage() {
-  const supabase = await createClient()
+| File | Change |
+|------|--------|
+| `web/src/app/(app)/upload/page.tsx` | Add InputTypeSelector, conditionally render upload zone vs text form |
+| `web/src/app/(app)/upload/actions.ts` | `createJob` accepts input_type, text_content, text_style; dispatches enriched payload to RunPod |
+| `web/src/lib/database.types.ts` | Add InputType, update Job interface |
+| `web/src/app/(app)/results/[id]/page.tsx` | Conditionally render VideoPlayer vs StaticMediaViewer based on input_type |
+| `web/src/app/(app)/dashboard/page.tsx` | Show input_type icon on job cards; add "Compare" selection UI |
+| `web/src/app/(app)/discover/page.tsx` | Add input_type filter; show appropriate thumbnail for non-video |
+| `web/src/components/upload/AnimatedFileUpload.tsx` | Accept configurable `acceptedTypes` for image support |
 
-  const { data: analyses } = await supabase
-    .from('jobs')
-    .select('*, profiles!inner(username, display_name, avatar_url)')
-    .eq('is_public', true)
-    .eq('status', 'completed')
-    .order('created_at', { ascending: false })
-    .limit(20)
+### New Files (RunPod Worker)
 
-  return <DiscoverFeed initialData={analyses} />
-}
-```
+| File | Purpose |
+|------|---------|
+| `src/media_converter.py` | `image_to_video(image_path) -> video_path` and `text_to_image(text, style) -> image_path` using ffmpeg + Pillow |
 
-**Sorting options:** Most Recent, Highest Score, Most Viewed, Most Bookmarked. Client-side re-sorting for the initial page; API call for pagination/filter changes.
+### Modified Files (RunPod Worker)
 
-### `/u/[username]` (Public Profile)
-
-```typescript
-// (public)/u/[username]/page.tsx
-export default async function PublicProfilePage({ params }) {
-  const { username } = await params
-  const supabase = await createClient()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('username', username)
-    .single()
-
-  if (!profile) notFound()
-
-  const { data: publicAnalyses } = await supabase
-    .from('jobs')
-    .select('*')
-    .eq('user_id', profile.id)
-    .eq('is_public', true)
-    .eq('status', 'completed')
-    .order('created_at', { ascending: false })
-
-  return <PublicProfile profile={profile} analyses={publicAnalyses} />
-}
-```
-
-### `/u/[username]/[id]` (Public Analysis View)
-
-Reuses existing results visualization components in read-only mode:
-
-```typescript
-// (public)/u/[username]/[id]/page.tsx
-export default async function PublicAnalysisPage({ params }) {
-  const { username, id } = await params
-  const supabase = await createClient()
-
-  const { data: job } = await supabase
-    .from('jobs')
-    .select('*, profiles!inner(username)')
-    .eq('id', id)
-    .eq('is_public', true)
-    .eq('status', 'completed')
-    .single()
-
-  if (!job || job.profiles.username !== username) notFound()
-
-  // Fire view count increment (non-blocking)
-  supabase.rpc('increment_view_count', { p_job_id: id })
-
-  return <PublicResultsView job={job} username={username} />
-}
-```
-
----
-
-## API Routes
-
-### `/api/discover` (GET)
-
-Supports: `?sort=recent|score|views|bookmarks&cursor=...&limit=20`
-
-Uses cursor-based pagination (stable under concurrent inserts, performs well). The cursor is the `created_at` timestamp of the last item. Returns `{ items, nextCursor }`.
-
-### `/api/analyses/[id]/visibility` (PATCH)
-
-Owner-only. Toggles `is_public` boolean. Only allows toggling on completed analyses.
-
-### `/api/analyses/[id]/bookmark` (POST/DELETE)
-
-Auth-required. Uses RPC functions for atomic bookmark insert/delete + count update:
-
-```sql
-CREATE OR REPLACE FUNCTION add_bookmark(p_user_id UUID, p_job_id UUID)
-RETURNS void AS $$
-BEGIN
-  INSERT INTO bookmarks (user_id, job_id) VALUES (p_user_id, p_job_id)
-    ON CONFLICT DO NOTHING;
-  UPDATE jobs SET bookmark_count = (
-    SELECT count(*) FROM bookmarks WHERE job_id = p_job_id
-  ) WHERE id = p_job_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION remove_bookmark(p_user_id UUID, p_job_id UUID)
-RETURNS void AS $$
-BEGIN
-  DELETE FROM bookmarks WHERE user_id = p_user_id AND job_id = p_job_id;
-  UPDATE jobs SET bookmark_count = (
-    SELECT count(*) FROM bookmarks WHERE job_id = p_job_id
-  ) WHERE id = p_job_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION increment_view_count(p_job_id UUID)
-RETURNS void AS $$
-BEGIN
-  UPDATE jobs SET view_count = view_count + 1
-  WHERE id = p_job_id AND is_public = true;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
----
-
-## Profile Onboarding Strategy
-
-**Auto-create profile on signup** via a database trigger:
-
-```sql
-CREATE OR REPLACE FUNCTION create_profile_for_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO profiles (id, username, display_name)
-  VALUES (
-    NEW.id,
-    'user_' || substr(NEW.id::text, 1, 8),  -- temporary username
-    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1))
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION create_profile_for_user();
-```
-
-This guarantees every user has a profile row. The temporary `user_abc12345` username prompts them to customize it. Check for temp usernames in the `(app)` layout and show an inline banner.
-
-**Username claim function** (atomic check + update):
-
-```sql
-CREATE OR REPLACE FUNCTION claim_username(p_user_id UUID, p_username TEXT)
-RETURNS profiles AS $$
-DECLARE
-  result profiles;
-BEGIN
-  UPDATE profiles SET username = lower(p_username), updated_at = now()
-  WHERE id = p_user_id
-  RETURNING * INTO result;
-  RETURN result;
-EXCEPTION WHEN unique_violation THEN
-  RAISE EXCEPTION 'Username already taken';
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
----
-
-## Shared Results Component Extraction
-
-The key architectural move: extract visualization from `/results/[id]/page.tsx` into a shared component.
-
-**Current state:** The `ResultsDetailPage` client component (489 lines) mixes:
-- Job fetching + polling logic (owner-specific)
-- Video-timeline sync state
-- Title editing (owner-specific)
-- Results visualization (BrainViewer, NeuralTimeline, metrics, circumplex)
-
-**Target extraction:**
-
-```
-ResultsDetailPage (owner view, /results/[id])
-  |-- Job fetching, polling, title editing, export, share button
-  |-- <ResultsVisualization results={...} videoUrl={...} readOnly={false} />
-
-PublicResultsView (public view, /u/[username]/[id])
-  |-- Creator attribution, bookmark button, view count
-  |-- <ResultsVisualization results={...} videoUrl={...} readOnly={true} />
-
-ResultsVisualization (shared component)
-  |-- VideoPlayer + BrainViewer side by side
-  |-- NeuralTimeline
-  |-- Insights Summary (metrics, circumplex)
-  |-- Video-timeline sync state (useVideoTime hook)
-```
-
-The `ResultsVisualization` component owns all the video-timeline sync logic (refs, handlers, play state) and all the visualization components. The parent only provides the data and controls whether owner actions are shown.
-
----
+| File | Change |
+|------|--------|
+| `src/schema.py` | InputSchema: add input_type, text_content, text_style; make video_url optional |
+| `src/handler.py` | Route based on input_type: video (existing), image (convert+infer), text_spoken (direct text_path), text_visual (render+convert+infer) |
+| `src/inference.py` | `run_inference` accepts optional `text_path` param; routes to correct `get_events_dataframe` call |
+| `Dockerfile` | Add `python3-pil` (Pillow) for text card rendering |
 
 ## Patterns to Follow
 
-### Pattern 1: Join via Foreign Keys
-Add FK from `jobs.user_id` to `profiles.id` so PostgREST joins work: `jobs.select('*, profiles!inner(username)')`. The trigger ensures profiles exist before jobs are created.
+### Pattern 1: Input Type Routing in Handler
 
-### Pattern 2: Cursor-Based Pagination
-For the discover feed. Cursor = `created_at` of last item. Stable under concurrent writes, efficient at any offset.
+```python
+# src/handler.py - modified handler function
+def handler(job):
+    params = InputSchema(**job["input"])
+    
+    if params.input_type == "video":
+        video_path = download_video(params.video_url, job_id)
+        preds, segments, timing = run_inference(model, video_path=str(video_path))
+        
+    elif params.input_type == "image":
+        image_path = download_media(params.video_url, job_id)
+        video_path = image_to_video(image_path)
+        preds, segments, timing = run_inference(model, video_path=str(video_path))
+        
+    elif params.input_type == "text_spoken":
+        text_path = save_text_file(params.text_content, job_id)
+        preds, segments, timing = run_inference(model, text_path=str(text_path))
+        
+    elif params.input_type == "text_visual":
+        image_path = render_text_card(params.text_content, params.text_style)
+        video_path = image_to_video(image_path)
+        preds, segments, timing = run_inference(model, video_path=str(video_path))
+```
 
-### Pattern 3: Optimistic UI for Social Actions
-Bookmark toggles update UI immediately, fire API in background, revert on failure.
+### Pattern 2: Conditional Video Player on Results Page
 
-### Pattern 4: Denormalized Counts
-`view_count` and `bookmark_count` on `jobs` directly, updated via SECURITY DEFINER RPCs. Avoids COUNT(*) aggregation on every discover feed query.
+```typescript
+// In results/[id]/page.tsx
+const isVideoInput = !job.input_type || job.input_type === 'video'
 
----
+// In the grid:
+{isVideoInput ? (
+  <VideoPlayer src={results.video_url} ... />
+) : (
+  <StaticMediaViewer job={job} />
+)}
+```
+
+### Pattern 3: Image-to-Video Conversion (RunPod-side)
+
+```python
+# src/media_converter.py
+import subprocess
+from pathlib import Path
+
+def image_to_video(image_path: Path, duration: float = 2.0) -> Path:
+    """Convert a still image to a silent video for TRIBE v2 inference."""
+    output = image_path.with_suffix('.mp4')
+    subprocess.run([
+        'ffmpeg', '-y',
+        '-loop', '1',
+        '-i', str(image_path),
+        '-c:v', 'libx264',
+        '-t', str(duration),
+        '-pix_fmt', 'yuv420p',
+        '-r', '1',           # 1 fps (minimum for still image)
+        '-an',                # no audio
+        str(output)
+    ], check=True, capture_output=True)
+    return output
+```
+
+### Pattern 4: Text Card Rendering (RunPod-side)
+
+```python
+# src/media_converter.py
+from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
+
+def render_text_card(text: str, style: dict | None, job_id: str) -> Path:
+    """Render styled text onto a 1920x1080 image."""
+    style = style or {}
+    bg = style.get('bg_color', '#000000')
+    fg = style.get('text_color', '#FFFFFF')
+    
+    img = Image.new('RGB', (1920, 1080), color=bg)
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.load_default(size=72)
+    
+    # Center text with word wrap
+    bbox = draw.textbbox((0, 0), text, font=font)
+    x = (1920 - (bbox[2] - bbox[0])) // 2
+    y = (1080 - (bbox[3] - bbox[1])) // 2
+    draw.text((x, y), text, fill=fg, font=font)
+    
+    output = Path(f'/tmp/{job_id}_text_card.png')
+    img.save(output)
+    return output
+```
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Separate Public and Private Results Components
-**What:** Building two completely separate results page components.
-**Why bad:** Massive code duplication. The visualization is identical -- only the chrome differs.
-**Instead:** Extract `ResultsVisualization` shared component. Pass `readOnly` prop.
+### Anti-Pattern 1: Client-Side Media Conversion
+**What:** Converting image-to-video or rendering text cards in the browser before upload.
+**Why bad:** Large canvas/video processing in browser is slow, unreliable, and varies by device. The user should upload raw input; the server handles conversion.
+**Instead:** All conversion happens on the RunPod worker where ffmpeg and Pillow are available.
 
-### Anti-Pattern 2: Client-Side Username Validation Only
-**What:** Checking username availability only in the browser.
-**Why bad:** Race condition -- two users could claim the same username simultaneously.
-**Instead:** Database UNIQUE constraint is the source of truth. Client check is UX sugar.
+### Anti-Pattern 2: Separate RunPod Endpoints per Input Type
+**What:** Creating `/v2/image-endpoint/run`, `/v2/text-endpoint/run` etc.
+**Why bad:** Multiplies infrastructure, cold starts, and maintenance. The model is the same.
+**Instead:** Single endpoint, `input_type` field in payload routes to correct pre-processing.
 
-### Anti-Pattern 3: Using Supabase Realtime for View Counts
-**What:** WebSocket subscriptions for counter updates.
-**Why bad:** Overkill for non-time-sensitive analytics. Wastes connection resources.
-**Instead:** Fetch on page load. No live updates needed.
+### Anti-Pattern 3: Storing Rendered Media Back to Supabase
+**What:** After RunPod converts image-to-video, uploading the generated video back to storage.
+**Why bad:** Unnecessary network round-trip, storage cost, and complexity. The generated video is a transient artifact only needed for inference.
+**Instead:** Generate in /tmp, run inference, delete. The original image/text is preserved in the job record.
 
-### Anti-Pattern 4: Making Private Job Fields Visible in Public Queries
-**What:** Returning `runpod_id`, `error_message`, `user_id` in public API responses.
-**Why bad:** Leaks internal implementation details.
-**Instead:** Define a `PublicAnalysis` type that excludes sensitive fields. Map in API route or use a Postgres VIEW.
+### Anti-Pattern 4: Renaming video_url Column
+**What:** `ALTER TABLE jobs RENAME COLUMN video_url TO media_url` for semantic correctness.
+**Why bad:** Breaks every existing query, component, and API response. Migration risk for cosmetic gain.
+**Instead:** Keep `video_url`. It stores image URLs too. Document the semantic mismatch.
 
----
-
-## Scalability Considerations
-
-| Concern | At 100 users | At 10K users | At 1M users |
-|---------|--------------|--------------|-------------|
-| Discover feed | Single query, no caching | Add cache headers, consider materialized view | Full-text search, read replica |
-| View counting | Direct increment RPC | Same, dedup optional | Batch via view_events + cron |
-| Bookmark counts | RPC with subquery | Same | Trigger-based counter cache |
-| Profile lookups | Index on username | Same | CDN cache public profiles |
-| Public results | Direct query | Same | CDN cache completed analyses |
-
-For v4.0 at current scale, the simple approach is sufficient. Do not over-engineer.
-
----
+### Anti-Pattern 5: Converting Text to Video Client-Side for Visual Mode
+**What:** Using HTML Canvas to render text card as image in browser, then converting to video.
+**Why bad:** Requires complex browser APIs (MediaRecorder, Canvas), inconsistent across browsers, adds large upload for what started as a few bytes of text.
+**Instead:** Send raw text + style to RunPod. Worker renders with Pillow (deterministic, fast).
 
 ## Suggested Build Order
 
-Ordered by dependency chain:
+Build order driven by dependency chains and incremental testability.
 
-1. **Database schema + RLS + RPCs** -- everything depends on this
-2. **Middleware update** -- unblocks public routes
-3. **Profile system** -- username claim, settings UI, auto-create trigger
-4. **Visibility toggle** -- enables public content to exist
-5. **Public layout group** -- `(public)/layout.tsx` with minimal nav
-6. **ResultsVisualization extraction** -- prerequisite for public view
-7. **Public analysis view** -- `/u/[username]/[id]`, view counting
-8. **Public profile page** -- `/u/[username]`
-9. **Discovery feed** -- `/discover` + `/api/discover`, sorting, pagination
-10. **Bookmarks** -- social engagement, lowest priority
+### Phase 1: Schema & Infrastructure (foundation -- everything depends on this)
+1. Supabase migration: add `input_type`, `text_content`, `text_style` columns
+2. Update `database.types.ts` with new fields
+3. Update RunPod `InputSchema` to accept new fields (backward-compatible)
+4. Update `createJob` action to accept and pass new fields
 
----
+### Phase 2: Image Upload (simplest new input type)
+1. Modify `AnimatedFileUpload` to accept configurable MIME types
+2. Add `InputTypeSelector` component (Video/Image/Text tabs)
+3. Modify upload page to show image upload zone when Image selected
+4. Add `image_to_video()` in `src/media_converter.py`
+5. Modify handler to route image input through conversion -> inference
+6. Test: upload a JPEG, get back 1-segment brain activation
 
-## File Change Summary
+### Phase 3: Text Spoken Mode (leverages native TRIBE v2 capability)
+1. Add `TextInputForm` component with textarea
+2. Modify upload page to show text form when Text selected
+3. Modify handler to route text_spoken through `get_events_dataframe(text_path=...)`
+4. Modify `run_inference` to accept text_path parameter
+5. Test: enter text, get back multi-segment brain activation
 
-### New Files
-| File | Purpose |
-|------|---------|
-| `src/app/(public)/layout.tsx` | Public page layout (no sidebar) |
-| `src/app/(public)/discover/page.tsx` | Discovery/leaderboard server component |
-| `src/app/(public)/discover/DiscoverFeed.tsx` | Client feed with sorting/pagination |
-| `src/app/(public)/discover/DiscoverCard.tsx` | Analysis card for feed |
-| `src/app/(public)/u/[username]/page.tsx` | Public profile page |
-| `src/app/(public)/u/[username]/[id]/page.tsx` | Public analysis view |
-| `src/app/api/discover/route.ts` | Paginated public feed API |
-| `src/app/api/profiles/[username]/route.ts` | Profile lookup/update API |
-| `src/app/api/analyses/[id]/visibility/route.ts` | Toggle visibility API |
-| `src/app/api/analyses/[id]/bookmark/route.ts` | Bookmark toggle API |
-| `src/components/social/BookmarkButton.tsx` | Bookmark toggle UI |
-| `src/components/social/VisibilityToggle.tsx` | Public/private switch |
-| `src/components/social/ShareButton.tsx` | Copy public URL |
-| `src/components/social/ViewCount.tsx` | View count display |
-| `src/components/results/ResultsVisualization.tsx` | Extracted shared results view |
-| `src/components/profile/ProfileSetup.tsx` | Username onboarding banner |
-| `src/components/profile/UsernameInput.tsx` | Username field with availability check |
-| `supabase/migrations/XXXXXX_social_discovery.sql` | All schema changes |
+### Phase 4: Text Visual Mode (builds on image conversion from Phase 2)
+1. Add visual/spoken mode toggle to `TextInputForm`
+2. Add style picker (bg color, text color) for visual mode
+3. Add `render_text_card()` in `src/media_converter.py` (Pillow)
+4. Add Pillow to Dockerfile
+5. Modify handler to route text_visual through render -> convert -> inference
+6. Test: enter styled text, get back 1-segment brain activation
 
-### Modified Files
-| File | Change |
-|------|--------|
-| `src/lib/database.types.ts` | Add Profile, Bookmark types; update Job with new fields |
-| `web/middleware.ts` | Add public route prefixes to allowed paths |
-| `src/components/layout/Sidebar.tsx` | Add Discover nav item |
-| `src/app/(app)/profile/page.tsx` | Show username, link to public profile |
-| `src/app/(app)/settings/SettingsForm.tsx` | Add username field |
-| `src/app/(app)/dashboard/page.tsx` | Add visibility toggle to completed job cards |
-| `src/app/(app)/results/[id]/page.tsx` | Extract visualization, add share button |
+### Phase 5: Results Adaptations
+1. Create `StaticMediaViewer` component (shows image or text card)
+2. Modify results page: conditionally render VideoPlayer vs StaticMediaViewer
+3. Handle 1-segment results gracefully in timeline (no meaningful timeline for single segment)
+4. Update dashboard cards to show input_type icon
+5. Update discover page with input_type filter
+
+### Phase 6: Comparison Page
+1. Create `/compare` route with query params `?a=id1&b=id2`
+2. Build side-by-side layout reusing results components
+3. Add comparison selection UI on dashboard (checkboxes + "Compare" button)
+4. Add delta metrics strip (difference between two analyses)
+
+**Phase ordering rationale:**
+- Phase 1 must come first (schema changes are foundational)
+- Phase 2 before Phase 4 (image conversion is reused by text_visual)
+- Phase 3 can run in parallel with Phase 2 (independent paths)
+- Phase 5 depends on Phases 2-4 (needs all input types working)
+- Phase 6 is fully independent of Phases 2-5 (only needs two completed jobs)
+
+## Scalability Considerations
+
+| Concern | Current (video only) | With multi-modal |
+|---------|---------------------|------------------|
+| Storage | ~100MB per video | Images: ~5MB, Text: <1KB. Negligible added cost. |
+| Inference time | ~12 min / 60s video | Image: ~2 min (2s video), Text spoken: ~3-5 min, Text visual: ~2 min. Much faster for non-video. |
+| Cold start | Same | Same -- no new models needed. Pillow + ffmpeg already in container. |
+| RunPod cost | ~$0.07/job (A40) | Image/text jobs: ~$0.01-0.02/job. Much cheaper. |
 
 ## Sources
 
-- Supabase RLS documentation: https://supabase.com/docs/guides/database/postgres/row-level-security
-- Supabase Auth + profiles pattern: https://supabase.com/docs/guides/auth/managing-user-data
-- Next.js App Router route groups: https://nextjs.org/docs/app/building-your-application/routing/route-groups
-- PostgREST foreign key joins: https://postgrest.org/en/stable/references/api/resource_embedding.html
+- [TRIBE v2 GitHub](https://github.com/facebookresearch/tribev2) -- `get_events_dataframe(text_path=..., audio_path=..., video_path=...)` signature confirmed in `tribev2/demo_utils.py` (HIGH confidence)
+- [TRIBE v2 README](https://github.com/facebookresearch/tribev2) -- "You can also pass text_path or audio_path to model.get_events_dataframe" (HIGH confidence)
+- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- Architecture: LLaMA 3.2 (text), V-JEPA2 (video), Wav2Vec-BERT (audio) (HIGH confidence)
+- [FFmpeg image-to-video](https://shotstack.io/learn/use-ffmpeg-to-convert-images-to-video/) -- `ffmpeg -loop 1 -i input.jpg -t 2 output.mp4` pattern (HIGH confidence)
+- Existing codebase analysis: handler.py, schema.py, inference.py, upload/page.tsx, results/[id]/page.tsx, database.types.ts (HIGH confidence)

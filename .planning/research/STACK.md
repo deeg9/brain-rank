@@ -1,246 +1,242 @@
-# Stack Research: Social Discovery Platform
+# Stack Research: Multi-Modal Input & Comparison
 
-**Domain:** User profiles, public/private content, discovery/leaderboard, social interactions
+**Domain:** Image upload, text rendering/TTS, media-to-video conversion, comparison UI
 **Researched:** 2026-04-11
 **Confidence:** HIGH
 
 ## Core Finding
 
-This milestone requires zero new npm dependencies. The social discovery features are built entirely with Supabase Postgres (new tables, RLS policies, RPC functions, indexes) and Next.js App Router (new routes, Server Components). The work is database schema design and frontend pages, not library additions.
+This milestone splits into two execution domains with different stack needs:
+
+1. **RunPod container (Python):** Needs Pillow for image-to-video conversion. MoviePy and gTTS are already installed. TRIBE v2 natively supports `text_path` and `audio_path` parameters -- no wrapper needed.
+
+2. **Next.js frontend:** Needs satori + @resvg/resvg-js for text-to-image rendering (visual mode). Comparison page uses existing Recharts with syncId for synchronized charts. No new component library needed.
+
+Total new dependencies: 2 npm packages (frontend), 1 pip package (RunPod container, and only if not already pulled in by TRIBE v2 transitive deps).
 
 ## Recommended Stack Additions
 
-### New NPM Dependencies: NONE
+### RunPod Container (Python) -- 1 New Dependency
 
-Every feature in this milestone is achievable with the existing `package.json`. Here is why each tempting addition is unnecessary:
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Pillow | >=12.2.0 | Image decoding + resize | Decode JPEG/PNG uploads, resize to 720p, pass numpy array to MoviePy's ImageClip. Pillow is the standard Python imaging library. MoviePy uses it internally for some operations but does not list it as a hard dependency -- must be explicitly installed. |
+
+**Already available (DO NOT add):**
+
+| Technology | Already Installed Via | Used For |
+|------------|----------------------|----------|
+| MoviePy | TRIBE v2 dependency (>=2.2.1) | `ImageClip(numpy_array).with_duration(5).write_videofile()` -- converts image to silent MP4 |
+| FFmpeg | `apt-get install ffmpeg` in Dockerfile | Backend for MoviePy video writing |
+| gTTS | TRIBE v2 dependency (>=2.3) | Text-to-speech for "spoken mode" text input |
+| TRIBE v2 `text_path` | tribev2 package itself | Native text input -- pass a `.txt` file, TRIBE v2 auto-runs gTTS + WhisperX internally |
+
+### Next.js Frontend -- 2 New Dependencies
+
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| satori | ^0.19.2 | HTML/CSS to SVG rendering | Renders styled text cards as SVG using JSX syntax. Used in Next.js API route to convert user's text input + selected style into an image. Vercel-maintained, 797K weekly downloads, uses Yoga layout engine (same as React Native). |
+| @resvg/resvg-js | ^2.6.2 | SVG to PNG conversion | Converts satori's SVG output to PNG buffer for upload to Supabase Storage. Rust-powered via napi-rs, no node-gyp needed, faster than sharp for SVG rasterization (12 ops/s vs 9 ops/s). |
+
+**Already available (DO NOT add):**
+
+| Technology | Already Installed | Used For |
+|------------|-------------------|----------|
+| Recharts (^3.8.1) | package.json | Comparison page: two NeuralTimeline charts with `syncId` prop for synchronized tooltips/hover |
+| Framer Motion (^12.38.0) | package.json | Comparison page transitions, type selector animations |
+| @supabase/supabase-js (^2.103.0) | package.json | Upload images to same `videos` storage bucket, create jobs with new `input_type` column |
+| Supabase Storage | Already configured | Accepts any file type -- just change accepted MIME types in upload function |
+
+### Why NOT These Alternatives
 
 | You Might Think You Need | Why You Do Not |
 |--------------------------|----------------|
-| Username validation library | A Postgres `CHECK` constraint (`~ '^[a-zA-Z0-9_]{3,20}$'`) plus a `UNIQUE` index enforces validity and uniqueness at the database level. Client-side regex for UX feedback is 1 line. |
-| Search library (Algolia, Meilisearch) | Postgres full-text search with `to_tsvector` + GIN index handles searching titles and usernames across hundreds-to-thousands of analyses. Zero cost, zero infrastructure. |
-| State management (Zustand, Jotai) | Bookmarks and view counts are server state fetched via Supabase. Sort/filter toggles on discovery page are trivial `useState`. No global client state needed. |
-| Infinite scroll library | `limit` + `offset` pagination from Supabase with a "Load more" button. If intersection observer needed later, it is 10 lines without a library. |
-| ORM (Prisma, Drizzle) | Supabase JS client is already the query layer. An ORM conflicts with RLS (bypasses policies unless configured carefully) and creates two data access patterns. |
-| React Query / SWR | Server Components handle initial data fetching for discovery/profile pages. Client mutations (bookmark toggle, view increment) are single Supabase calls with optimistic `useState` updates. Not enough client-side data fetching to justify a caching library. |
-| NextAuth / Auth.js | Supabase Auth with `@supabase/ssr` is already integrated. Adding another auth layer creates confusion and conflicts. |
-| Redis for view counts | Premature. Postgres atomic increment via RPC handles this scale. Redis adds infrastructure for no measurable gain at hundreds of concurrent users. |
-| Slug/URL library | Usernames ARE the URL slugs. No transformation needed. Route: `/u/[username]`. |
+| sharp for text rendering | sharp is for image manipulation (resize, format conversion). It cannot render HTML/CSS to images. satori + resvg-js is the correct pipeline for text card rendering. sharp is already used by Next.js internally for image optimization. |
+| Canvas / node-canvas | Requires Cairo system library, complex install in containers, poor text layout compared to satori's Flexbox-based approach. |
+| Puppeteer / Playwright for screenshots | Spins up a headless browser -- massive overhead for rendering a styled text card. satori runs in-process with zero browser dependency. |
+| OpenCV (Python) for image-to-video | Already have MoviePy which wraps FFmpeg. Adding OpenCV adds 100MB+ to container for zero benefit. MoviePy's `ImageClip` does exactly this. |
+| react-compare-slider | The comparison is two full result panels side by side, not an image overlay slider. Standard CSS grid with two instances of existing components is the correct approach. |
+| Zustand/Jotai for comparison state | Comparison page manages exactly 2 job IDs as URL search params (`?a=uuid1&b=uuid2`). `useState` + `useSearchParams` is sufficient. |
+| @vercel/og | Wraps satori + resvg internally but is designed for OG image generation in Edge Runtime. We need the raw libraries for more control over output (upload PNG to Supabase, not serve as response). |
 
-### Database Layer (Supabase Postgres -- already installed, @supabase/supabase-js@^2.103.0)
+## Database Schema Changes (Supabase Postgres)
 
-This is where the actual "stack" for this milestone lives. All additions are SQL migrations.
-
-#### New Table: `profiles`
+### New Column on `jobs` Table
 
 ```sql
-create table public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  username text unique not null
-    check (username ~ '^[a-zA-Z0-9_]{3,20}$'),
-  display_name text,
-  avatar_url text,
-  bio text check (char_length(bio) <= 280),
-  created_at timestamptz default now() not null,
-  updated_at timestamptz default now() not null
-);
+-- Track what type of content was analyzed
+alter table public.jobs
+  add column input_type text default 'video' not null
+  check (input_type in ('video', 'image', 'text_visual', 'text_spoken'));
 
-create unique index idx_profiles_username on public.profiles(username);
-create trigger on_profiles_updated
-  before update on public.profiles
-  for each row execute function public.handle_updated_at();
+-- Index for filtering by type on dashboard/discover
+create index idx_jobs_input_type on public.jobs(input_type);
 ```
 
-**Why a separate table instead of Supabase Auth user_metadata:** Auth metadata has no uniqueness constraints, no indexes, and no RLS. You cannot enforce unique usernames in `user_metadata`. A `profiles` table with a `UNIQUE` constraint is the standard Supabase pattern for public user identity.
+**Why `input_type` on jobs instead of a separate table:** The input type is a property of the analysis, not a separate entity. It determines how the results page renders (video player vs static image vs text card) and what icon shows on dashboard/discover cards. A column with a CHECK constraint is simpler and faster than a join.
 
-#### New Columns on `jobs` Table
+### Column Rename Consideration
+
+The existing `video_url` column on `jobs` should be renamed to `media_url` to reflect that it now stores URLs for images and rendered text cards too. However, this is a breaking change that touches every query. **Recommendation:** Keep `video_url` for now and add a comment. Rename in a future migration when stable.
 
 ```sql
-alter table public.jobs add column is_public boolean default false not null;
-alter table public.jobs add column view_count integer default 0 not null;
-alter table public.jobs add column bookmark_count integer default 0 not null;
-
--- Partial indexes: only index public jobs. Private jobs never appear in discovery queries.
-create index idx_jobs_public_created on public.jobs(created_at desc) where is_public = true;
-create index idx_jobs_public_views on public.jobs(view_count desc) where is_public = true;
-create index idx_jobs_public_bookmarks on public.jobs(bookmark_count desc) where is_public = true;
+comment on column public.jobs.video_url is
+  'URL to the uploaded media file (video, image, or rendered text card). Historical name; stores all media types.';
 ```
 
-**Why partial indexes:** Discovery page only queries `WHERE is_public = true`. Partial indexes are smaller and faster because they exclude private jobs entirely.
+### TypeScript Type Updates
 
-#### New Table: `bookmarks`
+```typescript
+// database.types.ts additions
+export type InputType = 'video' | 'image' | 'text_visual' | 'text_spoken'
 
-```sql
-create table public.bookmarks (
-  user_id uuid references auth.users(id) on delete cascade not null,
-  job_id uuid references public.jobs(id) on delete cascade not null,
-  created_at timestamptz default now() not null,
-  primary key (user_id, job_id)
-);
-
-create index idx_bookmarks_job on public.bookmarks(job_id);
+export interface Job {
+  // ... existing fields ...
+  input_type: InputType  // NEW
+}
 ```
 
-**Why a junction table instead of a JSONB array:** Junction tables support `COUNT()` aggregation for bookmark_count, allow RLS per-user, and enable efficient lookups in both directions (user's bookmarks, job's bookmarkers).
+## Conversion Pipeline Architecture
 
-#### RLS Policies
+### Image Upload Flow
 
-```sql
--- PROFILES: publicly readable, owner-editable
-alter table public.profiles enable row level security;
-
-create policy "Profiles are publicly readable"
-  on public.profiles for select using (true);
-
-create policy "Users can insert own profile"
-  on public.profiles for insert with check (auth.uid() = id);
-
-create policy "Users can update own profile"
-  on public.profiles for update using (auth.uid() = id);
-
--- JOBS: update existing RLS to handle public visibility
--- Drop the old select policy, replace with public-aware version
-drop policy if exists "Users can view own jobs" on public.jobs;
-
-create policy "Users can view own or public jobs"
-  on public.jobs for select
-  using (auth.uid() = user_id or is_public = true);
-
--- BOOKMARKS: users manage their own
-alter table public.bookmarks enable row level security;
-
-create policy "Users can read own bookmarks"
-  on public.bookmarks for select using (auth.uid() = user_id);
-
-create policy "Users can create bookmarks"
-  on public.bookmarks for insert with check (auth.uid() = user_id);
-
-create policy "Users can delete own bookmarks"
-  on public.bookmarks for delete using (auth.uid() = user_id);
+```
+Browser                    Next.js API Route           Supabase Storage       RunPod
+  |                              |                          |                   |
+  |-- upload JPEG/PNG ---------> |                          |                   |
+  |                              |-- store original ------> |                   |
+  |                              |-- createJob(url, 'image') |                  |
+  |                              |                          |-- dispatch ------> |
+  |                              |                          |                   |
+  |                              |              RunPod handler receives image URL |
+  |                              |              1. Download image                |
+  |                              |              2. Pillow: decode + resize 720p  |
+  |                              |              3. MoviePy: ImageClip(arr).with_duration(5) |
+  |                              |              4. Write silent MP4 to /tmp      |
+  |                              |              5. TRIBE v2: get_events_dataframe(video_path=mp4) |
+  |                              |              6. predict() -> return results   |
 ```
 
-#### Atomic View Counter (RPC Function)
+**Why convert on RunPod, not in Next.js:** The image-to-video conversion requires MoviePy + FFmpeg which are already installed in the RunPod container but NOT in the Next.js deployment. Converting on RunPod avoids adding heavy video dependencies to the web server.
 
-```sql
-create or replace function public.increment_view_count(target_job_id uuid)
-returns void as $$
-  update public.jobs
-  set view_count = view_count + 1
-  where id = target_job_id and is_public = true;
-$$ language sql volatile security definer;
+### Text Visual Mode Flow
+
+```
+Browser                    Next.js API Route             Supabase Storage      RunPod
+  |                              |                            |                  |
+  |-- POST text + style -------> |                            |                  |
+  |                              |-- satori: JSX -> SVG       |                  |
+  |                              |-- resvg: SVG -> PNG        |                  |
+  |                              |-- upload PNG -------------> |                 |
+  |                              |-- createJob(url, 'text_visual')              |
+  |                              |                            |-- dispatch ----> |
+  |                              |                            |                  |
+  |                              |              RunPod: same as image flow       |
+  |                              |              (download PNG, Pillow, MoviePy,  |
+  |                              |               TRIBE v2 video-only inference)  |
 ```
 
-**Why RPC instead of client-side update:** A client-side `update` requires read-then-write, creating a race condition where two simultaneous viewers both read `view_count = 5` and both write `6`. The RPC function runs `view_count = view_count + 1` atomically in Postgres. `security definer` lets it bypass RLS (users should not have UPDATE on other users' jobs).
+**Why render text on Next.js, not RunPod:** satori is a Node.js library. RunPod is Python. The text rendering (choosing fonts, styles, layout) is a frontend concern. RunPod just needs a URL to an image.
 
-#### Bookmark Toggle with Counter Sync (RPC Function)
+### Text Spoken Mode Flow
 
-```sql
-create or replace function public.toggle_bookmark(target_job_id uuid)
-returns boolean as $$
-declare
-  existing boolean;
-begin
-  select exists(
-    select 1 from public.bookmarks
-    where user_id = auth.uid() and job_id = target_job_id
-  ) into existing;
-
-  if existing then
-    delete from public.bookmarks
-    where user_id = auth.uid() and job_id = target_job_id;
-    update public.jobs set bookmark_count = bookmark_count - 1
-    where id = target_job_id;
-    return false;
-  else
-    insert into public.bookmarks (user_id, job_id)
-    values (auth.uid(), target_job_id);
-    update public.jobs set bookmark_count = bookmark_count + 1
-    where id = target_job_id;
-    return true;
-  end if;
-end;
-$$ language plpgsql volatile security definer;
+```
+Browser                    Next.js API Route             RunPod
+  |                              |                         |
+  |-- POST text + 'spoken' ----> |                         |
+  |                              |-- save text to Supabase |
+  |                              |-- createJob(text_url, 'text_spoken')
+  |                              |                         |
+  |                              |              RunPod handler:
+  |                              |              1. Download .txt file
+  |                              |              2. TRIBE v2: get_events_dataframe(text_path=txt)
+  |                              |              3. TRIBE v2 internally runs gTTS + WhisperX
+  |                              |              4. predict() -> return results
 ```
 
-**Why a single RPC for bookmark toggle:** Keeps the bookmarks table and the denormalized `bookmark_count` on jobs in sync within a single transaction. No possibility of count drift.
+**Why use TRIBE v2's native text_path:** TRIBE v2 already handles text -> TTS -> audio feature extraction internally. Reimplementing this pipeline would be fragile and redundant. Pass the text file path directly and let TRIBE v2 do what it was designed to do.
 
-#### Full-Text Search (Optional, for discovery page)
+## RunPod Handler Changes
 
-```sql
--- Add search vector column to jobs
-alter table public.jobs add column search_vector tsvector
-  generated always as (to_tsvector('english', coalesce(title, ''))) stored;
+The existing `InputSchema` needs to accept either `video_url` (existing) or `media_url` + `input_type`:
 
-create index idx_jobs_search on public.jobs using gin(search_vector) where is_public = true;
+```python
+class InputSchema(BaseModel):
+    video_url: str | None = None       # backward compatible
+    media_url: str | None = None       # new: image or text file URL
+    input_type: str = "video"          # "video" | "image" | "text_visual" | "text_spoken"
+    include_raw: bool = False
+    include_vertex_data: bool = True
 ```
 
-**Why `GENERATED ALWAYS AS STORED`:** Automatically maintained by Postgres on insert/update. No triggers needed. Zero application code for keeping the search index current.
+The handler then branches:
+- `input_type == "video"`: existing flow (download video, infer)
+- `input_type == "image"` or `input_type == "text_visual"`: download image, Pillow resize, MoviePy ImageClip -> silent MP4, infer on MP4
+- `input_type == "text_spoken"`: download .txt, pass `text_path` to `get_events_dataframe`
 
-### Frontend Routes (Next.js 16 -- already installed)
+## Comparison Page -- No New Libraries
 
-| Route | Type | Purpose |
-|-------|------|---------|
-| `app/(app)/discover/page.tsx` | Server Component | Leaderboard/discovery with sorting, search, pagination |
-| `app/(app)/u/[username]/page.tsx` | Server Component | Public profile page showing user's public analyses |
-| `app/(app)/u/[username]/layout.tsx` | Layout | Profile layout with header, avatar, bio |
-| `app/api/views/route.ts` | API Route | POST to increment view count via RPC |
+The comparison page is two results panels side by side. Every component already exists:
 
-**Next.js 16 note:** Dynamic route params are `Promise<{ username: string }>` -- must be awaited in `generateMetadata` and page components. This is already the pattern in the existing `results/[id]/page.tsx`.
+| Existing Component | Comparison Usage |
+|-------------------|------------------|
+| BrainViewer | Two instances, each with their own segments/currentTime |
+| NeuralTimeline | Two instances with `syncId` prop on internal Recharts `<LineChart>` for synchronized cursor |
+| CircumplexChart | Two instances showing each analysis's emotional state |
+| Metrics (SlidingNumber) | Side by side stat tiles with delta indicators |
 
-### Supabase Type Generation
+**Route:** `/compare?a={jobId}&b={jobId}`
 
-```bash
-npx supabase gen types typescript --project-id <project-id> > web/src/types/supabase.ts
-```
-
-Run after each migration to get typed queries for the new tables. This gives autocomplete for `supabase.from('profiles').select('username, display_name')` without an ORM.
-
-## Integration Points with Existing Code
-
-| Existing Feature | How It Connects to Social Features |
-|-----------------|-------------------------------------|
-| Jobs table + existing RLS | Add `is_public`, `view_count`, `bookmark_count` columns. Replace select policy. Existing private jobs default to `is_public = false`. |
-| Auth signup flow | After email verification, redirect to username selection page. Create `profiles` row via insert. |
-| Results page (`/results/[id]`) | Add public/private toggle switch. When public, show shareable URL (`/u/{username}`). Show view count badge. |
-| Dashboard (`/dashboard`) | Show bookmark counts on analyses. Add "Bookmarked" tab to filter saved public analyses. |
-| Settings page (`/settings`) | Add username field (with real-time uniqueness check via Supabase), display name, bio. |
-| Profile page (`/profile`) | Redirect to public profile at `/u/{username}` or repurpose as profile editor. |
-
-## Alternatives Considered
-
-| Recommended | Alternative | Why Not |
-|-------------|-------------|---------|
-| Postgres full-text search | Algolia | Algolia costs money, requires syncing data to external service, and is massive overkill for searching hundreds of video titles. Postgres FTS is free and built into Supabase. |
-| Denormalized `bookmark_count` on jobs | `COUNT(*)` from bookmarks table | `COUNT(*)` requires a join or subquery on every discovery page load. A denormalized counter with atomic RPC updates is O(1) to read and correct at this scale. |
-| `profiles` table | Supabase Auth `user_metadata` | Cannot enforce uniqueness on usernames in metadata. No indexes. No RLS. Not queryable from other users. |
-| Partial indexes on `is_public` | Full composite indexes | Partial indexes are smaller because they exclude private jobs. Discovery queries only hit public data. |
-| Server Components for discovery | Client-side fetching | Discovery/leaderboard data is not user-specific on initial load. Server Components stream the data with zero client JS bundle cost. Sort/filter changes use client-side navigation with search params. |
-
-## Version Compatibility
-
-| Existing Package | Compatible With Social Features | Notes |
-|-----------------|--------------------------------|-------|
-| `@supabase/supabase-js@^2.103.0` | All new tables, RLS, `.rpc()` calls | Full support for new schema. `.rpc('toggle_bookmark')` and `.rpc('increment_view_count')` work out of the box. |
-| `@supabase/ssr@^0.10.2` | Server-side queries in discovery/profile pages | Middleware auth checks for bookmark mutations. Server Component data fetching for public pages. |
-| `next@16.2.3` | Dynamic `[username]` routes, `generateMetadata` | Params are `Promise<{ username: string }>`. `generateMetadata` for SEO on public profiles. |
-| `react@19.2.4` | Server Components for discovery page | Full RSC support for streaming leaderboard data. |
-| `framer-motion@^12.38.0` | Page transitions, bookmark animation | Already installed. Use for bookmark heart animation and discovery card entrance animations. |
+**Data fetching:** Two parallel `fetch('/api/jobs/${id}')` calls in a Server Component, passing both result sets to a client comparison layout.
 
 ## Installation
 
 ```bash
-# No npm installs needed. Run database migrations only.
-# See migration SQL above for the schema changes.
+# Next.js frontend -- 2 new packages
+cd web && npm install satori @resvg/resvg-js
+
+# RunPod container -- add to Dockerfile or requirements.txt
+pip install Pillow>=12.2.0
 ```
+
+## Font Loading for Satori
+
+Satori requires font files (TTF/OTF/WOFF) to be loaded as ArrayBuffers. The existing design system uses Space Grotesk (headlines) and Inter (body). Both are Google Fonts available as TTF.
+
+```typescript
+// Example: load fonts once at module level in the API route
+const spaceGrotesk = await fetch('https://fonts.gstatic.com/s/spacegrotesk/v16/...wght@700.ttf')
+  .then(res => res.arrayBuffer());
+
+const inter = await fetch('https://fonts.gstatic.com/s/inter/v18/...wght@400.ttf')
+  .then(res => res.arrayBuffer());
+```
+
+**Cache these in a module-level variable** -- they are immutable font files. No need to re-fetch per request.
+
+## Version Compatibility
+
+| Existing Package | Compatible | Notes |
+|-----------------|------------|-------|
+| `next@16.2.3` | Yes | API routes handle satori rendering. No conflicts. |
+| `react@19.2.4` | Yes | satori accepts JSX-like objects, not actual React elements. Compatible. |
+| `recharts@^3.8.1` | Yes | `syncId` prop available since Recharts 2.x. Two charts with same syncId synchronize tooltips. |
+| `@supabase/supabase-js@^2.103.0` | Yes | Storage upload accepts any file type. `.from('videos').upload()` works for PNGs too. |
+| `framer-motion@^12.38.0` | Yes | Type selector tabs, comparison page layout animations. |
+| `three@^0.183.2` | Yes | Two BrainViewer instances in comparison -- each gets its own canvas. |
 
 ## Sources
 
-- [Supabase Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security) -- public/private content pattern (HIGH confidence)
-- [Supabase RPC functions](https://supabase.com/docs/reference/javascript/v1/rpc) -- atomic increment pattern (HIGH confidence)
-- [Supabase Full Text Search](https://supabase.com/docs/guides/database/full-text-search) -- Postgres FTS without external service (HIGH confidence)
-- [Next.js 16 Dynamic Routes](https://nextjs.org/docs/app/api-reference/file-conventions/dynamic-routes) -- `[username]` slug pattern (HIGH confidence)
-- [Next.js 16 generateMetadata](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) -- SEO for public profile pages (HIGH confidence)
-- Existing codebase: `web/package.json`, `web/supabase/migrations/`, `web/src/app/` routes -- verified current state
+- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- `get_events_dataframe` accepts `video_path`, `audio_path`, `text_path` (HIGH confidence)
+- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- text input auto-runs gTTS + WhisperX (HIGH confidence)
+- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- tri-modal architecture (HIGH confidence)
+- [MoviePy ImageClip Documentation](https://zulko.github.io/moviepy/reference/reference/moviepy.video.VideoClip.ImageClip.html) -- image to silent video (HIGH confidence)
+- [Satori GitHub](https://github.com/vercel/satori) -- HTML/CSS to SVG, JSX syntax, Yoga layout (HIGH confidence)
+- [Satori npm](https://www.npmjs.com/package/satori) -- v0.19.2, 797K weekly downloads (HIGH confidence)
+- [@resvg/resvg-js GitHub](https://github.com/thx/resvg-js) -- Rust-powered SVG to PNG (HIGH confidence)
+- [Pillow PyPI](https://pypi.org/project/pillow/) -- v12.2.0 (HIGH confidence)
+- [Recharts syncId](https://recharts.github.io/) -- synchronized tooltips between charts (HIGH confidence)
 
 ---
-*Stack research for: NeuroCut v4.0 Social Discovery Platform*
+*Stack research for: NeuroCut v5.0 Multi-Modal Input & Comparison*
 *Researched: 2026-04-11*
