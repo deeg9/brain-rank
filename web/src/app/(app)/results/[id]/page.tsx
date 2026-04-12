@@ -94,7 +94,12 @@ export default function ResultsDetailPage({ params }: Props) {
   const [editTitle, setEditTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  const displayTitle = job?.title || extractFilename(job?.video_url ?? "");
+  const displayTitle = job?.title || (
+    job?.input_type === 'image' ? 'Image Analysis' :
+    job?.input_type === 'text_spoken' ? 'Text Analysis (Spoken)' :
+    job?.input_type === 'text_visual' ? 'Text Analysis (Visual)' :
+    extractFilename(job?.video_url ?? "")
+  );
 
   const handleTitleEdit = useCallback(() => {
     setEditTitle(displayTitle);
@@ -337,19 +342,46 @@ export default function ResultsDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Video Player + Brain Viewer — side by side */}
+      {/* Media Preview + Brain Viewer — side by side */}
       <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
-        <VideoPlayer
-          src={results.video_url}
-          videoRef={videoRef}
-          currentTime={currentTime}
-          duration={videoDuration}
-          isPlaying={isPlaying}
-          onTimeUpdate={handleTimeUpdate}
-          onPlayStateChange={setIsPlaying}
-          onSeek={handleSeek}
-          onLoadedMetadata={handleLoadedMetadata}
-        />
+        {(!job?.input_type || job.input_type === 'video') ? (
+          <VideoPlayer
+            src={results.video_url}
+            videoRef={videoRef}
+            currentTime={currentTime}
+            duration={videoDuration}
+            isPlaying={isPlaying}
+            onTimeUpdate={handleTimeUpdate}
+            onPlayStateChange={setIsPlaying}
+            onSeek={handleSeek}
+            onLoadedMetadata={handleLoadedMetadata}
+          />
+        ) : job.input_type === 'image' ? (
+          <Card className="relative overflow-hidden flex items-center justify-center bg-surface-container">
+            <img
+              src={job.video_url}
+              alt="Analyzed image"
+              className="max-w-full max-h-full object-contain"
+            />
+          </Card>
+        ) : (
+          <Card className="relative overflow-hidden flex flex-col items-center justify-center bg-surface-container p-6 gap-4">
+            <span className="material-symbols-outlined text-3xl text-on-surface-variant/60">
+              {job.input_type === 'text_spoken' ? 'record_voice_over' : 'text_fields'}
+            </span>
+            {job.text_style && (
+              <span className="text-[10px] uppercase tracking-wider text-on-surface-variant/50 font-bold">
+                {job.text_style.replace('_', ' ')}
+              </span>
+            )}
+            <p className="text-on-surface/80 text-sm text-center leading-relaxed max-w-xs line-clamp-6">
+              &ldquo;{job.text_content}&rdquo;
+            </p>
+            {job.input_type === 'text_visual' && (
+              <span className="text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
+            )}
+          </Card>
+        )}
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
