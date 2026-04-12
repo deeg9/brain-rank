@@ -16,6 +16,7 @@ interface TopBarProps {
 const navItems = [
   { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
   { icon: "cloud_upload", label: "Upload", href: "/upload" },
+  { icon: "compare_arrows", label: "Compare", href: "/compare" },
   { icon: "trophy", label: "Discover", href: "/discover" },
 ];
 
@@ -137,6 +138,13 @@ export function TopBar({
               >
                 <span className="material-symbols-outlined text-[18px]">settings</span>
                 Settings
+              </Link>
+              <Link
+                href="/resources"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">science</span>
+                Resources
               </Link>
               <div className="h-[1px] bg-outline-variant/10 my-1 mx-4" />
               <button
