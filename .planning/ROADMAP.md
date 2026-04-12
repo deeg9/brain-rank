@@ -766,10 +766,10 @@ Plans:
   2. Authenticated users can bookmark any public analysis with a single click, and the bookmark state persists
   3. User can view all their saved bookmarks at /bookmarks with the same card format as the discovery feed
   4. Unbookmarking removes the analysis from /bookmarks immediately
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 51-01-PLAN.md — Database schema, API routes, view counts and bookmark UI
-- [ ] 51-02-PLAN.md — Bookmarks page and sidebar navigation
+- [x] 51-01-PLAN.md — Database schema, API routes, view counts and bookmark UI
+- [x] 51-02-PLAN.md — Bookmarks page and sidebar navigation
 **UI hint**: yes
 
 ## Progress
@@ -836,4 +836,4 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 48. Public Analysis View | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 49. Discovery Feed | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 50. Discovery Search & Filters | v4.0 | 1/1 | Complete    | 2026-04-12 |
-| 51. Social Engagement | v4.0 | 0/0 | Not started | - |
+| 51. Social Engagement | v4.0 | 2/2 | Complete    | 2026-04-12 |
