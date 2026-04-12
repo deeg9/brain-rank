@@ -13,7 +13,7 @@ import requests
 import runpod
 
 from src.image_converter import convert_image_to_video
-from src.inference import run_inference
+from src.inference import run_inference, run_text_inference
 from src.model_loader import get_model
 from src.postprocessor import postprocess
 from src.schema import ErrorResponse, InputSchema
@@ -59,29 +59,55 @@ def handler(job):
 
     # Steps 2-4: Download/convert, infer, postprocess (with cleanup in finally)
     video_path = None
+    text_path = None
     stage = "download"
     try:
         # Step 2: Download/convert media based on input type
-        if params.input_type == "image":
+        if params.input_type == "text_spoken":
+            stage = "text_preparation"
+            text_path = Path(f"/tmp/text_{job_id}.txt")
+            text_path.write_text(params.text_content, encoding="utf-8")
+            logger.info("Job %s: text saved to %s", job_id, text_path)
+
+            # Step 3: Run text inference via TRIBE v2 native text_path
+            stage = "inference"
+            logger.info("Job %s: running text spoken inference...", job_id)
+            try:
+                predictions, segments, timing = run_text_inference(model, str(text_path), job_id)
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "gtts" in error_msg or "tts" in error_msg or "connection" in error_msg:
+                    raise RuntimeError(
+                        "Text-to-speech failed. TRIBE v2 requires internet for text analysis."
+                    ) from e
+                raise
+            logger.info("Job %s: text inference complete — %d segments", job_id, len(segments))
+        elif params.input_type == "image":
             stage = "conversion"
             video_path = convert_image_to_video(
                 params.video_url, job_id, duration=params.image_duration
             )
             logger.info("Job %s: image converted to video at %s", job_id, video_path)
+
+            stage = "inference"
+            logger.info("Job %s: running inference...", job_id)
+            predictions, segments, timing = run_inference(model, str(video_path), job_id)
+            logger.info("Job %s: inference complete — %d segments", job_id, len(segments))
         else:
             video_path = download_video(params.video_url, job_id)
             logger.info("Job %s: video downloaded to %s", job_id, video_path)
 
-        # Step 3: Run inference (HDLR-05)
-        stage = "inference"
-        logger.info("Job %s: running inference...", job_id)
-        predictions, segments, timing = run_inference(model, str(video_path), job_id)
-        logger.info("Job %s: inference complete — %d segments", job_id, len(segments))
+            # Step 3: Run inference (HDLR-05)
+            stage = "inference"
+            logger.info("Job %s: running inference...", job_id)
+            predictions, segments, timing = run_inference(model, str(video_path), job_id)
+            logger.info("Job %s: inference complete — %d segments", job_id, len(segments))
 
         # Step 4: Map to NeuroCut schema (HDLR-06)
         stage = "postprocessing"
         logger.info("Job %s: postprocessing...", job_id)
-        output = postprocess(predictions, segments, params.video_url, job_id, include_vertex_data=params.include_vertex_data)
+        media_url = params.video_url or f"text://{job_id}"
+        output = postprocess(predictions, segments, media_url, job_id, include_vertex_data=params.include_vertex_data)
         logger.info("Job %s: complete", job_id)
 
         return output.model_dump()
@@ -107,6 +133,11 @@ def handler(job):
         if video_path is not None and video_path.exists():
             video_path.unlink(missing_ok=True)
             logger.info("Job %s: cleaned up %s", job_id, video_path)
+
+        # Clean up text temp file
+        if text_path is not None and text_path.exists():
+            text_path.unlink(missing_ok=True)
+            logger.info("Job %s: cleaned up %s", job_id, text_path)
 
         # Clean up TRIBE v2 temp files (extracted audio, frames)
         for pattern in [f"/tmp/*{job_id}*", "/tmp/tribe_*"]:
