@@ -5,9 +5,10 @@ import { useState, useEffect, useCallback } from "react";
 interface BookmarkButtonProps {
   jobId: string;
   initialBookmarked?: boolean;
+  onToggle?: (bookmarked: boolean) => void;
 }
 
-export function BookmarkButton({ jobId, initialBookmarked }: BookmarkButtonProps) {
+export function BookmarkButton({ jobId, initialBookmarked, onToggle }: BookmarkButtonProps) {
   const [bookmarked, setBookmarked] = useState(initialBookmarked ?? false);
   const [loaded, setLoaded] = useState(initialBookmarked !== undefined);
 
@@ -51,6 +52,8 @@ export function BookmarkButton({ jobId, initialBookmarked }: BookmarkButtonProps
         if (!res.ok) {
           // Revert on error
           setBookmarked(!newState);
+        } else {
+          onToggle?.(newState);
         }
       } catch {
         // Revert on network error
