@@ -712,7 +712,7 @@ Plans:
   4. Attempting to access a private analysis URL while not the owner returns a 404 (not a 403, to avoid leaking existence)
 **Plans:** 1 plan
 Plans:
-- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 47-01-PLAN.md — Privacy toggle, shareable links, dashboard visibility controls
 **UI hint**: yes
 
 ### Phase 48: Public Analysis View
@@ -726,7 +726,7 @@ Plans:
   4. The page is accessible without authentication
 **Plans:** 1 plan
 Plans:
-- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 48-01-PLAN.md — [To be planned]
 **UI hint**: yes
 
 ### Phase 49: Discovery Feed
@@ -740,7 +740,7 @@ Plans:
   4. The page loads within 2 seconds for up to 100 public analyses
 **Plans:** 1 plan
 Plans:
-- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 49-01-PLAN.md — [To be planned]
 **UI hint**: yes
 
 ### Phase 50: Discovery Search & Filters
@@ -754,7 +754,7 @@ Plans:
   4. Sorting, searching, and filtering can be combined (e.g., search "cooking" + sort by neural score + filter score > 70)
 **Plans:** 1 plan
 Plans:
-- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 50-01-PLAN.md — [To be planned]
 **UI hint**: yes
 
 ### Phase 51: Social Engagement
@@ -768,7 +768,7 @@ Plans:
   4. Unbookmarking removes the analysis from /bookmarks immediately
 **Plans:** 1 plan
 Plans:
-- [ ] 45-01-PLAN.md — Avatar upload + bio editing on settings, display on profile
+- [ ] 51-01-PLAN.md — [To be planned]
 **UI hint**: yes
 
 ## Progress
