@@ -726,7 +726,7 @@ Plans:
   4. The page is accessible without authentication
 **Plans:** 1 plan
 Plans:
-- [ ] 48-01-PLAN.md — [To be planned]
+- [ ] 48-01-PLAN.md — Public analysis page with brain viewer, timeline, metrics, creator attribution
 **UI hint**: yes
 
 ### Phase 49: Discovery Feed
