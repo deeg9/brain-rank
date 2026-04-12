@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { VideoThumb } from "@/app/(app)/dashboard/VideoThumb";
 import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
 
 interface ComparisonTrayProps {
@@ -27,13 +26,12 @@ function SlotContent({
     );
   }
 
-  const thumb = analysis.video_url;
   const title = analysis.title || "Untitled";
 
   return (
     <div className={`flex items-center gap-3 ${align === "right" ? "flex-row-reverse" : ""}`}>
-      <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 shrink-0">
-        <VideoThumb src={thumb} alt={title} />
+      <div className="w-10 h-10 rounded-lg bg-white/10 shrink-0 flex items-center justify-center">
+        <span className="material-symbols-outlined text-white/60 text-lg">neurology</span>
       </div>
       <p className="text-sm text-white font-bold truncate">{title}</p>
     </div>
