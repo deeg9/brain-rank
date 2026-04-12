@@ -17,7 +17,18 @@ All 8 phases complete. NeuroCut is now a public discovery platform:
 - Discovery feed at /discover with neural score ranking, search, sort, and filters
 - View counts and bookmarks with /bookmarks page
 
-**Next milestone:** Not yet defined. Run `/gsd-new-milestone` to start planning.
+## Current Milestone: v5.0 Multi-Modal Input & Comparison
+
+**Goal:** Expand NeuroCut beyond video-only to support thumbnail/image and text/copy neural testing, with a side-by-side comparison view for any two analyses.
+
+**Target features:**
+- Image upload (JPEG/PNG → silent video conversion → video-only TRIBE v2 inference)
+- Text input with visual mode (render styled text card → image → video → inference)
+- Text input with spoken mode (native TRIBE v2 text→TTS→audio path)
+- Upload page type selector (Video / Image / Text) with mode-appropriate UI
+- Server-side media conversion (transparent to user)
+- Comparison page: pick any two completed analyses, view results side by side
+- Results page adaptations for non-video content (no video player for images/text)
 
 ## Requirements
 
@@ -94,4 +105,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-10 after v3.0 milestone start*
+*Last updated: 2026-04-12 after v5.0 milestone start*
