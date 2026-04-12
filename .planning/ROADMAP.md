@@ -667,8 +667,8 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full phase details.
   4. Selecting Video on the upload page shows the existing drag-and-drop video upload (no regression)
 **Plans**: 2 plans
 Plans:
-- [ ] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [ ] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [x] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
+- [x] 52-02-PLAN.md — InputTypeSelector component and upload page integration
 **UI hint**: yes
 
 ### Phase 53: Image Upload Pipeline
@@ -683,8 +683,8 @@ Plans:
   5. The user receives results identical in structure to a video job (same polling, same results page)
 **Plans**: 2 plans
 Plans:
-- [ ] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [ ] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [x] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
+- [x] 52-02-PLAN.md — InputTypeSelector component and upload page integration
 **UI hint**: yes
 
 ### Phase 54: Text Spoken Mode
@@ -698,8 +698,8 @@ Plans:
   4. The user receives results with the same structure and polling flow as video/image jobs
 **Plans**: 2 plans
 Plans:
-- [ ] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [ ] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [x] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
+- [x] 52-02-PLAN.md — InputTypeSelector component and upload page integration
 **UI hint**: yes
 
 ### Phase 55: Text Visual Mode
@@ -826,7 +826,7 @@ Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54
 | 49. Discovery Feed | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 50. Discovery Search & Filters | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 51. Social Engagement | v4.0 | 2/2 | Complete    | 2026-04-12 |
-| 52. Schema & Upload Type Selector | v5.0 | 0/0 | Not started | - |
+| 52. Schema & Upload Type Selector | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 53. Image Upload Pipeline | v5.0 | 0/0 | Not started | - |
 | 54. Text Spoken Mode | v5.0 | 0/0 | Not started | - |
 | 55. Text Visual Mode | v5.0 | 0/0 | Not started | - |
