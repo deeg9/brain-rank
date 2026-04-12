@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
 
@@ -9,6 +10,57 @@ interface ComparisonTrayProps {
   onRemoveA: () => void;
   onRemoveB: () => void;
   onCompare: () => void;
+}
+
+function MiniThumb({ src }: { src: string }) {
+  const [thumbUrl, setThumbUrl] = useState<string | null>(null);
+  const attempted = useRef(false);
+
+  useEffect(() => {
+    if (attempted.current) return;
+    attempted.current = true;
+
+    // Try loading as image first (works for image URLs)
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => setThumbUrl(src);
+    img.onerror = () => {
+      // Not an image — try extracting a frame from video
+      const video = document.createElement("video");
+      video.crossOrigin = "anonymous";
+      video.muted = true;
+      video.preload = "metadata";
+      video.onloadeddata = () => {
+        video.currentTime = 1;
+      };
+      video.onseeked = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = 80;
+          canvas.height = 80;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, 80, 80);
+            setThumbUrl(canvas.toDataURL("image/jpeg", 0.7));
+          }
+        } catch {
+          // CORS or other error — keep null
+        }
+      };
+      video.src = src;
+    };
+    img.src = src;
+  }, [src]);
+
+  if (thumbUrl) {
+    return (
+      <img src={thumbUrl} alt="" className="w-full h-full object-cover" />
+    );
+  }
+
+  return (
+    <span className="material-symbols-outlined text-white/60 text-lg">neurology</span>
+  );
 }
 
 function SlotContent({
@@ -30,8 +82,8 @@ function SlotContent({
 
   return (
     <div className={`flex items-center gap-3 ${align === "right" ? "flex-row-reverse" : ""}`}>
-      <div className="w-10 h-10 rounded-lg bg-white/10 shrink-0 flex items-center justify-center">
-        <span className="material-symbols-outlined text-white/60 text-lg">neurology</span>
+      <div className="w-10 h-10 rounded-lg bg-white/10 shrink-0 flex items-center justify-center overflow-hidden">
+        <MiniThumb src={analysis.video_url} />
       </div>
       <p className="text-sm text-white font-bold truncate">{title}</p>
     </div>
