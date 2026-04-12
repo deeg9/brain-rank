@@ -11,9 +11,11 @@ from pathlib import Path
 
 import requests
 import runpod
+from moviepy import ImageClip
 
-from src.image_converter import convert_image_to_video
+from src.image_converter import convert_image_to_video, resize_and_pad
 from src.inference import run_inference, run_text_inference
+from src.text_renderer import render_text_card
 from src.model_loader import get_model
 from src.postprocessor import postprocess
 from src.schema import ErrorResponse, InputSchema
@@ -60,10 +62,43 @@ def handler(job):
     # Steps 2-4: Download/convert, infer, postprocess (with cleanup in finally)
     video_path = None
     text_path = None
+    card_path = None
     stage = "download"
     try:
         # Step 2: Download/convert media based on input type
-        if params.input_type == "text_spoken":
+        if params.input_type == "text_visual":
+            stage = "text_rendering"
+            card_path = render_text_card(
+                params.text_content,
+                params.text_style or "general",
+                job_id,
+            )
+            logger.info("Job %s: text card rendered at %s", job_id, card_path)
+
+            # Convert rendered card to video (same pattern as image branch but from local file)
+            stage = "conversion"
+            frame = resize_and_pad(card_path)  # Already 1280x720 but keeps pipeline consistent
+            video_path = Path(f"/tmp/video_{job_id}.mp4")
+            clip = ImageClip(frame, duration=6.0)
+            clip.write_videofile(
+                str(video_path),
+                fps=10,
+                codec="libx264",
+                audio=False,
+                logger=None,
+            )
+            clip.close()
+            logger.info("Job %s: text card converted to 6s video", job_id)
+
+            # Clean up card image
+            card_path.unlink(missing_ok=True)
+
+            stage = "inference"
+            logger.info("Job %s: running inference...", job_id)
+            predictions, segments, timing = run_inference(model, str(video_path), job_id)
+            logger.info("Job %s: inference complete — %d segments", job_id, len(segments))
+
+        elif params.input_type == "text_spoken":
             stage = "text_preparation"
             text_path = Path(f"/tmp/text_{job_id}.txt")
             text_path.write_text(params.text_content, encoding="utf-8")
@@ -138,6 +173,11 @@ def handler(job):
         if text_path is not None and text_path.exists():
             text_path.unlink(missing_ok=True)
             logger.info("Job %s: cleaned up %s", job_id, text_path)
+
+        # Clean up rendered card image (safety net for text_visual)
+        if card_path is not None and card_path.exists():
+            card_path.unlink(missing_ok=True)
+            logger.info("Job %s: cleaned up %s", job_id, card_path)
 
         # Clean up TRIBE v2 temp files (extracted audio, frames)
         for pattern in [f"/tmp/*{job_id}*", "/tmp/tribe_*"]:
