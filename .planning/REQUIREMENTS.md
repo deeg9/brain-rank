@@ -84,24 +84,24 @@ Requirements for Multi-Modal Input & Comparison milestone. Expand beyond video-o
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IMG-01 | Pending | Pending |
-| IMG-02 | Pending | Pending |
-| IMG-03 | Pending | Pending |
-| TXT-01 | Pending | Pending |
-| TXT-02 | Pending | Pending |
-| TXT-03 | Pending | Pending |
-| TXT-04 | Pending | Pending |
-| CMP-01 | Pending | Pending |
-| CMP-02 | Pending | Pending |
-| CMP-03 | Pending | Pending |
-| UX-01 | Pending | Pending |
-| UX-02 | Pending | Pending |
-| UX-03 | Pending | Pending |
+| UX-01 | Phase 52 | Pending |
+| IMG-01 | Phase 53 | Pending |
+| IMG-02 | Phase 53 | Pending |
+| IMG-03 | Phase 53 | Pending |
+| TXT-01 | Phase 54 | Pending |
+| TXT-04 | Phase 54 | Pending |
+| TXT-02 | Phase 55 | Pending |
+| TXT-03 | Phase 55 | Pending |
+| UX-03 | Phase 56 | Pending |
+| UX-02 | Phase 57 | Pending |
+| CMP-01 | Phase 58 | Pending |
+| CMP-02 | Phase 58 | Pending |
+| CMP-03 | Phase 58 | Pending |
 
 **Coverage:**
 - v5.0 requirements: 13 total
-- Mapped: 0/13
-- Unmapped: 13
+- Mapped: 13/13
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-12*

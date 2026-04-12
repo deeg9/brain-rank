@@ -9,6 +9,7 @@
 - 📋 **v2.2 Enhanced Brain Analytics** - Phases 33-37 (planned)
 - 📋 **v3.0 Brain Visualization UX Overhaul** - Phases 39-43 (planned)
 - ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12)
+- 🚧 **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (in progress)
 
 ## Phases
 
@@ -651,6 +652,12 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full phase details.
 
 </details>
 
+### v5.0 Multi-Modal Input & Comparison (In Progress)
+
+**Milestone Goal:** Expand beyond video-only to support image and text neural testing, with a side-by-side comparison view.
+
+See [v5.0-ROADMAP.md](milestones/v5.0-ROADMAP.md) for full phase details.
+
 ## Progress
 
 **Execution Order:**
@@ -662,6 +669,7 @@ Phases 27-31: 27 -> 28/29/30/31 (parallel-capable after foundation)
 Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-capable after 48)
+Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54) -> 57 (after 52) -> 58 (after 56)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -716,3 +724,10 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 49. Discovery Feed | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 50. Discovery Search & Filters | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 51. Social Engagement | v4.0 | 2/2 | Complete    | 2026-04-12 |
+| 52. Schema & Upload Type Selector | v5.0 | 0/0 | Not started | - |
+| 53. Image Upload Pipeline | v5.0 | 0/0 | Not started | - |
+| 54. Text Spoken Mode | v5.0 | 0/0 | Not started | - |
+| 55. Text Visual Mode | v5.0 | 0/0 | Not started | - |
+| 56. Results Adaptations | v5.0 | 0/0 | Not started | - |
+| 57. Content Type Badges | v5.0 | 0/0 | Not started | - |
+| 58. Comparison Page | v5.0 | 0/0 | Not started | - |

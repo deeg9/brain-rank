@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Multi-Modal Input & Comparison
-status: defining_requirements
-stopped_at: Milestone v5.0 started, defining requirements
-last_updated: "2026-04-12T03:00:00.000Z"
+status: ready_to_plan
+stopped_at: v5.0 roadmap created, ready to plan Phase 52
+last_updated: "2026-04-12T04:00:00.000Z"
 last_activity: 2026-04-12
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,25 +20,24 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-12)
 
-**Core value:** Content creators upload a video and get per-segment neural engagement scores
-**Current focus:** Defining requirements for v5.0 Multi-Modal Input & Comparison
+**Core value:** Content creators upload content and get per-segment neural engagement scores showing where brains light up and where they tune out
+**Current focus:** Phase 52 - Schema & Upload Type Selector (v5.0)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-12 — Milestone v5.0 started
+Phase: 52 (first of 7 in v5.0)
+Plan: 0 of 0 in current phase (not yet planned)
+Status: Ready to plan
+Last activity: 2026-04-12 — v5.0 roadmap created
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 0% (v5.0: 0/7 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-
-- Total plans completed: 69+ (v1.0 through v3.0)
+- Total plans completed: 69+ (v1.0 through v4.0)
 - Average duration: varies
-- Total execution time: ~4 days
+- Total execution time: ~4 days (2026-04-07 to 2026-04-12)
 
 **By Phase:**
 
@@ -50,14 +49,7 @@ Progress: [░░░░░░░░░░] 0%
 | v2.1 (27-32) | 8 | ~0.5 days | - |
 | v2.2 (33-37) | 5 | ~0.5 days | - |
 | v3.0 (38-43) | 9 | ~0.5 days | - |
-| 44 | 2 | - | - |
-| 45 | 1 | - | - |
-| 46 | 1 | - | - |
-| 47 | 1 | - | - |
-| 48 | 1 | - | - |
-| 49 | 1 | - | - |
-| 50 | 1 | - | - |
-| 51 | 2 | - | - |
+| v4.0 (44-51) | 10 | ~1 day | - |
 
 *Updated after each plan completion*
 
@@ -65,10 +57,10 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Decisions
 
-- [v4.0]: 8 phases (44-51) derived from 14 requirements across 4 categories
-- [v4.0]: Schema foundation first (Phase 44) since all social features depend on profiles + is_public flag
-- [v4.0]: No likes/upvotes -- neural score IS the ranking mechanism
-- [v4.0]: No video playback on public views -- scores only for v4.0
+- [v5.0]: All conversion (image-to-video, text-to-image) happens inside RunPod worker, not Next.js
+- [v5.0]: Text visual mode labeled "Experimental" due to out-of-distribution input
+- [v5.0]: Comparison page is pure frontend (two parallel fetches, no new API routes)
+- [v5.0]: Schema migration adds input_type DEFAULT 'video' for backward compatibility
 
 ### Pending Todos
 
@@ -76,8 +68,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- Need to decide on thumbnail generation strategy for discovery feed cards
-- Public analysis view must render brain viewer without video sync (scores-only mode)
+- gTTS reliability from RunPod IPs may need offline fallback (monitor during Phase 54)
+- OOD scores for image/text-visual must be clearly labeled as Exploratory
 
 ### Quick Tasks Completed
 
@@ -92,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-11
-Stopped at: v4.0 roadmap created, ready to plan Phase 44
+Last session: 2026-04-12
+Stopped at: v5.0 roadmap created, ready to plan Phase 52
 Resume file: None
