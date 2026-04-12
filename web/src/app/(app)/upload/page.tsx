@@ -10,11 +10,12 @@ import {
   AnimatedFileUpload,
   type FileItem,
 } from "@/components/upload/AnimatedFileUpload";
-import { uploadVideo, uploadImage } from "@/lib/upload";
+import { uploadVideo, uploadImage, uploadText } from "@/lib/upload";
 import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
 import { DurationSlider } from "./DurationSlider";
+import { CONTENT_CATEGORIES } from "@/lib/categories";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -26,6 +27,8 @@ export default function UploadPage() {
   const [textMode, setTextMode] = useState<'spoken' | 'visual'>('spoken');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageDuration, setImageDuration] = useState(6);
+  const [textContent, setTextContent] = useState('');
+  const [category, setCategory] = useState("");
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
     const newItems: FileItem[] = incoming.map((file) => ({
@@ -91,7 +94,7 @@ export default function UploadPage() {
         updateFileProgress(item.id, 100);
         updateFileStatus(item.id, "complete");
 
-        const jobId = await createJob(videoUrl);
+        const jobId = await createJob(videoUrl, 'video', null, null, undefined, category || null);
         lastJobId = jobId;
       } catch (err) {
         updateFileStatus(
@@ -117,10 +120,25 @@ export default function UploadPage() {
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const jobId = await createJob(imageUrl, 'image', null, null, imageDuration);
+      const jobId = await createJob(imageUrl, 'image', null, null, imageDuration, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
+      setUploading(false);
+    }
+  }
+
+  async function handleAnalyzeText() {
+    if (!textContent.trim()) return;
+    setUploading(true);
+    setError(null);
+
+    try {
+      const textUrl = await uploadText(textContent);
+      const jobId = await createJob(textUrl, 'text_spoken', textContent);
+      router.push(`/processing?jobId=${jobId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed.');
       setUploading(false);
     }
   }
@@ -260,7 +278,7 @@ export default function UploadPage() {
         </motion.section>
       )}
 
-      {/* Text Placeholder */}
+      {/* Text Input */}
       {inputType === 'text' && (
         <motion.section
           className="relative"
@@ -268,7 +286,7 @@ export default function UploadPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         >
-          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-16 text-center space-y-6">
+          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 space-y-6">
             <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10 w-fit mx-auto">
               <button
                 onClick={() => setTextMode('spoken')}
@@ -292,14 +310,68 @@ export default function UploadPage() {
                 <span className="ml-1.5 text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
               </button>
             </div>
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">text_fields</span>
-            <p className="text-on-surface-variant font-medium">Text input coming soon</p>
-            <p className="text-on-surface-variant/60 text-sm">
-              {textMode === 'spoken'
-                ? 'Enter text for neural speech analysis via TRIBE v2'
-                : 'Render text as a styled visual card for neural analysis'}
-            </p>
+
+            {textMode === 'spoken' ? (
+              <div className="space-y-2">
+                <textarea
+                  maxLength={500}
+                  rows={6}
+                  value={textContent}
+                  onChange={(e) => setTextContent(e.target.value)}
+                  disabled={uploading}
+                  placeholder="Enter your text here — e.g., ad copy, headline, voiceover script..."
+                  className="bg-white/[0.04] border border-white/10 rounded-xl p-4 text-on-surface font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                />
+                <p className={`text-right text-sm ${textContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
+                  {textContent.length}/500
+                </p>
+              </div>
+            ) : (
+              <div className="text-center space-y-4 py-8">
+                <span className="material-symbols-outlined text-5xl text-on-surface-variant/50">text_fields</span>
+                <p className="text-on-surface-variant font-medium">Visual mode coming in Phase 55</p>
+                <p className="text-on-surface-variant/60 text-sm">Render text as a styled visual card for neural analysis</p>
+              </div>
+            )}
           </div>
+        </motion.section>
+      )}
+
+      {/* Text Cost Panel + Analyze Button */}
+      {inputType === 'text' && textMode === 'spoken' && textContent.trim().length > 0 && (
+        <motion.section
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+        >
+          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                <span className="material-symbols-outlined">token</span>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                  Estimated Cost
+                </p>
+                <p className="text-lg font-headline font-bold text-on-surface">
+                  10 Credits
+                </p>
+              </div>
+            </div>
+            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <Button
+              variant="primary"
+              size="lg"
+              loading={uploading}
+              disabled={!textContent.trim() || uploading}
+              onClick={handleAnalyzeText}
+              className="!w-auto px-10 py-4"
+            >
+              Analyze Text
+              <span className="material-symbols-outlined text-lg">bolt</span>
+            </Button>
+          </GlassPanel>
         </motion.section>
       )}
 
@@ -337,6 +409,17 @@ export default function UploadPage() {
               </p>
             </div>
           </div>
+          <div className="h-10 w-[1px] bg-outline-variant/20" />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="px-4 py-2.5 bg-white text-black text-sm rounded-lg border border-gray-200 focus:outline-none appearance-none cursor-pointer font-headline font-bold"
+          >
+            <option value="">Category (optional)</option>
+            {CONTENT_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
           <div className="h-10 w-[1px] bg-outline-variant/20" />
           <Button
             variant="primary"
