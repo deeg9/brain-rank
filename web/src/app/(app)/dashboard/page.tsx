@@ -6,6 +6,10 @@ import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { VideoThumb } from "./VideoThumb";
 import { VisibilityToggle } from "./VisibilityToggle";
+import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { BenchmarkLegend } from "@/components/ui/BenchmarkLegend";
+import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
+import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -55,7 +59,8 @@ function computeAvgScore(jobs: Job[]): string {
     .map((j) => extractScore(j.results))
     .filter((s): s is number => s !== null);
   if (scores.length === 0) return "--";
-  return String(Math.round(scores.reduce((a, b) => a + b, 0) / scores.length));
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  return formatScore(normalizeScore(avg));
 }
 
 function getFirstName(user: { user_metadata?: { full_name?: string; name?: string }; email?: string }): string {
@@ -144,7 +149,7 @@ export default async function DashboardPage() {
         />
         <StatTile
           icon="neurology"
-          label="Avg Neural Score"
+          label="Avg Attention Score"
           value={avgScore}
           suffix="/100"
           accentColor="tertiary"
@@ -169,7 +174,7 @@ export default async function DashboardPage() {
               const score = extractScore(job.results);
 
               return (
-                <Card key={job.id} hover className="overflow-hidden group">
+                <Card key={job.id} hover className="overflow-visible group">
                   <div className="flex flex-col md:flex-row">
                     {/* Video thumbnail */}
                     <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-surface-container-lowest">
@@ -187,17 +192,16 @@ export default async function DashboardPage() {
                             {filename}
                           </h4>
                         </div>
-                        <p className="text-xs font-bold text-black mb-4 flex items-center gap-2">
-                          <span className="material-symbols-outlined text-sm">
-                            calendar_today
-                          </span>
-                          {formatDate(job.created_at)}
-                        </p>
                         <div className="flex items-center gap-2 mb-2">
                           <StatusBadge status={mapStatus(job.status)} />
+                          <ContentTypeBadge inputType={(job as any).input_type} />
                           <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <span className="flex items-center gap-1 text-xs font-bold text-black">
+                            <span className="material-symbols-outlined text-sm">calendar_today</span>
+                            {formatDate(job.created_at)}
+                          </span>
                           {job.is_public && (job as any).view_count > 0 && (
                             <span className="flex items-center gap-1 text-xs font-bold text-black">
                               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
@@ -205,10 +209,9 @@ export default async function DashboardPage() {
                             </span>
                           )}
                           {score !== null && (
-                            <span className="inline-flex items-center gap-1 text-sm font-headline font-bold text-black">
-                              <span className="material-symbols-outlined text-sm leading-none">trophy</span>
-                              {score}
-                              <span className="text-xs font-bold text-black">Attention Score</span>
+                            <span className="inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
+                              <ScoreBadge value={score} size="sm" />
                             </span>
                           )}
                         </div>

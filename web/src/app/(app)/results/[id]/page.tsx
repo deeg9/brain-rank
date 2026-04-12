@@ -17,6 +17,7 @@ import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline
 import { findPeaks } from "@/lib/peak-detection";
 import { MetricInfo } from "@/components/results/MetricInfo";
 import type { Job } from "@/lib/database.types";
+import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 
 const NeuralTimeline = dynamic(
   () => import("@/components/results/NeuralTimeline").then(m => m.NeuralTimeline),
@@ -328,6 +329,7 @@ export default function ResultsDetailPage({ params }: Props) {
               <h2 className="text-on-surface font-black text-lg tracking-tight">
                 {displayTitle}
               </h2>
+              <ContentTypeBadge inputType={job?.input_type} />
               <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity text-base">
                 edit
               </span>

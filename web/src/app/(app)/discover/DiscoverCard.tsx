@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { VideoThumb } from "@/app/(app)/dashboard/VideoThumb";
 import { ViewCount } from "@/components/social/ViewCount";
 import { BookmarkButton } from "@/components/social/BookmarkButton";
+import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
+import type { InputType } from "@/lib/database.types";
 
 export interface DiscoverAnalysis {
   id: string;
@@ -15,6 +18,8 @@ export interface DiscoverAnalysis {
   view_count?: number;
   creator_username: string | null;
   creator_avatar_url: string | null;
+  category?: string | null;
+  input_type?: InputType | null;
 }
 
 interface DiscoverCardProps {
@@ -47,7 +52,12 @@ export function DiscoverCard({ analysis }: DiscoverCardProps) {
 
         {/* Content area */}
         <div className="p-4 space-y-2">
-          <p className="text-sm font-bold text-gray-900 truncate">{title}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-gray-900 truncate flex-1">{title}</p>
+            {analysis.input_type && analysis.input_type !== 'video' && (
+              <ContentTypeBadge inputType={analysis.input_type} />
+            )}
+          </div>
 
           {/* Creator row */}
           <div className="flex items-center gap-2">
@@ -83,21 +93,20 @@ export function DiscoverCard({ analysis }: DiscoverCardProps) {
           </div>
 
           {/* Bottom row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-black">
-                {date}
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-black">
+              <span className="material-symbols-outlined text-[14px] leading-none">calendar_today</span>
+              {date}
+            </span>
+            {typeof analysis.view_count === "number" && analysis.view_count > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-black">
+                <span className="material-symbols-outlined text-[14px] leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+                {analysis.view_count} views
               </span>
-              {typeof analysis.view_count === "number" && analysis.view_count > 0 && (
-                <span className="flex items-center gap-1 text-xs font-bold text-black">
-                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
-                  {analysis.view_count} views
-                </span>
-              )}
-            </div>
-            <span className="flex items-center gap-1 text-sm font-bold text-black">
-              <span className="material-symbols-outlined text-sm">trophy</span>
-              {scoreDisplay} <span className="text-xs">Attention Score</span>
+            )}
+            <span className="inline-flex items-center gap-1 ml-auto">
+              <span className="material-symbols-outlined text-[14px] leading-none text-black">trophy</span>
+              <ScoreBadge value={analysis.overall_score} size="sm" />
             </span>
           </div>
         </div>
