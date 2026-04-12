@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { DiscoverCard, type DiscoverAnalysis } from "./DiscoverCard";
 
@@ -11,6 +11,25 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Search, sort, filter state
+  const [sortOption, setSortOption] = useState("score");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [scoreFilter, setScoreFilter] = useState("all");
+
+  // Debounce search input (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset visibleCount when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [sortOption, debouncedSearch, scoreFilter]);
 
   const fetchAnalyses = useCallback(async () => {
     setLoading(true);
@@ -61,7 +80,7 @@ export default function DiscoverPage() {
       typedProfiles.map((p) => [p.id, p])
     );
 
-    // Map jobs to DiscoverAnalysis and sort by overall_score descending
+    // Map jobs to DiscoverAnalysis (no sorting here -- handled by useMemo)
     const mapped: DiscoverAnalysis[] = typedJobs.map((job) => {
       const profile = profileMap.get(job.user_id);
       const overallScore = (
@@ -80,14 +99,6 @@ export default function DiscoverPage() {
       };
     });
 
-    // Sort by overall_score descending, nulls last
-    mapped.sort((a, b) => {
-      if (a.overall_score === null && b.overall_score === null) return 0;
-      if (a.overall_score === null) return 1;
-      if (b.overall_score === null) return -1;
-      return b.overall_score - a.overall_score;
-    });
-
     setAnalyses(mapped);
     setLoading(false);
     setInitialLoad(false);
@@ -97,8 +108,50 @@ export default function DiscoverPage() {
     fetchAnalyses();
   }, [fetchAnalyses]);
 
-  const visibleAnalyses = analyses.slice(0, visibleCount);
-  const hasMore = visibleCount < analyses.length;
+  // Filtering and sorting pipeline
+  const filteredAnalyses = useMemo(() => {
+    let result = [...analyses];
+
+    // Search filter
+    if (debouncedSearch) {
+      const term = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (a) =>
+          (a.title && a.title.toLowerCase().includes(term)) ||
+          (a.creator_username && a.creator_username.toLowerCase().includes(term))
+      );
+    }
+
+    // Score filter
+    if (scoreFilter !== "all") {
+      const minScore = parseInt(scoreFilter);
+      result = result.filter(
+        (a) => a.overall_score !== null && a.overall_score >= minScore
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortOption === "score") {
+        if (a.overall_score === null && b.overall_score === null) return 0;
+        if (a.overall_score === null) return 1;
+        if (b.overall_score === null) return -1;
+        return b.overall_score - a.overall_score;
+      }
+      if (sortOption === "newest") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      // oldest
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+
+    return result;
+  }, [analyses, sortOption, debouncedSearch, scoreFilter]);
+
+  const visibleAnalyses = filteredAnalyses.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredAnalyses.length;
+
+  const isFiltering = searchQuery !== "" || scoreFilter !== "all";
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
@@ -111,6 +164,51 @@ export default function DiscoverPage() {
           Browse public neural analyses ranked by brain activation score
         </p>
       </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search input */}
+        <div className="relative flex-1">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+          <input
+            type="text"
+            placeholder="Search by title or username..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-surface-container text-on-surface text-sm rounded-lg border border-outline-variant/30 focus:border-primary-fixed focus:outline-none placeholder:text-on-surface-variant/50"
+          />
+        </div>
+
+        {/* Sort dropdown */}
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="px-4 py-2.5 bg-surface-container text-on-surface text-sm rounded-lg border border-outline-variant/30 focus:border-primary-fixed focus:outline-none appearance-none cursor-pointer"
+        >
+          <option value="score">Highest Score</option>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+
+        {/* Score filter dropdown */}
+        <select
+          value={scoreFilter}
+          onChange={(e) => setScoreFilter(e.target.value)}
+          className="px-4 py-2.5 bg-surface-container text-on-surface text-sm rounded-lg border border-outline-variant/30 focus:border-primary-fixed focus:outline-none appearance-none cursor-pointer"
+        >
+          <option value="all">All Scores</option>
+          <option value="90">90+</option>
+          <option value="80">80+</option>
+          <option value="70">70+</option>
+        </select>
+      </div>
+
+      {/* Active filter indicator */}
+      {isFiltering && !initialLoad && (
+        <p className="text-xs text-on-surface-variant">
+          Showing {filteredAnalyses.length} of {analyses.length} analyses
+        </p>
+      )}
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -128,15 +226,20 @@ export default function DiscoverPage() {
                 </div>
               </div>
             ))
-          : analyses.length === 0
-            ? // Empty state
+          : filteredAnalyses.length === 0 && analyses.length > 0
+            ? // Empty filter state
               <div className="col-span-full py-20 text-center text-on-surface-variant">
-                No public analyses yet. Be the first to share!
+                No analyses match your filters. Try adjusting your search or filters.
               </div>
-            : // Analysis cards
-              visibleAnalyses.map((a) => (
-                <DiscoverCard key={a.id} analysis={a} />
-              ))}
+            : analyses.length === 0
+              ? // Empty state
+                <div className="col-span-full py-20 text-center text-on-surface-variant">
+                  No public analyses yet. Be the first to share!
+                </div>
+              : // Analysis cards
+                visibleAnalyses.map((a) => (
+                  <DiscoverCard key={a.id} analysis={a} />
+                ))}
       </div>
 
       {/* Load More */}
