@@ -41,3 +41,49 @@
 - Two Stitch briefs produced, both sent to Google Stitch
 - 15 production-ready HTML screens received back from Stitch (batches 2+3)
 - Complete design system documented (Neural Architect theme, tonal layering, Space Grotesk + Inter)
+
+### v2.0–v3.0: Frontend Implementation & Brain Visualization (2026-04-09 — 2026-04-11)
+
+**Goal:** Build the full NeuroCut web app with Next.js + Supabase, implement 3D brain viewer with per-vertex cortical heatmaps, and overhaul visualization UX.
+
+**Phases:** Phases 15-43 across v2.0, v2.1, v2.2, v3.0
+**Key outcomes:**
+- Full Next.js app with auth, upload, results, dashboard, settings
+- 3D brain viewer with per-vertex activation, dynamic glow, threshold-based display
+- Neural timeline with peak markers, smooth transitions, video sync
+- 9 functional brain networks mapped and visualized
+
+### v4.0: Social Discovery Platform (2026-04-11 — 2026-04-12)
+
+**Goal:** Add user identities, public sharing, and a neural-score-ranked discovery feed.
+
+**Phases:** 8 phases (44-51), all complete
+44. Social Schema & Identity — username, avatar, bio columns + RLS policies
+45. Profile Customization — avatar upload, bio editor, profile settings
+46. Public Profile Pages — /u/username with public analyses and stats
+47. Privacy Controls & Sharing — public/private toggle, shareable links
+48. Public Analysis View — scores-only public view with brain viewer
+49. Discovery Feed — /discover with neural score ranking
+50. Discovery Search & Filters — search by title/username, sort, filter
+51. Social Engagement — view counts, bookmarks, /bookmarks page
+
+**Key outcomes:**
+- User profiles with unique usernames, avatars, and bios
+- Public/private toggle on analyses with shareable links
+- Discovery feed ranked by neural score (no social votes)
+- View counts and bookmarks
+
+## In Progress
+
+### v5.0: Multi-Modal Input & Comparison (2026-04-12 — )
+
+**Goal:** Expand beyond video-only to support image and text neural testing, with side-by-side comparison.
+
+**Phases:** 7 phases (52-58)
+52. Schema & Upload Type Selector — input_type column, upload type selector
+53. Image Upload Pipeline — JPEG/PNG → silent video → TRIBE v2 inference
+54. Text Spoken Mode — text → native TRIBE v2 TTS → audio inference
+55. Text Visual Mode — text → styled card → image → video (Experimental)
+56. Results Adaptations — conditional rendering for non-video content
+57. Content Type Badges — Video/Image/Text + Exploratory badges everywhere
+58. Comparison Page — side-by-side with metric deltas and cross-type disclaimers
