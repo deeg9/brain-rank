@@ -710,9 +710,9 @@ Plans:
   2. New analyses default to private (is_public = false)
   3. User can copy a shareable link for any public analysis with one click
   4. Attempting to access a private analysis URL while not the owner returns a 404 (not a 403, to avoid leaking existence)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 47-01-PLAN.md — Privacy toggle, shareable links, dashboard visibility controls
+- [x] 47-01-PLAN.md — Privacy toggle, shareable links, dashboard visibility controls
 **UI hint**: yes
 
 ### Phase 48: Public Analysis View
@@ -831,7 +831,7 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 44. Social Schema & Identity | v4.0 | 2/2 | Complete    | 2026-04-11 |
 | 45. Profile Customization | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 46. Public Profile Pages | v4.0 | 1/1 | Complete    | 2026-04-12 |
-| 47. Privacy Controls & Sharing | v4.0 | 0/0 | Not started | - |
+| 47. Privacy Controls & Sharing | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 48. Public Analysis View | v4.0 | 0/0 | Not started | - |
 | 49. Discovery Feed | v4.0 | 0/0 | Not started | - |
 | 50. Discovery Search & Filters | v4.0 | 0/0 | Not started | - |
