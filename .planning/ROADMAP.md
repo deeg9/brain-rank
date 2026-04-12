@@ -696,8 +696,8 @@ Plans:
   4. The user receives results with the same structure and polling flow as video/image jobs
 **Plans**: 2 plans
 Plans:
-- [ ] 54-01-PLAN.md — Text textarea UI with 500-char counter and submit flow
-- [ ] 54-02-PLAN.md — RunPod handler text_spoken branch with TRIBE v2 text_path inference
+- [x] 54-01-PLAN.md — Text textarea UI with 500-char counter and submit flow
+- [x] 54-02-PLAN.md — RunPod handler text_spoken branch with TRIBE v2 text_path inference
 
 **UI hint**: yes
 
@@ -827,7 +827,7 @@ Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54
 | 51. Social Engagement | v4.0 | 2/2 | Complete    | 2026-04-12 |
 | 52. Schema & Upload Type Selector | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 53. Image Upload Pipeline | v5.0 | 2/2 | Complete    | 2026-04-12 |
-| 54. Text Spoken Mode | v5.0 | 0/0 | Not started | - |
+| 54. Text Spoken Mode | v5.0 | 2/2 | Complete    | 2026-04-12 |
 | 55. Text Visual Mode | v5.0 | 0/0 | Not started | - |
 | 56. Results Adaptations | v5.0 | 0/0 | Not started | - |
 | 57. Content Type Badges | v5.0 | 0/0 | Not started | - |
