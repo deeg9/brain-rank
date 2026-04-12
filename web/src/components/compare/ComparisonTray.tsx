@@ -11,38 +11,37 @@ interface ComparisonTrayProps {
   onCompare: () => void;
 }
 
-function Slot({
-  label,
+function SlotContent({
   analysis,
-  onRemove,
+  align,
 }: {
-  label: string;
   analysis: DiscoverAnalysis | null;
-  onRemove: () => void;
+  align: "left" | "right";
 }) {
-  return (
-    <div className="flex items-center gap-3 min-w-0 flex-1">
-      <span className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold shrink-0">
-        {label}
+  if (!analysis) {
+    return (
+      <span className="text-sm text-white/30 italic">
+        Select an analysis...
       </span>
-      {analysis ? (
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm text-on-surface font-medium truncate">
-            {analysis.title || "Untitled"}
-          </span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            className="shrink-0 w-5 h-5 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-          >
-            <span className="material-symbols-outlined text-xs text-on-surface-variant">close</span>
-          </button>
-        </div>
-      ) : (
-        <span className="text-sm text-on-surface-variant/50 italic">Select an analysis...</span>
-      )}
+    );
+  }
+
+  const thumb = analysis.video_url;
+  const title = analysis.title || "Untitled";
+
+  return (
+    <div className={`flex items-center gap-3 ${align === "right" ? "flex-row-reverse" : ""}`}>
+      <div className="w-12 h-12 rounded-lg overflow-hidden bg-white/10 shrink-0">
+        <img
+          src={thumb}
+          alt={title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
+      </div>
+      <p className="text-sm text-white font-bold truncate">{title}</p>
     </div>
   );
 }
@@ -65,24 +64,37 @@ export function ComparisonTray({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
-          className="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-highest/95 backdrop-blur-xl border-t border-white/10 shadow-2xl"
+          className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] border-t border-white/10 shadow-2xl"
         >
-          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-6">
-            <Slot label="Analysis A:" analysis={slotA} onRemove={onRemoveA} />
+          <div className="max-w-6xl mx-auto px-6 py-5 flex items-center gap-4">
+            {/* Analysis A — left aligned */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1.5">
+                Analysis A
+              </p>
+              <SlotContent analysis={slotA} align="left" />
+            </div>
 
+            {/* Compare button — centered */}
             <button
               onClick={onCompare}
               disabled={!canCompare}
-              className={`shrink-0 px-8 py-2.5 rounded-lg font-headline text-sm font-bold uppercase tracking-wider transition-all ${
+              className={`shrink-0 px-10 py-3 rounded-lg font-headline text-sm font-bold uppercase tracking-wider transition-all ${
                 canCompare
-                  ? "bg-on-surface text-surface hover:opacity-90"
-                  : "bg-white/10 text-on-surface-variant/40 cursor-not-allowed"
+                  ? "bg-white text-black hover:opacity-90"
+                  : "bg-white/10 text-white/30 cursor-not-allowed"
               }`}
             >
               Compare
             </button>
 
-            <Slot label="Analysis B:" analysis={slotB} onRemove={onRemoveB} />
+            {/* Analysis B — right aligned */}
+            <div className="flex-1 min-w-0 text-right">
+              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1.5">
+                Analysis B
+              </p>
+              <SlotContent analysis={slotB} align="right" />
+            </div>
           </div>
         </motion.div>
       )}
