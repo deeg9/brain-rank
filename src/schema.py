@@ -15,25 +15,33 @@ from __future__ import annotations
 from typing import Literal, Optional
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 
 class InputSchema(BaseModel):
     """Validated input from RunPod job queue.
 
-    video_url must be a non-empty HTTP(S) URL. Uses str type (not HttpUrl)
-    to avoid serialization issues with RunPod's dict-based input.
+    Supports video (default), image, text_spoken, and text_visual input types.
+    video_url is required for video and image types.
+    text_content is required for text_spoken and text_visual types.
     """
 
     model_config = ConfigDict(strict=False)
 
-    video_url: str
+    video_url: Optional[str] = None
     include_raw: bool = False
     include_vertex_data: bool = True
 
+    # Multi-modal fields
+    input_type: Literal["video", "image", "text_spoken", "text_visual"] = "video"
+    text_content: Optional[str] = None
+    text_style: Optional[str] = None
+
     @field_validator("video_url")
     @classmethod
-    def validate_video_url(cls, v: str) -> str:
+    def validate_video_url(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
         if not v or not v.strip():
             raise ValueError("video_url must not be empty")
         parsed = urlparse(v)
@@ -42,6 +50,16 @@ class InputSchema(BaseModel):
                 f"video_url must use http or https scheme, got '{parsed.scheme}'"
             )
         return v
+
+    @model_validator(mode="after")
+    def validate_input_combination(self) -> "InputSchema":
+        if self.input_type == "video" and not self.video_url:
+            raise ValueError("video_url required for video input")
+        if self.input_type == "image" and not self.video_url:
+            raise ValueError("video_url (media URL) required for image input")
+        if self.input_type in ("text_spoken", "text_visual") and not self.text_content:
+            raise ValueError("text_content required for text input")
+        return self
 
 
 class RegionScores(BaseModel):

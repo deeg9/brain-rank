@@ -1,8 +1,14 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { type InputType } from '@/lib/database.types'
 
-export async function createJob(videoUrl: string): Promise<string> {
+export async function createJob(
+  videoUrl: string,
+  inputType: InputType = 'video',
+  textContent?: string | null,
+  textStyle?: string | null
+): Promise<string> {
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -14,6 +20,9 @@ export async function createJob(videoUrl: string): Promise<string> {
       user_id: user.id,
       video_url: videoUrl,
       status: 'pending' as const,
+      input_type: inputType,
+      text_content: textContent ?? null,
+      text_style: textStyle ?? null,
       results: null,
       error_message: null,
     })
@@ -38,7 +47,10 @@ export async function createJob(videoUrl: string): Promise<string> {
           body: JSON.stringify({
             input: {
               video_url: videoUrl,
+              input_type: inputType,
               job_id: data.id,
+              ...(textContent ? { text_content: textContent } : {}),
+              ...(textStyle ? { text_style: textStyle } : {}),
             },
           }),
         }

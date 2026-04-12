@@ -1,5 +1,7 @@
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
+export type InputType = 'video' | 'image' | 'text_spoken' | 'text_visual'
+
 export interface Job {
   id: string
   user_id: string
@@ -8,6 +10,9 @@ export interface Job {
   is_public: boolean
   view_count: number
   status: JobStatus
+  input_type: InputType
+  text_content: string | null
+  text_style: string | null
   runpod_id: string | null
   results: Record<string, unknown> | null
   error_message: string | null
@@ -35,10 +40,13 @@ export interface Database {
     Tables: {
       jobs: {
         Row: Job
-        Insert: Omit<Job, 'id' | 'is_public' | 'view_count' | 'created_at' | 'updated_at'> & {
+        Insert: Omit<Job, 'id' | 'is_public' | 'view_count' | 'input_type' | 'text_content' | 'text_style' | 'created_at' | 'updated_at'> & {
           id?: string
           is_public?: boolean
           view_count?: number
+          input_type?: InputType
+          text_content?: string | null
+          text_style?: string | null
           created_at?: string
           updated_at?: string
         }
