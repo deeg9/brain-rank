@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { PublicAvatarDisplay } from "@/app/u/[username]/PublicAvatarDisplay";
+import { ViewCount } from "@/components/social/ViewCount";
+import { BookmarkButton } from "@/components/social/BookmarkButton";
 
 export interface DiscoverAnalysis {
   id: string;
@@ -9,6 +11,7 @@ export interface DiscoverAnalysis {
   video_url: string;
   overall_score: number | null;
   created_at: string;
+  view_count?: number;
   creator_username: string | null;
   creator_avatar_url: string | null;
 }
@@ -33,10 +36,13 @@ export function DiscoverCard({ analysis }: DiscoverCardProps) {
     <Link href={`/analysis/${analysis.id}`}>
       <div className="bg-surface-container rounded-xl overflow-hidden hover:bg-surface-container-high transition-colors group hover:-translate-y-0.5 transition-transform">
         {/* Thumbnail placeholder */}
-        <div className="aspect-video bg-surface-container-highest flex items-center justify-center">
+        <div className="relative aspect-video bg-surface-container-highest flex items-center justify-center">
           <span className="material-symbols-outlined text-4xl text-on-surface-variant/30">
             movie
           </span>
+          <div className="absolute top-2 right-2">
+            <BookmarkButton jobId={analysis.id} />
+          </div>
         </div>
 
         {/* Content area */}
@@ -73,9 +79,14 @@ export function DiscoverCard({ analysis }: DiscoverCardProps) {
 
           {/* Bottom row */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-on-surface-variant uppercase tracking-widest font-headline">
-              {date}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-on-surface-variant uppercase tracking-widest font-headline">
+                {date}
+              </span>
+              {typeof analysis.view_count === "number" && (
+                <ViewCount count={analysis.view_count} />
+              )}
+            </div>
             <span className="text-sm font-headline font-bold text-primary-fixed">
               {scoreDisplay}
             </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Card } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -33,6 +33,8 @@ const CircumplexChart = dynamic(
 );
 
 interface PublicAnalysisClientProps {
+  jobId: string;
+  viewCount: number;
   segments: SegmentData[];
   summary: {
     overall: number;
@@ -72,6 +74,8 @@ function getSegmentAtTime(
 }
 
 export function PublicAnalysisClient({
+  jobId,
+  viewCount,
   segments,
   summary,
   duration,
@@ -81,6 +85,16 @@ export function PublicAnalysisClient({
 }: PublicAnalysisClientProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const currentTimeRef = useRef(0);
+
+  // Increment view count once on mount (ref guard prevents double-fire in StrictMode)
+  const viewIncrementedRef = useRef(false);
+  useEffect(() => {
+    if (viewIncrementedRef.current) return;
+    viewIncrementedRef.current = true;
+    fetch(`/api/views/${jobId}`, { method: "POST" }).catch(() => {
+      // Silent fail -- view count increment is best-effort
+    });
+  }, [jobId]);
 
   const handleSeek = useCallback((time: number) => {
     const clamped = Math.max(0, Math.min(time, duration));

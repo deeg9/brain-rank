@@ -38,7 +38,7 @@ export default function DiscoverPage() {
     // Fetch all public completed jobs
     const { data: jobs, error: jobsError } = await supabase
       .from("jobs")
-      .select("id, title, video_url, results, created_at, user_id")
+      .select("id, title, video_url, results, created_at, user_id, view_count")
       .eq("is_public", true)
       .eq("status", "completed");
 
@@ -57,6 +57,7 @@ export default function DiscoverPage() {
       results: Record<string, unknown> | null;
       created_at: string;
       user_id: string;
+      view_count: number;
     };
     type ProfileRow = {
       id: string;
@@ -94,6 +95,7 @@ export default function DiscoverPage() {
         overall_score:
           typeof overallScore === "number" ? overallScore : null,
         created_at: job.created_at,
+        view_count: job.view_count ?? 0,
         creator_username: profile?.username ?? null,
         creator_avatar_url: profile?.avatar_url ?? null,
       };
@@ -137,6 +139,9 @@ export default function DiscoverPage() {
         if (a.overall_score === null) return 1;
         if (b.overall_score === null) return -1;
         return b.overall_score - a.overall_score;
+      }
+      if (sortOption === "views") {
+        return (b.view_count ?? 0) - (a.view_count ?? 0);
       }
       if (sortOption === "newest") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -186,6 +191,7 @@ export default function DiscoverPage() {
           className="px-4 py-2.5 bg-surface-container text-on-surface text-sm rounded-lg border border-outline-variant/30 focus:border-primary-fixed focus:outline-none appearance-none cursor-pointer"
         >
           <option value="score">Highest Score</option>
+          <option value="views">Most Views</option>
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
         </select>

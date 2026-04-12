@@ -8,6 +8,8 @@ import { analyzeBenchmark } from "@/lib/benchmark";
 import { findPeaks } from "@/lib/peak-detection";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import { PublicAnalysisClient } from "./PublicAnalysisClient";
+import { ViewCount } from "@/components/social/ViewCount";
+import { BookmarkButton } from "@/components/social/BookmarkButton";
 import Link from "next/link";
 
 interface PageProps {
@@ -149,7 +151,11 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
             NeuroCut
           </span>
         </Link>
-        <p className="text-on-surface-variant text-xs">{analysisDate}</p>
+        <div className="flex items-center gap-2">
+          <ViewCount count={(job as any).view_count ?? 0} />
+          <BookmarkButton jobId={id} />
+          <p className="text-on-surface-variant text-xs">{analysisDate}</p>
+        </div>
       </div>
 
       {/* Title + Creator Attribution */}
@@ -171,6 +177,8 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
 
       {/* Interactive Client Component */}
       <PublicAnalysisClient
+        jobId={id}
+        viewCount={(job as any).view_count ?? 0}
         segments={segments}
         summary={summary}
         duration={results.duration_seconds}
