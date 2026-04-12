@@ -681,10 +681,10 @@ Plans:
   3. User can configure how long the static image is held for inference (6s default, 2-15s slider)
   4. Submitting an image creates a job, the RunPod worker converts it to a silent video via FFmpeg, runs inference, and returns scores
   5. The user receives results identical in structure to a video job (same polling, same results page)
-**Plans**: 2 plans
+**Plans:** 2 plans
 Plans:
-- [x] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [x] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [ ] 53-01-PLAN.md — Image upload UI with preview, validation, duration slider, and Supabase upload
+- [ ] 53-02-PLAN.md — RunPod handler image-to-video conversion and video-only inference
 **UI hint**: yes
 
 ### Phase 54: Text Spoken Mode
