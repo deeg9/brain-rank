@@ -752,9 +752,9 @@ Plans:
   2. User can search public analyses by video title or creator username with results updating as they type
   3. User can filter analyses by content type or score range and see the feed update accordingly
   4. Sorting, searching, and filtering can be combined (e.g., search "cooking" + sort by neural score + filter score > 70)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 50-01-PLAN.md — Sort, search, and score filter controls for discovery feed
+- [x] 50-01-PLAN.md — Sort, search, and score filter controls for discovery feed
 **UI hint**: yes
 
 ### Phase 51: Social Engagement
@@ -834,5 +834,5 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 47. Privacy Controls & Sharing | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 48. Public Analysis View | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 49. Discovery Feed | v4.0 | 1/1 | Complete    | 2026-04-12 |
-| 50. Discovery Search & Filters | v4.0 | 0/0 | Not started | - |
+| 50. Discovery Search & Filters | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 51. Social Engagement | v4.0 | 0/0 | Not started | - |
