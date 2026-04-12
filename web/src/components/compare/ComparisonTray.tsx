@@ -66,15 +66,22 @@ function MiniThumb({ src }: { src: string }) {
 function SlotContent({
   analysis,
   align,
+  label,
 }: {
   analysis: DiscoverAnalysis | null;
   align: "left" | "right";
+  label: string;
 }) {
   if (!analysis) {
     return (
-      <span className="text-sm text-white/30 italic">
-        Select an analysis...
-      </span>
+      <div>
+        <p className={`text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1 ${align === "right" ? "text-right" : ""}`}>
+          {label}
+        </p>
+        <span className="text-sm text-white/30 italic">
+          Select an analysis...
+        </span>
+      </div>
     );
   }
 
@@ -82,10 +89,15 @@ function SlotContent({
 
   return (
     <div className={`flex items-center gap-3 ${align === "right" ? "flex-row-reverse" : ""}`}>
-      <div className="w-10 h-10 rounded-lg bg-white/10 shrink-0 flex items-center justify-center overflow-hidden">
+      <div className="w-14 h-14 rounded-lg bg-white/10 shrink-0 flex items-center justify-center overflow-hidden">
         <MiniThumb src={analysis.video_url} />
       </div>
-      <p className="text-sm text-white font-bold truncate">{title}</p>
+      <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
+        <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-0.5">
+          {label}
+        </p>
+        <p className="text-sm text-white font-bold truncate">{title}</p>
+      </div>
     </div>
   );
 }
@@ -113,10 +125,7 @@ export function ComparisonTray({
           <div className="max-w-6xl mx-auto px-6 py-5 flex items-center gap-4">
             {/* Analysis A — left aligned */}
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1.5">
-                Analysis A
-              </p>
-              <SlotContent analysis={slotA} align="left" />
+              <SlotContent analysis={slotA} align="left" label="Analysis A" />
             </div>
 
             {/* Compare button — centered */}
@@ -133,11 +142,8 @@ export function ComparisonTray({
             </button>
 
             {/* Analysis B — right aligned */}
-            <div className="flex-1 min-w-0 text-right">
-              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1.5">
-                Analysis B
-              </p>
-              <SlotContent analysis={slotB} align="right" />
+            <div className="flex-1 min-w-0">
+              <SlotContent analysis={slotB} align="right" label="Analysis B" />
             </div>
           </div>
         </motion.div>
