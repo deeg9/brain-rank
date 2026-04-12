@@ -6,11 +6,11 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<string, string> = {
-  queued: "bg-on-surface/10 text-on-surface-variant",
-  processing: "bg-secondary/15 text-secondary",
-  complete: "bg-tertiary-fixed/15 text-tertiary-fixed",
-  failed: "bg-error/15 text-error",
-  cancelled: "bg-on-surface/10 text-on-surface-variant",
+  queued: "bg-gray-200 text-gray-700",
+  processing: "bg-blue-100 text-blue-700",
+  complete: "bg-green-100 text-green-700",
+  failed: "bg-red-100 text-red-700",
+  cancelled: "bg-gray-200 text-gray-700",
 };
 
 const defaultLabels: Record<string, string> = {

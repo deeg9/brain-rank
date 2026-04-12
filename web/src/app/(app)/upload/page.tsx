@@ -107,19 +107,19 @@ export default function UploadPage() {
 
   const FEATURES = [
     {
-      icon: "speed",
-      title: "Turbo Processing",
-      desc: "Parallel neural threads handle frame-by-frame inference at 4x realtime speed.",
+      icon: "psychology",
+      title: "TRIBE v2 by Meta",
+      desc: "Powered by Meta's brain-predictive foundation model. Predicts real human neural activation patterns from video, audio, and text.",
     },
     {
-      icon: "model_training",
-      title: "Neural Engine",
-      desc: "Proprietary vision models trained specifically for cinematic composition and pacing.",
+      icon: "hub",
+      title: "9 Brain Networks",
+      desc: "Tracks attention, reward, emotion, social cognition, and 5 more neural networks across every 2-second segment of your content.",
     },
     {
-      icon: "security",
-      title: "Encrypted Transit",
-      desc: "End-to-end AES-256 encryption. Your raw media is deleted immediately post-analysis.",
+      icon: "neurology",
+      title: "3D Brain Mapping",
+      desc: "Visualize activation on an interactive 3D brain model with 20,000+ cortical vertices mapped to real neuroscience data.",
     },
   ];
 
@@ -133,7 +133,7 @@ export default function UploadPage() {
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
         <h2 className="text-4xl font-headline font-bold tracking-tight text-on-surface">
-          Upload Analysis
+          Upload Media
         </h2>
         <p className="text-on-surface-variant font-body">
           Supported formats: MP4, WebM, MOV.{" "}
@@ -179,7 +179,7 @@ export default function UploadPage() {
       >
         <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
               <span className="material-symbols-outlined">token</span>
             </div>
             <div>
@@ -225,7 +225,7 @@ export default function UploadPage() {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out pointer-events-none" />
 
               <div className="relative z-10">
-                <div className="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant transition-transform duration-300 group-hover:scale-110">
+                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 transition-transform duration-300 group-hover:scale-110">
                   <span className="material-symbols-outlined">{f.icon}</span>
                 </div>
               </div>

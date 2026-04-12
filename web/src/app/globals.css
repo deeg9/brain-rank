@@ -162,6 +162,21 @@
   --scrollbar-thumb: #262528;
 }
 
+/* ─── Recharts focus outline fix ────────────────────────────── */
+.recharts-surface,
+.recharts-surface:focus,
+.recharts-surface:focus-visible,
+.recharts-wrapper svg,
+.recharts-wrapper svg:focus,
+.recharts-wrapper svg:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.recharts-surface[tabindex] {
+  outline: none !important;
+}
+
 /* ─── Utility Classes (theme-aware) ─────────────────────────── */
 @utility neural-gradient {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dim));

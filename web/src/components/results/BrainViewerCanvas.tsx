@@ -12,20 +12,26 @@ interface BrainViewerCanvasProps {
   vertexDataB: Float32Array | null;
   blendFactor: number;
   regionColors: Float32Array | null;
+  locked?: boolean;
   onHoverVertex?: (vertexIndex: number | null, clientX: number, clientY: number) => void;
 }
 
 export interface BrainViewerCanvasHandle {
   setView: (position: [number, number, number]) => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
 }
 
 const IDLE_TIMEOUT_MS = 3000;
 const AUTO_ROTATE_SPEED = 0.5;
 
-const CAMERA_DISTANCE = 280;
+const CAMERA_DISTANCE = 190;
+const ZOOM_STEP = 40;
+const MIN_DISTANCE = 100;
+const MAX_DISTANCE = 400;
 
 export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewerCanvasProps>(
-  function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, onHoverVertex }, ref) {
+  function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, locked, onHoverVertex }, ref) {
     const controlsRef = useRef<OrbitControlsImpl>(null);
     const { camera } = useThree();
     const [isIdle, setIsIdle] = useState(false);
@@ -56,6 +62,20 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
         controlsRef.current?.update();
         resetIdleTimer();
       },
+      zoomIn() {
+        const dir = camera.position.clone().normalize();
+        const dist = Math.max(MIN_DISTANCE, camera.position.length() - ZOOM_STEP);
+        camera.position.copy(dir.multiplyScalar(dist));
+        controlsRef.current?.update();
+        resetIdleTimer();
+      },
+      zoomOut() {
+        const dir = camera.position.clone().normalize();
+        const dist = Math.min(MAX_DISTANCE, camera.position.length() + ZOOM_STEP);
+        camera.position.copy(dir.multiplyScalar(dist));
+        controlsRef.current?.update();
+        resetIdleTimer();
+      },
     }), [camera, resetIdleTimer]);
 
     return (
@@ -77,9 +97,11 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
         <OrbitControls
           ref={controlsRef}
           enablePan={false}
-          minDistance={100}
-          maxDistance={400}
-          autoRotate={isIdle}
+          enableRotate={!locked}
+          enableZoom={!locked}
+          minDistance={MIN_DISTANCE}
+          maxDistance={MAX_DISTANCE}
+          autoRotate={!locked && isIdle}
           autoRotateSpeed={AUTO_ROTATE_SPEED}
           enableDamping
           dampingFactor={0.08}

@@ -2,11 +2,13 @@
 
 import React, { Suspense, useMemo, useEffect, useState, useCallback, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { BrainViewerCanvas, type BrainViewerCanvasHandle } from './BrainViewerCanvas';
 import { NetworkLegend } from './NetworkLegend';
 import { getAdjacentSegments, getRegionsAtTime, REGION_COLORS } from './brain-utils';
 import type { SegmentData, SegmentRegionScores } from '@/components/results/SegmentTable';
 import { decodeVertexData, VERTEX_COUNT } from '@/lib/vertex-codec';
+import { MetricInfo } from '@/components/results/MetricInfo';
 
 export type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
@@ -58,10 +60,10 @@ function hexToRGB(hex: string): [number, number, number] {
   ];
 }
 
-// Medium gray base for inactive vertices — visible on both light and dark backgrounds
-const BASE_R = 0.55;
-const BASE_G = 0.55;
-const BASE_B = 0.58;
+// Light gray base for inactive vertices — clean and bright on white backgrounds
+const BASE_R = 0.85;
+const BASE_G = 0.85;
+const BASE_B = 0.87;
 
 function buildRegionColors(
   regions: SegmentRegionScores,
@@ -82,14 +84,16 @@ function buildRegionColors(
     if (!color) continue;
     const [cr, cg, cb] = hexToRGB(color);
 
-    const intensity = Math.max(0.15, score);
-    const emissiveBoost = score > 0.5 ? 1 + (score - 0.5) * 2 : 1;
+    // Blend from base toward the region color, then boost above 1.0 for bloom glow
+    const t = Math.max(0.3, Math.min(1, score * 2.0));
+    // High activations push colors above 1.0 so bloom picks them up
+    const emissiveBoost = score > 0.3 ? 1.0 + (score - 0.3) * 1.5 : 1.0;
 
     for (const idx of indices) {
       if (idx >= VERTEX_COUNT) continue;
-      out[idx * 3] = cr * intensity * emissiveBoost;
-      out[idx * 3 + 1] = cg * intensity * emissiveBoost;
-      out[idx * 3 + 2] = cb * intensity * emissiveBoost;
+      out[idx * 3]     = (BASE_R + (cr - BASE_R) * t) * emissiveBoost;
+      out[idx * 3 + 1] = (BASE_G + (cg - BASE_G) * t) * emissiveBoost;
+      out[idx * 3 + 2] = (BASE_B + (cb - BASE_B) * t) * emissiveBoost;
     }
   }
 }
@@ -115,7 +119,7 @@ function buildVertexToNetwork(
   return map;
 }
 
-const CAMERA_DISTANCE = 280;
+const CAMERA_DISTANCE = 190;
 const VIEW_PRESETS: { label: string; icon: string; position: [number, number, number] }[] = [
   { label: 'Front', icon: 'visibility', position: [0, 0, CAMERA_DISTANCE] },
   { label: 'Top', icon: 'vertical_align_top', position: [0, CAMERA_DISTANCE, 0] },
@@ -126,6 +130,7 @@ const VIEW_PRESETS: { label: string; icon: string; position: [number, number, nu
 export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+  const [locked, setLocked] = useState(false);
   const canvasRef = useRef<BrainViewerCanvasHandle>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -223,10 +228,16 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   const blendFactor = adjacent?.blendFactor ?? 0;
 
   return (
-    <div className="bg-surface-container rounded-xl p-6 flex flex-col">
+    <div className="rounded-xl p-6 flex flex-col glass-surface">
       <div className="flex items-center gap-2 mb-6">
         <span className="material-symbols-outlined text-on-surface-variant">neurology</span>
         <h3 className="font-headline text-lg font-bold">Neural Activation Map</h3>
+        <MetricInfo
+          title="Neural Activation Map"
+          description="Interactive 3D brain model showing which regions activate as your video plays. Colored areas indicate active neural networks — brighter colors mean stronger activation."
+          calculation="TRIBE v2 maps predicted brain activation onto the fsaverage5 cortical surface (10,242 vertices per hemisphere). Each vertex is colored based on the dominant neural network's activation score at the current timestamp."
+          interpretation="Rotate the brain to see activation from different angles. Hover over colored regions to see which network is active and its intensity. Use the view buttons (front, top, side) for quick orientation."
+        />
       </div>
       <div
         ref={canvasContainerRef}
@@ -234,9 +245,10 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
         onPointerLeave={handlePointerLeave}
       >
         <Canvas
-          camera={{ position: [0, 0, 280], fov: 45 }}
+          camera={{ position: [0, 0, 190], fov: 45 }}
           dpr={[1, 1.5]}
-          style={{ background: '#f5f5f8' }}
+          style={{ background: 'transparent' }}
+          gl={{ alpha: true }}
         >
           <Suspense fallback={null}>
             <BrainViewerCanvas
@@ -245,13 +257,22 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
               vertexDataB={vertexDataB}
               blendFactor={blendFactor}
               regionColors={regionColors}
+              locked={locked}
               onHoverVertex={handleHoverVertex}
             />
+            <EffectComposer>
+              <Bloom
+                luminanceThreshold={0.9}
+                luminanceSmoothing={0.4}
+                intensity={0.8}
+                mipmapBlur
+              />
+            </EffectComposer>
           </Suspense>
         </Canvas>
 
-        {/* View preset buttons */}
-        <div className="absolute top-2 right-2 flex gap-1 z-10">
+        {/* Brain controls — vertical right-aligned */}
+        <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
           {VIEW_PRESETS.map((preset) => (
             <button
               key={preset.label}
@@ -264,6 +285,45 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
               </span>
             </button>
           ))}
+
+          {/* Divider */}
+          <div className="h-px w-full bg-outline-variant/20 my-0.5" />
+
+          {/* Zoom in */}
+          <button
+            onClick={() => canvasRef.current?.zoomIn()}
+            className="w-7 h-7 rounded bg-surface-container-high/80 backdrop-blur-sm flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+            title="Zoom in"
+          >
+            <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 16 }}>
+              add
+            </span>
+          </button>
+
+          {/* Zoom out */}
+          <button
+            onClick={() => canvasRef.current?.zoomOut()}
+            className="w-7 h-7 rounded bg-surface-container-high/80 backdrop-blur-sm flex items-center justify-center hover:bg-surface-container-highest transition-colors"
+            title="Zoom out"
+          >
+            <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 16 }}>
+              remove
+            </span>
+          </button>
+
+          {/* Divider */}
+          <div className="h-px w-full bg-outline-variant/20 my-0.5" />
+
+          {/* Lock rotation */}
+          <button
+            onClick={() => setLocked(prev => !prev)}
+            className={`w-7 h-7 rounded backdrop-blur-sm flex items-center justify-center transition-colors ${locked ? 'bg-primary/20 text-primary' : 'bg-surface-container-high/80 hover:bg-surface-container-highest text-on-surface-variant'}`}
+            title={locked ? 'Unlock rotation' : 'Lock rotation'}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
+              {locked ? 'lock' : 'lock_open'}
+            </span>
+          </button>
         </div>
 
         {/* Hover tooltip */}

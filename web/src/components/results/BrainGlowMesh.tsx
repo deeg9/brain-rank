@@ -38,6 +38,12 @@ function lerpVertexData(
   }
 }
 
+// Base gray must match BrainViewer.tsx
+const BASE_R = 0.85;
+const BASE_G = 0.85;
+const BASE_B = 0.87;
+const BASE_THRESHOLD = 0.01; // color difference from base to count as "active"
+
 type GLTFNodes = Record<string, THREE.Mesh>;
 
 export function BrainGlowMesh(props: BrainGlowMeshProps) {
@@ -49,6 +55,8 @@ export function BrainGlowMesh(props: BrainGlowMeshProps) {
   const lutData = useMemo(() => buildColormapLUT('inferno'), []);
   const lerpBuffer = useMemo(() => new Float32Array(VERTEX_COUNT), []);
   const colorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
+  // Store the static base colors before shimmer
+  const baseColorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
 
   const colorAttr = useMemo(() => {
     const attr = new THREE.BufferAttribute(colorBuffer, 3);
@@ -71,6 +79,7 @@ export function BrainGlowMesh(props: BrainGlowMeshProps) {
   useEffect(() => {
     if (isRegionMode) {
       const src = props.regionColors!;
+      baseColorBuffer.set(src);
       colorBuffer.set(src);
     } else {
       const { vertexDataA, vertexDataB, blendFactor = 0 } = props as PerVertexProps;
@@ -80,14 +89,66 @@ export function BrainGlowMesh(props: BrainGlowMeshProps) {
       } else {
         applyThresholdGlow(vertexDataA, lutData, colorBuffer);
       }
+      baseColorBuffer.set(colorBuffer);
     }
     needsColorUpdate.current = true;
-  }, [isRegionMode, props, lutData, colorBuffer, lerpBuffer]);
+  }, [isRegionMode, props, lutData, colorBuffer, lerpBuffer, baseColorBuffer]);
 
-  useFrame(() => {
-    if (needsColorUpdate.current && colorAttr) {
+  // Cache vertex positions for shimmer
+  const positionsRef = useRef<Float32Array | null>(null);
+  useEffect(() => {
+    const pos = clonedGeometry.attributes.position;
+    if (pos) {
+      positionsRef.current = (pos.array as Float32Array);
+    }
+  }, [clonedGeometry]);
+
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime();
+    const positions = positionsRef.current;
+
+    if (positions) {
+      // Apply aurora shimmer to active vertices
+      for (let i = 0; i < VERTEX_COUNT; i++) {
+        const br = baseColorBuffer[i * 3];
+        const bg = baseColorBuffer[i * 3 + 1];
+        const bb = baseColorBuffer[i * 3 + 2];
+
+        // Check if vertex is active (differs from base gray)
+        const diffR = Math.abs(br - BASE_R);
+        const diffG = Math.abs(bg - BASE_G);
+        const diffB = Math.abs(bb - BASE_B);
+        const activity = Math.max(diffR, diffG, diffB);
+
+        if (activity > BASE_THRESHOLD) {
+          // Get vertex position for spatial variation
+          const px = positions[i * 3];
+          const py = positions[i * 3 + 1];
+          const pz = positions[i * 3 + 2];
+
+          // Multi-frequency sine waves for aurora-like flow
+          const wave1 = Math.sin(px * 0.06 + time * 1.2) * 0.5 + 0.5;
+          const wave2 = Math.sin(py * 0.07 - time * 0.9 + 1.3) * 0.5 + 0.5;
+          const wave3 = Math.sin((px + pz) * 0.05 + time * 1.5 + 2.7) * 0.5 + 0.5;
+          const shimmer = (wave1 * 0.4 + wave2 * 0.35 + wave3 * 0.25);
+
+          // Strong shimmer — ranges from 0.6 to 1.4 multiplier on active regions
+          const shimmerStrength = 0.8 * Math.min(1, activity * 4);
+          const factor = 1.0 + (shimmer - 0.5) * shimmerStrength;
+
+          colorBuffer[i * 3]     = br * factor;
+          colorBuffer[i * 3 + 1] = bg * factor;
+          colorBuffer[i * 3 + 2] = bb * factor;
+        } else {
+          colorBuffer[i * 3]     = br;
+          colorBuffer[i * 3 + 1] = bg;
+          colorBuffer[i * 3 + 2] = bb;
+        }
+      }
+    }
+
+    if (colorAttr) {
       colorAttr.needsUpdate = true;
-      needsColorUpdate.current = false;
     }
   });
 

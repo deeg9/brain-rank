@@ -28,7 +28,7 @@ export function ExportButton({
       className="bg-surface-container-highest text-on-surface px-4 py-2 rounded-lg text-[10px] font-headline uppercase tracking-widest ghost-border hover:opacity-80 transition-opacity flex items-center gap-2"
     >
       <span className="material-symbols-outlined text-sm">download</span>
-      Export JSON
+      Export Report
     </button>
   );
 }

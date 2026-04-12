@@ -19,14 +19,14 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant ml-1"
+          className="text-xs font-bold font-headline uppercase tracking-widest text-black ml-1"
         >
           {label}
         </label>
       )}
       <input
         id={inputId}
-        className={`w-full bg-surface-container-low border-b-2 border-outline-variant focus:border-secondary focus:ring-0 px-4 py-3 text-on-surface placeholder:text-outline transition-all duration-300 outline-none rounded-none ${className}`}
+        className={`w-full bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-black focus:ring-0 px-4 py-3 text-on-surface placeholder:text-gray-400 transition-all duration-300 outline-none ${className}`}
         {...props}
       />
       {error && <p className="text-error text-xs mt-1">{error}</p>}

@@ -3,9 +3,10 @@
 interface CircumplexChartProps {
   arousal: number;
   valence: number;
+  inline?: boolean;
 }
 
-export function CircumplexChart({ arousal, valence }: CircumplexChartProps) {
+export function CircumplexChart({ arousal, valence, inline }: CircumplexChartProps) {
   // Chart area: 40px padding on each side, chart spans 160x160 within 240x240 viewBox
   const pad = 40;
   const size = 160;
@@ -14,37 +15,28 @@ export function CircumplexChart({ arousal, valence }: CircumplexChartProps) {
   const midX = pad + size / 2;
   const midY = pad + size / 2;
 
-  return (
-    <div className="bg-surface-container rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 18 }}>
-          neurology
-        </span>
-        <h4 className="font-headline text-sm font-bold text-on-surface">
-          Emotional State
-        </h4>
-      </div>
-      <svg viewBox="0 0 240 240" className="w-full" role="img" aria-label="Arousal-valence circumplex chart">
+  const chart = (
+    <svg viewBox="0 0 240 240" className="w-full" role="img" aria-label="Arousal-valence circumplex chart">
         {/* Axis lines */}
         <line x1={midX} y1={pad} x2={midX} y2={pad + size} stroke="currentColor" strokeOpacity={0.15} strokeWidth={1} />
         <line x1={pad} y1={midY} x2={pad + size} y2={midY} stroke="currentColor" strokeOpacity={0.15} strokeWidth={1} />
 
         {/* Quadrant labels */}
-        <text x={pad + size - 4} y={pad + 14} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
+        <text x={pad + size - 4} y={pad + 14} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.85} fontWeight="bold" fontFamily="inherit">
           Excited
         </text>
-        <text x={pad + 4} y={pad + 14} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
+        <text x={pad + 4} y={pad + 14} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.85} fontWeight="bold" fontFamily="inherit">
           Tense
         </text>
-        <text x={pad + size - 4} y={pad + size - 6} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
+        <text x={pad + size - 4} y={pad + size - 6} textAnchor="end" fontSize={10} fill="currentColor" fillOpacity={0.85} fontWeight="bold" fontFamily="inherit">
           Calm
         </text>
-        <text x={pad + 4} y={pad + size - 6} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.5} fontFamily="inherit">
+        <text x={pad + 4} y={pad + size - 6} textAnchor="start" fontSize={10} fill="currentColor" fillOpacity={0.85} fontWeight="bold" fontFamily="inherit">
           Bored
         </text>
 
         {/* Axis labels */}
-        <text x={midX} y={pad + size + 16} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.4} fontFamily="inherit">
+        <text x={midX} y={pad + size + 16} textAnchor="middle" fontSize={9} fill="currentColor" fillOpacity={0.8} fontWeight="bold" fontFamily="inherit">
           Valence
         </text>
         <text
@@ -52,8 +44,9 @@ export function CircumplexChart({ arousal, valence }: CircumplexChartProps) {
           y={midY}
           textAnchor="middle"
           fontSize={9}
-          fill="white"
-          fillOpacity={0.3}
+          fill="currentColor"
+          fillOpacity={0.8}
+          fontWeight="bold"
           fontFamily="inherit"
           transform={`rotate(-90, ${pad - 16}, ${midY})`}
         >
@@ -79,6 +72,21 @@ export function CircumplexChart({ arousal, valence }: CircumplexChartProps) {
           </filter>
         </defs>
       </svg>
+  );
+
+  if (inline) return chart;
+
+  return (
+    <div className="bg-surface-container rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 18 }}>
+          neurology
+        </span>
+        <h4 className="font-headline text-sm font-bold text-on-surface">
+          Emotional State
+        </h4>
+      </div>
+      {chart}
     </div>
   );
 }

@@ -11,7 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<string, string> = {
   primary:
-    "neural-gradient text-on-surface font-headline font-bold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20",
+    "bg-black text-white font-headline font-bold rounded-lg hover:bg-gray-800 active:scale-[0.98] transition-all shadow-lg",
   secondary:
     "bg-surface-container-highest text-on-surface font-semibold rounded-lg hover:bg-surface-bright transition-colors ghost-border",
   ghost:

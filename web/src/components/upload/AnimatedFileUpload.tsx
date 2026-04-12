@@ -186,8 +186,8 @@ export function AnimatedFileUpload({
         />
 
         <div className="relative z-10 flex flex-col items-center">
-          <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center mb-4 border border-outline-variant/40">
-            <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4 border border-gray-200">
+            <span className="material-symbols-outlined text-3xl text-gray-600">
               cloud_upload
             </span>
           </div>
@@ -245,7 +245,7 @@ export function AnimatedFileUpload({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.95 }}
             transition={listSpring}
-            className="bg-surface-container-high rounded-xl p-4 ghost-border flex items-center gap-4"
+            className="rounded-xl p-4 glass-surface flex items-center gap-4"
           >
             {/* Thumbnail */}
             <div className="flex-shrink-0">

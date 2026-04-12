@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -14,6 +14,7 @@ import {
 import { type SegmentData, type SegmentRegionScores } from '@/components/results/SegmentTable';
 import { formatTimestamp } from '@/lib/results';
 import type { PeakMarker } from '@/lib/peak-detection';
+import { MetricInfo } from '@/components/results/MetricInfo';
 
 const TRACK_CONFIG = [
   { key: 'attention' as const, label: 'Attention', color: '#60a5fa', gradientId: 'gradient-attention' },
@@ -96,7 +97,7 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
   return (
     <div className="flex items-center gap-2">
       <div className="w-20 shrink-0 text-right flex items-center justify-end gap-1.5">
-        <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
+        <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface font-bold">
           {config.label}
         </span>
         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: config.color }} />
@@ -108,6 +109,7 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
             data={data}
             syncId="neural-timeline"
             syncMethod="value"
+            tabIndex={-1}
             margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
             onClick={(state) => {
               if (state?.activeLabel !== undefined && onSeek) {
@@ -149,12 +151,12 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
             {showTooltip ? (
               <Tooltip
                 content={<CustomTooltipContent lookup={lookup} />}
-                cursor={{ stroke: 'rgba(255,255,255,0.15)', strokeWidth: 1 }}
+                cursor={false}
               />
             ) : (
               <Tooltip
                 content={() => null}
-                cursor={{ stroke: 'rgba(255,255,255,0.15)', strokeWidth: 1 }}
+                cursor={false}
               />
             )}
             <Area
@@ -171,7 +173,7 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
             {currentTime !== undefined && (
               <ReferenceLine
                 x={currentTime}
-                stroke="rgba(255, 255, 255, 0.8)"
+                stroke="rgba(0, 0, 0, 0.6)"
                 strokeWidth={2}
                 ifOverflow="extendDomain"
               />
@@ -204,9 +206,12 @@ interface NeuralTimelineProps {
   peakMarkers?: PeakMarker[];
 }
 
+const DEFAULT_VISIBLE_COUNT = 3;
+
 export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers, peakMarkers }: NeuralTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const [expanded, setExpanded] = useState(false);
 
   const getTimeFromMouseEvent = useCallback((e: React.MouseEvent | MouseEvent) => {
     const container = containerRef.current;
@@ -259,10 +264,16 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
   );
 
   return (
-    <div className="bg-surface-container rounded-xl p-6">
+    <div className="rounded-xl p-6 glass-surface">
       <div className="flex items-center gap-2 mb-6">
         <span className="material-symbols-outlined text-on-surface-variant">psychology</span>
         <h3 className="font-headline text-lg font-bold">Neural Activation Timeline</h3>
+        <MetricInfo
+          title="Neural Activation Timeline"
+          description="Real-time brain activation across neural networks as your video plays. Each track shows how strongly a specific brain region responds to the content over time."
+          calculation="TRIBE v2 (Meta) processes video, audio, and text features through V-JEPA2, Wav2Vec-BERT, and LLaMA 3.2 encoders, then predicts activation levels for 9 brain networks every 2 seconds."
+          interpretation="Higher peaks = stronger neural response. Compare tracks to see which brain systems your content engages most. Attention and Reward tracks are key for viewer retention."
+        />
       </div>
 
       {/* Icon Markers Row */}
@@ -293,63 +304,19 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
         </div>
       )}
 
-      {/* Peak Markers Row */}
-      {peakMarkers && peakMarkers.length > 0 && (
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-20 shrink-0 text-right">
-            <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface-variant">
-              Peaks
-            </span>
-          </div>
-          <div className="flex-1 relative h-6 pointer-events-none">
-            {peakMarkers.map((marker) => (
-              <div
-                key={`peak-${marker.rank}`}
-                className="absolute top-1/2 pointer-events-auto group"
-                style={{
-                  left: `${(marker.time / duration) * 100}%`,
-                  transform: 'translateX(-50%) translateY(-50%)',
-                }}
-              >
-                {/* Diamond marker */}
-                <div
-                  className="w-2.5 h-2.5 rotate-45 transition-opacity"
-                  style={{
-                    backgroundColor: '#fbbf24',
-                    boxShadow: '0 0 6px rgba(251, 191, 36, 0.5)',
-                  }}
-                />
-                {/* Hover tooltip */}
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-surface-bright/95 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap pointer-events-none z-50">
-                  <p className="font-mono text-[10px] text-on-surface-variant">
-                    {formatTimestamp(marker.time)}
-                  </p>
-                  <p className="text-on-surface font-bold">
-                    Activation: {Math.round(marker.activationScore * 100)}%
-                  </p>
-                  <p className="text-on-surface-variant">
-                    Peak: {marker.dominantRegion}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div
         ref={containerRef}
-        className="space-y-1 relative select-none"
+        className="space-y-1 relative select-none outline-none"
         style={{ cursor: onSeek ? 'crosshair' : undefined }}
         onMouseDown={handleMouseDown}
       >
-        {trackData.map((track, index) => (
+        {(expanded ? trackData : trackData.slice(0, DEFAULT_VISIBLE_COUNT)).map((track, index, arr) => (
           <SingleTrack
             key={track.key}
             data={track.data}
             config={track}
             duration={duration}
-            isLast={index === TRACK_CONFIG.length - 1}
+            isLast={index === arr.length - 1}
             showTooltip={index === 0}
             lookup={lookup}
             currentTime={currentTime}
@@ -357,6 +324,18 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
           />
         ))}
       </div>
+
+      {TRACK_CONFIG.length > DEFAULT_VISIBLE_COUNT && (
+        <button
+          onClick={() => setExpanded(prev => !prev)}
+          className="w-full mt-3 py-2 text-xs font-headline uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-colors flex items-center justify-center gap-1.5"
+        >
+          <span>{expanded ? 'Show less' : `Show ${TRACK_CONFIG.length - DEFAULT_VISIBLE_COUNT} more`}</span>
+          <span className="material-symbols-outlined text-sm" style={{ transform: expanded ? 'rotate(180deg)' : undefined, transition: 'transform 0.2s' }}>
+            expand_more
+          </span>
+        </button>
+      )}
 
     </div>
   );

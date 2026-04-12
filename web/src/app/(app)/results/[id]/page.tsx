@@ -82,16 +82,6 @@ function extractFilename(url: string): string {
 }
 
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button type="button" role="switch" aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? "bg-black" : "bg-gray-300"}`}>
-      <span className={`${checked ? "translate-x-5" : "translate-x-0"} pointer-events-none inline-block h-4 w-4 transform rounded-full shadow ring-0 transition duration-200 ease-in-out bg-white`} />
-    </button>
-  );
-}
-
 export default function ResultsDetailPage({ params }: Props) {
   const { id } = use(params);
   const router = useRouter();
@@ -99,55 +89,12 @@ export default function ResultsDetailPage({ params }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Visibility toggle state
-  const [isPublic, setIsPublic] = useState(false);
-  const [visibilityStatus, setVisibilityStatus] = useState<string | null>(null);
-  const [copyStatus, setCopyStatus] = useState<string | null>(null);
-
   // Editable title state
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync isPublic when job loads
-  useEffect(() => {
-    if (job) setIsPublic(job.is_public ?? false);
-  }, [job]);
-
   const displayTitle = job?.title || extractFilename(job?.video_url ?? "");
-
-  const handleTogglePublic = useCallback(async () => {
-    const newValue = !isPublic;
-    setIsPublic(newValue); // optimistic
-    try {
-      const res = await fetch(`/api/jobs/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_public: newValue }),
-      });
-      if (res.ok) {
-        setVisibilityStatus(newValue ? "Now public" : "Now private");
-      } else {
-        setIsPublic(!newValue); // revert
-        setVisibilityStatus("Failed to update");
-      }
-    } catch {
-      setIsPublic(!newValue); // revert
-      setVisibilityStatus("Failed to update");
-    }
-    setTimeout(() => setVisibilityStatus(null), 2000);
-  }, [isPublic, id]);
-
-  const handleCopyLink = useCallback(async () => {
-    if (!isPublic) return;
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/analysis/${id}`);
-      setCopyStatus("Copied!");
-    } catch {
-      setCopyStatus("Failed");
-    }
-    setTimeout(() => setCopyStatus(null), 2000);
-  }, [isPublic, id]);
 
   const handleTitleEdit = useCallback(() => {
     setEditTitle(displayTitle);
@@ -382,24 +329,11 @@ export default function ResultsDetailPage({ params }: Props) {
             </button>
           )}
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex justify-end items-center gap-3">
-            <span className="text-xs font-headline uppercase tracking-widest font-bold text-on-surface-variant">Public</span>
-            <Toggle checked={isPublic} onChange={handleTogglePublic} />
-            {isPublic && (
-              <button onClick={handleCopyLink} className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface transition-colors">
-                <span className="material-symbols-outlined text-sm">link</span>
-                {copyStatus || "Copy Link"}
-              </button>
-            )}
-            <ExportButton
-              data={job.results as Record<string, unknown>}
-              filename={`neurocut-${id}.json`}
-            />
-          </div>
-          {visibilityStatus && (
-            <p className="text-[10px] text-green-600">{visibilityStatus}</p>
-          )}
+        <div className="flex justify-end">
+          <ExportButton
+            data={job.results as Record<string, unknown>}
+            filename={`neurocut-${id}.json`}
+          />
         </div>
       </div>
 

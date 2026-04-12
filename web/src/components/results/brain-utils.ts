@@ -113,13 +113,13 @@ export function getAdjacentSegments(
  * Canonical colors for each brain region, used by BrainViewer and BrainNetworkMesh.
  */
 export const REGION_COLORS: Record<keyof SegmentRegionScores, string> = {
-  attention: '#60a5fa',
-  reward: '#a78bfa',
-  emotional_processing: '#f472b6',
-  social_cognition: '#fbbf24',
-  visual_processing: '#4ade80',
-  auditory_processing: '#fb923c',
-  language_narrative: '#22d3ee',
-  default_mode: '#fb7185',
-  motion_processing: '#a3e635',
+  attention: '#3b82f6',
+  reward: '#8b5cf6',
+  emotional_processing: '#ec4899',
+  social_cognition: '#f59e0b',
+  visual_processing: '#22c55e',
+  auditory_processing: '#f97316',
+  language_narrative: '#06b6d4',
+  default_mode: '#f43f5e',
+  motion_processing: '#84cc16',
 };
