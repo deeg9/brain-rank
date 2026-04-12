@@ -95,8 +95,6 @@ Plans:
 - [ ] **Phase 43: Timeline Peak Markers** - Mark top activation moments on neural timeline
 
 - ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12) — [Archive](milestones/v4.0-ROADMAP.md)
-
-
 ## Phase Details
 
 <details>
@@ -698,8 +696,9 @@ Plans:
   4. The user receives results with the same structure and polling flow as video/image jobs
 **Plans**: 2 plans
 Plans:
-- [x] 52-01-PLAN.md — Schema migration, TypeScript types, createJob action, RunPod InputSchema
-- [x] 52-02-PLAN.md — InputTypeSelector component and upload page integration
+- [ ] 54-01-PLAN.md — Text textarea UI with 500-char counter and submit flow
+- [ ] 54-02-PLAN.md — RunPod handler text_spoken branch with TRIBE v2 text_path inference
+
 **UI hint**: yes
 
 ### Phase 55: Text Visual Mode
