@@ -738,9 +738,9 @@ Plans:
   2. Analyses are paginated or infinitely scrolled (not all loaded at once)
   3. Each card links to the public analysis view page
   4. The page loads within 2 seconds for up to 100 public analyses
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 49-01-PLAN.md — Discovery feed page with grid of public analyses, pagination, and neural score ranking
+- [x] 49-01-PLAN.md — Discovery feed page with grid of public analyses, pagination, and neural score ranking
 **UI hint**: yes
 
 ### Phase 50: Discovery Search & Filters
@@ -833,6 +833,6 @@ Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-c
 | 46. Public Profile Pages | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 47. Privacy Controls & Sharing | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 48. Public Analysis View | v4.0 | 1/1 | Complete    | 2026-04-12 |
-| 49. Discovery Feed | v4.0 | 0/0 | Not started | - |
+| 49. Discovery Feed | v4.0 | 1/1 | Complete    | 2026-04-12 |
 | 50. Discovery Search & Filters | v4.0 | 0/0 | Not started | - |
 | 51. Social Engagement | v4.0 | 0/0 | Not started | - |
