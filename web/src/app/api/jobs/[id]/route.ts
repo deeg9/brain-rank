@@ -1,6 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const supabase = await createClient()
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const title = typeof body.title === 'string' ? body.title.trim().slice(0, 200) : null
+    const isPublic = typeof body.is_public === 'boolean' ? body.is_public : undefined
+
+    const updateFields: Record<string, unknown> = {}
+    if (title !== null) updateFields.title = title
+    if (isPublic !== undefined) updateFields.is_public = isPublic
+
+    if (Object.keys(updateFields).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
+    }
+
+    const { data: job, error: updateError } = await supabase
+      .from('jobs')
+      .update(updateFields)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single()
+
+    if (updateError || !job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+    }
+
+    return NextResponse.json(job)
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,13 +52,7 @@ export async function GET(
     const { id } = await params
     const supabase = await createClient()
 
-    // Authenticate
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Fetch job
+    // Fetch job first (before auth check) to support public access
     const { data: job, error: fetchError } = await supabase
       .from('jobs')
       .select('*')
@@ -26,9 +63,26 @@ export async function GET(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
-    // Verify ownership -- return 404 to avoid leaking job existence
-    if (job.user_id !== user.id) {
-      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+    // Public jobs: return data without auth (no RunPod polling for public viewers)
+    if (job.is_public === true) {
+      // Check if the requester is the owner (for RunPod polling)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && job.user_id === user.id) {
+        // Owner viewing their own public job -- fall through to RunPod polling below
+      } else {
+        // Non-owner or unauthenticated -- return as-is without internal infra details
+        return NextResponse.json(job)
+      }
+    } else {
+      // Private job: require auth + ownership
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+      }
+      // Verify ownership -- return 404 to avoid leaking job existence
+      if (job.user_id !== user.id) {
+        return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+      }
     }
 
     // If job is in a terminal state, return as-is
