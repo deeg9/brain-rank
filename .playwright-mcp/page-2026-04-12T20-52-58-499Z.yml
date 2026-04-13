@@ -1,0 +1,112 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: User
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Discover" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Browse public neural analyses ranked by brain activation score
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: search
+          - textbox "Search by title or username..." [ref=e29]
+        - combobox [ref=e30] [cursor=pointer]:
+          - option "Highest Score" [selected]
+          - option "Most Views"
+          - option "Newest"
+          - option "Oldest"
+        - combobox [ref=e31] [cursor=pointer]:
+          - option "All Scores" [selected]
+          - option "90+"
+          - option "80+"
+          - option "70+"
+        - combobox [ref=e32] [cursor=pointer]:
+          - option "All Categories" [selected]
+          - option "Comedy / Entertainment"
+          - option "Education / How-To"
+          - option "Fitness / Sports"
+          - option "Music / Performance"
+          - option "Food / Cooking"
+          - option "Travel / Outdoors"
+          - option "Tech / Reviews"
+          - option "Beauty / Fashion"
+          - option "Gaming"
+          - option "News / Commentary"
+          - option "ASMR / Relaxation"
+          - option "Vlog / Lifestyle"
+          - option "Horror / Thriller"
+          - option "Other"
+  - contentinfo [ref=e64]:
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - heading "NeuroCut" [level=3] [ref=e68]
+          - paragraph [ref=e69]: Neural A/B testing for content creators. See how brains react to your content using Meta's TRIBE v2 brain-predictive model.
+        - generic [ref=e70]:
+          - heading "Product" [level=4] [ref=e71]
+          - list [ref=e72]:
+            - listitem [ref=e73]:
+              - link "Dashboard" [ref=e74] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e75]:
+              - link "Upload" [ref=e76] [cursor=pointer]:
+                - /url: /upload
+            - listitem [ref=e77]:
+              - link "Discover" [ref=e78] [cursor=pointer]:
+                - /url: /discover
+            - listitem [ref=e79]:
+              - link "Bookmarks" [ref=e80] [cursor=pointer]:
+                - /url: /bookmarks
+            - listitem [ref=e81]:
+              - link "Pricing" [ref=e82] [cursor=pointer]:
+                - /url: /pricing
+        - generic [ref=e83]:
+          - heading "Resources" [level=4] [ref=e84]
+          - list [ref=e85]:
+            - listitem [ref=e86]:
+              - link "How It Works" [ref=e87] [cursor=pointer]:
+                - /url: /resources
+            - listitem [ref=e88]:
+              - link "Understanding Scores" [ref=e89] [cursor=pointer]:
+                - /url: /resources#scores
+            - listitem [ref=e90]:
+              - link "Brain Regions" [ref=e91] [cursor=pointer]:
+                - /url: /resources#regions
+            - listitem [ref=e92]:
+              - link "Use Cases" [ref=e93] [cursor=pointer]:
+                - /url: /use-cases
+        - generic [ref=e94]:
+          - heading "Company" [level=4] [ref=e95]
+          - list [ref=e96]:
+            - listitem [ref=e97]:
+              - link "Billing" [ref=e98] [cursor=pointer]:
+                - /url: /settings/billing
+            - listitem [ref=e99]:
+              - link "Settings" [ref=e100] [cursor=pointer]:
+                - /url: /settings
+            - listitem [ref=e101]:
+              - link "Profile" [ref=e102] [cursor=pointer]:
+                - /url: /profile
+      - generic [ref=e103]:
+        - paragraph [ref=e104]: © 2026 NeuroCut. Powered by Meta TRIBE v2.
+        - paragraph [ref=e105]: Neural activation predictions are computational estimates, not medical measurements.
+  - button "Open Next.js Dev Tools" [ref=e111] [cursor=pointer]:
+    - img [ref=e112]
+  - alert [ref=e115]

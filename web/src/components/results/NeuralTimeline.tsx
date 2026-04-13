@@ -139,9 +139,10 @@ interface SingleTrackProps {
   lookup: Map<number, { label: string; color: string; value: number }[]>;
   currentTime?: number;
   onSeek?: (time: number) => void;
+  syncId?: string;
 }
 
-function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, currentTime, onSeek }: SingleTrackProps) {
+function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, currentTime, onSeek, syncId }: SingleTrackProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="w-24 shrink-0 text-right flex items-center justify-end gap-1">
@@ -156,14 +157,14 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
         />
       </div>
 
-      <div className="flex-1" style={{ height: 80 }}>
+      <div className="flex-1" style={{ height: isLast ? 100 : 80 }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
-            syncId="neural-timeline"
+            syncId={syncId ?? "neural-timeline"}
             syncMethod="value"
             tabIndex={-1}
-            margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
+            margin={{ top: 4, right: 8, bottom: isLast ? 24 : 4, left: 0 }}
             onClick={(state) => {
               if (state?.activeLabel !== undefined && onSeek) {
                 onSeek(Number(state.activeLabel));
@@ -188,7 +189,7 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
               domain={[0, duration]}
               hide={!isLast}
               tickFormatter={(s: number) => formatTimestamp(s)}
-              tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'monospace' }}
+              tick={{ fill: '#000', fontSize: 10, fontFamily: 'monospace', fontWeight: 700 }}
               axisLine={false}
               tickLine={false}
             />
@@ -257,11 +258,12 @@ interface NeuralTimelineProps {
   zones?: ZoneMarker[];
   iconMarkers?: IconMarker[];
   peakMarkers?: PeakMarker[];
+  syncId?: string;
 }
 
 const DEFAULT_VISIBLE_COUNT = 3;
 
-export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers, peakMarkers }: NeuralTimelineProps) {
+export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers, peakMarkers, syncId }: NeuralTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const [expanded, setExpanded] = useState(false);
@@ -374,6 +376,7 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
             lookup={lookup}
             currentTime={currentTime}
             onSeek={onSeek}
+            syncId={syncId}
           />
         ))}
       </div>

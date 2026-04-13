@@ -1,0 +1,188 @@
+[     187ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     211ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     749ms] [ERROR] Access to video at 'text://mock-spoken-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[     749ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-spoken-001:0
+[     749ms] [ERROR] Access to video at 'text://mock-visual-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[     749ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-001:0
+[     749ms] [ERROR] Access to video at 'text://mock-visual-002' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[     749ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-002:0
+[     780ms] [ERROR] Access to video at 'https://example.com/science.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/science.mp4:0
+[     780ms] [ERROR] Access to video at 'https://example.com/comedy.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/comedy.mp4:0
+[     780ms] [ERROR] Access to video at 'https://example.com/music.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/music.mp4:0
+[     780ms] [ERROR] Access to video at 'https://example.com/asmr.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/asmr.mp4:0
+[     780ms] [ERROR] Access to video at 'https://example.com/cooking-tutorial.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/cooking-tutorial.mp4:0
+[     780ms] [ERROR] Access to video at 'https://example.com/review.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     780ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/review.mp4:0
+[     781ms] [ERROR] Access to video at 'https://example.com/workout.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     781ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/workout.mp4:0
+[     781ms] [ERROR] Access to video at 'https://example.com/travel-vlog.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[     781ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/travel-vlog.mp4:0
+[    1753ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    1770ms] [LOG] [Fast Refresh] done in 118ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   74634ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   74656ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   75355ms] [ERROR] Access to video at 'text://mock-spoken-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   75355ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-spoken-001:0
+[   75355ms] [ERROR] Access to video at 'text://mock-visual-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   75355ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-001:0
+[   75356ms] [ERROR] Access to video at 'text://mock-visual-002' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   75356ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-002:0
+[   75379ms] [ERROR] Access to video at 'https://example.com/comedy.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75379ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/comedy.mp4:0
+[   75379ms] [ERROR] Access to video at 'https://example.com/workout.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75379ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/workout.mp4:0
+[   75391ms] [ERROR] Access to video at 'https://example.com/music.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75391ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/music.mp4:0
+[   75391ms] [ERROR] Access to video at 'https://example.com/cooking-tutorial.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75391ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/cooking-tutorial.mp4:0
+[   75392ms] [ERROR] Access to video at 'https://example.com/travel-vlog.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75392ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/travel-vlog.mp4:0
+[   75392ms] [ERROR] Access to video at 'https://example.com/asmr.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75392ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/asmr.mp4:0
+[   75392ms] [ERROR] Access to video at 'https://example.com/science.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75392ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/science.mp4:0
+[   75395ms] [ERROR] Access to video at 'https://example.com/review.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   75395ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/review.mp4:0
+[   76080ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   76095ms] [LOG] [Fast Refresh] done in 116ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   76332ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   76336ms] [LOG] [Fast Refresh] done in 106ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   76575ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   76588ms] [LOG] [Fast Refresh] done in 115ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77452ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77454ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77454ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77454ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77455ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77455ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77467ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77467ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77467ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77467ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77468ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77468ms] [WARNING] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77486ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77501ms] [LOG] [Fast Refresh] done in 116ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   77795ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   79618ms] [LOG] THREE.WebGLRenderer: Context Lost. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   79714ms] [ERROR] Access to video at 'text://mock-spoken-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   79714ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-spoken-001:0
+[   79714ms] [ERROR] Access to video at 'text://mock-visual-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   79714ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-001:0
+[   79714ms] [ERROR] Access to video at 'text://mock-visual-002' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[   79714ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-002:0
+[   79737ms] [ERROR] Access to video at 'https://example.com/workout.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79737ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/workout.mp4:0
+[   79739ms] [ERROR] Access to video at 'https://example.com/comedy.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79739ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/comedy.mp4:0
+[   79739ms] [ERROR] Access to video at 'https://example.com/science.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79739ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/science.mp4:0
+[   79739ms] [ERROR] Access to video at 'https://example.com/music.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79739ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/music.mp4:0
+[   79739ms] [ERROR] Access to video at 'https://example.com/cooking-tutorial.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79739ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/cooking-tutorial.mp4:0
+[   79739ms] [ERROR] Access to video at 'https://example.com/travel-vlog.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79739ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/travel-vlog.mp4:0
+[   79743ms] [ERROR] Access to video at 'https://example.com/review.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79743ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/review.mp4:0
+[   79744ms] [ERROR] Access to video at 'https://example.com/asmr.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[   79744ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/asmr.mp4:0
+[  135149ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  135253ms] [ERROR] %o
+
+%s ReferenceError: VideoThumb is not defined
+    at SlotContent (http://localhost:3000/_next/static/chunks/src_120072k._.js?id=%255Bproject%255D%252Fsrc%252Fcomponents%252Fcompare%252FComparisonTray.tsx+%255Bapp-client%255D+%2528ecmascript%2529:32:230)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:15037:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:4620:24)
+    at updateFunctionComponent (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6081:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:6691:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:965:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9555:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9449:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9433:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9098:47)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10263:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:10179:316)
+    at flushSyncWork$1 (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:9230:86)
+    at Object.scheduleRefresh (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_058-ah~._.js:299:13)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:391:33
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:384:38)
+    at applyUpdate (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:878:31)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:886:13 The above error occurred in the <SlotContent> component. It was handled by the <ErrorBoundaryHandler> error boundary. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:1998
+[  135277ms] [LOG] [Fast Refresh] done in 188ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  135457ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  135461ms] [LOG] [Fast Refresh] done in 106ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  143092ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  143118ms] [LOG] [Fast Refresh] done in 33ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  143978ms] [ERROR] Access to video at 'text://mock-spoken-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[  143978ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-spoken-001:0
+[  143978ms] [ERROR] Access to video at 'text://mock-visual-001' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[  143978ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-001:0
+[  143978ms] [ERROR] Access to video at 'text://mock-visual-002' from origin 'http://localhost:3000' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app. @ http://localhost:3000/discover:0
+[  143978ms] [ERROR] Failed to load resource: net::ERR_FAILED @ text://mock-visual-002:0
+[  144008ms] [ERROR] Access to video at 'https://example.com/comedy.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144008ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/comedy.mp4:0
+[  144022ms] [ERROR] Access to video at 'https://example.com/workout.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144022ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/workout.mp4:0
+[  144023ms] [ERROR] Access to video at 'https://example.com/science.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144023ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/science.mp4:0
+[  144025ms] [ERROR] Access to video at 'https://example.com/music.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144025ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/music.mp4:0
+[  144025ms] [ERROR] Access to video at 'https://example.com/cooking-tutorial.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144025ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/cooking-tutorial.mp4:0
+[  144029ms] [ERROR] Access to video at 'https://example.com/travel-vlog.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144029ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/travel-vlog.mp4:0
+[  144030ms] [ERROR] Access to video at 'https://example.com/review.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144030ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/review.mp4:0
+[  144030ms] [ERROR] Access to video at 'https://example.com/asmr.mp4' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3000/discover:0
+[  144030ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/asmr.mp4:0
+[  144436ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  144446ms] [LOG] [Fast Refresh] done in 111ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  144877ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  144921ms] [LOG] [Fast Refresh] done in 143ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  145063ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  145149ms] [LOG] [Fast Refresh] done in 187ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  149035ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  149064ms] [LOG] [Fast Refresh] done in 34ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431

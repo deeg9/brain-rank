@@ -1,0 +1,177 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e111] [cursor=pointer]:
+    - img [ref=e112]
+  - alert [ref=e115]: Stand-Up Comedy Open Mic Set | NeuroCut
+  - banner [ref=e510]:
+    - link "NeuroCut" [ref=e512] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e513]
+    - generic [ref=e514]:
+      - link "dashboard" [ref=e515] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e516]: dashboard
+      - link "cloud_upload" [ref=e517] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e518]: cloud_upload
+      - link "trophy" [ref=e519] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e520]: trophy
+      - generic [ref=e522]:
+        - paragraph [ref=e523]: diego
+        - paragraph [ref=e524]: 250 credits
+      - button "person" [ref=e526]:
+        - generic [ref=e527]: person
+  - main [ref=e528]:
+    - generic [ref=e529]:
+      - link "chevron_left Back" [ref=e530] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e531]: chevron_left
+        - generic [ref=e532]: Back
+      - generic [ref=e533]:
+        - heading "Stand-Up Comedy Open Mic Set" [level=1] [ref=e534]
+        - generic [ref=e535]:
+          - link "by @diego" [ref=e536] [cursor=pointer]:
+            - /url: /u/diego
+          - generic [ref=e537]: ·
+          - paragraph [ref=e538]: April 9, 2026
+        - generic [ref=e539]:
+          - generic [ref=e540]:
+            - generic [ref=e541]: visibility
+            - generic [ref=e542]: 520 views
+          - button "Add bookmark" [ref=e543]:
+            - generic [ref=e544]: bookmark
+      - generic [ref=e545]:
+        - generic [ref=e546]:
+          - generic [ref=e552]:
+            - generic [ref=e553]:
+              - button "Play" [ref=e554]:
+                - generic [ref=e555]: play_arrow
+              - button "Mute" [ref=e556]:
+                - generic [ref=e557]: volume_up
+              - generic [ref=e558]: 00:00 / NaN:NaN
+            - generic [ref=e560]:
+              - button "0.5x" [ref=e561]
+              - button "1x" [ref=e562]
+              - button "1.5x" [ref=e563]
+              - button "2x" [ref=e564]
+          - generic [ref=e565]:
+            - generic [ref=e566]:
+              - generic [ref=e567]: neurology
+              - heading "Neural Activation Map" [level=3] [ref=e568]
+              - generic "Info about Neural Activation Map" [ref=e570]:
+                - generic [ref=e571]: info
+            - generic [ref=e576]:
+              - button "visibility" [ref=e577]:
+                - generic [ref=e578]: visibility
+              - button "vertical_align_top" [ref=e579]:
+                - generic [ref=e580]: vertical_align_top
+              - button "chevron_left" [ref=e581]:
+                - generic [ref=e582]: chevron_left
+              - button "chevron_right" [ref=e583]:
+                - generic [ref=e584]: chevron_right
+              - button "add" [ref=e586]:
+                - generic [ref=e587]: add
+              - button "remove" [ref=e588]:
+                - generic [ref=e589]: remove
+              - button "lock_open" [ref=e591]:
+                - generic [ref=e592]: lock_open
+        - generic [ref=e593]:
+          - generic [ref=e594]:
+            - generic [ref=e595]: psychology
+            - heading "Neural Activation Timeline" [level=3] [ref=e596]
+            - generic "Info about Neural Activation Timeline" [ref=e598]:
+              - generic [ref=e599]: info
+          - generic [ref=e602]: share
+          - generic [ref=e603]:
+            - generic [ref=e604]:
+              - generic [ref=e605]:
+                - generic [ref=e606]: Attention
+                - generic "Info about Attention" [ref=e608]:
+                  - generic [ref=e609]: info
+              - application [ref=e613] [cursor=pointer]:
+                - generic [ref=e625]:
+                  - generic [ref=e627]: "50"
+                  - generic [ref=e629]: "100"
+            - generic [ref=e630]:
+              - generic [ref=e631]:
+                - generic [ref=e632]: Reward
+                - generic "Info about Reward" [ref=e634]:
+                  - generic [ref=e635]: info
+              - application [ref=e639] [cursor=pointer]:
+                - generic [ref=e651]:
+                  - generic [ref=e653]: "50"
+                  - generic [ref=e655]: "100"
+            - generic [ref=e656]:
+              - generic [ref=e657]:
+                - generic [ref=e658]: Emotional Processing
+                - generic "Info about Emotional Processing" [ref=e660]:
+                  - generic [ref=e661]: info
+              - application [ref=e665] [cursor=pointer]:
+                - generic [ref=e676]:
+                  - generic [ref=e677]:
+                    - generic [ref=e679]: 00:00
+                    - generic [ref=e681]: 00:02
+                    - generic [ref=e683]: 00:04
+                    - generic [ref=e685]: 00:06
+                  - generic [ref=e686]:
+                    - generic [ref=e688]: "0"
+                    - generic [ref=e690]: "100"
+          - button "Show 6 more expand_more" [ref=e691]:
+            - generic [ref=e692]: Show 6 more
+            - generic [ref=e693]: expand_more
+        - generic [ref=e694]:
+          - generic [ref=e695]:
+            - generic [ref=e696]: monitoring
+            - heading "Insights Summary" [level=3] [ref=e697]
+          - generic [ref=e698]:
+            - generic [ref=e699]:
+              - generic [ref=e700]:
+                - generic [ref=e701]:
+                  - generic [ref=e702]:
+                    - text: Hook Strength
+                    - generic "Info about Hook Strength" [ref=e704]:
+                      - generic [ref=e705]: info
+                  - paragraph [ref=e706]: 0%
+                  - paragraph [ref=e707]: First 10s
+                - generic [ref=e708]:
+                  - generic [ref=e709]:
+                    - text: Retention
+                    - generic "Info about Retention" [ref=e711]:
+                      - generic [ref=e712]: info
+                  - paragraph [ref=e713]: 0%
+                  - paragraph [ref=e714]: Last 10s
+                - generic [ref=e715]:
+                  - generic [ref=e716]:
+                    - text: Peak Moment
+                    - generic "Info about Peak Moment" [ref=e718]:
+                      - generic [ref=e719]: info
+                  - paragraph [ref=e720]: 0s
+                  - paragraph [ref=e721]: 9800% activation
+              - generic [ref=e722]:
+                - generic [ref=e723]:
+                  - generic [ref=e724]:
+                    - text: Arousal
+                    - generic "Info about Arousal" [ref=e726]:
+                      - generic [ref=e727]: info
+                  - paragraph [ref=e728]: 0%
+                  - paragraph [ref=e729]: Physiological activation
+                - generic [ref=e730]:
+                  - generic [ref=e731]:
+                    - text: Valence
+                    - generic "Info about Valence" [ref=e733]:
+                      - generic [ref=e734]: info
+                  - paragraph [ref=e735]: 0%
+                  - paragraph [ref=e736]: Emotional positivity
+            - generic [ref=e738]:
+              - generic [ref=e739]:
+                - text: Emotional State
+                - generic "Info about Emotional State" [ref=e741]:
+                  - generic [ref=e742]: info
+              - img "Arousal-valence circumplex chart" [ref=e744]:
+                - generic [ref=e745]: Excited
+                - generic [ref=e746]: Tense
+                - generic [ref=e747]: Calm
+                - generic [ref=e748]: Bored
+                - generic [ref=e749]: Valence
+                - generic [ref=e750]: Arousal
+  - generic [ref=e753]: 00:00

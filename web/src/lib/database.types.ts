@@ -1,6 +1,6 @@
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
-export type InputType = 'video' | 'image' | 'text_spoken' | 'text_visual'
+export type InputType = 'video' | 'image' | 'text' | 'text_spoken' | 'text_visual'
 
 export interface Job {
   id: string

@@ -78,9 +78,6 @@ function SlotContent({
         <p className={`text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1 ${align === "right" ? "text-right" : ""}`}>
           {label}
         </p>
-        <span className="text-sm text-white/30 italic">
-          Select an analysis...
-        </span>
       </div>
     );
   }
@@ -89,7 +86,7 @@ function SlotContent({
 
   return (
     <div className={`flex items-center gap-3 ${align === "right" ? "flex-row-reverse" : ""}`}>
-      <div className="w-14 h-14 rounded-lg bg-white/10 shrink-0 flex items-center justify-center overflow-hidden">
+      <div className="w-16 h-20 rounded-lg bg-white/10 shrink-0 flex items-center justify-center overflow-hidden">
         <MiniThumb src={analysis.video_url} />
       </div>
       <div className={`min-w-0 ${align === "right" ? "text-right" : ""}`}>
@@ -122,7 +119,7 @@ export function ComparisonTray({
           transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
           className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] border-t border-white/10 shadow-2xl"
         >
-          <div className="max-w-6xl mx-auto px-6 py-5 flex items-center gap-4">
+          <div className="max-w-6xl mx-auto px-6 py-6 flex items-center gap-4">
             {/* Analysis A — left aligned */}
             <div className="flex-1 min-w-0">
               <SlotContent analysis={slotA} align="left" label="Analysis A" />

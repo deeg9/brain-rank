@@ -35,11 +35,14 @@ export function InputTypeSelector({ selected, onChange, disabled }: InputTypeSel
           {selected === tab.id && (
             <motion.div
               layoutId="activeTab"
-              className="absolute inset-0 bg-white/10 rounded-lg border border-white/10"
+              className="absolute inset-0 bg-surface-container-highest rounded-lg"
               transition={{ type: 'spring', duration: 0.4, bounce: 0.15 }}
             />
           )}
-          <span className="material-symbols-outlined text-lg relative z-10">{tab.icon}</span>
+          <span
+            className="material-symbols-outlined text-lg relative z-10"
+            style={selected === tab.id ? { fontVariationSettings: "'FILL' 1" } : undefined}
+          >{tab.icon}</span>
           <span className="relative z-10">{tab.label}</span>
         </button>
       ))}

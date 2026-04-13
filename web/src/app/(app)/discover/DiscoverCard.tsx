@@ -55,14 +55,14 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect }: Discover
                   e.stopPropagation();
                   onCompareSelect();
                 }}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                className={`p-1.5 rounded-full transition-colors ${
                   isSelected
-                    ? 'bg-black text-white'
-                    : 'bg-white/90 text-gray-600 hover:bg-white hover:text-black'
+                    ? 'text-black'
+                    : 'text-on-surface-variant hover:text-on-surface'
                 }`}
                 title={isSelected ? "Remove from comparison" : "Add to comparison"}
               >
-                <span className="material-symbols-outlined text-[18px]">
+                <span className="material-symbols-outlined text-xl">
                   {isSelected ? 'check' : 'compare_arrows'}
                 </span>
               </button>
@@ -125,7 +125,7 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect }: Discover
                 {analysis.view_count} views
               </span>
             )}
-            <span className="inline-flex items-center gap-1 ml-auto">
+            <span className="inline-flex items-center gap-1">
               <span className="material-symbols-outlined text-[14px] leading-none text-black">trophy</span>
               <ScoreBadge value={analysis.overall_score} size="sm" />
             </span>

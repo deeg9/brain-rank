@@ -1,0 +1,499 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - link "NeuroCut" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - heading "NeuroCut" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: diego
+        - paragraph [ref=e16]: 250 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - heading "Discover" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Browse public neural analyses ranked by brain activation score
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: search
+          - textbox "Search by title or username..." [ref=e29]
+        - combobox [ref=e30] [cursor=pointer]:
+          - option "Highest Score" [selected]
+          - option "Most Views"
+          - option "Newest"
+          - option "Oldest"
+        - combobox [ref=e31] [cursor=pointer]:
+          - option "All Scores" [selected]
+          - option "90+"
+          - option "80+"
+          - option "70+"
+        - combobox [ref=e32] [cursor=pointer]:
+          - option "All Categories" [selected]
+          - option "Comedy / Entertainment"
+          - option "Education / How-To"
+          - option "Fitness / Sports"
+          - option "Music / Performance"
+          - option "Food / Cooking"
+          - option "Travel / Outdoors"
+          - option "Tech / Reviews"
+          - option "Beauty / Fashion"
+          - option "Gaming"
+          - option "News / Commentary"
+          - option "ASMR / Relaxation"
+          - option "Vlog / Lifestyle"
+          - option "Horror / Thriller"
+          - option "Other"
+      - generic [ref=e33]:
+        - link "movie compare_arrows Add bookmark Stand-Up Comedy Open Mic Set person @diego calendar_today Apr 9, 2026 visibility 521 views trophy 0.95 Intense" [ref=e116] [cursor=pointer]:
+          - /url: /analysis/043ff1d9-d9eb-4f55-9916-7648efca332e
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e120]: movie
+              - generic [ref=e121]:
+                - button "compare_arrows" [ref=e122]:
+                  - generic [ref=e123]: compare_arrows
+                - button "Add bookmark" [ref=e124]:
+                  - generic [ref=e125]: bookmark
+            - generic [ref=e126]:
+              - paragraph [ref=e128]: Stand-Up Comedy Open Mic Set
+              - generic [ref=e129]:
+                - generic [ref=e132]: person
+                - link "@diego" [ref=e133]
+              - generic [ref=e134]:
+                - generic [ref=e135]:
+                  - generic [ref=e136]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e137]:
+                  - generic [ref=e138]: visibility
+                  - text: 521 views
+                - generic [ref=e139]:
+                  - generic [ref=e140]: trophy
+                  - generic [ref=e141]:
+                    - generic [ref=e142]: "0.95"
+                    - generic [ref=e143]: Intense
+        - link "movie compare_arrows Add bookmark Morning HIIT Workout Routine person @diego calendar_today Apr 6, 2026 visibility 328 views trophy 0.91 Intense" [ref=e144] [cursor=pointer]:
+          - /url: /analysis/7bd995ab-0664-43cf-80ce-6bf53962ce85
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e148]: movie
+              - generic [ref=e149]:
+                - button "compare_arrows" [ref=e150]:
+                  - generic [ref=e151]: compare_arrows
+                - button "Add bookmark" [ref=e152]:
+                  - generic [ref=e153]: bookmark
+            - generic [ref=e154]:
+              - paragraph [ref=e156]: Morning HIIT Workout Routine
+              - generic [ref=e157]:
+                - generic [ref=e160]: person
+                - link "@diego" [ref=e161]
+              - generic [ref=e162]:
+                - generic [ref=e163]:
+                  - generic [ref=e164]: calendar_today
+                  - text: Apr 6, 2026
+                - generic [ref=e165]:
+                  - generic [ref=e166]: visibility
+                  - text: 328 views
+                - generic [ref=e167]:
+                  - generic [ref=e168]: trophy
+                  - generic [ref=e169]:
+                    - generic [ref=e170]: "0.91"
+                    - generic [ref=e171]: Intense
+        - link "movie compare_arrows Add bookmark How Black Holes Actually Work person @diego calendar_today Apr 3, 2026 visibility 179 views trophy 0.88 Intense" [ref=e172] [cursor=pointer]:
+          - /url: /analysis/0dc4ce8b-ade6-427a-bd43-87f890781743
+          - generic [ref=e173]:
+            - generic [ref=e174]:
+              - generic [ref=e176]: movie
+              - generic [ref=e177]:
+                - button "compare_arrows" [ref=e178]:
+                  - generic [ref=e179]: compare_arrows
+                - button "Add bookmark" [ref=e180]:
+                  - generic [ref=e181]: bookmark
+            - generic [ref=e182]:
+              - paragraph [ref=e184]: How Black Holes Actually Work
+              - generic [ref=e185]:
+                - generic [ref=e188]: person
+                - link "@diego" [ref=e189]
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e192]: calendar_today
+                  - text: Apr 3, 2026
+                - generic [ref=e193]:
+                  - generic [ref=e194]: visibility
+                  - text: 179 views
+                - generic [ref=e195]:
+                  - generic [ref=e196]: trophy
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: "0.88"
+                    - generic [ref=e199]: Intense
+        - link "movie compare_arrows Add bookmark Guitar Cover - Bohemian Rhapsody person @diego calendar_today Apr 7, 2026 visibility 267 views trophy 0.87 Intense" [ref=e200] [cursor=pointer]:
+          - /url: /analysis/4f7ccf65-8f6c-4690-a2df-f25028cc35e3
+          - generic [ref=e201]:
+            - generic [ref=e202]:
+              - generic [ref=e204]: movie
+              - generic [ref=e205]:
+                - button "compare_arrows" [ref=e206]:
+                  - generic [ref=e207]: compare_arrows
+                - button "Add bookmark" [ref=e208]:
+                  - generic [ref=e209]: bookmark
+            - generic [ref=e210]:
+              - paragraph [ref=e212]: Guitar Cover - Bohemian Rhapsody
+              - generic [ref=e213]:
+                - generic [ref=e216]: person
+                - link "@diego" [ref=e217]
+              - generic [ref=e218]:
+                - generic [ref=e219]:
+                  - generic [ref=e220]: calendar_today
+                  - text: Apr 7, 2026
+                - generic [ref=e221]:
+                  - generic [ref=e222]: visibility
+                  - text: 267 views
+                - generic [ref=e223]:
+                  - generic [ref=e224]: trophy
+                  - generic [ref=e225]:
+                    - generic [ref=e226]: "0.87"
+                    - generic [ref=e227]: Intense
+        - link "movie compare_arrows Add bookmark Pasta Making Tutorial - Italian Kitchen person @diego calendar_today Apr 8, 2026 visibility 142 views trophy 0.82 Exceptional" [ref=e228] [cursor=pointer]:
+          - /url: /analysis/6ad8d7be-eea8-47b8-9c5d-367eaa5b953a
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - generic [ref=e232]: movie
+              - generic [ref=e233]:
+                - button "compare_arrows" [ref=e234]:
+                  - generic [ref=e235]: compare_arrows
+                - button "Add bookmark" [ref=e236]:
+                  - generic [ref=e237]: bookmark
+            - generic [ref=e238]:
+              - paragraph [ref=e240]: Pasta Making Tutorial - Italian Kitchen
+              - generic [ref=e241]:
+                - generic [ref=e244]: person
+                - link "@diego" [ref=e245]
+              - generic [ref=e246]:
+                - generic [ref=e247]:
+                  - generic [ref=e248]: calendar_today
+                  - text: Apr 8, 2026
+                - generic [ref=e249]:
+                  - generic [ref=e250]: visibility
+                  - text: 142 views
+                - generic [ref=e251]:
+                  - generic [ref=e252]: trophy
+                  - generic [ref=e253]:
+                    - generic [ref=e254]: "0.82"
+                    - generic [ref=e255]: Exceptional
+        - link "movie compare_arrows Add bookmark Tokyo Street Food Night Walk person @diego calendar_today Apr 10, 2026 visibility 89 views trophy 0.76 Exceptional" [ref=e256] [cursor=pointer]:
+          - /url: /analysis/990cd81b-50f5-4eb5-9b47-b81d12044675
+          - generic [ref=e257]:
+            - generic [ref=e258]:
+              - generic [ref=e260]: movie
+              - generic [ref=e261]:
+                - button "compare_arrows" [ref=e262]:
+                  - generic [ref=e263]: compare_arrows
+                - button "Add bookmark" [ref=e264]:
+                  - generic [ref=e265]: bookmark
+            - generic [ref=e266]:
+              - paragraph [ref=e268]: Tokyo Street Food Night Walk
+              - generic [ref=e269]:
+                - generic [ref=e272]: person
+                - link "@diego" [ref=e273]
+              - generic [ref=e274]:
+                - generic [ref=e275]:
+                  - generic [ref=e276]: calendar_today
+                  - text: Apr 10, 2026
+                - generic [ref=e277]:
+                  - generic [ref=e278]: visibility
+                  - text: 89 views
+                - generic [ref=e279]:
+                  - generic [ref=e280]: trophy
+                  - generic [ref=e281]:
+                    - generic [ref=e282]: "0.76"
+                    - generic [ref=e283]: Exceptional
+        - link "movie compare_arrows Add bookmark ASMR Rain Sounds for Sleep person @diego calendar_today Apr 5, 2026 visibility 445 views trophy 0.73 Exceptional" [ref=e284] [cursor=pointer]:
+          - /url: /analysis/7fde0151-4d61-4c09-ab87-935a11bff81c
+          - generic [ref=e285]:
+            - generic [ref=e286]:
+              - generic [ref=e288]: movie
+              - generic [ref=e289]:
+                - button "compare_arrows" [ref=e290]:
+                  - generic [ref=e291]: compare_arrows
+                - button "Add bookmark" [ref=e292]:
+                  - generic [ref=e293]: bookmark
+            - generic [ref=e294]:
+              - paragraph [ref=e296]: ASMR Rain Sounds for Sleep
+              - generic [ref=e297]:
+                - generic [ref=e300]: person
+                - link "@diego" [ref=e301]
+              - generic [ref=e302]:
+                - generic [ref=e303]:
+                  - generic [ref=e304]: calendar_today
+                  - text: Apr 5, 2026
+                - generic [ref=e305]:
+                  - generic [ref=e306]: visibility
+                  - text: 445 views
+                - generic [ref=e307]:
+                  - generic [ref=e308]: trophy
+                  - generic [ref=e309]:
+                    - generic [ref=e310]: "0.73"
+                    - generic [ref=e311]: Exceptional
+        - link "movie compare_arrows Add bookmark iPhone 17 Pro - Honest Review person @diego calendar_today Apr 4, 2026 visibility 215 views trophy 0.68 Exceptional" [ref=e312] [cursor=pointer]:
+          - /url: /analysis/5118b679-5167-4ace-a561-7a1afa7a1613
+          - generic [ref=e313]:
+            - generic [ref=e314]:
+              - generic [ref=e316]: movie
+              - generic [ref=e317]:
+                - button "compare_arrows" [ref=e318]:
+                  - generic [ref=e319]: compare_arrows
+                - button "Add bookmark" [ref=e320]:
+                  - generic [ref=e321]: bookmark
+            - generic [ref=e322]:
+              - paragraph [ref=e324]: iPhone 17 Pro - Honest Review
+              - generic [ref=e325]:
+                - generic [ref=e328]: person
+                - link "@diego" [ref=e329]
+              - generic [ref=e330]:
+                - generic [ref=e331]:
+                  - generic [ref=e332]: calendar_today
+                  - text: Apr 4, 2026
+                - generic [ref=e333]:
+                  - generic [ref=e334]: visibility
+                  - text: 215 views
+                - generic [ref=e335]:
+                  - generic [ref=e336]: trophy
+                  - generic [ref=e337]:
+                    - generic [ref=e338]: "0.68"
+                    - generic [ref=e339]: Exceptional
+        - link "test 0:41 compare_arrows Add bookmark test person @diego calendar_today Apr 9, 2026 visibility 17 views trophy N/A" [ref=e340] [cursor=pointer]:
+          - /url: /analysis/d2357b7b-3b1a-41b3-9015-06c9a8b5edcb
+          - generic [ref=e341]:
+            - generic [ref=e342]:
+              - img "test" [ref=e343]
+              - generic [ref=e344]: 0:41
+              - generic [ref=e345]:
+                - button "compare_arrows" [ref=e346]:
+                  - generic [ref=e347]: compare_arrows
+                - button "Add bookmark" [ref=e348]:
+                  - generic [ref=e349]: bookmark
+            - generic [ref=e350]:
+              - paragraph [ref=e352]: test
+              - generic [ref=e353]:
+                - generic [ref=e356]: person
+                - link "@diego" [ref=e357]
+              - generic [ref=e358]:
+                - generic [ref=e359]:
+                  - generic [ref=e360]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e361]:
+                  - generic [ref=e362]: visibility
+                  - text: 17 views
+                - generic [ref=e363]:
+                  - generic [ref=e364]: trophy
+                  - generic [ref=e365]: N/A
+        - link "Untitled Analysis 0:41 check Add bookmark Untitled Analysis person @diego calendar_today Apr 9, 2026 visibility 1 views trophy N/A" [ref=e512] [cursor=pointer]:
+          - /url: /analysis/bdf77a41-4027-4653-937c-31dfe283ea4b
+          - generic [ref=e367]:
+            - generic [ref=e368]:
+              - img "Untitled Analysis" [ref=e369]
+              - generic [ref=e370]: 0:41
+              - generic [ref=e371]:
+                - button "check" [active] [ref=e513]:
+                  - generic [ref=e373]: check
+                - button "Add bookmark" [ref=e374]:
+                  - generic [ref=e375]: bookmark
+            - generic [ref=e376]:
+              - paragraph [ref=e378]: Untitled Analysis
+              - generic [ref=e379]:
+                - generic [ref=e382]: person
+                - link "@diego" [ref=e383]
+              - generic [ref=e384]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]: calendar_today
+                  - text: Apr 9, 2026
+                - generic [ref=e387]:
+                  - generic [ref=e388]: visibility
+                  - text: 1 views
+                - generic [ref=e389]:
+                  - generic [ref=e390]: trophy
+                  - generic [ref=e391]: N/A
+        - link "movie compare_arrows Add bookmark YouTube Thumbnail — Rick Astley person @diego calendar_today Apr 12, 2026 trophy N/A" [ref=e392] [cursor=pointer]:
+          - /url: /analysis/b58e6fd9-50a5-497c-8dcf-70807b3b08d8
+          - generic [ref=e393]:
+            - generic [ref=e394]:
+              - generic [ref=e396]: movie
+              - generic [ref=e397]:
+                - button "compare_arrows" [ref=e398]:
+                  - generic [ref=e399]: compare_arrows
+                - button "Add bookmark" [ref=e400]:
+                  - generic [ref=e401]: bookmark
+            - generic [ref=e402]:
+              - paragraph [ref=e404]: YouTube Thumbnail — Rick Astley
+              - generic [ref=e405]:
+                - generic [ref=e408]: person
+                - link "@diego" [ref=e409]
+              - generic [ref=e410]:
+                - generic [ref=e411]:
+                  - generic [ref=e412]: calendar_today
+                  - text: Apr 12, 2026
+                - generic [ref=e413]:
+                  - generic [ref=e414]: trophy
+                  - generic [ref=e415]: N/A
+        - link "movie compare_arrows Add bookmark YouTube Thumbnail — Gangnam Style person @diego calendar_today Apr 12, 2026 trophy N/A" [ref=e416] [cursor=pointer]:
+          - /url: /analysis/09ef3db2-a9b7-40ae-b29a-d5161e701dcf
+          - generic [ref=e417]:
+            - generic [ref=e418]:
+              - generic [ref=e420]: movie
+              - generic [ref=e421]:
+                - button "compare_arrows" [ref=e422]:
+                  - generic [ref=e423]: compare_arrows
+                - button "Add bookmark" [ref=e424]:
+                  - generic [ref=e425]: bookmark
+            - generic [ref=e426]:
+              - paragraph [ref=e428]: YouTube Thumbnail — Gangnam Style
+              - generic [ref=e429]:
+                - generic [ref=e432]: person
+                - link "@diego" [ref=e433]
+              - generic [ref=e434]:
+                - generic [ref=e435]:
+                  - generic [ref=e436]: calendar_today
+                  - text: Apr 12, 2026
+                - generic [ref=e437]:
+                  - generic [ref=e438]: trophy
+                  - generic [ref=e439]: N/A
+        - link "movie compare_arrows Add bookmark Ad Copy — \"Just Do It\" Campaign person @diego calendar_today Apr 12, 2026 trophy N/A" [ref=e440] [cursor=pointer]:
+          - /url: /analysis/ca9811ec-9a3c-47b1-89be-da5a03e6ed37
+          - generic [ref=e441]:
+            - generic [ref=e442]:
+              - generic [ref=e444]: movie
+              - generic [ref=e445]:
+                - button "compare_arrows" [ref=e446]:
+                  - generic [ref=e447]: compare_arrows
+                - button "Add bookmark" [ref=e448]:
+                  - generic [ref=e449]: bookmark
+            - generic [ref=e450]:
+              - paragraph [ref=e452]: Ad Copy — "Just Do It" Campaign
+              - generic [ref=e453]:
+                - generic [ref=e456]: person
+                - link "@diego" [ref=e457]
+              - generic [ref=e458]:
+                - generic [ref=e459]:
+                  - generic [ref=e460]: calendar_today
+                  - text: Apr 12, 2026
+                - generic [ref=e461]:
+                  - generic [ref=e462]: trophy
+                  - generic [ref=e463]: N/A
+        - link "movie compare_arrows Add bookmark Billboard — \"Think Different\" person @diego calendar_today Apr 12, 2026 trophy N/A" [ref=e464] [cursor=pointer]:
+          - /url: /analysis/4cdd9b5c-ee35-4169-bca9-88dcf9415713
+          - generic [ref=e465]:
+            - generic [ref=e466]:
+              - generic [ref=e468]: movie
+              - generic [ref=e469]:
+                - button "compare_arrows" [ref=e470]:
+                  - generic [ref=e471]: compare_arrows
+                - button "Add bookmark" [ref=e472]:
+                  - generic [ref=e473]: bookmark
+            - generic [ref=e474]:
+              - paragraph [ref=e476]: Billboard — "Think Different"
+              - generic [ref=e477]:
+                - generic [ref=e480]: person
+                - link "@diego" [ref=e481]
+              - generic [ref=e482]:
+                - generic [ref=e483]:
+                  - generic [ref=e484]: calendar_today
+                  - text: Apr 12, 2026
+                - generic [ref=e485]:
+                  - generic [ref=e486]: trophy
+                  - generic [ref=e487]: N/A
+        - link "movie compare_arrows Add bookmark Social Post — Product Launch person @diego calendar_today Apr 12, 2026 trophy N/A" [ref=e488] [cursor=pointer]:
+          - /url: /analysis/869cd539-6023-41cc-9ae9-c68fe9f376c0
+          - generic [ref=e489]:
+            - generic [ref=e490]:
+              - generic [ref=e492]: movie
+              - generic [ref=e493]:
+                - button "compare_arrows" [ref=e494]:
+                  - generic [ref=e495]: compare_arrows
+                - button "Add bookmark" [ref=e496]:
+                  - generic [ref=e497]: bookmark
+            - generic [ref=e498]:
+              - paragraph [ref=e500]: Social Post — Product Launch
+              - generic [ref=e501]:
+                - generic [ref=e504]: person
+                - link "@diego" [ref=e505]
+              - generic [ref=e506]:
+                - generic [ref=e507]:
+                  - generic [ref=e508]: calendar_today
+                  - text: Apr 12, 2026
+                - generic [ref=e509]:
+                  - generic [ref=e510]: trophy
+                  - generic [ref=e511]: N/A
+      - generic [ref=e516]:
+        - generic [ref=e517]:
+          - paragraph [ref=e518]: Analysis A
+          - paragraph [ref=e521]: Untitled Analysis
+        - button "Compare" [disabled] [ref=e522]
+        - generic [ref=e523]:
+          - paragraph [ref=e524]: Analysis B
+          - text: Select an analysis...
+  - contentinfo [ref=e64]:
+    - generic [ref=e65]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - heading "NeuroCut" [level=3] [ref=e68]
+          - paragraph [ref=e69]: Neural A/B testing for content creators. See how brains react to your content using Meta's TRIBE v2 brain-predictive model.
+        - generic [ref=e70]:
+          - heading "Product" [level=4] [ref=e71]
+          - list [ref=e72]:
+            - listitem [ref=e73]:
+              - link "Dashboard" [ref=e74] [cursor=pointer]:
+                - /url: /dashboard
+            - listitem [ref=e75]:
+              - link "Upload" [ref=e76] [cursor=pointer]:
+                - /url: /upload
+            - listitem [ref=e77]:
+              - link "Discover" [ref=e78] [cursor=pointer]:
+                - /url: /discover
+            - listitem [ref=e79]:
+              - link "Bookmarks" [ref=e80] [cursor=pointer]:
+                - /url: /bookmarks
+            - listitem [ref=e81]:
+              - link "Pricing" [ref=e82] [cursor=pointer]:
+                - /url: /pricing
+        - generic [ref=e83]:
+          - heading "Resources" [level=4] [ref=e84]
+          - list [ref=e85]:
+            - listitem [ref=e86]:
+              - link "How It Works" [ref=e87] [cursor=pointer]:
+                - /url: /resources
+            - listitem [ref=e88]:
+              - link "Understanding Scores" [ref=e89] [cursor=pointer]:
+                - /url: /resources#scores
+            - listitem [ref=e90]:
+              - link "Brain Regions" [ref=e91] [cursor=pointer]:
+                - /url: /resources#regions
+            - listitem [ref=e92]:
+              - link "Use Cases" [ref=e93] [cursor=pointer]:
+                - /url: /use-cases
+        - generic [ref=e94]:
+          - heading "Company" [level=4] [ref=e95]
+          - list [ref=e96]:
+            - listitem [ref=e97]:
+              - link "Billing" [ref=e98] [cursor=pointer]:
+                - /url: /settings/billing
+            - listitem [ref=e99]:
+              - link "Settings" [ref=e100] [cursor=pointer]:
+                - /url: /settings
+            - listitem [ref=e101]:
+              - link "Profile" [ref=e102] [cursor=pointer]:
+                - /url: /profile
+      - generic [ref=e103]:
+        - paragraph [ref=e104]: © 2026 NeuroCut. Powered by Meta TRIBE v2.
+        - paragraph [ref=e105]: Neural activation predictions are computational estimates, not medical measurements.
+  - button "Open Next.js Dev Tools" [ref=e111] [cursor=pointer]:
+    - img [ref=e112]
+  - alert [ref=e115]

@@ -8,7 +8,8 @@ export async function createJob(
   inputType: InputType = 'video',
   textContent?: string | null,
   textStyle?: string | null,
-  imageDuration?: number | null
+  imageDuration?: number | null,
+  category?: string | null
 ): Promise<string> {
   const supabase = await createClient()
 
@@ -24,6 +25,7 @@ export async function createJob(
       input_type: inputType,
       text_content: textContent ?? null,
       text_style: textStyle ?? null,
+      category: category ?? null,
       results: null,
       error_message: null,
     })

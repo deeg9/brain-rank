@@ -4,6 +4,7 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
 import { VideoThumb } from "../dashboard/VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
+import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
 
 const statusMap: Record<JobStatus, "queued" | "processing" | "complete" | "failed"> = {
   pending: "queued",
@@ -64,13 +65,15 @@ export default async function ProfilePage() {
     })
     .filter((s): s is number => s !== null);
 
-  const averageScore =
-    scores.length > 0
-      ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1)
-      : "--";
+  const avgRaw = scores.length > 0
+    ? scores.reduce((a, b) => a + b, 0) / scores.length
+    : null;
+  const bestRaw = scores.length > 0 ? Math.max(...scores) : null;
 
-  const bestScore =
-    scores.length > 0 ? Math.max(...scores).toFixed(1) : "--";
+  const averageScore = avgRaw !== null ? formatScore(normalizeScore(avgRaw)) : "--";
+  const bestScore = bestRaw !== null ? formatScore(normalizeScore(bestRaw)) : "--";
+  const avgTier = avgRaw !== null ? getTier(normalizeScore(avgRaw)) : null;
+  const bestTier = bestRaw !== null ? getTier(normalizeScore(bestRaw)) : null;
 
   // Recent activity (last 5 jobs)
   const recentJobs = allJobs.slice(0, 5);
@@ -129,17 +132,19 @@ export default async function ProfilePage() {
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Average Attention Score
           </span>
-          <span className="text-5xl font-headline font-black text-black">
+          <span className={`text-5xl font-headline font-black ${avgTier?.color ?? "text-black"}`}>
             {averageScore}
           </span>
+          {avgTier && <span className={`text-xs font-bold mt-1 ${avgTier.color}`}>{avgTier.label}</span>}
         </div>
         <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Best Attention Score
           </span>
-          <span className="text-5xl font-headline font-black text-black">
+          <span className={`text-5xl font-headline font-black ${bestTier?.color ?? "text-black"}`}>
             {bestScore}
           </span>
+          {bestTier && <span className={`text-xs font-bold mt-1 ${bestTier.color}`}>{bestTier.label}</span>}
         </div>
       </div>
 

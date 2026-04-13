@@ -11,7 +11,7 @@ export function AnalysisSearch() {
         search
       </span>
       <input
-        className="w-full bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-1 focus:ring-primary/50 transition-all"
+        className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:ring-1 focus:ring-primary/50 focus:outline-none transition-all"
         placeholder="Search analyses..."
         type="text"
         value={query}

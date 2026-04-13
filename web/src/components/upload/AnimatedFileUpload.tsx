@@ -198,7 +198,7 @@ export function AnimatedFileUpload({
             MP4, WebM, MOV. Max 2GB per file.
           </p>
           <Button
-            variant="secondary"
+            variant="primary"
             size="md"
             onClick={(e) => {
               e.stopPropagation();

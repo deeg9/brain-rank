@@ -215,7 +215,7 @@ export default function DiscoverPage() {
             placeholder="Search by title or username..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-surface-container text-on-surface text-sm rounded-lg border border-outline-variant/30 focus:border-primary-fixed focus:outline-none placeholder:text-on-surface-variant/50"
+            className="w-full pl-10 pr-4 py-2.5 bg-white text-gray-900 text-sm rounded-lg border border-gray-200 focus:border-primary-fixed focus:outline-none placeholder:text-gray-400"
           />
         </div>
 

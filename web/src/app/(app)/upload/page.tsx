@@ -24,12 +24,9 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inputType, setInputType] = useState<TabType>('video');
-  const [textMode, setTextMode] = useState<'spoken' | 'visual'>('spoken');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageDuration, setImageDuration] = useState(6);
   const [textContent, setTextContent] = useState('');
-  const [textStyle, setTextStyle] = useState<'billboard' | 'social_post' | 'general'>('general');
-  const [visualTextContent, setVisualTextContent] = useState('');
   const [category, setCategory] = useState("");
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
@@ -137,22 +134,7 @@ export default function UploadPage() {
 
     try {
       const textUrl = await uploadText(textContent);
-      const jobId = await createJob(textUrl, 'text_spoken', textContent);
-      router.push(`/processing?jobId=${jobId}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed.');
-      setUploading(false);
-    }
-  }
-
-  async function handleAnalyzeTextVisual() {
-    if (!visualTextContent.trim()) return;
-    setUploading(true);
-    setError(null);
-
-    try {
-      const textUrl = await uploadText(visualTextContent);
-      const jobId = await createJob(textUrl, 'text_visual', visualTextContent, textStyle);
+      const jobId = await createJob(textUrl, 'text', textContent, null, undefined, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
@@ -181,7 +163,7 @@ export default function UploadPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto pt-6 space-y-10">
+    <div className="max-w-5xl mx-auto pt-6 space-y-6">
       {/* Headline with stagger animation */}
       <motion.header
         className="space-y-2"
@@ -258,7 +240,7 @@ export default function UploadPage() {
       )}
 
       {/* Image Cost Panel + Analyze Button */}
-      {inputType === 'image' && imageFile && (
+      {inputType === 'image' && (
         <motion.section
           className="flex justify-center"
           initial={{ opacity: 0, y: 20 }}
@@ -279,6 +261,17 @@ export default function UploadPage() {
                 </p>
               </div>
             </div>
+            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="px-4 py-2.5 bg-white text-black text-sm rounded-lg border border-gray-200 focus:outline-none appearance-none cursor-pointer font-headline font-bold"
+            >
+              <option value="">Select Category</option>
+              {CONTENT_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
             <div className="h-10 w-[1px] bg-outline-variant/20" />
             <Button
               variant="primary"
@@ -303,95 +296,30 @@ export default function UploadPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         >
-          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 space-y-6">
-            <div className="flex gap-1 p-1 rounded-lg bg-white/5 border border-white/10 w-fit mx-auto">
-              <button
-                onClick={() => setTextMode('spoken')}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  textMode === 'spoken'
-                    ? 'bg-white/10 text-on-surface border border-white/10'
-                    : 'text-on-surface-variant hover:text-on-surface/80'
-                }`}
-              >
-                Spoken
-              </button>
-              <button
-                onClick={() => setTextMode('visual')}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  textMode === 'visual'
-                    ? 'bg-white/10 text-on-surface border border-white/10'
-                    : 'text-on-surface-variant hover:text-on-surface/80'
-                }`}
-              >
-                Visual
-                <span className="ml-1.5 text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
-              </button>
+          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 space-y-4">
+            <p className="text-center text-xs text-on-surface-variant max-w-md mx-auto">
+              Your text will be rendered on screen and spoken aloud, then analyzed for both visual and auditory neural response.
+            </p>
+            <div className="space-y-2">
+              <textarea
+                maxLength={500}
+                rows={6}
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                disabled={uploading}
+                placeholder="Enter your text here — e.g., ad copy, headline, voiceover script..."
+                className="bg-white border border-gray-200 rounded-xl p-4 text-gray-900 font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+              />
+              <p className={`text-right text-sm ${textContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
+                {textContent.length}/500
+              </p>
             </div>
-
-            {textMode === 'spoken' ? (
-              <div className="space-y-2">
-                <textarea
-                  maxLength={500}
-                  rows={6}
-                  value={textContent}
-                  onChange={(e) => setTextContent(e.target.value)}
-                  disabled={uploading}
-                  placeholder="Enter your text here — e.g., ad copy, headline, voiceover script..."
-                  className="bg-white/[0.04] border border-white/10 rounded-xl p-4 text-on-surface font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
-                />
-                <p className={`text-right text-sm ${textContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
-                  {textContent.length}/500
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Style Template Pills */}
-                <div className="flex gap-2 justify-center">
-                  {([
-                    { id: 'billboard' as const, label: 'Billboard', desc: 'Large bold text on gradient' },
-                    { id: 'social_post' as const, label: 'Social Post', desc: 'Card-style platform layout' },
-                    { id: 'general' as const, label: 'General', desc: 'Clean centered typography' },
-                  ]).map((style) => (
-                    <button
-                      key={style.id}
-                      onClick={() => setTextStyle(style.id)}
-                      disabled={uploading}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                        textStyle === style.id
-                          ? 'bg-white/10 text-on-surface border-white/20'
-                          : 'bg-transparent text-on-surface-variant border-white/5 hover:border-white/10'
-                      } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {style.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Visual Mode Textarea */}
-                <textarea
-                  maxLength={500}
-                  rows={6}
-                  value={visualTextContent}
-                  onChange={(e) => setVisualTextContent(e.target.value)}
-                  disabled={uploading}
-                  placeholder={
-                    textStyle === 'billboard' ? 'Enter billboard copy — e.g., "Just Do It" or "Think Different"...' :
-                    textStyle === 'social_post' ? 'Enter social media copy — e.g., caption, tweet, post text...' :
-                    'Enter your text — e.g., tagline, headline, ad copy...'
-                  }
-                  className="bg-white/[0.04] border border-white/10 rounded-xl p-4 text-on-surface font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
-                />
-                <p className={`text-right text-sm ${visualTextContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
-                  {visualTextContent.length}/500
-                </p>
-              </div>
-            )}
           </div>
         </motion.section>
       )}
 
-      {/* Text Cost Panel + Analyze Button (Spoken) */}
-      {inputType === 'text' && textMode === 'spoken' && textContent.trim().length > 0 && (
+      {/* Text Cost Panel + Analyze Button */}
+      {inputType === 'text' && (
         <motion.section
           className="flex justify-center"
           initial={{ opacity: 0, y: 20 }}
@@ -413,54 +341,26 @@ export default function UploadPage() {
               </div>
             </div>
             <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="px-4 py-2.5 bg-white text-black text-sm rounded-lg border border-gray-200 focus:outline-none appearance-none cursor-pointer font-headline font-bold"
+            >
+              <option value="">Select Category</option>
+              {CONTENT_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+            <div className="h-10 w-[1px] bg-outline-variant/20" />
             <Button
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!textContent.trim() || uploading}
+              disabled={!textContent.trim() || uploading || !category}
               onClick={handleAnalyzeText}
               className="!w-auto px-10 py-4"
             >
               Analyze Text
-              <span className="material-symbols-outlined text-lg">bolt</span>
-            </Button>
-          </GlassPanel>
-        </motion.section>
-      )}
-
-      {/* Text Cost Panel + Analyze Button (Visual) */}
-      {inputType === 'text' && textMode === 'visual' && visualTextContent.trim().length > 0 && (
-        <motion.section
-          className="flex justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-        >
-          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
-                <span className="material-symbols-outlined">token</span>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
-                  Estimated Cost
-                </p>
-                <p className="text-lg font-headline font-bold text-on-surface">
-                  10 Credits
-                </p>
-              </div>
-            </div>
-            <div className="h-10 w-[1px] bg-outline-variant/20" />
-            <Button
-              variant="primary"
-              size="lg"
-              loading={uploading}
-              disabled={!visualTextContent.trim() || uploading}
-              onClick={handleAnalyzeTextVisual}
-              className="!w-auto px-10 py-4"
-            >
-              Analyze Visual
-              <span className="ml-1.5 text-[10px] uppercase tracking-wider text-amber-400/80 font-bold">Experimental</span>
               <span className="material-symbols-outlined text-lg">bolt</span>
             </Button>
           </GlassPanel>
