@@ -111,6 +111,19 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect }: Discover
             ) : (
               <span className="text-xs text-gray-400">Anonymous</span>
             )}
+            {analysis.input_type && (
+              <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-black">
+                · <span className="material-symbols-outlined text-[13px]">
+                  {analysis.input_type === 'image' ? 'image' : analysis.input_type?.startsWith('text') ? 'text_fields' : 'videocam'}
+                </span>
+                {analysis.input_type === 'image' ? 'Image' : analysis.input_type?.startsWith('text') ? 'Text' : 'Video'}
+              </span>
+            )}
+            {analysis.category && (
+              <span className="text-[11px] text-gray-400 font-medium">
+                · {analysis.category.charAt(0).toUpperCase() + analysis.category.slice(1).replace(/_/g, ' ')}
+              </span>
+            )}
           </div>
 
           {/* Bottom row */}

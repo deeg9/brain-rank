@@ -253,7 +253,7 @@ export function PublicAnalysisClient({
                   <MetricInfo
                     title="Arousal"
                     description="The viewer's physiological activation level -- how alert or stimulated their nervous system is."
-                    calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
+                    calculation="Predicted by BrainRank from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
                     interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
                   />
                 </div>
@@ -273,7 +273,7 @@ export function PublicAnalysisClient({
                   <MetricInfo
                     title="Valence"
                     description="The emotional positivity or negativity of the viewer's response."
-                    calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
+                    calculation="Predicted by BrainRank from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
                     interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
                   />
                 </div>
@@ -300,7 +300,7 @@ export function PublicAnalysisClient({
               <MetricInfo
                 title="Emotional State"
                 description="Where your content falls on the Russell Circumplex Model -- a 2D map of human emotion used in affective neuroscience."
-                calculation="TRIBE v2 predicts arousal (vertical axis: calm to excited) and valence (horizontal axis: negative to positive) from brain activation patterns at the current timestamp."
+                calculation="BrainRank predicts arousal (vertical axis: calm to excited) and valence (horizontal axis: negative to positive) from brain activation patterns at the current timestamp."
                 interpretation="Top-right (Excited) = high energy positive emotions. Bottom-left (Bored) = low engagement. The dot moves in real-time as the video plays, showing how the emotional tone shifts."
               />
             </div>

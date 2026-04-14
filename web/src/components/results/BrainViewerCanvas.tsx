@@ -13,6 +13,7 @@ interface BrainViewerCanvasProps {
   blendFactor: number;
   regionColors: Float32Array | null;
   locked?: boolean;
+  autoRotateSpeed?: number;
   onHoverVertex?: (vertexIndex: number | null, clientX: number, clientY: number) => void;
 }
 
@@ -31,7 +32,7 @@ const MIN_DISTANCE = 100;
 const MAX_DISTANCE = 400;
 
 export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewerCanvasProps>(
-  function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, locked, onHoverVertex }, ref) {
+  function BrainViewerCanvas({ vertexDataA, vertexDataB, blendFactor, regionColors, locked, autoRotateSpeed: autoRotateSpeedProp, onHoverVertex }, ref) {
     const controlsRef = useRef<OrbitControlsImpl>(null);
     const { camera } = useThree();
     const [isIdle, setIsIdle] = useState(false);
@@ -102,7 +103,7 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
           minDistance={MIN_DISTANCE}
           maxDistance={MAX_DISTANCE}
           autoRotate={!locked && isIdle}
-          autoRotateSpeed={AUTO_ROTATE_SPEED}
+          autoRotateSpeed={autoRotateSpeedProp ?? AUTO_ROTATE_SPEED}
           enableDamping
           dampingFactor={0.08}
           rotateSpeed={0.8}

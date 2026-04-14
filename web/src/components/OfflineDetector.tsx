@@ -78,7 +78,7 @@ export function OfflineDetector() {
         {/* Brand */}
         <div className="mb-16">
           <span className="font-headline font-black text-2xl tracking-widest text-on-surface">
-            NeuroCut v1
+            BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK
           </span>
         </div>
 
@@ -102,7 +102,7 @@ export function OfflineDetector() {
             You&apos;re offline
           </h1>
           <p className="text-on-surface-variant text-lg leading-relaxed mb-10 max-w-sm mx-auto">
-            Check your internet connection. NeuroCut requires a stable uplink to
+            Check your internet connection. BrainRank requires a stable uplink to
             process neural edits.
           </p>
 

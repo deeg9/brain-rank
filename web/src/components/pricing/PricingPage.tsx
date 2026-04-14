@@ -23,7 +23,7 @@ export function PricingPage() {
         </h1>
         <p className="text-sm md:text-base text-gray-500 mt-4 leading-relaxed">
           Neural A/B testing for your content. Upload videos, images, or text and get
-          full brain activation reports powered by Meta's TRIBE v2 model.
+          full brain activation reports powered by brain predictive modeling.
         </p>
       </div>
 

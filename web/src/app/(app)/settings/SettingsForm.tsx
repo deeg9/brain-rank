@@ -503,7 +503,7 @@ export function SettingsForm({
               Notifications
             </h3>
             <p className="text-sm text-on-surface-variant leading-relaxed">
-              Control how NeuroCut communicates with you.
+              Control how BrainRank communicates with you.
             </p>
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -1,7 +1,7 @@
 /**
  * Neural activation score tier system.
  *
- * TRIBE v2 outputs normalized activation values from 0.0 to 1.0,
+ * BrainRank outputs normalized activation values from 0.0 to 1.0,
  * representing predicted cortical activation intensity — NOT a percentage grade.
  *
  * Baseline cortical activity sits around 0.15-0.25 (brain is always active at rest).

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Use Cases | NeuroCut",
+  title: "Use Cases | BrainRank",
   description: "How marketers, creators, studios, and researchers use neural activation data to optimize content.",
 };
 
@@ -24,11 +24,11 @@ export default function UseCasesPage() {
         <p className="text-gray-700 leading-relaxed">
           Traditional content analytics tell you <strong>what</strong> happened — views, clicks, watch time.
           Neural activation data tells you <strong>why</strong>. By predicting how the brain responds to every
-          second of your content, NeuroCut reveals the biological drivers of engagement that no analytics
+          second of your content, BrainRank reveals the biological drivers of engagement that no analytics
           dashboard can capture.
         </p>
         <p className="text-gray-700 leading-relaxed">
-          Every video uploaded to NeuroCut generates a neural response profile across 9 brain networks,
+          Every video uploaded to BrainRank generates a neural response profile across 9 brain networks,
           creating a growing dataset that maps content types to brain activation patterns. This data is
           unprecedented — and it gets more valuable with every analysis.
         </p>
@@ -86,7 +86,7 @@ export default function UseCasesPage() {
           <div className="bg-gray-50 rounded-lg p-5">
             <p className="font-bold text-black text-sm">Benchmark by Category</p>
             <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-              NeuroCut's growing dataset enables category-level benchmarks. See how your fitness ad
+              BrainRank's growing dataset enables category-level benchmarks. See how your fitness ad
               compares to the average attention score across all fitness content. Know whether your
               beauty tutorial drives above-average emotional processing for the category.
             </p>
@@ -135,7 +135,7 @@ export default function UseCasesPage() {
           <h2 className="font-headline text-2xl font-bold text-black">The Data Platform</h2>
         </div>
         <p className="text-gray-700 leading-relaxed">
-          Every analysis on NeuroCut contributes to a growing dataset of content-to-neural-response
+          Every analysis on BrainRank contributes to a growing dataset of content-to-neural-response
           mappings. With content categories, this data enables unprecedented insights:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

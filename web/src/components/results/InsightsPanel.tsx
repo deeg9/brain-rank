@@ -93,7 +93,7 @@ export function InsightsPanel({ benchmark }: InsightsPanelProps) {
 
         {researchOpen && (
           <div className="mt-2 pl-6 space-y-1 text-[11px] text-on-surface-variant">
-            <p>Meta TRIBE v2 — Brain-predictive foundation model trained on 500+ hours of fMRI data from 720 subjects</p>
+            <p>Brain-predictive foundation model trained on 500+ hours of fMRI data from 720 subjects</p>
             <p>Stanford/PNAS 2020 — Brain activity forecasts video engagement in population-scale data</p>
             <p>PNAS Nexus 2024 — Mega-analysis of 16 fMRI datasets on message effectiveness</p>
           </div>

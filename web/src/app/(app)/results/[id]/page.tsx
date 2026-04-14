@@ -18,6 +18,9 @@ import { findPeaks } from "@/lib/peak-detection";
 import { MetricInfo } from "@/components/results/MetricInfo";
 import type { Job } from "@/lib/database.types";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
+import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { VisibilityToggle } from "@/app/(app)/dashboard/VisibilityToggle";
+import { createClient } from "@/lib/supabase/client";
 
 const NeuralTimeline = dynamic(
   () => import("@/components/results/NeuralTimeline").then(m => m.NeuralTimeline),
@@ -89,6 +92,9 @@ export default function ResultsDetailPage({ params }: Props) {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Username state
+  const [username, setUsername] = useState<string | null>(null);
 
   // Editable title state
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -191,6 +197,22 @@ export default function ResultsDetailPage({ params }: Props) {
     }
     fetchJob();
   }, [id]);
+
+  // Fetch username from profile
+  useEffect(() => {
+    async function fetchUsername() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+      if (profile?.username) setUsername(profile.username);
+    }
+    fetchUsername();
+  }, []);
 
   useEffect(() => {
     if (shouldRedirect) {
@@ -296,21 +318,18 @@ export default function ResultsDetailPage({ params }: Props) {
   return (
     <div className="space-y-6 pt-6">
       {/* Top Bar */}
-      <div className="grid grid-cols-3 items-center">
-        <div className="flex items-center">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          {/* Back */}
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
+            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
           >
-            <span className="material-symbols-outlined text-sm">
-              arrow_back_ios
-            </span>
-            <span className="font-headline uppercase tracking-widest text-xs">
-              Back
-            </span>
+            <span className="material-symbols-outlined text-2xl">chevron_left</span>
+            <span className="font-headline uppercase tracking-widest text-xs font-bold">Back</span>
           </Link>
-        </div>
-        <div className="flex justify-center">
+
+          {/* Title (editable) */}
           {isEditingTitle ? (
             <input
               ref={titleInputRef}
@@ -318,25 +337,62 @@ export default function ResultsDetailPage({ params }: Props) {
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleTitleSave}
               onKeyDown={handleTitleKeyDown}
-              className="bg-transparent text-on-surface font-black text-lg tracking-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-[200px] text-center"
+              className="bg-transparent text-on-surface font-black text-2xl tracking-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-[200px]"
               maxLength={200}
             />
           ) : (
-            <button
-              onClick={handleTitleEdit}
-              className="flex items-center gap-2 group"
-            >
-              <h2 className="text-on-surface font-black text-lg tracking-tight">
+            <button onClick={handleTitleEdit} className="flex items-center gap-2 group">
+              <h1 className="text-on-surface font-black text-2xl tracking-tight">
                 {displayTitle}
-              </h2>
-              <ContentTypeBadge inputType={job?.input_type} />
+              </h1>
               <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity text-base">
                 edit
               </span>
             </button>
           )}
+
+          {/* Username */}
+          {username && (
+            <Link
+              href={`/u/${username}`}
+              className="text-xs font-bold text-black hover:opacity-70 transition-opacity"
+            >
+              @{username}
+            </Link>
+          )}
+
+          {/* Badge row */}
+          <div className="flex items-center gap-2">
+            <ContentTypeBadge inputType={job?.input_type} />
+            <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
+            {(job as any).category && (
+              <span className="text-[11px] text-gray-400 font-medium">
+                · {((job as any).category as string).charAt(0).toUpperCase() + ((job as any).category as string).slice(1).replace(/_/g, ' ')}
+              </span>
+            )}
+          </div>
+
+          {/* Meta row */}
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-xs font-bold text-black">
+              <span className="material-symbols-outlined text-sm">calendar_today</span>
+              {new Date(job.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            </span>
+            {(job as any).view_count > 0 && (
+              <span className="flex items-center gap-1 text-xs font-bold text-black">
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+                {(job as any).view_count} views
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
+              <ScoreBadge value={summary.overall} size="sm" />
+            </span>
+          </div>
         </div>
-        <div className="flex justify-end">
+
+        {/* Export button */}
+        <div className="flex-shrink-0 pt-8">
           <ExportButton
             data={job.results as Record<string, unknown>}
             filename={`neurocut-${id}.json`}
@@ -468,7 +524,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       <MetricInfo
                         title="Arousal"
                         description="The viewer's physiological activation level — how alert or stimulated their nervous system is."
-                        calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
+                        calculation="Predicted by BrainRank from brain activation patterns. Maps cortical activity to the arousal dimension of the Russell circumplex model."
                         interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
                       />
                     </div>
@@ -483,7 +539,7 @@ export default function ResultsDetailPage({ params }: Props) {
                       <MetricInfo
                         title="Valence"
                         description="The emotional positivity or negativity of the viewer's response."
-                        calculation="Predicted by TRIBE v2 from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
+                        calculation="Predicted by BrainRank from brain activation patterns. Maps cortical activity to the valence dimension of the Russell circumplex model."
                         interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
                       />
                     </div>
@@ -505,7 +561,7 @@ export default function ResultsDetailPage({ params }: Props) {
                   <MetricInfo
                     title="Emotional State"
                     description="Where your content falls on the Russell Circumplex Model — a 2D map of human emotion used in affective neuroscience."
-                    calculation="TRIBE v2 predicts arousal (vertical axis: calm to excited) and valence (horizontal axis: negative to positive) from brain activation patterns at the current timestamp."
+                    calculation="BrainRank predicts arousal (vertical axis: calm to excited) and valence (horizontal axis: negative to positive) from brain activation patterns at the current timestamp."
                     interpretation="Top-right (Excited) = high energy positive emotions. Bottom-left (Bored) = low engagement. The dot moves in real-time as the video plays, showing how the emotional tone shifts."
                   />
                 </div>

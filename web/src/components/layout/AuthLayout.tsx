@@ -21,14 +21,7 @@ export function AuthLayout({
       {/* Branding anchor + children */}
       <div className="relative z-10 w-full flex flex-col items-center">
         <div className="flex flex-col items-center mb-10">
-          <img
-            src="/illustrations/logo-icon.png"
-            alt="NeuroCut"
-            className="w-14 h-14 mb-4"
-          />
-          <h2 className="font-headline font-black text-2xl tracking-widest uppercase text-on-surface">
-            NeuroCut V1
-          </h2>
+          <span className="font-headline font-black text-2xl tracking-widest uppercase text-on-surface">BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK</span>
         </div>
         <main className={`w-full ${maxWidth}`}>{children}</main>
       </div>

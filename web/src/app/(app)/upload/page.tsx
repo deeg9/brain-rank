@@ -147,8 +147,8 @@ export default function UploadPage() {
   const FEATURES = [
     {
       icon: "psychology",
-      title: "TRIBE v2 by Meta",
-      desc: "Powered by Meta's brain-predictive foundation model. Predicts real human neural activation patterns from video, audio, and text.",
+      title: "Brain Predictive Model",
+      desc: "Predicts real human neural activation patterns from video, audio, and text using brain predictive modeling.",
     },
     {
       icon: "hub",

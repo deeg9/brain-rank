@@ -27,6 +27,7 @@ export function TopBar({
   const pathname = usePathname();
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -34,17 +35,18 @@ export function TopBar({
       if (!user) return;
       supabase
         .from("profiles")
-        .select("username")
+        .select("username, avatar_url")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
-          const profile = data as { username: string | null } | null;
+          const profile = data as { username: string | null; avatar_url: string | null } | null;
           setDisplayName(
             profile?.username ||
             (user.user_metadata?.display_name as string) ||
             user.email?.split("@")[0] ||
             "User"
           );
+          if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
         });
     });
   }, []);
@@ -68,7 +70,7 @@ export function TopBar({
           </Link>
         )}
         <Link href="/dashboard" className="flex items-center gap-2">
-          <h1 className="text-xl font-bold text-on-surface font-headline">NeuroCut</h1>
+          <span className="font-headline font-black text-lg tracking-widest uppercase text-on-surface">BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK</span>
         </Link>
       </div>
 
@@ -112,8 +114,12 @@ export function TopBar({
 
           {/* Profile / Logout Dropdown */}
           <div className="relative group">
-            <button className="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors">
-              <span className="material-symbols-outlined text-[20px]">person</span>
+            <button className="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                <span className="material-symbols-outlined text-[20px]">person</span>
+              )}
             </button>
             {/* Dropdown */}
             <div className="absolute right-0 top-full mt-2 w-44 bg-surface-container-high rounded-xl border border-outline-variant/10 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">

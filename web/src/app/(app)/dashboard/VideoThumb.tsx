@@ -63,7 +63,7 @@ export function VideoThumb({ src, alt }: VideoThumbProps) {
           className="absolute inset-0 w-full h-full object-cover"
         />
       ) : (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-surface-container-lowest">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-white">
           <span className="material-symbols-outlined text-3xl text-on-surface-variant/30">
             movie
           </span>

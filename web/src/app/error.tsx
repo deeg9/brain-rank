@@ -13,7 +13,7 @@ export default function Error({
       {/* Top Navigation */}
       <header className="fixed top-0 left-0 w-full h-16 flex items-center px-8 z-50">
         <div className="font-headline font-black text-lg tracking-widest text-on-surface uppercase">
-          NeuroCut v1
+          BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK
         </div>
       </header>
 

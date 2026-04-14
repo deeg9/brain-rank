@@ -28,7 +28,7 @@ export function Sidebar({ activeRoute }: SidebarProps) {
     <aside className="fixed left-0 top-0 h-full w-64 bg-surface-container-low font-headline text-sm tracking-tight flex flex-col p-6 z-50">
       {/* Brand Header */}
       <div className="mb-10">
-        <h1 className="text-xl font-bold text-on-surface">NeuroCut</h1>
+        <h1 className="text-xl font-black tracking-widest uppercase text-on-surface font-headline">BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK</h1>
         <p className="text-on-surface-variant text-xs mt-1 uppercase tracking-widest">
           Pro Plan
         </p>

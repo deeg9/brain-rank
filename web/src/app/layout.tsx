@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "NeuroCut",
+  title: "BrainRank",
   description: "Neural A/B testing for content creators",
 };
 

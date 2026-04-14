@@ -23,10 +23,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single();
 
   if (!profile) {
-    return { title: "User Not Found | NeuroCut" };
+    return { title: "User Not Found | BrainRank" };
   }
 
-  return { title: `@${profile.username} | NeuroCut` };
+  return { title: `@${profile.username} | BrainRank` };
 }
 
 export default async function PublicProfilePage({ params }: PageProps) {

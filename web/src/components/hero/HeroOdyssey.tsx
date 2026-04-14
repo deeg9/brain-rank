@@ -44,14 +44,7 @@ export function HeroOdyssey() {
         {/* Top bar */}
         <header className="flex items-center justify-between py-8">
           <div className="flex items-center gap-3">
-            <img
-              src="/illustrations/logo-icon.png"
-              alt="NeuroCut"
-              className="h-10 w-10 rounded-lg"
-            />
-            <span className="font-headline text-xl font-black tracking-tight text-on-background">
-              NeuroCut
-            </span>
+            <span className="font-headline font-black text-xl tracking-widest uppercase text-on-background">BRAIN<span className="text-on-background/40 mx-0.5">|</span>RANK</span>
           </div>
           <Link
             href="/login"

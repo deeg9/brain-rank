@@ -6,6 +6,7 @@ import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { VideoThumb } from "./VideoThumb";
 import { VisibilityToggle } from "./VisibilityToggle";
+import { CardMenu } from "./CardMenu";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { BenchmarkLegend } from "@/components/ui/BenchmarkLegend";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
@@ -151,7 +152,6 @@ export default async function DashboardPage() {
           icon="neurology"
           label="Avg Attention Score"
           value={avgScore}
-          suffix="/100"
           accentColor="tertiary"
         />
       </section>
@@ -170,32 +170,34 @@ export default async function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {jobList.map((job: Job, index: number) => {
-              const filename = extractFilename(job.video_url);
+              const filename = job.title || extractFilename(job.video_url);
               const score = extractScore(job.results);
 
               return (
-                <Card key={job.id} hover className="overflow-visible group">
+                <Card key={job.id} hover className="overflow-visible group relative hover:z-30">
                   <div className="flex flex-col md:flex-row">
                     {/* Video thumbnail */}
-                    <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-surface-container-lowest">
+                    <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-white">
                       <VideoThumb src={job.video_url} alt={filename} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <span className="material-symbols-outlined absolute bottom-3 right-3 text-on-surface opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        download
-                      </span>
                     </div>
                     {/* Content */}
                     <div className="flex-1 p-6 flex flex-col justify-between">
                       <div>
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-headline font-bold text-lg leading-tight">
+                          <h4 className="font-headline font-bold text-lg leading-tight flex-1">
                             {filename}
                           </h4>
+                          <CardMenu jobId={job.id} jobTitle={filename} isPublic={job.is_public} />
                         </div>
                         <div className="flex items-center gap-2 mb-2">
                           <StatusBadge status={mapStatus(job.status)} />
                           <ContentTypeBadge inputType={(job as any).input_type} />
                           <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
+                          {(job as any).category && (
+                            <span className="text-[11px] text-gray-400 font-medium">
+                              · {((job as any).category as string).charAt(0).toUpperCase() + ((job as any).category as string).slice(1).replace(/_/g, ' ')}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-3 flex-wrap">
                           <span className="flex items-center gap-1 text-xs font-bold text-black">

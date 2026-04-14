@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
 import { cn } from "@/lib/utils";
+
+const ProcessingBrain = dynamic(
+  () => import("@/components/results/ProcessingBrain").then(m => m.ProcessingBrain),
+  { ssr: false, loading: () => <div className="w-full h-[280px] flex items-center justify-center"><WaveLoader /></div> }
+);
 import {
   fetchJobStatus,
   cancelJob,
@@ -35,13 +41,13 @@ function StageItem({
         <div className="relative">
           {isCompleted ? (
             <motion.div
-              className="w-10 h-10 rounded-full bg-tertiary-fixed/20 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", damping: 12, stiffness: 200 }}
             >
               <motion.span
-                className="material-symbols-outlined text-tertiary-fixed text-lg"
+                className="material-symbols-outlined text-black text-lg"
                 initial={{ scale: 0, rotate: -90 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 10, stiffness: 150, delay: 0.1 }}
@@ -51,15 +57,15 @@ function StageItem({
             </motion.div>
           ) : isActive ? (
             <div className="relative">
-              <div className="w-10 h-10 rounded-full border-2 border-secondary flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center">
                 <span
-                  className="material-symbols-outlined text-secondary text-lg"
+                  className="material-symbols-outlined text-black text-lg"
                   style={{ animation: "spin 1.5s linear infinite reverse" }}
                 >
                   sync
                 </span>
               </div>
-              <div className="absolute inset-0 rounded-full border-2 border-secondary/40 animate-ping" />
+              <div className="absolute inset-0 rounded-full border-2 border-black/30 animate-ping" />
             </div>
           ) : (
             <div className="w-10 h-10 rounded-full border border-outline-variant/30 flex items-center justify-center opacity-30">
@@ -71,7 +77,7 @@ function StageItem({
         </div>
         <span className={cn(
           "text-xs font-medium text-center leading-tight max-w-[100px]",
-          isCompleted ? "text-tertiary-fixed" : isActive ? "text-secondary" : "text-on-surface-variant/30"
+          isCompleted ? "text-black" : isActive ? "text-black" : "text-on-surface-variant/30"
         )}>
           {stage.label}
         </span>
@@ -80,7 +86,7 @@ function StageItem({
         <div className="w-20 h-0.5 mx-3 bg-outline-variant/20 rounded-full relative self-start mt-5">
           {isCompleted && (
             <motion.div
-              className="absolute inset-0 neural-gradient rounded-full"
+              className="absolute inset-0 bg-black rounded-full"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               style={{ transformOrigin: "left" }}
@@ -247,16 +253,16 @@ function ProcessingContent() {
           <StatusBadge status="processing" label="In Progress" />
         </div>
         <p className="text-on-surface-variant text-sm font-label">
-          Running TRIBE v2 brain activation prediction model.
+          Running brain activation prediction model.
         </p>
       </div>
 
       {/* Processing Panel */}
-      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-8 relative overflow-hidden glow-primary">
+      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-8 relative overflow-visible glow-primary">
         {/* File info */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="p-2 bg-surface-container-highest rounded-lg">
-            <span className="material-symbols-outlined text-primary">
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <span className="material-symbols-outlined text-black">
               movie
             </span>
           </div>
@@ -268,9 +274,10 @@ function ProcessingContent() {
           </div>
         </div>
 
-        {/* Wave Animation */}
-        <div className="flex justify-center py-4">
-          <WaveLoader message={stageMessage} />
+        {/* 3D Brain Animation */}
+        <div className="py-2">
+          <ProcessingBrain />
+          <p className="text-center text-xs text-on-surface-variant mt-2">{stageMessage}</p>
         </div>
 
         {/* Stage Stepper */}

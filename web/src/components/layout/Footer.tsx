@@ -7,9 +7,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="font-headline font-bold text-lg text-black">NeuroCut</h3>
+            <h3 className="font-headline font-black text-lg tracking-widest uppercase text-black">BRAIN<span className="text-black/30 mx-0.5">|</span>RANK</h3>
             <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-              Neural A/B testing for content creators. See how brains react to your content using Meta's TRIBE v2 brain-predictive model.
+              Neural A/B testing for content creators. See how your content ranks using brain predictive modeling.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export function Footer() {
 
         <div className="border-t border-gray-100 mt-8 pt-6 flex items-center justify-between">
           <p className="text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} NeuroCut. Powered by Meta TRIBE v2.
+            &copy; {new Date().getFullYear()} <span className="font-headline font-black tracking-widest uppercase">BRAIN<span className="text-gray-300 mx-px">|</span>RANK</span>
           </p>
           <p className="text-xs text-gray-400">
             Neural activation predictions are computational estimates, not medical measurements.

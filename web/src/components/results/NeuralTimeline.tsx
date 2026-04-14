@@ -19,47 +19,47 @@ import { MetricInfo } from '@/components/results/MetricInfo';
 const TRACK_INFO: Record<string, { description: string; calculation: string; interpretation: string }> = {
   attention: {
     description: "How strongly the viewer's attentional networks activate — measuring focused concentration on your content.",
-    calculation: "Predicted from dorsal and ventral attention network activity (frontal eye fields, intraparietal sulcus) via TRIBE v2.",
+    calculation: "Predicted from dorsal and ventral attention network activity (frontal eye fields, intraparietal sulcus) via BrainRank.",
     interpretation: "High attention (>70%) = content commands focus. Drops indicate moments where viewers may lose interest or get distracted.",
   },
   reward: {
     description: "Activation of the brain's reward circuitry — measuring how pleasurable or satisfying the content feels.",
-    calculation: "Predicted from ventral striatum and orbitofrontal cortex activation patterns via TRIBE v2.",
+    calculation: "Predicted from ventral striatum and orbitofrontal cortex activation patterns via BrainRank.",
     interpretation: "High reward (>70%) = content triggers dopamine-associated pleasure responses. Key driver of likes, shares, and repeat views.",
   },
   emotional_processing: {
     description: "Activity in emotional processing regions — measuring the intensity of emotional response to content.",
-    calculation: "Predicted from amygdala and insula cortex activation patterns via TRIBE v2.",
+    calculation: "Predicted from amygdala and insula cortex activation patterns via BrainRank.",
     interpretation: "High emotional processing (>70%) = strong emotional reaction (positive or negative). Emotional peaks drive memorability.",
   },
   social_cognition: {
     description: "Engagement of social brain networks — measuring how much the viewer processes social and interpersonal cues.",
-    calculation: "Predicted from temporoparietal junction and medial prefrontal cortex activation via TRIBE v2.",
+    calculation: "Predicted from temporoparietal junction and medial prefrontal cortex activation via BrainRank.",
     interpretation: "High social cognition (>70%) = content with faces, dialogue, or social interactions. Drives connection and empathy.",
   },
   visual_processing: {
     description: "Activity in visual cortex areas — measuring how visually stimulating and complex the content is.",
-    calculation: "Predicted from V1-V5 visual cortex activation patterns via TRIBE v2's V-JEPA2 encoder.",
+    calculation: "Predicted from V1-V5 visual cortex activation patterns via BrainRank's V-JEPA2 encoder.",
     interpretation: "High visual processing (>70%) = visually rich content (fast cuts, bright colors, motion). Low = static or simple visuals.",
   },
   auditory_processing: {
     description: "Engagement of auditory cortex — measuring how the brain processes sounds, music, and speech in your content.",
-    calculation: "Predicted from primary and secondary auditory cortex activation via TRIBE v2's Wav2Vec-BERT encoder.",
+    calculation: "Predicted from primary and secondary auditory cortex activation via BrainRank's Wav2Vec-BERT encoder.",
     interpretation: "High auditory (>70%) = strong audio presence (music drops, speech emphasis, sound effects). Important for ASMR and music content.",
   },
   language_narrative: {
     description: "Activity in language comprehension networks — measuring how the brain processes narrative and verbal content.",
-    calculation: "Predicted from Broca's and Wernicke's area activation via TRIBE v2's LLaMA 3.2 text encoder.",
+    calculation: "Predicted from Broca's and Wernicke's area activation via BrainRank's LLaMA 3.2 text encoder.",
     interpretation: "High language (>70%) = content with strong narrative, storytelling, or verbal explanation. Key for educational and commentary content.",
   },
   default_mode: {
     description: "Default mode network activity — measures mind-wandering, self-reflection, and internal thought during viewing.",
-    calculation: "Predicted from medial prefrontal cortex and posterior cingulate cortex activation via TRIBE v2.",
+    calculation: "Predicted from medial prefrontal cortex and posterior cingulate cortex activation via BrainRank.",
     interpretation: "High default mode (>60%) = viewer's mind is wandering (content not engaging enough). Low = fully absorbed in content.",
   },
   motion_processing: {
     description: "Activity in motion-sensitive visual areas — measuring how the brain tracks movement in your content.",
-    calculation: "Predicted from MT/V5 motion processing cortex activation via TRIBE v2's V-JEPA2 encoder.",
+    calculation: "Predicted from MT/V5 motion processing cortex activation via BrainRank's V-JEPA2 encoder.",
     interpretation: "High motion (>70%) = content with significant movement (action, sports, transitions). Low = static shots or talking heads.",
   },
 };
@@ -152,7 +152,7 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
         <MetricInfo
           title={config.label}
           description={TRACK_INFO[config.key]?.description ?? "Brain network activation track."}
-          calculation={TRACK_INFO[config.key]?.calculation ?? "Predicted by TRIBE v2 from brain activation patterns."}
+          calculation={TRACK_INFO[config.key]?.calculation ?? "Predicted by BrainRank from brain activation patterns."}
           interpretation={TRACK_INFO[config.key]?.interpretation ?? "Higher values indicate stronger neural response."}
         />
       </div>
@@ -326,7 +326,7 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
         <MetricInfo
           title="Neural Activation Timeline"
           description="Real-time brain activation across neural networks as your video plays. Each track shows how strongly a specific brain region responds to the content over time."
-          calculation="TRIBE v2 (Meta) processes video, audio, and text features through V-JEPA2, Wav2Vec-BERT, and LLaMA 3.2 encoders, then predicts activation levels for 9 brain networks every 2 seconds."
+          calculation="BrainRank processes video, audio, and text features through neural encoders, then predicts activation levels for 9 brain networks every 2 seconds."
           interpretation="Higher peaks = stronger neural response. Compare tracks to see which brain systems your content engages most. Attention and Reward tracks are key for viewer retention."
         />
       </div>

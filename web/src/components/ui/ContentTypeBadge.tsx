@@ -9,7 +9,7 @@ const typeConfig: Record<string, { label: string; icon: string }> = {
   video: { label: "Video", icon: "videocam" },
   image: { label: "Image", icon: "image" },
   text: { label: "Text", icon: "text_fields" },
-  text_spoken: { label: "Text", icon: "record_voice_over" },
+  text_spoken: { label: "Text", icon: "text_fields" },
   text_visual: { label: "Text", icon: "text_fields" },
 };
 

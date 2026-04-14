@@ -17,7 +17,7 @@ export const PRICING_TIERS: PricingTier[] = [
     credits: 3,
     monthlyPrice: 0,
     annualPrice: 0,
-    desc: "Try NeuroCut for free. Get 3 neural analyses per week to test your content.",
+    desc: "Try BrainRank for free. Get 3 neural analyses per week to test your content.",
     cta: "Get Started Free",
     features: [
       "3 credits per week",

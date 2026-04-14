@@ -235,7 +235,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
         <MetricInfo
           title="Neural Activation Map"
           description="Interactive 3D brain model showing which regions activate as your video plays. Colored areas indicate active neural networks — brighter colors mean stronger activation."
-          calculation="TRIBE v2 maps predicted brain activation onto the fsaverage5 cortical surface (10,242 vertices per hemisphere). Each vertex is colored based on the dominant neural network's activation score at the current timestamp."
+          calculation="BrainRank maps predicted brain activation onto the fsaverage5 cortical surface (10,242 vertices per hemisphere). Each vertex is colored based on the dominant neural network's activation score at the current timestamp."
           interpretation="Rotate the brain to see activation from different angles. Hover over colored regions to see which network is active and its intensity. Use the view buttons (front, top, side) for quick orientation."
         />
       </div>

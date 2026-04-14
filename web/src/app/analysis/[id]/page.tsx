@@ -11,6 +11,9 @@ import { PublicAnalysisClient } from "./PublicAnalysisClient";
 import { ViewCount } from "@/components/social/ViewCount";
 import { BookmarkButton } from "@/components/social/BookmarkButton";
 import { TopBar } from "@/components/layout/TopBar";
+import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
+import { ScoreBadge } from "@/components/ui/ScoreBadge";
+import { ExportButton } from "@/components/results/ExportButton";
 import Link from "next/link";
 
 interface PageProps {
@@ -32,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const data = rawData as Pick<Job, "title" | "video_url" | "results"> | null;
 
   if (!data) {
-    return { title: "Analysis Not Found | NeuroCut" };
+    return { title: "Analysis Not Found | BrainRank" };
   }
 
   const title = data.title || extractFilename(data.video_url);
@@ -40,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const overall = results?.summary?.overall ?? 0;
 
   return {
-    title: `${title} | NeuroCut`,
+    title: `${title} | BrainRank`,
     description: `Neural analysis with ${Math.round(overall * 100)}% overall activation score`,
   };
 }
@@ -148,38 +151,76 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
       <main className="pt-16 min-h-screen bg-white p-8">
       <div className="max-w-6xl mx-auto space-y-6 pt-6">
 
-      {/* Back button */}
-      <Link
-        href="/discover"
-        className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
-      >
-        <span className="material-symbols-outlined text-2xl">chevron_left</span>
-        <span className="font-headline uppercase tracking-widest text-xs font-bold">Back</span>
-      </Link>
-
-      {/* Title + Creator Attribution + Meta */}
+      {/* Top Bar */}
+      <div className="flex items-start justify-between gap-4">
       <div className="space-y-2">
+        {/* Back */}
+        <Link
+          href="/discover"
+          className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          <span className="material-symbols-outlined text-2xl">chevron_left</span>
+          <span className="font-headline uppercase tracking-widest text-xs font-bold">Back</span>
+        </Link>
+
+        {/* Title */}
         <h1 className="text-on-surface font-black text-2xl tracking-tight">
           {displayTitle}
         </h1>
+
+        {/* Username */}
+        {username ? (
+          <Link
+            href={`/u/${username}`}
+            className="text-xs font-bold text-black hover:opacity-70 transition-opacity"
+          >
+            @{username}
+          </Link>
+        ) : (
+          <p className="text-xs font-bold text-gray-400">anonymous</p>
+        )}
+
+        {/* Badge row */}
         <div className="flex items-center gap-2">
-          {username ? (
-            <Link
-              href={`/u/${username}`}
-              className="text-black text-sm font-bold hover:opacity-70 transition-opacity"
-            >
-              by @{username}
-            </Link>
-          ) : (
-            <p className="text-black text-sm font-bold">by anonymous</p>
+          <ContentTypeBadge inputType={job?.input_type} />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-black">
+            <span className="material-symbols-outlined text-base">public</span>
+            Public
+          </span>
+          {(job as any).category && (
+            <span className="text-[11px] text-gray-400 font-medium">
+              · {((job as any).category as string).charAt(0).toUpperCase() + ((job as any).category as string).slice(1).replace(/_/g, ' ')}
+            </span>
           )}
-          <span className="text-black/30 font-bold">·</span>
-          <p className="text-black text-xs font-bold">{analysisDate}</p>
         </div>
-        <div className="flex items-center gap-3 font-bold text-black">
-          <ViewCount count={(job as any).view_count ?? 0} />
-          <BookmarkButton jobId={id} />
+
+        {/* Meta row */}
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1 text-xs font-bold text-black">
+            <span className="material-symbols-outlined text-sm">calendar_today</span>
+            {analysisDate}
+          </span>
+          {(job as any).view_count > 0 && (
+            <span className="flex items-center gap-1 text-xs font-bold text-black">
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+              {(job as any).view_count} views
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
+            <ScoreBadge value={summary.overall} size="sm" />
+          </span>
         </div>
+      </div>
+
+      {/* Bookmark + Export */}
+      <div className="flex-shrink-0 pt-8 flex items-center gap-3">
+        <BookmarkButton jobId={id} />
+        <ExportButton
+          data={job.results as Record<string, unknown>}
+          filename={`neurocut-${id}.json`}
+        />
+      </div>
       </div>
 
       {/* Interactive Client Component */}
