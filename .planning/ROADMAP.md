@@ -768,7 +768,7 @@ Plans:
 
 **Milestone Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
 
-- [ ] **Phase 59: Foundation (Schema + SDK)** - Subscription schema, Stripe SDK setup, environment configuration
+- [x] **Phase 59: Foundation (Schema + SDK)** - Subscription schema, Stripe SDK setup, environment configuration (completed 2026-04-14)
 - [ ] **Phase 60: Webhook Handler** - Stripe webhook endpoint with signature verification and idempotent event processing
 - [ ] **Phase 61: Checkout Flow** - Stripe Checkout session creation for monthly and annual Creator subscriptions
 - [ ] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts
@@ -786,8 +786,8 @@ Plans:
   4. RLS policies ensure users can only read their own subscription data
 **Plans**: 2 plans
 Plans:
-- [ ] 59-01-PLAN.md — Install Stripe SDK packages, create SDK singletons, configure env vars
-- [ ] 59-02-PLAN.md — Supabase migration SQL for Stripe tables + TypeScript types
+- [x] 59-01-PLAN.md — Install Stripe SDK packages, create SDK singletons, configure env vars
+- [x] 59-02-PLAN.md — Supabase migration SQL for Stripe tables + TypeScript types
 
 ### Phase 60: Webhook Handler
 **Goal**: Stripe subscription lifecycle events are reliably synced to Supabase so the app always reflects the true subscription state
@@ -920,7 +920,7 @@ Phases 59-64: 59 -> 60 -> 61 (after 60) -> 62 (after 59) -> 63 (after 61) -> 64 
 | 56. Results Adaptations | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 57. Content Type Badges | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 58. Comparison Page | v5.0 | 1/0 | Complete    | 2026-04-12 |
-| 59. Foundation (Schema + SDK) | v6.0 | 0/0 | Not started | - |
+| 59. Foundation (Schema + SDK) | v6.0 | 2/2 | Complete    | 2026-04-14 |
 | 60. Webhook Handler | v6.0 | 0/0 | Not started | - |
 | 61. Checkout Flow | v6.0 | 0/0 | Not started | - |
 | 62. Credit Gating | v6.0 | 0/0 | Not started | - |
