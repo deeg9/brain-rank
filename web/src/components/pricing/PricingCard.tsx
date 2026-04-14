@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import NumberFlow from "@number-flow/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -14,7 +15,36 @@ interface PricingCardProps {
 }
 
 export function PricingCard({ tier, billPlan }: PricingCardProps) {
+  const [loading, setLoading] = useState(false);
   const price = billPlan === "monthly" ? tier.monthlyPrice : tier.annualPrice;
+
+  async function handleSubscribe() {
+    if (tier.id === "free") return;
+    setLoading(true);
+    try {
+      const priceId =
+        billPlan === "monthly"
+          ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
+          : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
+
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout error:", data.error);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setLoading(false);
+    }
+  }
 
   return (
     <div
@@ -71,9 +101,10 @@ export function PricingCard({ tier, billPlan }: PricingCardProps) {
           variant="primary"
           size="lg"
           className="w-full"
-          onClick={() => alert("Payment processing coming soon!")}
+          onClick={handleSubscribe}
+          disabled={loading}
         >
-          {tier.cta}
+          {loading ? "Redirecting..." : tier.cta}
         </Button>
         <div className="h-8 overflow-hidden w-full mx-auto">
           <AnimatePresence mode="wait">
