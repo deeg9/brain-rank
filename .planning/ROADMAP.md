@@ -771,7 +771,7 @@ Plans:
 - [x] **Phase 59: Foundation (Schema + SDK)** - Subscription schema, Stripe SDK setup, environment configuration (completed 2026-04-14)
 - [x] **Phase 60: Webhook Handler** - Stripe webhook endpoint with signature verification and idempotent event processing (completed 2026-04-14)
 - [x] **Phase 61: Checkout Flow** - Stripe Checkout session creation for monthly and annual Creator subscriptions (completed 2026-04-14)
-- [ ] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts
+- [x] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts (completed 2026-04-14)
 - [ ] **Phase 63: Billing Portal + Settings** - Self-service subscription management and billing status UI
 - [ ] **Phase 64: Polish + Annual Upsell** - Annual billing nudge on monthly checkout
 
@@ -925,6 +925,6 @@ Phases 59-64: 59 -> 60 -> 61 (after 60) -> 62 (after 59) -> 63 (after 61) -> 64 
 | 59. Foundation (Schema + SDK) | v6.0 | 2/2 | Complete    | 2026-04-14 |
 | 60. Webhook Handler | v6.0 | 1/1 | Complete    | 2026-04-14 |
 | 61. Checkout Flow | v6.0 | 0/0 | Complete    | 2026-04-14 |
-| 62. Credit Gating | v6.0 | 0/0 | Not started | - |
+| 62. Credit Gating | v6.0 | 0/0 | Complete    | 2026-04-14 |
 | 63. Billing Portal + Settings | v6.0 | 0/0 | Not started | - |
 | 64. Polish + Annual Upsell | v6.0 | 0/0 | Not started | - |
