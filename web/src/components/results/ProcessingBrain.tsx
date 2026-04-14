@@ -102,6 +102,8 @@ export function ProcessingBrain() {
     regionColorsRef.current = buf;
     let frameId: number;
 
+    let frameCount = 0;
+
     const animate = () => {
       const current = currentRegionsRef.current;
       const target = targetRegionsRef.current;
@@ -115,7 +117,18 @@ export function ProcessingBrain() {
       }
 
       buildRegionColors(current, vertexMap, buf);
-      setRegionColors(new Float32Array(buf));
+
+      // Update React state every 6th frame (~10fps) to keep the animation
+      // alive without overwhelming Turbopack's dev instrumentation.
+      frameCount++;
+      if (frameCount % 6 === 0) {
+        try {
+          setRegionColors(new Float32Array(buf));
+        } catch {
+          // Turbopack DataCloneError in dev — ignore, animation continues
+        }
+      }
+
       frameId = requestAnimationFrame(animate);
     };
 
