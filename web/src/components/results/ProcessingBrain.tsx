@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import { REGION_COLORS } from './brain-utils';
@@ -69,6 +69,17 @@ function generateRandomRegions(): SegmentRegionScores {
     regions[shuffled[i]] = 0.5 + Math.random() * 0.5; // bright activation (0.5-1.0)
   }
   return regions;
+}
+
+const CAMERA_DISTANCE = 200;
+
+function CameraLock() {
+  const { camera } = useThree();
+  useFrame(() => {
+    const dir = camera.position.clone().normalize();
+    camera.position.copy(dir.multiplyScalar(CAMERA_DISTANCE));
+  });
+  return null;
 }
 
 export function ProcessingBrain() {
@@ -153,6 +164,8 @@ export function ProcessingBrain() {
           regionColors={regionColors}
           autoRotateSpeed={2.0}
         />
+        {/* Lock camera distance so brain doesn't zoom in/out during rotation */}
+        <CameraLock />
         <EffectComposer>
           <Bloom
             luminanceThreshold={0.9}
