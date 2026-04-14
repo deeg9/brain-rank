@@ -769,7 +769,7 @@ Plans:
 **Milestone Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
 
 - [x] **Phase 59: Foundation (Schema + SDK)** - Subscription schema, Stripe SDK setup, environment configuration (completed 2026-04-14)
-- [ ] **Phase 60: Webhook Handler** - Stripe webhook endpoint with signature verification and idempotent event processing
+- [x] **Phase 60: Webhook Handler** - Stripe webhook endpoint with signature verification and idempotent event processing (completed 2026-04-14)
 - [ ] **Phase 61: Checkout Flow** - Stripe Checkout session creation for monthly and annual Creator subscriptions
 - [ ] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts
 - [ ] **Phase 63: Billing Portal + Settings** - Self-service subscription management and billing status UI
@@ -800,7 +800,7 @@ Plans:
   4. A subscription with status past_due retains Creator tier access (grace period while Stripe retries payment)
 **Plans**: 1 plan
 Plans:
-- [ ] 60-01-PLAN.md — Webhook route + subscription query helper
+- [x] 60-01-PLAN.md — Webhook route + subscription query helper
 
 ### Phase 61: Checkout Flow
 **Goal**: Users can subscribe to the Creator tier through a real Stripe Checkout session
@@ -923,7 +923,7 @@ Phases 59-64: 59 -> 60 -> 61 (after 60) -> 62 (after 59) -> 63 (after 61) -> 64 
 | 57. Content Type Badges | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 58. Comparison Page | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 59. Foundation (Schema + SDK) | v6.0 | 2/2 | Complete    | 2026-04-14 |
-| 60. Webhook Handler | v6.0 | 0/0 | Not started | - |
+| 60. Webhook Handler | v6.0 | 1/1 | Complete    | 2026-04-14 |
 | 61. Checkout Flow | v6.0 | 0/0 | Not started | - |
 | 62. Credit Gating | v6.0 | 0/0 | Not started | - |
 | 63. Billing Portal + Settings | v6.0 | 0/0 | Not started | - |
