@@ -158,7 +158,7 @@ export default function UploadPage() {
     }
   }
 
-  const totalCredits = files.length * 10;
+  const totalCredits = files.length;
 
   const FEATURES = [
     {
@@ -197,37 +197,6 @@ export default function UploadPage() {
         </p>
       </motion.header>
 
-      {/* Credit Status Banner */}
-      {credits && !credits.isCreator && (
-        <motion.div
-          className={`rounded-xl px-5 py-3 flex items-center justify-between ${
-            credits.canAnalyze
-              ? 'bg-gray-50 border border-gray-200'
-              : 'bg-red-50 border border-red-200'
-          }`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-lg text-gray-600">token</span>
-            <span className="text-sm font-headline font-bold text-gray-900">
-              {credits.canAnalyze
-                ? `${credits.remaining} of ${credits.limit} credits remaining this week`
-                : 'Weekly credit limit reached'}
-            </span>
-          </div>
-          {!credits.canAnalyze && (
-            <a
-              href="/pricing"
-              className="text-sm font-headline font-bold text-black underline underline-offset-2 hover:no-underline"
-            >
-              Upgrade to Creator
-            </a>
-          )}
-        </motion.div>
-      )}
-
       {/* Input Type Selector */}
       <motion.div
         className="flex justify-center"
@@ -257,6 +226,7 @@ export default function UploadPage() {
           onFileRemove={handleFileRemove}
           onThumbnailGenerated={handleThumbnailGenerated}
           disabled={uploading}
+          maxFiles={credits?.isCreator ? undefined : 1}
         />
       </motion.section>)}
 
@@ -304,7 +274,7 @@ export default function UploadPage() {
                   Estimated Cost
                 </p>
                 <p className="text-lg font-headline font-bold text-on-surface">
-                  10 Credits
+                  1 Credit
                 </p>
               </div>
             </div>
@@ -383,7 +353,7 @@ export default function UploadPage() {
                   Estimated Cost
                 </p>
                 <p className="text-lg font-headline font-bold text-on-surface">
-                  10 Credits
+                  1 Credit
                 </p>
               </div>
             </div>
@@ -442,9 +412,9 @@ export default function UploadPage() {
                 Estimated Cost
               </p>
               <p className="text-lg font-headline font-bold text-on-surface">
-                {files.length > 0
-                  ? `10 Credits x ${files.length} file${files.length === 1 ? "" : "s"} = ${totalCredits} Credits`
-                  : "10 Credits"}
+                {files.length > 1
+                  ? `1 Credit x ${files.length} files = ${totalCredits} Credits`
+                  : "1 Credit"}
               </p>
             </div>
           </div>
