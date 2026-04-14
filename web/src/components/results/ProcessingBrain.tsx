@@ -78,6 +78,18 @@ export function ProcessingBrain() {
   const targetRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
   const currentRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
   const lastRenderRef = useRef(0);
+  const glRef = useRef<WebGLRenderingContext | WebGL2RenderingContext | null>(null);
+
+  // Explicit WebGL cleanup on unmount to prevent context exhaustion
+  useEffect(() => {
+    return () => {
+      if (glRef.current) {
+        const ext = glRef.current.getExtension('WEBGL_lose_context');
+        ext?.loseContext();
+        glRef.current = null;
+      }
+    };
+  }, []);
 
   // Load vertex map
   useEffect(() => {
@@ -142,6 +154,7 @@ export function ProcessingBrain() {
         dpr={[1, 1.5]}
         style={{ background: 'transparent', pointerEvents: 'none' }}
         gl={{ alpha: true }}
+        onCreated={({ gl }) => { glRef.current = gl.getContext(); }}
       >
         <BrainViewerCanvas
           vertexDataA={null}

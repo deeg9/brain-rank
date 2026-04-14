@@ -133,6 +133,18 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
   const [locked, setLocked] = useState(false);
   const canvasRef = useRef<BrainViewerCanvasHandle>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const glRef = useRef<WebGLRenderingContext | WebGL2RenderingContext | null>(null);
+
+  // Explicit WebGL cleanup on unmount to prevent context exhaustion
+  useEffect(() => {
+    return () => {
+      if (glRef.current) {
+        const ext = glRef.current.getExtension('WEBGL_lose_context');
+        ext?.loseContext();
+        glRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     fetch('/data/network-vertex-map.json')
@@ -249,6 +261,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
           dpr={[1, 1.5]}
           style={{ background: 'transparent' }}
           gl={{ alpha: true }}
+          onCreated={({ gl }) => { glRef.current = gl.getContext(); }}
         >
           <Suspense fallback={null}>
             <BrainViewerCanvas
