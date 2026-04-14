@@ -65,31 +65,46 @@ function PlanCard({ plan, billPlan, isCurrentPlan }: { plan: Plan; billPlan: Bil
   const isPro = plan.title === "Creator";
   const [loading, setLoading] = useState(false);
 
-  async function handleSubscribe() {
+  async function handleClick() {
     if (!isPro) return;
     setLoading(true);
-    try {
-      const priceId =
-        billPlan === "monthly"
-          ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
-          : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
 
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
-      });
-
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        console.error("Checkout error:", data.error);
+    if (isCurrentPlan) {
+      // Already subscribed — open Stripe Customer Portal
+      try {
+        const res = await fetch("/api/stripe/portal", { method: "POST" });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setLoading(false);
+        }
+      } catch {
         setLoading(false);
       }
-    } catch (err) {
-      console.error("Checkout error:", err);
-      setLoading(false);
+    } else {
+      // Not subscribed — start checkout
+      try {
+        const priceId =
+          billPlan === "monthly"
+            ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
+            : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
+
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priceId }),
+        });
+
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setLoading(false);
+        }
+      } catch {
+        setLoading(false);
+      }
     }
   }
 
@@ -140,11 +155,11 @@ function PlanCard({ plan, billPlan, isCurrentPlan }: { plan: Plan; billPlan: Bil
       {isPro && (
         <div className="flex flex-col items-start w-full px-4 py-2 md:px-8">
           <button
-            onClick={handleSubscribe}
+            onClick={handleClick}
             disabled={loading}
             className="w-full py-3 rounded-lg text-sm font-headline font-bold transition-all active:scale-[0.98] bg-black text-white hover:bg-gray-800 shadow-lg disabled:opacity-50"
           >
-            {loading ? "Redirecting..." : plan.buttonText}
+            {loading ? "Redirecting..." : isCurrentPlan ? "Manage Subscription" : plan.buttonText}
           </button>
           <div className="h-8 overflow-hidden w-full mx-auto">
             <AnimatePresence mode="wait">
