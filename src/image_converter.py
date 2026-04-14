@@ -89,18 +89,23 @@ def convert_image_to_video(
         Path to the generated MP4 video file.
     """
     image_path = download_image(image_url, job_id)
+    resized_path = Path(f"/tmp/resized_{job_id}.png")
 
     try:
+        # Resize/pad and save to disk as PNG
         frame = resize_and_pad(image_path)
+        Image.fromarray(frame).save(resized_path, format="PNG")
+
         video_path = Path(f"/tmp/video_{job_id}.mp4")
 
-        clip = ImageClip(frame, duration=duration)
+        # Pass file path string (not numpy array) — more reliable across moviepy versions
+        clip = ImageClip(str(resized_path), duration=duration)
         clip.write_videofile(
             str(video_path),
             fps=FPS,
             codec="libx264",
             audio=False,
-            logger=None,  # suppress moviepy progress bar
+            logger=None,
         )
         clip.close()
 
@@ -110,6 +115,8 @@ def convert_image_to_video(
         )
         return video_path
     finally:
-        # Clean up downloaded image
+        # Clean up temp files
         if image_path.exists():
             image_path.unlink(missing_ok=True)
+        if resized_path.exists():
+            resized_path.unlink(missing_ok=True)

@@ -78,8 +78,12 @@ def handler(job):
             # Convert rendered card to video (same pattern as image branch but from local file)
             stage = "conversion"
             frame = resize_and_pad(card_path)  # Already 1280x720 but keeps pipeline consistent
+            resized_path = Path(f"/tmp/resized_{job_id}.png")
+            from PIL import Image as PILImage
+            PILImage.fromarray(frame).save(resized_path, format="PNG")
+
             video_path = Path(f"/tmp/video_{job_id}.mp4")
-            clip = ImageClip(frame, duration=6.0)
+            clip = ImageClip(str(resized_path), duration=6.0)
             clip.write_videofile(
                 str(video_path),
                 fps=10,
@@ -88,6 +92,7 @@ def handler(job):
                 logger=None,
             )
             clip.close()
+            resized_path.unlink(missing_ok=True)
             logger.info("Job %s: text card converted to 6s video", job_id)
 
             # Clean up card image
