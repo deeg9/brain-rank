@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { BrainViewerCanvas } from './BrainViewerCanvas';
 import { REGION_COLORS } from './brain-utils';
@@ -12,7 +12,6 @@ type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
 const NETWORK_KEYS = Object.keys(REGION_COLORS) as (keyof SegmentRegionScores)[];
 
-// Lighter/whiter base so colors pop more
 const BASE_R = 0.93;
 const BASE_G = 0.93;
 const BASE_B = 0.95;
@@ -58,29 +57,92 @@ function buildRegionColors(
 
 function generateRandomRegions(): SegmentRegionScores {
   const regions = {} as SegmentRegionScores;
-  // Pick 2-4 random networks to activate, leave others low
   const activeCount = 2 + Math.floor(Math.random() * 3);
   const shuffled = [...NETWORK_KEYS].sort(() => Math.random() - 0.5);
 
   for (const key of NETWORK_KEYS) {
-    regions[key] = 0.05 + Math.random() * 0.15; // baseline flicker
+    regions[key] = 0.05 + Math.random() * 0.15;
   }
   for (let i = 0; i < activeCount; i++) {
-    regions[shuffled[i]] = 0.5 + Math.random() * 0.5; // bright activation (0.5-1.0)
+    regions[shuffled[i]] = 0.5 + Math.random() * 0.5;
   }
   return regions;
 }
 
-export function ProcessingBrain() {
-  const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
-  const regionColorsRef = useRef<Float32Array | null>(null);
-  const [regionColors, setRegionColors] = useState<Float32Array | null>(null);
+/**
+ * Inner component that runs inside the Canvas.
+ * Uses useFrame for animation — zero React re-renders.
+ */
+function AnimatedBrainScene({ vertexMap }: { vertexMap: NetworkVertexMap }) {
+  const bufRef = useRef(new Float32Array(VERTEX_COUNT * 3));
+  const snapshotRef = useRef<Float32Array | null>(null);
   const targetRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
   const currentRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
-  const lastRenderRef = useRef(0);
+  const lastTargetChangeRef = useRef(0);
+  const lastSnapshotRef = useRef(0);
+  const [regionColors, setRegionColors] = useState<Float32Array | null>(null);
+
+  // Use useFrame for the animation — this runs inside R3F's loop,
+  // NOT in React's reconciliation cycle, so no DataCloneError.
+  useFrame((_state, _delta) => {
+    const now = performance.now();
+
+    // Generate new random targets every 800ms
+    if (now - lastTargetChangeRef.current > 800) {
+      lastTargetChangeRef.current = now;
+      targetRegionsRef.current = generateRandomRegions();
+    }
+
+    // Smooth lerp every frame
+    const current = currentRegionsRef.current;
+    const target = targetRegionsRef.current;
+    const lerpSpeed = 0.06;
+
+    for (const key of NETWORK_KEYS) {
+      const noise = (Math.random() - 0.5) * 0.01;
+      current[key] += (target[key] - current[key]) * lerpSpeed + noise;
+      current[key] = Math.max(0, Math.min(1, current[key]));
+    }
+
+    buildRegionColors(current, vertexMap, bufRef.current);
+
+    // Snapshot to React state only every 500ms (just for BrainGlowMesh's useEffect).
+    // BrainGlowMesh's useFrame shimmer reads from its internal buffer, so this
+    // infrequent update is only needed to set the base colors.
+    if (now - lastSnapshotRef.current > 500) {
+      lastSnapshotRef.current = now;
+      const snap = new Float32Array(bufRef.current);
+      snapshotRef.current = snap;
+      setRegionColors(snap);
+    }
+  });
+
+  return (
+    <>
+      <BrainViewerCanvas
+        vertexDataA={null}
+        vertexDataB={null}
+        blendFactor={0}
+        regionColors={regionColors}
+        autoRotateSpeed={2.0}
+      />
+      <EffectComposer>
+        <Bloom
+          luminanceThreshold={0.9}
+          luminanceSmoothing={0.4}
+          intensity={0.8}
+          mipmapBlur
+        />
+      </EffectComposer>
+    </>
+  );
+}
+
+export function ProcessingBrain() {
+  const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
   const glRef = useRef<WebGLRenderingContext | WebGL2RenderingContext | null>(null);
 
-  // Explicit WebGL cleanup on unmount to prevent context exhaustion
+  // Explicit WebGL cleanup on unmount
   useEffect(() => {
     return () => {
       if (glRef.current) {
@@ -99,52 +161,6 @@ export function ProcessingBrain() {
       .catch(() => {});
   }, []);
 
-  // Generate new random targets every 800ms — frequent enough to never look frozen
-  useEffect(() => {
-    const interval = setInterval(() => {
-      targetRegionsRef.current = generateRandomRegions();
-    }, 800);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Smooth lerp animation at ~30fps — runs forever
-  useEffect(() => {
-    if (!vertexMap) return;
-
-    const buf = new Float32Array(VERTEX_COUNT * 3);
-    regionColorsRef.current = buf;
-    let frameId: number;
-
-    const animate = () => {
-      const current = currentRegionsRef.current;
-      const target = targetRegionsRef.current;
-      const lerpSpeed = 0.06;
-
-      for (const key of NETWORK_KEYS) {
-        const noise = (Math.random() - 0.5) * 0.01;
-        current[key] += (target[key] - current[key]) * lerpSpeed + noise;
-        current[key] = Math.max(0, Math.min(1, current[key]));
-      }
-
-      buildRegionColors(current, vertexMap, buf);
-
-      // Throttle React re-renders to ~10fps (every 100ms) instead of 60fps.
-      // The buf is mutated in-place every frame for smooth lerp,
-      // but we only snapshot to React state periodically to avoid
-      // DataCloneError from Turbopack's performance instrumentation.
-      const now = performance.now();
-      if (now - lastRenderRef.current > 100) {
-        lastRenderRef.current = now;
-        setRegionColors(new Float32Array(buf));
-      }
-
-      frameId = requestAnimationFrame(animate);
-    };
-
-    frameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frameId);
-  }, [vertexMap]);
-
   if (!vertexMap) return null;
 
   return (
@@ -156,21 +172,7 @@ export function ProcessingBrain() {
         gl={{ alpha: true }}
         onCreated={({ gl }) => { glRef.current = gl.getContext(); }}
       >
-        <BrainViewerCanvas
-          vertexDataA={null}
-          vertexDataB={null}
-          blendFactor={0}
-          regionColors={regionColors}
-          autoRotateSpeed={2.0}
-        />
-        <EffectComposer>
-          <Bloom
-            luminanceThreshold={0.9}
-            luminanceSmoothing={0.4}
-            intensity={0.8}
-            mipmapBlur
-          />
-        </EffectComposer>
+        <AnimatedBrainScene vertexMap={vertexMap} />
       </Canvas>
     </div>
   );
