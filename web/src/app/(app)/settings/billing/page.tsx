@@ -61,7 +61,7 @@ const PLANS: Plan[] = [
   },
 ];
 
-function PlanCard({ plan, billPlan }: { plan: Plan; billPlan: BillPlan }) {
+function PlanCard({ plan, billPlan, isCurrentPlan }: { plan: Plan; billPlan: BillPlan; isCurrentPlan?: boolean }) {
   const isPro = plan.title === "Creator";
   const [loading, setLoading] = useState(false);
 
@@ -110,9 +110,16 @@ function PlanCard({ plan, billPlan }: { plan: Plan; billPlan: BillPlan }) {
             {plan.badge}
           </span>
         )}
-        <h2 className="font-headline font-bold text-xl text-gray-900">
-          {plan.title}
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="font-headline font-bold text-xl text-gray-900">
+            {plan.title}
+          </h2>
+          {isCurrentPlan && (
+            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full bg-black text-white">
+              Current plan
+            </span>
+          )}
+        </div>
         <h3 className="mt-3 text-2xl font-bold font-headline md:text-5xl text-gray-900">
           <NumberFlow
             value={billPlan === "monthly" ? plan.monthlyPrice : plan.annuallyPrice}
@@ -224,83 +231,6 @@ export default function BillingPage() {
 
   return (
     <div className="relative flex flex-col items-center justify-center max-w-5xl py-12 mx-auto">
-      {/* Subscription Status Banner */}
-      {!subLoading && sub && (
-        <motion.div
-          className="w-full max-w-4xl mb-8"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className={cn(
-            "rounded-2xl border p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4",
-            isCreator ? "bg-emerald-50 border-emerald-200" : "bg-white border-gray-200"
-          )}>
-            <div className="flex items-center gap-4">
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center",
-                isCreator ? "bg-emerald-100" : "bg-gray-100"
-              )}>
-                <span className={cn(
-                  "material-symbols-outlined text-lg",
-                  isCreator ? "text-emerald-700" : "text-gray-600"
-                )}>
-                  neurology
-                </span>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-                  Your current plan
-                </p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <h3 className="font-headline font-bold text-gray-900">
-                    {isCreator ? "Creator" : "Hobbyist"}
-                  </h3>
-                  <span className={cn(
-                    "px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full",
-                    isActive && !isCanceling && "bg-emerald-100 text-emerald-700",
-                    isPastDue && "bg-amber-100 text-amber-700",
-                    isCanceling && "bg-gray-200 text-gray-600",
-                    !isCreator && "bg-gray-100 text-gray-500"
-                  )}>
-                    {isPastDue ? "Past Due" : isCanceling ? "Canceling" : isActive ? "Active" : "Free Tier"}
-                  </span>
-                </div>
-                {isPastDue && (
-                  <p className="text-sm text-amber-700 mt-1">
-                    Payment failed. Please update your payment method.
-                  </p>
-                )}
-                {isCanceling && renewalDate && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Access until <span className="font-bold">{renewalDate}</span>
-                  </p>
-                )}
-                {isCreator && !isCanceling && renewalDate && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Renews <span className="font-bold">{renewalDate}</span>
-                  </p>
-                )}
-                {!isCreator && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    5 analyses per week
-                  </p>
-                )}
-              </div>
-            </div>
-            {isCreator && (
-              <button
-                onClick={handleManageSubscription}
-                disabled={portalLoading}
-                className="px-5 py-2.5 rounded-lg text-sm font-headline font-bold bg-black text-white hover:bg-gray-800 transition-all active:scale-[0.98] disabled:opacity-50 whitespace-nowrap"
-              >
-                {portalLoading ? "Loading..." : "Manage Subscription"}
-              </button>
-            )}
-          </div>
-        </motion.div>
-      )}
-
       {/* Header */}
       <div className="flex flex-col items-center justify-center max-w-2xl mx-auto">
         <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
@@ -332,7 +262,15 @@ export default function BillingPage() {
       {/* Pricing Cards */}
       <div className="grid w-full grid-cols-1 lg:grid-cols-2 pt-8 lg:pt-12 gap-4 lg:gap-6 max-w-4xl mx-auto">
         {PLANS.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} billPlan={billPlan} />
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            billPlan={billPlan}
+            isCurrentPlan={
+              (plan.id === "pro" && isCreator) ||
+              (plan.id === "starter" && !isCreator)
+            }
+          />
         ))}
       </div>
     </div>
