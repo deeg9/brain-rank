@@ -300,7 +300,7 @@ export function AnimatedFileUpload({
             {/* Status / Remove */}
             <div className="flex-shrink-0">
               {item.status === "complete" ? (
-                <span className="material-symbols-outlined text-xl text-tertiary-fixed">
+                <span className="material-symbols-outlined text-xl text-black">
                   check_circle
                 </span>
               ) : item.status === "uploading" ? (
