@@ -35,6 +35,55 @@ export interface Bookmark {
   created_at: string
 }
 
+export type SubscriptionStatus =
+  | 'trialing'
+  | 'active'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'past_due'
+  | 'unpaid'
+  | 'paused'
+
+export interface Customer {
+  id: string
+  stripe_customer_id: string
+  created_at: string
+}
+
+export interface Subscription {
+  id: string
+  user_id: string
+  status: SubscriptionStatus
+  price_id: string | null
+  quantity: number
+  cancel_at_period_end: boolean
+  cancel_at: string | null
+  canceled_at: string | null
+  current_period_start: string | null
+  current_period_end: string | null
+  trial_start: string | null
+  trial_end: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreditUsage {
+  id: string
+  user_id: string
+  job_id: string | null
+  created_at: string
+}
+
+export interface StripeEvent {
+  id: string
+  stripe_event_id: string
+  event_type: string
+  processed_at: string
+  error: string | null
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -61,6 +110,26 @@ export interface Database {
         Row: Bookmark
         Insert: Omit<Bookmark, 'created_at'> & { created_at?: string }
         Update: Partial<Omit<Bookmark, 'user_id' | 'job_id'>>
+      }
+      customers: {
+        Row: Customer
+        Insert: Pick<Customer, 'id' | 'stripe_customer_id'> & { created_at?: string }
+        Update: Partial<Pick<Customer, 'stripe_customer_id'>>
+      }
+      subscriptions: {
+        Row: Subscription
+        Insert: Pick<Subscription, 'id' | 'user_id' | 'status'> & Partial<Omit<Subscription, 'id' | 'user_id' | 'status'>>
+        Update: Partial<Omit<Subscription, 'id' | 'created_at'>>
+      }
+      credit_usage: {
+        Row: CreditUsage
+        Insert: Pick<CreditUsage, 'user_id'> & Partial<Omit<CreditUsage, 'user_id'>>
+        Update: Partial<Omit<CreditUsage, 'id' | 'created_at'>>
+      }
+      stripe_events: {
+        Row: StripeEvent
+        Insert: Pick<StripeEvent, 'stripe_event_id' | 'event_type'> & Partial<Omit<StripeEvent, 'stripe_event_id' | 'event_type'>>
+        Update: Partial<Pick<StripeEvent, 'error'>>
       }
     }
   }
