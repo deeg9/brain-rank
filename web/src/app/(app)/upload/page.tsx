@@ -151,7 +151,7 @@ export default function UploadPage() {
 
     try {
       const textUrl = await uploadText(textContent);
-      const jobId = await createJob(textUrl, 'text', textContent, null, undefined, category || null);
+      const jobId = await createJob(textUrl, 'text_spoken', textContent, null, undefined, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
