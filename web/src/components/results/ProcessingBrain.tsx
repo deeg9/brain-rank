@@ -77,6 +77,7 @@ export function ProcessingBrain() {
   const [regionColors, setRegionColors] = useState<Float32Array | null>(null);
   const targetRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
   const currentRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
+  const lastRenderRef = useRef(0);
 
   // Load vertex map
   useEffect(() => {
@@ -108,14 +109,23 @@ export function ProcessingBrain() {
       const lerpSpeed = 0.06;
 
       for (const key of NETWORK_KEYS) {
-        // Add subtle noise so it never fully converges
         const noise = (Math.random() - 0.5) * 0.01;
         current[key] += (target[key] - current[key]) * lerpSpeed + noise;
         current[key] = Math.max(0, Math.min(1, current[key]));
       }
 
       buildRegionColors(current, vertexMap, buf);
-      setRegionColors(new Float32Array(buf));
+
+      // Throttle React re-renders to ~10fps (every 100ms) instead of 60fps.
+      // The buf is mutated in-place every frame for smooth lerp,
+      // but we only snapshot to React state periodically to avoid
+      // DataCloneError from Turbopack's performance instrumentation.
+      const now = performance.now();
+      if (now - lastRenderRef.current > 100) {
+        lastRenderRef.current = now;
+        setRegionColors(new Float32Array(buf));
+      }
+
       frameId = requestAnimationFrame(animate);
     };
 
