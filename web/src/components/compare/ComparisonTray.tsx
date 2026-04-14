@@ -10,6 +10,7 @@ interface ComparisonTrayProps {
   onRemoveA: () => void;
   onRemoveB: () => void;
   onCompare: () => void;
+  onDismiss?: () => void;
 }
 
 function MiniThumb({ src }: { src: string }) {
@@ -105,6 +106,7 @@ export function ComparisonTray({
   onRemoveA,
   onRemoveB,
   onCompare,
+  onDismiss,
 }: ComparisonTrayProps) {
   const isVisible = slotA !== null || slotB !== null;
   const canCompare = slotA !== null && slotB !== null;
@@ -119,6 +121,15 @@ export function ComparisonTray({
           transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
           className="fixed bottom-0 left-0 right-0 z-50 bg-[#1a1a1a] border-t border-white/10 shadow-2xl"
         >
+          {onDismiss && (
+            <button
+              onClick={onDismiss}
+              className="absolute top-3 right-4 text-white/40 hover:text-white transition-colors"
+              title="Dismiss"
+            >
+              <span className="material-symbols-outlined text-lg">close</span>
+            </button>
+          )}
           <div className="max-w-6xl mx-auto px-6 py-6 flex items-center gap-4">
             {/* Analysis A — left aligned */}
             <div className="flex-1 min-w-0">

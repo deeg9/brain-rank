@@ -20,6 +20,7 @@ import type { Job } from "@/lib/database.types";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { VisibilityToggle } from "@/app/(app)/dashboard/VisibilityToggle";
+import { CardMenu } from "@/app/(app)/dashboard/CardMenu";
 import { createClient } from "@/lib/supabase/client";
 
 const NeuralTimeline = dynamic(
@@ -392,10 +393,16 @@ export default function ResultsDetailPage({ params }: Props) {
         </div>
 
         {/* Export button */}
-        <div className="flex-shrink-0 pt-8">
+        <div className="flex-shrink-0 pt-8 flex items-center gap-2">
           <ExportButton
             data={job.results as Record<string, unknown>}
             filename={`neurocut-${id}.json`}
+          />
+          <CardMenu
+            jobId={job.id}
+            jobTitle={displayTitle}
+            isPublic={job.is_public}
+            category={(job as any).category}
           />
         </div>
       </div>

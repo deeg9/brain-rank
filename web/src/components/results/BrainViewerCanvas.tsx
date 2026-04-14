@@ -81,9 +81,9 @@ export const BrainViewerCanvas = forwardRef<BrainViewerCanvasHandle, BrainViewer
 
     return (
       <>
-        <ambientLight intensity={0.25} />
-        <directionalLight position={[5, 5, 5]} intensity={0.4} />
-        <directionalLight position={[-3, -2, 4]} intensity={0.15} />
+        <ambientLight intensity={1.0} />
+        <directionalLight position={[5, 5, 5]} intensity={0.7} />
+        <directionalLight position={[-3, -2, 4]} intensity={0.35} />
 
         <Center>
           <group rotation={[-Math.PI / 2, 0, 0]}>

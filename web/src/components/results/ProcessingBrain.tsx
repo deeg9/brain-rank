@@ -12,9 +12,10 @@ type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
 const NETWORK_KEYS = Object.keys(REGION_COLORS) as (keyof SegmentRegionScores)[];
 
-const BASE_R = 0.85;
-const BASE_G = 0.85;
-const BASE_B = 0.87;
+// Lighter/whiter base so colors pop more
+const BASE_R = 0.93;
+const BASE_G = 0.93;
+const BASE_B = 0.95;
 
 function hexToRGB(hex: string): [number, number, number] {
   return [
@@ -43,8 +44,8 @@ function buildRegionColors(
     if (!color) continue;
     const [cr, cg, cb] = hexToRGB(color);
 
-    const t = Math.max(0.3, Math.min(1, score * 2.0));
-    const emissiveBoost = score > 0.3 ? 1.0 + (score - 0.3) * 1.5 : 1.0;
+    const t = Math.max(0.4, Math.min(1, score * 2.5));
+    const emissiveBoost = score > 0.2 ? 1.0 + (score - 0.2) * 2.5 : 1.0;
 
     for (const idx of indices) {
       if (idx >= VERTEX_COUNT) continue;
@@ -62,10 +63,10 @@ function generateRandomRegions(): SegmentRegionScores {
   const shuffled = [...NETWORK_KEYS].sort(() => Math.random() - 0.5);
 
   for (const key of NETWORK_KEYS) {
-    regions[key] = 0.02 + Math.random() * 0.08; // baseline flicker
+    regions[key] = 0.05 + Math.random() * 0.15; // baseline flicker
   }
   for (let i = 0; i < activeCount; i++) {
-    regions[shuffled[i]] = 0.3 + Math.random() * 0.6; // bright activation
+    regions[shuffled[i]] = 0.5 + Math.random() * 0.5; // bright activation (0.5-1.0)
   }
   return regions;
 }
@@ -85,36 +86,41 @@ export function ProcessingBrain() {
       .catch(() => {});
   }, []);
 
-  // Generate new random targets every 1.2s
+  // Generate new random targets every 800ms — frequent enough to never look frozen
   useEffect(() => {
     const interval = setInterval(() => {
       targetRegionsRef.current = generateRandomRegions();
-    }, 1200);
+    }, 800);
     return () => clearInterval(interval);
   }, []);
 
-  // Smooth lerp animation at ~30fps
+  // Smooth lerp animation at ~30fps — runs forever
   useEffect(() => {
     if (!vertexMap) return;
 
     const buf = new Float32Array(VERTEX_COUNT * 3);
     regionColorsRef.current = buf;
+    let frameId: number;
 
-    const interval = setInterval(() => {
+    const animate = () => {
       const current = currentRegionsRef.current;
       const target = targetRegionsRef.current;
-      const lerpSpeed = 0.08;
+      const lerpSpeed = 0.06;
 
-      // Lerp current toward target
       for (const key of NETWORK_KEYS) {
-        current[key] += (target[key] - current[key]) * lerpSpeed;
+        // Add subtle noise so it never fully converges
+        const noise = (Math.random() - 0.5) * 0.01;
+        current[key] += (target[key] - current[key]) * lerpSpeed + noise;
+        current[key] = Math.max(0, Math.min(1, current[key]));
       }
 
       buildRegionColors(current, vertexMap, buf);
       setRegionColors(new Float32Array(buf));
-    }, 33); // ~30fps
+      frameId = requestAnimationFrame(animate);
+    };
 
-    return () => clearInterval(interval);
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
   }, [vertexMap]);
 
   if (!vertexMap) return null;

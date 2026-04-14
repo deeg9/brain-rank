@@ -48,8 +48,6 @@ const PLANS: Plan[] = [
       "Everything in Hobbyist",
       "Priority GPU processing",
       "Batch upload & analysis",
-      "A/B comparison tool",
-      "Public profile & leaderboard",
       "Priority support",
     ],
   },

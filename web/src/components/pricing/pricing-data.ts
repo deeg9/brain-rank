@@ -25,8 +25,6 @@ export const PRICING_TIERS: PricingTier[] = [
       "Neural Activation Timeline",
       "3D brain heatmap viewer",
       "Arousal & valence metrics",
-      "Public profile page",
-      "Discovery feed listing",
       "Community support",
     ],
   },

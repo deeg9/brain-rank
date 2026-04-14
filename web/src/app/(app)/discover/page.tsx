@@ -324,6 +324,7 @@ export default function DiscoverPage() {
         onRemoveA={() => setCompareA(null)}
         onRemoveB={() => setCompareB(null)}
         onCompare={() => setShowModal(true)}
+        onDismiss={() => { setCompareA(null); setCompareB(null); }}
       />
 
       {/* Comparison Modal */}

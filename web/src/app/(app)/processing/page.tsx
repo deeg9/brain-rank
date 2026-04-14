@@ -235,7 +235,7 @@ function ProcessingContent() {
           </p>
         </div>
         <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 flex justify-center">
-          <WaveLoader />
+          <ProcessingBrain />
         </div>
       </div>
     );

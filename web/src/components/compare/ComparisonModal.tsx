@@ -122,6 +122,14 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
   const [jobB, setJobB] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [open]);
+
   const fetchJob = useCallback(async (id: string): Promise<Job | null> => {
     try {
       const res = await fetch(`/api/jobs/${id}`);

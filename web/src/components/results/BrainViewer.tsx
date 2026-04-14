@@ -61,9 +61,9 @@ function hexToRGB(hex: string): [number, number, number] {
 }
 
 // Light gray base for inactive vertices — clean and bright on white backgrounds
-const BASE_R = 0.85;
-const BASE_G = 0.85;
-const BASE_B = 0.87;
+const BASE_R = 0.93;
+const BASE_G = 0.93;
+const BASE_B = 0.95;
 
 function buildRegionColors(
   regions: SegmentRegionScores,

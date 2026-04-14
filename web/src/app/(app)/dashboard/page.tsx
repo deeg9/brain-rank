@@ -1,15 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Button, Card, StatusBadge } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
-import { VideoThumb } from "./VideoThumb";
-import { VisibilityToggle } from "./VisibilityToggle";
-import { CardMenu } from "./CardMenu";
-import { ScoreBadge } from "@/components/ui/ScoreBadge";
-import { BenchmarkLegend } from "@/components/ui/BenchmarkLegend";
-import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
+import { DashboardGrid } from "./DashboardGrid";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
 import type { Job, JobStatus } from "@/lib/database.types";
 
@@ -168,86 +163,18 @@ export default async function DashboardPage() {
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {jobList.map((job: Job, index: number) => {
-              const filename = job.title || extractFilename(job.video_url);
-              const score = extractScore(job.results);
-
-              return (
-                <Card key={job.id} hover className="overflow-visible group relative hover:z-30">
-                  <div className="flex flex-col md:flex-row">
-                    {/* Video thumbnail */}
-                    <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-white">
-                      <VideoThumb src={job.video_url} alt={filename} />
-                    </div>
-                    {/* Content */}
-                    <div className="flex-1 p-6 flex flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-headline font-bold text-lg leading-tight flex-1">
-                            {filename}
-                          </h4>
-                          <CardMenu jobId={job.id} jobTitle={filename} isPublic={job.is_public} />
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <StatusBadge status={mapStatus(job.status)} />
-                          <ContentTypeBadge inputType={(job as any).input_type} />
-                          <VisibilityToggle jobId={job.id} initialPublic={job.is_public} />
-                          {(job as any).category && (
-                            <span className="text-[11px] text-gray-400 font-medium">
-                              · {((job as any).category as string).charAt(0).toUpperCase() + ((job as any).category as string).slice(1).replace(/_/g, ' ')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className="flex items-center gap-1 text-xs font-bold text-black">
-                            <span className="material-symbols-outlined text-sm">calendar_today</span>
-                            {formatDate(job.created_at)}
-                          </span>
-                          {job.is_public && (job as any).view_count > 0 && (
-                            <span className="flex items-center gap-1 text-xs font-bold text-black">
-                              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
-                              {(job as any).view_count} views
-                            </span>
-                          )}
-                          {score !== null && (
-                            <span className="inline-flex items-center gap-1">
-                              <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
-                              <ScoreBadge value={score} size="sm" />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="mt-6">
-                        <Link
-                          href={`/results/${job.id}`}
-                          className="block flex-1 bg-black hover:bg-gray-800 text-white py-2 rounded-lg text-sm font-semibold transition-colors text-center"
-                        >
-                          View Results
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-            {/* New Analysis Card */}
-            <Link href="/upload">
-              <div className="rounded-xl overflow-hidden border border-dashed border-gray-300 flex items-center justify-center min-h-[220px] hover:border-black/40 transition-colors cursor-pointer glass-surface">
-                <div className="text-center p-8">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-600">
-                    <span className="material-symbols-outlined text-2xl">
-                      add_circle
-                    </span>
-                  </div>
-                  <p className="font-headline font-bold">Analyze New Content</p>
-                  <p className="text-xs text-on-surface-variant mt-1">
-                    Upload video or drag and drop files
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
+          <DashboardGrid jobs={jobList.map((job: Job) => ({
+            id: job.id,
+            title: job.title || extractFilename(job.video_url),
+            video_url: job.video_url,
+            status: mapStatus(job.status),
+            is_public: job.is_public,
+            input_type: (job as any).input_type ?? null,
+            category: (job as any).category ?? null,
+            view_count: (job as any).view_count ?? 0,
+            score: extractScore(job.results),
+            created_at: job.created_at,
+          }))} />
         </section>
       ) : (
         /* Empty State */

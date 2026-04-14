@@ -73,12 +73,7 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect }: Discover
 
         {/* Content area */}
         <div className="p-4 space-y-2">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-bold text-gray-900 truncate flex-1">{title}</p>
-            {analysis.input_type && analysis.input_type !== 'video' && (
-              <ContentTypeBadge inputType={analysis.input_type} />
-            )}
-          </div>
+          <p className="text-sm font-bold text-gray-900 truncate">{title}</p>
 
           {/* Creator row */}
           <div className="flex items-center gap-2">

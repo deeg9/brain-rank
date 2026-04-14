@@ -60,7 +60,7 @@ export default function Error({
           <div className="mt-12 flex flex-col items-center gap-6">
             <button
               onClick={reset}
-              className="neural-gradient px-10 py-4 rounded-lg text-on-surface font-semibold text-base transition-all duration-300 active:scale-95 shadow-lg flex items-center gap-2"
+              className="bg-black hover:bg-gray-800 text-white px-10 py-4 rounded-lg font-semibold text-base transition-all duration-300 active:scale-95 shadow-lg flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-xl">
                 refresh

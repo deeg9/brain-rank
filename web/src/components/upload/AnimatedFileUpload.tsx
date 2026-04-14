@@ -283,7 +283,7 @@ export function AnimatedFileUpload({
               {(item.status === "uploading" || item.status === "complete") && (
                 <div className="bg-surface-container-highest rounded-full h-1.5">
                   <motion.div
-                    className="h-1.5 rounded-full bg-gradient-to-r from-[#ba9eff] to-[#5af8fb]"
+                    className="h-1.5 rounded-full bg-black"
                     initial={{ width: "0%" }}
                     animate={{ width: `${item.progress}%` }}
                     transition={springTransition}

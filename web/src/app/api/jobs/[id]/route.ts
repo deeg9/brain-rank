@@ -17,10 +17,12 @@ export async function PATCH(
     const body = await request.json()
     const title = typeof body.title === 'string' ? body.title.trim().slice(0, 200) : null
     const isPublic = typeof body.is_public === 'boolean' ? body.is_public : undefined
+    const category = typeof body.category === 'string' ? body.category : undefined
 
     const updateFields: Record<string, unknown> = {}
     if (title !== null) updateFields.title = title
     if (isPublic !== undefined) updateFields.is_public = isPublic
+    if (category !== undefined) updateFields.category = category
 
     if (Object.keys(updateFields).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
