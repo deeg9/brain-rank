@@ -28,7 +28,7 @@ export function TopBar({
   const router = useRouter();
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [tier, setTier] = useState<"free" | "creator">("free");
+  const [creditLabel, setCreditLabel] = useState("5 credits");
 
   useEffect(() => {
     const supabase = createClient();
@@ -51,11 +51,16 @@ export function TopBar({
         });
     });
 
-    // Fetch tier for badge
+    // Fetch credits for display
     fetch("/api/credits")
       .then((r) => r.json())
       .then((data) => {
-        if (data.isCreator) setTier("creator");
+        if (data.isCreator) {
+          setCreditLabel("Unlimited");
+        } else {
+          const remaining = data.remaining ?? 5;
+          setCreditLabel(`${remaining} credit${remaining === 1 ? "" : "s"}`);
+        }
       })
       .catch(() => {});
   }, []);
@@ -115,11 +120,9 @@ export function TopBar({
 
           {/* User Name + Credits */}
           <div className="text-right mr-2">
-            <p className="text-sm font-medium text-on-surface font-headline leading-tight">{displayName || "User"}</p>
-            <p className={`text-[10px] uppercase tracking-widest font-bold leading-tight ${
-              tier === "creator" ? "text-emerald-600" : "text-on-surface-variant"
-            }`}>
-              {tier === "creator" ? "Creator" : "Free"}
+            <p className="text-sm font-medium text-on-surface font-headline leading-tight">@{displayName || "User"}</p>
+            <p className="text-[10px] uppercase tracking-widest font-bold leading-tight text-on-surface-variant">
+              {creditLabel}
             </p>
           </div>
 

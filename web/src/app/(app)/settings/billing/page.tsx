@@ -50,7 +50,6 @@ const PLANS: Plan[] = [
     desc: "For creators and brands who need unlimited neural insights and priority processing for high-volume content testing.",
     monthlyPrice: 20,
     annuallyPrice: 200,
-    badge: "Most Popular",
     buttonText: "Upgrade to Creator",
     features: [
       "Unlimited analysis credits",
@@ -246,13 +245,16 @@ export default function BillingPage() {
                   "material-symbols-outlined text-lg",
                   isCreator ? "text-emerald-700" : "text-gray-600"
                 )}>
-                  {isCreator ? "workspace_premium" : "person"}
+                  neurology
                 </span>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                  Your current plan
+                </p>
+                <div className="flex items-center gap-2 mt-0.5">
                   <h3 className="font-headline font-bold text-gray-900">
-                    {isCreator ? "Creator Plan" : "Free Plan"}
+                    {isCreator ? "Creator" : "Hobbyist"}
                   </h3>
                   <span className={cn(
                     "px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full",
