@@ -28,6 +28,11 @@ const NeuralTimeline = dynamic(
   { ssr: false, loading: () => <Skeleton variant="card" className="h-96" /> }
 );
 
+const RegionBarChart = dynamic(
+  () => import("@/components/results/RegionBarChart").then(m => m.RegionBarChart),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-64" /> }
+);
+
 const VideoPlayer = dynamic(
   () => import("@/components/results/VideoPlayer").then(m => m.VideoPlayer),
   { ssr: false, loading: () => <Skeleton variant="card" className="h-[400px]" /> }
@@ -450,16 +455,20 @@ export default function ResultsDetailPage({ params }: Props) {
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
-      {/* Neural Activation Timeline — full width hero chart */}
-      <NeuralTimeline
-        segments={segments}
-        duration={results.duration_seconds}
-        currentTime={currentTime}
-        onSeek={handleSeek}
-        zones={zones}
-        peakMarkers={peakMarkers}
-        iconMarkers={iconMarkers}
-      />
+      {/* Neural activation — bar chart for short videos, timeline for longer ones */}
+      {results.duration_seconds < 10 ? (
+        <RegionBarChart segments={segments} />
+      ) : (
+        <NeuralTimeline
+          segments={segments}
+          duration={results.duration_seconds}
+          currentTime={currentTime}
+          onSeek={handleSeek}
+          zones={zones}
+          peakMarkers={peakMarkers}
+          iconMarkers={iconMarkers}
+        />
+      )}
 
       {/* Insights Summary — metrics + emotional state strip */}
       {(() => {
