@@ -773,7 +773,7 @@ Plans:
 - [x] **Phase 61: Checkout Flow** - Stripe Checkout session creation for monthly and annual Creator subscriptions (completed 2026-04-14)
 - [x] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts (completed 2026-04-14)
 - [x] **Phase 63: Billing Portal + Settings** - Self-service subscription management and billing status UI (completed 2026-04-14)
-- [ ] **Phase 64: Polish + Annual Upsell** - Annual billing nudge on monthly checkout
+- [x] **Phase 64: Polish + Annual Upsell** - Annual billing nudge on monthly checkout (completed 2026-04-14)
 
 ### Phase 59: Foundation (Schema + SDK)
 **Goal**: The database tracks subscription state and the Stripe SDK is configured for both development and production
@@ -927,4 +927,4 @@ Phases 59-64: 59 -> 60 -> 61 (after 60) -> 62 (after 59) -> 63 (after 61) -> 64 
 | 61. Checkout Flow | v6.0 | 0/0 | Complete    | 2026-04-14 |
 | 62. Credit Gating | v6.0 | 0/0 | Complete    | 2026-04-14 |
 | 63. Billing Portal + Settings | v6.0 | 0/0 | Complete    | 2026-04-14 |
-| 64. Polish + Annual Upsell | v6.0 | 0/0 | Not started | - |
+| 64. Polish + Annual Upsell | v6.0 | 0/0 | Complete    | 2026-04-14 |
