@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,6 +45,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Credit gating — check before allowing job creation
+    const credits = await getCreditStatus(supabase, user.id)
+    if (!credits.canAnalyze) {
+      return NextResponse.json(
+        {
+          error: 'Weekly credit limit reached',
+          credits: { used: credits.used, limit: credits.limit, remaining: 0 },
+          upgrade_url: '/pricing',
+        },
+        { status: 403 }
+      )
+    }
+
     // Parse and validate request body
     const body = await request.json()
     const { video_url } = body as { video_url?: string }
@@ -79,6 +93,11 @@ export async function POST(request: NextRequest) {
 
     if (insertError || !job) {
       return NextResponse.json({ error: 'Failed to create job' }, { status: 500 })
+    }
+
+    // Record credit usage for free tier tracking
+    if (!credits.isCreator) {
+      await recordCreditUsage(supabase, user.id, (job as { id: string }).id)
     }
 
     // Call RunPod /run endpoint

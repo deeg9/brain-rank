@@ -17,6 +17,14 @@ import { ImageUploadZone } from "./ImageUploadZone";
 import { DurationSlider } from "./DurationSlider";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
 
+interface CreditInfo {
+  canAnalyze: boolean;
+  isCreator: boolean;
+  used: number;
+  limit: number | null;
+  remaining: number | null;
+}
+
 export default function UploadPage() {
   const router = useRouter();
 
@@ -28,6 +36,14 @@ export default function UploadPage() {
   const [imageDuration, setImageDuration] = useState(6);
   const [textContent, setTextContent] = useState('');
   const [category, setCategory] = useState("");
+  const [credits, setCredits] = useState<CreditInfo | null>(null);
+
+  useEffect(() => {
+    fetch('/api/credits')
+      .then(res => res.json())
+      .then(data => setCredits(data))
+      .catch(() => {});
+  }, []);
 
   const handleFilesAdd = useCallback((incoming: File[]) => {
     const newItems: FileItem[] = incoming.map((file) => ({
@@ -180,6 +196,37 @@ export default function UploadPage() {
           {inputType === 'text' && <>Enter text for neural analysis.{" "}<span className="text-on-surface-variant/80">Max 500 characters.</span></>}
         </p>
       </motion.header>
+
+      {/* Credit Status Banner */}
+      {credits && !credits.isCreator && (
+        <motion.div
+          className={`rounded-xl px-5 py-3 flex items-center justify-between ${
+            credits.canAnalyze
+              ? 'bg-gray-50 border border-gray-200'
+              : 'bg-red-50 border border-red-200'
+          }`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-lg text-gray-600">token</span>
+            <span className="text-sm font-headline font-bold text-gray-900">
+              {credits.canAnalyze
+                ? `${credits.remaining} of ${credits.limit} credits remaining this week`
+                : 'Weekly credit limit reached'}
+            </span>
+          </div>
+          {!credits.canAnalyze && (
+            <a
+              href="/pricing"
+              className="text-sm font-headline font-bold text-black underline underline-offset-2 hover:no-underline"
+            >
+              Upgrade to Creator
+            </a>
+          )}
+        </motion.div>
+      )}
 
       {/* Input Type Selector */}
       <motion.div
