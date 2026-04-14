@@ -798,7 +798,9 @@ Plans:
   2. checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, and invoice.payment_failed events update the corresponding subscription record in Supabase
   3. Processing the same webhook event twice produces the same database state (idempotent -- no duplicate records or double state transitions)
   4. A subscription with status past_due retains Creator tier access (grace period while Stripe retries payment)
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 60-01-PLAN.md — Webhook route + subscription query helper
 
 ### Phase 61: Checkout Flow
 **Goal**: Users can subscribe to the Creator tier through a real Stripe Checkout session
