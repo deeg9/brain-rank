@@ -95,6 +95,37 @@ export function PricingCard({ tier, billPlan }: PricingCardProps) {
         </p>
       </div>
 
+      {/* Annual upsell nudge — shown on Creator card when monthly selected */}
+      {tier.id === "creator" && billPlan === "monthly" && (
+        <div className="mx-6 md:mx-8 mb-3 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5 flex items-center justify-between">
+          <span className="text-xs text-emerald-800 font-bold">
+            Save $40/yr with annual billing
+          </span>
+          <button
+            onClick={() => {
+              const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
+              if (!priceId) return;
+              setLoading(true);
+              fetch("/api/stripe/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ priceId }),
+              })
+                .then((r) => r.json())
+                .then((data) => {
+                  if (data.url) window.location.href = data.url;
+                  else setLoading(false);
+                })
+                .catch(() => setLoading(false));
+            }}
+            disabled={loading}
+            className="text-xs font-bold text-emerald-700 underline underline-offset-2 hover:no-underline"
+          >
+            Switch to annual
+          </button>
+        </div>
+      )}
+
       {/* CTA + Billing note */}
       <div className="flex flex-col items-start w-full px-6 md:px-8 pb-2">
         <Button
