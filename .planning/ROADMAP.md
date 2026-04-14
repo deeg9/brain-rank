@@ -784,7 +784,10 @@ Plans:
   2. The Stripe Node SDK is installed and initialized with environment variables for API keys and price IDs (no hardcoded IDs anywhere in the codebase)
   3. A webhook secret environment variable is configured and the app reads it at startup without crashing
   4. RLS policies ensure users can only read their own subscription data
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 59-01-PLAN.md — Install Stripe SDK packages, create SDK singletons, configure env vars
+- [ ] 59-02-PLAN.md — Supabase migration SQL for Stripe tables + TypeScript types
 
 ### Phase 60: Webhook Handler
 **Goal**: Stripe subscription lifecycle events are reliably synced to Supabase so the app always reflects the true subscription state
