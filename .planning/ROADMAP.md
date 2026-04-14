@@ -9,7 +9,7 @@
 - 📋 **v2.2 Enhanced Brain Analytics** - Phases 33-37 (planned)
 - 📋 **v3.0 Brain Visualization UX Overhaul** - Phases 39-43 (planned)
 - ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12)
-- 🚧 **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (in progress)
+- ✅ **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (shipped 2026-04-13)
 
 ## Phases
 

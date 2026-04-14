@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Frontend Implementation
-status: executing
-stopped_at: v5.0 roadmap created, ready to plan Phase 52
-last_updated: "2026-04-12T15:53:46.251Z"
-last_activity: 2026-04-12
+milestone: v6.0
+milestone_name: Stripe Payments
+status: defining-requirements
+stopped_at: null
+last_updated: "2026-04-13"
+last_activity: 2026-04-13
 progress:
-  total_phases: 7
-  completed_phases: 4
-  total_plans: 8
-  completed_plans: 11
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-12)
+See: .planning/PROJECT.md (updated 2026-04-13)
 
 **Core value:** Content creators upload content and get per-segment neural engagement scores showing where brains light up and where they tune out
-**Current focus:** Phase 55 — Text Visual Mode
+**Current focus:** Defining requirements for v6.0 Stripe Payments
 
 ## Current Position
 
-Phase: 58
-Plan: Not started
-Status: Executing Phase 55
-Last activity: 2026-04-12
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-13 — Milestone v6.0 started
 
-Progress: [░░░░░░░░░░] 0% (v5.0: 0/7 phases)
+Progress: [░░░░░░░░░░] 0% (v6.0: 0/? phases)
 
 ## Performance Metrics
 

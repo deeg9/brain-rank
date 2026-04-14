@@ -17,18 +17,21 @@ All 8 phases complete. NeuroCut is now a public discovery platform:
 - Discovery feed at /discover with neural score ranking, search, sort, and filters
 - View counts and bookmarks with /bookmarks page
 
-## Current Milestone: v5.0 Multi-Modal Input & Comparison
+## Shipped: v5.0 Multi-Modal Input & Comparison (2026-04-13)
 
-**Goal:** Expand NeuroCut beyond video-only to support thumbnail/image and text/copy neural testing, with a side-by-side comparison view for any two analyses.
+All 7 phases complete. NeuroCut now supports image and text analysis alongside video, with side-by-side comparison.
+
+## Current Milestone: v6.0 Stripe Payments
+
+**Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
 
 **Target features:**
-- Image upload (JPEG/PNG → silent video conversion → video-only TRIBE v2 inference)
-- Text input with visual mode (render styled text card → image → video → inference)
-- Text input with spoken mode (native TRIBE v2 text→TTS→audio path)
-- Upload page type selector (Video / Image / Text) with mode-appropriate UI
-- Server-side media conversion (transparent to user)
-- Comparison page: pick any two completed analyses, view results side by side
-- Results page adaptations for non-video content (no video player for images/text)
+- Stripe Checkout for Creator tier subscriptions (monthly + annual billing)
+- Stripe webhook handler for subscription lifecycle events
+- Supabase subscription status tracking (tier, active/cancelled, renewal date)
+- Billing portal for self-service subscription management
+- Credit gating based on subscription tier (Free = 3/week, Creator = unlimited)
+- Pricing page and billing settings wired to real Stripe checkout
 
 ## Requirements
 
@@ -51,7 +54,7 @@ All 8 phases complete. NeuroCut is now a public discovery platform:
 ### Out of Scope
 
 - Multiple video A/B comparison — single video only for v2.0
-- Real payment processing (Stripe) — mock billing page for now
+- Real payment processing (Stripe) — **now in scope for v6.0**
 - Mobile app — web only
 - Real-time collaboration features
 - PDF report generation
@@ -74,7 +77,7 @@ All 8 phases complete. NeuroCut is now a public discovery platform:
 - **Model license**: CC BY-NC-4.0 — non-commercial only
 - **Inference time**: ~12 minutes per 60s video — async UX required
 - **Stitch fidelity**: Implementation should match Stitch HTML screens closely
-- **No real payments**: Billing page is UI-only for v2.0 (Stripe integration deferred)
+- **Stripe integration**: v6.0 — real payments for Creator tier
 
 ## Key Decisions
 
@@ -105,4 +108,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-12 after v5.0 milestone start*
+*Last updated: 2026-04-13 after v6.0 milestone start*

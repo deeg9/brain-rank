@@ -73,13 +73,11 @@
 - Discovery feed ranked by neural score (no social votes)
 - View counts and bookmarks
 
-## In Progress
-
-### v5.0: Multi-Modal Input & Comparison (2026-04-12 — )
+### v5.0: Multi-Modal Input & Comparison (2026-04-12 — 2026-04-13)
 
 **Goal:** Expand beyond video-only to support image and text neural testing, with side-by-side comparison.
 
-**Phases:** 7 phases (52-58)
+**Phases:** 7 phases (52-58), all complete
 52. Schema & Upload Type Selector — input_type column, upload type selector
 53. Image Upload Pipeline — JPEG/PNG → silent video → TRIBE v2 inference
 54. Text Spoken Mode — text → native TRIBE v2 TTS → audio inference
@@ -87,3 +85,11 @@
 56. Results Adaptations — conditional rendering for non-video content
 57. Content Type Badges — Video/Image/Text + Exploratory badges everywhere
 58. Comparison Page — side-by-side with metric deltas and cross-type disclaimers
+
+**Key outcomes:**
+- Multi-modal input: video, image (JPEG/PNG → video conversion), and text analysis
+- Text spoken mode (TTS → audio inference) and visual mode (styled card → image → video)
+- Content type badges and results page adaptations for non-video content
+- Side-by-side comparison page for any two analyses
+
+## In Progress
