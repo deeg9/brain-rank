@@ -71,7 +71,7 @@ function generateRandomRegions(): SegmentRegionScores {
   return regions;
 }
 
-const CAMERA_DISTANCE = 200;
+const CAMERA_DISTANCE = 240;
 
 function CameraLock() {
   const { camera } = useThree();
@@ -152,7 +152,7 @@ export function ProcessingBrain() {
   return (
     <div className="w-full h-[380px] relative pointer-events-none">
       <Canvas
-        camera={{ position: [0, 10, 200], fov: 45 }}
+        camera={{ position: [0, 10, 240], fov: 45 }}
         dpr={[1, 1.5]}
         style={{ background: 'transparent', pointerEvents: 'none' }}
         gl={{ alpha: true }}
