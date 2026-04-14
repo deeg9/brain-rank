@@ -1,69 +1,52 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import NumberFlow from "@number-flow/react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
-type BillPlan = "monthly" | "annually";
+interface SubscriptionInfo {
+  status: string | null;
+  tier: string;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  priceId: string | null;
+}
 
-type Plan = {
-  id: string;
-  title: string;
-  desc: string;
-  monthlyPrice: number;
-  annuallyPrice: number;
-  badge?: string;
-  buttonText: string;
-  features: string[];
-};
+export default function BillingPage() {
+  const [sub, setSub] = useState<SubscriptionInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-const PLANS: Plan[] = [
-  {
-    id: "starter",
-    title: "Hobbyist",
-    desc: "For individual creators exploring neural engagement insights on their content. Get started for free.",
-    monthlyPrice: 0,
-    annuallyPrice: 0,
-    buttonText: "Get Started Free",
-    features: [
-      "5 credits per week",
-      "Video, image & text analysis",
-      "9 brain network scores",
-      "3D brain activation maps",
-      "Neural activation timeline",
-      "A/B comparison tool",
-      "Public profile & leaderboard",
-    ],
-  },
-  {
-    id: "pro",
-    title: "Creator",
-    desc: "For teams and agencies who need unlimited neural insights and priority processing for high-volume content testing.",
-    monthlyPrice: 20,
-    annuallyPrice: 200,
-    badge: "Most Popular",
-    buttonText: "Upgrade to Creator",
-    features: [
-      "Unlimited analysis credits",
-      "Everything in Hobbyist",
-      "Priority GPU processing",
-      "Batch upload & analysis",
-      "Priority support",
-    ],
-  },
-];
+  useEffect(() => {
+    fetch("/api/billing/status")
+      .then((r) => r.json())
+      .then((data) => {
+        setSub(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
-function PlanCard({ plan, billPlan }: { plan: Plan; billPlan: BillPlan }) {
-  const isPro = plan.title === "Creator";
-  const [loading, setLoading] = useState(false);
+  async function handleManageSubscription() {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Portal error:", err);
+    }
+    setPortalLoading(false);
+  }
 
-  async function handleSubscribe() {
-    if (!isPro) return;
-    setLoading(true);
+  async function handleUpgrade(interval: "monthly" | "annual") {
+    setCheckoutLoading(true);
     try {
       const priceId =
-        billPlan === "monthly"
+        interval === "monthly"
           ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
           : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
 
@@ -76,139 +59,185 @@ function PlanCard({ plan, billPlan }: { plan: Plan; billPlan: BillPlan }) {
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
-      } else {
-        console.error("Checkout error:", data.error);
-        setLoading(false);
       }
     } catch (err) {
       console.error("Checkout error:", err);
-      setLoading(false);
     }
+    setCheckoutLoading(false);
+  }
+
+  const isCreator = sub?.tier === "creator";
+  const isActive = sub?.status === "active" || sub?.status === "trialing";
+  const isPastDue = sub?.status === "past_due";
+  const isCanceling = sub?.cancelAtPeriodEnd;
+
+  const renewalDate = sub?.currentPeriodEnd
+    ? new Date(sub.currentPeriodEnd).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto py-12 text-center">
+        <p className="text-gray-500">Loading billing info...</p>
+      </div>
+    );
   }
 
   return (
-    <div
-      className={cn(
-        "flex flex-col relative rounded-2xl lg:rounded-3xl transition-all items-start w-full border overflow-hidden bg-white",
-        isPro ? "border-black" : "border-gray-200"
-      )}
-    >
-      {isPro && (
-        <div className="absolute top-1/2 inset-x-0 mx-auto h-12 -rotate-45 w-full bg-black/80 rounded-2xl lg:rounded-3xl blur-[8rem] -z-10" />
-      )}
-
-      <div className="p-4 md:p-8 flex rounded-t-2xl lg:rounded-t-3xl flex-col items-start w-full relative">
-        {plan.badge && (
-          <span className="inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-black text-white rounded-full mb-3">
-            {plan.badge}
-          </span>
-        )}
-        <h2 className="font-headline font-bold text-xl text-gray-900">
-          {plan.title}
+    <div className="max-w-3xl mx-auto py-12 space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <h2 className="text-3xl font-bold font-headline text-gray-900">
+          Billing
         </h2>
-        <h3 className="mt-3 text-2xl font-bold font-headline md:text-5xl text-gray-900">
-          <NumberFlow
-            value={billPlan === "monthly" ? plan.monthlyPrice : plan.annuallyPrice}
-            suffix={billPlan === "monthly" ? "/mo" : "/yr"}
-            format={{
-              currency: "USD",
-              style: "currency",
-              currencySign: "standard",
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-              currencyDisplay: "narrowSymbol",
-            }}
-          />
-        </h3>
-        <p className="text-sm text-gray-500 mt-2">{plan.desc}</p>
-      </div>
+        <p className="text-gray-500 mt-2">
+          Manage your subscription and billing details.
+        </p>
+      </motion.div>
 
-      {isPro && (
-        <div className="flex flex-col items-start w-full px-4 py-2 md:px-8">
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="w-full py-3 rounded-lg text-sm font-headline font-bold transition-all active:scale-[0.98] bg-black text-white hover:bg-gray-800 shadow-lg disabled:opacity-50"
+      {/* Current Plan Card */}
+      <motion.div
+        className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8 space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">
+              Current Plan
+            </p>
+            <h3 className="text-2xl font-headline font-bold text-gray-900 mt-1">
+              {isCreator ? "Creator" : "Free"}
+            </h3>
+          </div>
+          <span
+            className={cn(
+              "px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full",
+              isActive && !isCanceling && "bg-emerald-100 text-emerald-700",
+              isPastDue && "bg-amber-100 text-amber-700",
+              isCanceling && "bg-gray-100 text-gray-700",
+              !isCreator && "bg-gray-100 text-gray-600"
+            )}
           >
-            {loading ? "Redirecting..." : plan.buttonText}
-          </button>
-          <div className="h-8 overflow-hidden w-full mx-auto">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={billPlan}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="text-sm text-center text-gray-400 mt-3 mx-auto block"
-              >
-                {billPlan === "monthly"
-                  ? "Billed monthly"
-                  : "Billed annually"}
-              </motion.span>
-            </AnimatePresence>
-          </div>
+            {isPastDue
+              ? "Past Due"
+              : isCanceling
+                ? "Canceling"
+                : isActive
+                  ? "Active"
+                  : "Free Tier"}
+          </span>
         </div>
-      )}
 
-      <div className="flex flex-col items-start w-full p-5 mb-4 ml-1 gap-y-2">
-        <span className="text-sm font-headline font-bold text-gray-900 mb-2">
-          Includes:
-        </span>
-        {plan.features.map((feature, index) => (
-          <div key={index} className="flex items-center justify-start gap-2">
-            <span className="material-symbols-outlined text-gray-900" style={{ fontSize: 18 }}>
-              check
-            </span>
-            <span className="text-sm text-gray-700">{feature}</span>
+        {/* Past due warning */}
+        {isPastDue && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+            <span className="font-bold">Payment failed.</span> Please update
+            your payment method to avoid losing access.
           </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+        )}
 
-export default function BillingPage() {
-  const [billPlan, setBillPlan] = useState<BillPlan>("monthly");
+        {/* Canceling notice */}
+        {isCanceling && renewalDate && (
+          <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-700">
+            Your plan will end on <span className="font-bold">{renewalDate}</span>.
+            You&apos;ll retain Creator access until then.
+          </div>
+        )}
 
-  const handleSwitch = () => {
-    setBillPlan((prev) => (prev === "monthly" ? "annually" : "monthly"));
-  };
-
-  return (
-    <div className="relative flex flex-col items-center justify-center max-w-5xl py-12 mx-auto">
-      <div className="flex flex-col items-center justify-center max-w-2xl mx-auto">
-        <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline text-gray-900 mt-6">
-            Pricing
-          </h2>
-          <p className="text-base md:text-lg text-center text-gray-500 mt-6">
-            Unlock neural engagement insights for your content.
+        {/* Renewal info */}
+        {isCreator && !isCanceling && renewalDate && (
+          <p className="text-sm text-gray-500">
+            Next renewal: <span className="font-bold text-gray-700">{renewalDate}</span>
           </p>
-        </div>
-        <div className="flex items-center justify-center space-x-4 mt-6">
-          <span className="text-sm font-headline font-bold text-gray-900">Monthly</span>
-          <button
-            onClick={handleSwitch}
-            className="relative rounded-full focus:outline-none"
-          >
-            <div className="w-12 h-6 transition rounded-full shadow-md outline-none bg-black" />
-            <div
-              className={cn(
-                "absolute inline-flex items-center justify-center w-4 h-4 transition-all duration-500 ease-in-out top-1 left-1 rounded-full bg-white",
-                billPlan === "annually" ? "translate-x-6" : "translate-x-0"
-              )}
-            />
-          </button>
-          <span className="text-sm font-headline font-bold text-gray-900">Annually</span>
-        </div>
-      </div>
+        )}
 
-      <div className="grid w-full grid-cols-1 lg:grid-cols-2 pt-8 lg:pt-12 gap-4 lg:gap-6 max-w-4xl mx-auto">
-        {PLANS.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} billPlan={billPlan} />
-        ))}
-      </div>
+        {!isCreator && (
+          <p className="text-sm text-gray-500">
+            5 analyses per week. Upgrade to Creator for unlimited.
+          </p>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-2">
+          {isCreator ? (
+            <button
+              onClick={handleManageSubscription}
+              disabled={portalLoading}
+              className="px-6 py-2.5 rounded-lg text-sm font-headline font-bold bg-black text-white hover:bg-gray-800 transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              {portalLoading ? "Loading..." : "Manage Subscription"}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => handleUpgrade("monthly")}
+                disabled={checkoutLoading}
+                className="px-6 py-2.5 rounded-lg text-sm font-headline font-bold bg-black text-white hover:bg-gray-800 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {checkoutLoading ? "Redirecting..." : "Upgrade — $20/mo"}
+              </button>
+              <button
+                onClick={() => handleUpgrade("annual")}
+                disabled={checkoutLoading}
+                className="px-6 py-2.5 rounded-lg text-sm font-headline font-bold border border-gray-300 text-gray-900 hover:bg-gray-50 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {checkoutLoading ? "Redirecting..." : "Upgrade — $200/yr"}
+              </button>
+            </>
+          )}
+        </div>
+      </motion.div>
+
+      {/* What's included */}
+      <motion.div
+        className="rounded-2xl border border-gray-200 bg-white p-6 md:p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <h3 className="font-headline font-bold text-gray-900 mb-4">
+          {isCreator ? "Your Creator Benefits" : "Free Tier Includes"}
+        </h3>
+        <div className="space-y-2">
+          {(isCreator
+            ? [
+                "Unlimited analyses per month",
+                "Priority GPU processing",
+                "Full 9-region brain activation reports",
+                "3D brain heatmap viewer",
+                "Export full JSON reports",
+                "API access for integrations",
+                "Priority email support",
+              ]
+            : [
+                "5 credits per week",
+                "Full 9-region brain activation reports",
+                "Neural activation timeline",
+                "3D brain heatmap viewer",
+                "Arousal & valence metrics",
+              ]
+          ).map((feature) => (
+            <div key={feature} className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-gray-900"
+                style={{ fontSize: 18 }}
+              >
+                check
+              </span>
+              <span className="text-sm text-gray-700">{feature}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }
