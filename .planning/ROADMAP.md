@@ -10,6 +10,7 @@
 - 📋 **v3.0 Brain Visualization UX Overhaul** - Phases 39-43 (planned)
 - ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12)
 - ✅ **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (shipped 2026-04-13)
+- 🚧 **v6.0 Stripe Payments** - Phases 59-64 (in progress)
 
 ## Phases
 
@@ -762,6 +763,86 @@ Plans:
 - [ ] 52-02-PLAN.md — InputTypeSelector component and upload page integration
 **UI hint**: yes
 
+
+### v6.0 Stripe Payments (In Progress)
+
+**Milestone Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
+
+- [ ] **Phase 59: Foundation (Schema + SDK)** - Subscription schema, Stripe SDK setup, environment configuration
+- [ ] **Phase 60: Webhook Handler** - Stripe webhook endpoint with signature verification and idempotent event processing
+- [ ] **Phase 61: Checkout Flow** - Stripe Checkout session creation for monthly and annual Creator subscriptions
+- [ ] **Phase 62: Credit Gating** - Enforce per-tier analysis limits with remaining-credits display and upgrade prompts
+- [ ] **Phase 63: Billing Portal + Settings** - Self-service subscription management and billing status UI
+- [ ] **Phase 64: Polish + Annual Upsell** - Annual billing nudge on monthly checkout
+
+### Phase 59: Foundation (Schema + SDK)
+**Goal**: The database tracks subscription state and the Stripe SDK is configured for both development and production
+**Depends on**: Phase 58 (v5.0 complete)
+**Requirements**: SUB-03, SUB-04, PROD-01
+**Success Criteria** (what must be TRUE):
+  1. Supabase has a subscriptions table (or columns on profiles) storing stripe_customer_id, subscription_id, status, tier, current_period_end, and cancel_at_period_end
+  2. The Stripe Node SDK is installed and initialized with environment variables for API keys and price IDs (no hardcoded IDs anywhere in the codebase)
+  3. A webhook secret environment variable is configured and the app reads it at startup without crashing
+  4. RLS policies ensure users can only read their own subscription data
+**Plans**: TBD
+
+### Phase 60: Webhook Handler
+**Goal**: Stripe subscription lifecycle events are reliably synced to Supabase so the app always reflects the true subscription state
+**Depends on**: Phase 59
+**Requirements**: SUB-02, PROD-02, PROD-03
+**Success Criteria** (what must be TRUE):
+  1. A Next.js API route receives Stripe webhook events and verifies the signature before processing (forged requests are rejected with 400)
+  2. checkout.session.completed, customer.subscription.updated, customer.subscription.deleted, and invoice.payment_failed events update the corresponding subscription record in Supabase
+  3. Processing the same webhook event twice produces the same database state (idempotent -- no duplicate records or double state transitions)
+  4. A subscription with status past_due retains Creator tier access (grace period while Stripe retries payment)
+**Plans**: TBD
+
+### Phase 61: Checkout Flow
+**Goal**: Users can subscribe to the Creator tier through a real Stripe Checkout session
+**Depends on**: Phase 59, Phase 60 (webhook must be ready to process checkout.session.completed)
+**Requirements**: SUB-01
+**Success Criteria** (what must be TRUE):
+  1. User can click "Subscribe" on a pricing page and be redirected to a Stripe Checkout session with the correct price (monthly $20/mo or annual $200/yr)
+  2. After successful payment, the user is redirected back to the app and their subscription status shows as active within seconds (via webhook processing)
+  3. The pricing page shows both monthly and annual options with clear price comparison
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 62: Credit Gating
+**Goal**: Analysis access is gated by subscription tier so free users have a usage limit and Creator users have unlimited access
+**Depends on**: Phase 59 (needs tier data in database)
+**Requirements**: CRED-01, CRED-02, CRED-03, CRED-04, POL-01
+**Success Criteria** (what must be TRUE):
+  1. Free tier users are blocked from starting a new analysis after 5 analyses in the current week (Monday-Sunday reset)
+  2. Creator tier users can start unlimited analyses with no gating
+  3. The upload page shows remaining credits for the current week (e.g., "3 of 5 analyses remaining")
+  4. When a free user hits the limit, an inline upgrade prompt appears on the upload page with a direct link to checkout
+  5. Credit count resets automatically at the start of each week without manual intervention
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 63: Billing Portal + Settings
+**Goal**: Users can self-manage their subscription and see real billing information in the app
+**Depends on**: Phase 61 (needs active subscriptions to manage)
+**Requirements**: BILL-01, BILL-02, BILL-03, POL-03
+**Success Criteria** (what must be TRUE):
+  1. User can click "Manage Subscription" and be redirected to the Stripe Customer Portal where they can cancel, update payment method, or view invoices
+  2. The billing settings page shows the user's current plan name, subscription status (active/canceled/past_due), and next renewal date pulled from real Supabase data
+  3. A user who cancels retains Creator access until the end of their current billing period (cancel_at_period_end = true shows "Active until [date]")
+  4. A plan badge (Free or Creator) appears in the navigation or dashboard header indicating the user's current tier
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 64: Polish + Annual Upsell
+**Goal**: Users selecting monthly billing see a nudge toward the annual plan highlighting cost savings
+**Depends on**: Phase 61 (checkout flow must exist)
+**Requirements**: POL-02
+**Success Criteria** (what must be TRUE):
+  1. When a user selects the monthly plan on the pricing/checkout page, an annual upsell callout appears showing the savings (e.g., "Save $40/year with annual billing")
+  2. The upsell includes a one-click switch to the annual checkout session
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
@@ -774,6 +855,7 @@ Phases 33-37: 33 -> 34 -> 35 -> 36 -> 37
 Phases 39-43: 39 -> 40 -> 41 -> 42 -> 43 (42 and 43 parallel-capable after 41)
 Phases 44-51: 44 -> 45 -> 46 -> 47 -> 48 -> 49 -> 50 -> 51 (49 and 50 parallel-capable after 48)
 Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54) -> 57 (after 52) -> 58 (after 56)
+Phases 59-64: 59 -> 60 -> 61 (after 60) -> 62 (after 59) -> 63 (after 61) -> 64 (after 61)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -835,3 +917,9 @@ Phases 52-58: 52 -> 53/54 (parallel-capable) -> 55 (after 53) -> 56 (after 53+54
 | 56. Results Adaptations | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 57. Content Type Badges | v5.0 | 1/0 | Complete    | 2026-04-12 |
 | 58. Comparison Page | v5.0 | 1/0 | Complete    | 2026-04-12 |
+| 59. Foundation (Schema + SDK) | v6.0 | 0/0 | Not started | - |
+| 60. Webhook Handler | v6.0 | 0/0 | Not started | - |
+| 61. Checkout Flow | v6.0 | 0/0 | Not started | - |
+| 62. Credit Gating | v6.0 | 0/0 | Not started | - |
+| 63. Billing Portal + Settings | v6.0 | 0/0 | Not started | - |
+| 64. Polish + Annual Upsell | v6.0 | 0/0 | Not started | - |

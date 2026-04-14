@@ -71,29 +71,29 @@ Requirements for Stripe Payments milestone. Integrate Stripe to enable real paym
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SUB-01 | — | Pending |
-| SUB-02 | — | Pending |
-| SUB-03 | — | Pending |
-| SUB-04 | — | Pending |
-| CRED-01 | — | Pending |
-| CRED-02 | — | Pending |
-| CRED-03 | — | Pending |
-| CRED-04 | — | Pending |
-| BILL-01 | — | Pending |
-| BILL-02 | — | Pending |
-| BILL-03 | — | Pending |
-| PROD-01 | — | Pending |
-| PROD-02 | — | Pending |
-| PROD-03 | — | Pending |
-| POL-01 | — | Pending |
-| POL-02 | — | Pending |
-| POL-03 | — | Pending |
+| SUB-01 | Phase 61 | Pending |
+| SUB-02 | Phase 60 | Pending |
+| SUB-03 | Phase 59 | Pending |
+| SUB-04 | Phase 59 | Pending |
+| CRED-01 | Phase 62 | Pending |
+| CRED-02 | Phase 62 | Pending |
+| CRED-03 | Phase 62 | Pending |
+| CRED-04 | Phase 62 | Pending |
+| BILL-01 | Phase 63 | Pending |
+| BILL-02 | Phase 63 | Pending |
+| BILL-03 | Phase 63 | Pending |
+| PROD-01 | Phase 59 | Pending |
+| PROD-02 | Phase 60 | Pending |
+| PROD-03 | Phase 60 | Pending |
+| POL-01 | Phase 62 | Pending |
+| POL-02 | Phase 64 | Pending |
+| POL-03 | Phase 63 | Pending |
 
 **Coverage:**
 - v6.0 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17/17
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-13*
-*Last updated: 2026-04-13 after initial definition*
+*Last updated: 2026-04-13 after roadmap creation*
