@@ -1,468 +1,679 @@
-# Domain Pitfalls: Multi-Modal Input & Comparison
+# Domain Pitfalls: Stripe Subscription Integration
 
-**Domain:** Adding image/text input to a video-only neural inference pipeline + comparison UI for mixed content types
-**Researched:** 2026-04-11
-**Confidence:** HIGH for inference pipeline pitfalls (verified against TRIBE v2 source, handler.py, schema.py), MEDIUM for UX/comparison pitfalls (based on established patterns + domain reasoning)
+**Domain:** Adding Stripe subscription billing to an existing Next.js + Supabase app
+**Researched:** 2026-04-13
+**Confidence:** HIGH for webhook/sync pitfalls (verified via Stripe official docs, multiple post-mortems, real GitHub issues), MEDIUM for Supabase-specific RLS interactions (verified via Supabase docs + community discussions)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, broken inference, or user trust damage.
+Mistakes that cause lost revenue, security vulnerabilities, or data corruption.
 
-### Pitfall 1: Image-to-Video Is Out-of-Distribution and Scores Are Not Comparable to Real Video
+### Pitfall 1: Webhook Signature Verification Fails Due to Next.js Body Parsing
 
 **What goes wrong:**
-A static image converted to video via `ImageClip(duration=N)` produces a clip with zero temporal variation -- every frame is identical. TRIBE v2's V-JEPA2 feature extractor was trained on naturalistic video with motion, scene changes, and temporal dynamics. A frozen frame is fundamentally out-of-distribution input. The model will produce predictions, but they reflect "brain response to staring at one unchanging image" -- a stimulus type not present in the 700+ subject fMRI training set. The resulting neural scores are not on the same scale as video scores, and directly comparing them on a leaderboard or in a comparison view is scientifically misleading.
+Stripe webhook signature verification requires the raw, unmodified request body. Next.js App Router automatically parses JSON request bodies. If your webhook route handler calls `await req.json()` before signature verification, the re-serialized JSON may differ from the raw bytes Stripe signed (key ordering, whitespace), causing `stripe.webhooks.constructEvent()` to throw `Webhook signature verification failed`. The webhook silently rejects every event, and you have no subscription state sync at all.
 
 **Why it happens:**
-The conversion is technically simple (MoviePy `ImageClip` + `write_videofile`), so it feels like a solved problem. The model accepts the input without error because modality dropout training means V-JEPA2 produces features for any video-shaped tensor. No error = false confidence that the output is valid.
+Developers test locally with `stripe listen --forward-to` which can bypass signature verification. Everything works in dev, breaks in production.
 
 **Consequences:**
-- Users compare thumbnail neural scores to video neural scores on the leaderboard and draw invalid conclusions ("my thumbnail is more engaging than my video")
-- Power users notice scores for static content cluster in a narrow, low range and lose trust
-- NeuroCut's credibility as a neural data platform is undermined if it presents exploratory/OOD results as equivalent to validated video results
+- Zero webhook events processed in production
+- Users complete checkout, pay money, but never get Creator tier access
+- Support tickets about "I paid but I'm still on Free"
+- If you disable signature verification to "fix" it, anyone can POST fake webhook events and grant themselves paid access
 
 **Prevention:**
-- Label image-derived scores with a visible "Exploratory" badge on every surface they appear (results page, discovery, comparison, leaderboard). Never silently mix them with video scores.
-- Store `content_type` as a first-class column in the `jobs` table: `'video' | 'image' | 'text_visual' | 'text_spoken'`. This is not optional metadata -- it gates UI behavior, comparison logic, and leaderboard filtering.
-- On the comparison page, show a prominent disclaimer when comparing different content types: "Image and video scores use different inference modes. Cross-type comparison is exploratory."
-- Consider excluding image-type analyses from the main leaderboard entirely, or providing a separate "Thumbnails" leaderboard.
-- Add a `confidence_level` field to results: `'validated'` for video, `'exploratory'` for image/text_visual.
+```typescript
+// app/api/webhooks/stripe/route.ts
+import { headers } from 'next/headers';
+import Stripe from 'stripe';
+
+export async function POST(req: Request) {
+  // CRITICAL: Use req.text(), NOT req.json()
+  const body = await req.text();
+  const signature = (await headers()).get('stripe-signature')!;
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err);
+    return new Response('Invalid signature', { status: 400 });
+  }
+
+  // Now safe to process event
+  // Return 200 IMMEDIATELY, process async if needed
+  return new Response('OK', { status: 200 });
+}
+```
 
 **Detection:**
-- Image analysis scores clustering in an unusually narrow range compared to video
-- User complaints that "my thumbnail scores lower than my worst video"
-- Support questions about score comparability
+- Stripe Dashboard > Webhooks shows all events failing with non-2xx responses
+- `stripe.webhooks.constructEvent` errors in server logs
+- Users paying but subscription status never updating in Supabase
 
 **Phase to address:**
-Phase 1 (Schema + Content Type Foundation) -- `content_type` column and labeling strategy must be decided before any new input type ships.
+Phase 2 (Webhook Handler) -- this is the first thing to get right. Test with `stripe trigger checkout.session.completed` in CLI.
 
 ---
 
-### Pitfall 2: gTTS Requires Internet From Inside RunPod Containers
+### Pitfall 2: Race Condition Between Checkout Redirect and Webhook Delivery
 
 **What goes wrong:**
-TRIBE v2's text-to-speech pipeline for `text_path` input calls `gTTS`, which is a wrapper around Google Translate's TTS API. It makes an HTTP request to `translate.google.com` for every text-to-speech conversion. RunPod serverless containers DO have internet access by default, but: (a) Google Translate can rate-limit or block IPs from cloud data centers, causing sporadic `gTTS.tts.gTTSError` failures, (b) the external dependency adds latency and a point of failure outside your control, (c) if RunPod's egress configuration changes or a firewall rule is applied, text inference silently breaks while video inference continues working.
+After successful Stripe Checkout, two things happen nearly simultaneously: (1) Stripe redirects the user to your `success_url`, and (2) Stripe sends a `checkout.session.completed` webhook. The redirect often arrives BEFORE the webhook is processed. If your success page queries Supabase for the user's subscription status, it reads stale data ("Free" tier) because the webhook hasn't updated the database yet. The user sees "Payment successful!" but the UI still shows Free tier.
 
 **Why it happens:**
-gTTS is listed in TRIBE v2's `pyproject.toml` dependencies and is called internally by `TextToEvents.get_events()`. Developers testing locally with residential IPs never see rate limiting. The first production failures happen under load or after running for hours from the same datacenter IP.
+Stripe's webhook delivery and the browser redirect are independent. The redirect is instant (browser hop), while the webhook must traverse Stripe's infrastructure, hit your server, verify the signature, and write to Supabase. Latency: 100ms to several seconds.
 
 **Consequences:**
-- Text-spoken mode fails intermittently with cryptic gTTS errors (HTTP 429 or connection refused)
-- Users see "inference failed" with no useful error message
-- Retry logic makes it worse (hammers Google harder, extends the block)
+- User sees confusing "You're on Free tier" immediately after paying
+- User frantically clicks around, refreshes, opens support tickets
+- If you have credit-gating, user might hit "3 free analyses" limit right after paying
 
 **Prevention:**
-- Test gTTS from inside a RunPod container before committing to this path. Run 20 sequential requests from the same pod and check for rate limiting.
-- Have a fallback plan ready: if gTTS is unreliable from RunPod, replace it with an offline TTS library. Kokoro-82M (82M params, runs on CPU, human-parity quality) or MeloTTS (lightweight, multilingual, CPU-only) are drop-in replacements that require no internet. This means monkey-patching or forking TRIBE v2's `TextToEvents` class.
-- Wrap the gTTS call in a try/except that falls back to a local TTS model on failure, rather than failing the entire job.
-- Log all gTTS failures with the HTTP status code so you can distinguish rate limiting (429) from network issues (connection refused) from Google blocking (403).
+```typescript
+// Option A: Poll on success page (recommended for simplicity)
+// app/(app)/billing/success/page.tsx
+'use client';
+export default function SuccessPage() {
+  const [status, setStatus] = useState<'loading' | 'active' | 'timeout'>('loading');
+
+  useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 10;
+    const interval = setInterval(async () => {
+      attempts++;
+      const sub = await getSubscriptionStatus(); // query Supabase
+      if (sub?.status === 'active') {
+        setStatus('active');
+        clearInterval(interval);
+      } else if (attempts >= maxAttempts) {
+        setStatus('timeout'); // show "processing, check back shortly"
+        clearInterval(interval);
+      }
+    }, 2000); // poll every 2s for up to 20s
+    return () => clearInterval(interval);
+  }, []);
+
+  // Show spinner while loading, success when active, "processing" on timeout
+}
+
+// Option B: Use checkout session ID from URL
+// success_url: '/billing/success?session_id={CHECKOUT_SESSION_ID}'
+// On success page, call Stripe API directly to verify payment
+// Then write to Supabase if webhook hasn't arrived yet
+```
 
 **Detection:**
-- `gTTSError` in RunPod job logs
-- Text-spoken jobs failing while video jobs succeed on the same pod
-- Failure rate increasing with usage volume
+- Users reporting "I paid but still shows Free" (transient -- resolves on refresh)
+- Success page showing Free tier momentarily after checkout
 
 **Phase to address:**
-Phase 2 (Text Input Pipeline) -- must be validated before text-spoken mode ships. Do not promise this feature until gTTS reliability from RunPod is confirmed or an offline fallback is implemented.
+Phase 3 (Checkout Flow) -- success page must handle the webhook lag from day one.
 
 ---
 
-### Pitfall 3: Handler Assumes Video-Only Input -- Schema, Validation, and Pipeline Are Hardcoded
+### Pitfall 3: Webhook Handler Uses Supabase Anon Key -- RLS Blocks All Writes
 
 **What goes wrong:**
-The current `InputSchema` has a required `video_url: str` field. The `handler()` function calls `download_video()`, passes the path to `run_inference()` which calls `model.get_events_dataframe(video_path=...)`. Every step of the pipeline is hardcoded for video. Adding image or text support requires changes at EVERY layer:
-1. `InputSchema` -- new fields (`image_url`, `text_content`, `input_type`)
-2. `handler()` -- branching logic for download vs text handling
-3. `inference.py` -- calling `get_events_dataframe()` with different parameters per mode
-4. `postprocessor.py` -- output schema must include `content_type`
-5. `OutputSchema` -- new `content_type` field
-6. Frontend `Job` TypeScript type -- new columns
-7. Upload page, results page, comparison page -- all need content-type awareness
-
-If ANY layer is missed, the system breaks in subtle ways (e.g., image jobs stored with `content_type: null`, comparison page treats everything as video).
+Stripe webhook requests have no user session. They hit your API route as an anonymous server-to-server call. If your webhook handler creates a Supabase client with the anon key (the default in most Next.js + Supabase setups), Row Level Security policies block the INSERT/UPDATE to the `subscriptions` table because there is no authenticated user in the request context. The webhook returns 200 (your code caught the error silently), but no data was written.
 
 **Why it happens:**
-v1.0 was correctly scoped to video-only. But the assumption "input = video" is now baked into every layer. Adding new input types is not a feature addition -- it is a schema migration that touches the full stack.
+The standard Supabase client in Next.js SSR uses the anon key + user session from cookies. Webhook routes have no cookies. Developers use the same `createServerClient()` helper everywhere, not realizing webhook routes need special treatment.
 
 **Consequences:**
-- Partial implementation leaves orphan code paths (image uploads succeed but postprocessor crashes)
-- Missing `content_type` in the database means you can't distinguish old video jobs from new image jobs after the migration
-- Frontend renders video player for image analyses, showing a black screen
+- Webhook events process without error (signature verified, event parsed) but database writes silently fail
+- Subscription status never updates in Supabase
+- Extremely hard to debug because the webhook returns 200 and Stripe shows "delivered"
 
 **Prevention:**
-- Map the full pipeline change before writing any code. Create a checklist: InputSchema, handler branch, inference call, postprocessor, OutputSchema, database migration, TypeScript types, upload page, results page, comparison page, discovery page.
-- Add `content_type` to the `jobs` table with a migration that backfills all existing rows to `'video'`. Do this FIRST, before any new input type code.
-- Make `input_type` a required field in the new `InputSchema` (with `'video'` as default for backward compatibility with any in-flight jobs).
-- Use a discriminated union pattern in the schema: `input_type: Literal['video', 'image', 'text_visual', 'text_spoken']` with conditional required fields per type.
+```typescript
+// lib/supabase-admin.ts -- ONLY used server-side, NEVER in client code
+import { createClient } from '@supabase/supabase-js';
+
+// Service role key bypasses RLS -- treat like a database root password
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // NOT the anon key
+  { auth: { persistSession: false } }
+);
+
+// In webhook handler:
+const { error } = await supabaseAdmin
+  .from('subscriptions')
+  .upsert({
+    user_id: userId,
+    stripe_customer_id: customerId,
+    stripe_subscription_id: subscriptionId,
+    status: subscription.status,
+    // ...
+  });
+
+if (error) {
+  console.error('Supabase write failed:', error);
+  return new Response('Database error', { status: 500 }); // Stripe will retry
+}
+```
+
+**Key rules:**
+- Create a dedicated `supabaseAdmin` client file
+- NEVER import it from client components
+- NEVER expose `SUPABASE_SERVICE_ROLE_KEY` to the browser (no `NEXT_PUBLIC_` prefix)
+- Only use it in webhook handlers and server-side admin operations
 
 **Detection:**
-- `content_type IS NULL` rows in the jobs table after migration
-- Video player rendering on image analysis results
-- Handler returning errors for non-video input because `video_url` is required
+- Stripe Dashboard shows webhook delivered (200) but Supabase `subscriptions` table is empty
+- Adding `console.log` after the upsert shows RLS policy violation errors
+- Works perfectly in development if you have RLS disabled on your dev database
 
 **Phase to address:**
-Phase 1 (Schema Foundation) -- database migration and schema changes must land before any new input type pipeline code.
+Phase 1 (Database Schema) -- set up `supabaseAdmin` client when creating the subscriptions table and RLS policies.
 
 ---
 
-### Pitfall 4: MoviePy ImageClip Produces Corrupted or Incompatible Video Files
+### Pitfall 4: Handling Only "active" and "canceled" -- Ignoring 4 Other Subscription States
 
 **What goes wrong:**
-`ImageClip` from MoviePy has several documented failure modes when converting static images to video:
-1. **No explicit duration = infinite clip**: `ImageClip("image.jpg")` has infinite duration by default. Calling `write_videofile()` without setting duration hangs or writes until disk is full.
-2. **Small images produce corrupted output**: Images below ~256px on either dimension can produce corrupted MP4 files that ffmpeg decodes incorrectly or TRIBE v2's video loader rejects.
-3. **Grayscale/RGBA images break compositing**: Grayscale (1-channel) or RGBA (4-channel) images fail silently or produce green/corrupted frames. TRIBE v2's V-JEPA2 expects RGB.
-4. **FPS mismatch**: If the generated video has 1 fps (common default for still-image video), V-JEPA2 may process it differently than 24/30fps naturalistic video, further pushing the input out of distribution.
-5. **No audio track**: An ImageClip-generated video has no audio. When TRIBE v2 calls `get_events_dataframe(video_path=...)`, it extracts audio. An empty/missing audio track may cause the audio feature extractor to produce zero tensors or raise an error.
+Stripe subscriptions have 6 possible statuses: `active`, `canceled`, `past_due`, `unpaid`, `trialing`, `incomplete`. Most developers only handle `active` (grant access) and `canceled` (revoke access). This creates silent bugs:
+- `past_due`: Payment failed but Stripe is retrying. User should keep access during grace period but see a warning banner. If you treat `past_due` as `active`, users never know their card failed. If you treat it as not-active, you lock out paying customers whose bank had a temporary hold.
+- `incomplete`: Checkout started but 3D Secure authentication wasn't completed. User is in limbo.
+- `unpaid`: All payment retries exhausted. User should lose access but be prompted to update payment method, not shown "subscribe" as if they never had a subscription.
 
 **Why it happens:**
-MoviePy is designed for video editing, not for converting single images to model input. Its ImageClip is a convenience class that handles edge cases poorly because it is designed for compositing, not export.
+The happy path (active/canceled) covers 95% of test scenarios. The edge cases only emerge with real cards, real bank declines, and real time passing.
 
 **Consequences:**
-- TRIBE v2 inference silently crashes or produces garbage output from corrupted input
-- Users upload a perfectly valid JPEG and get "inference failed" with no explanation
-- Audio feature extractor crashes or produces zeros, skewing brain predictions
+- Past-due users silently churn because they never knew their card was declined
+- Unpaid users see "Subscribe to Creator" when they should see "Update your payment method"
+- Incomplete subscriptions create orphan Stripe customers with no matching Supabase record
 
 **Prevention:**
-- Build a robust `image_to_video()` conversion function with explicit guards:
-  ```python
-  def image_to_video(image_path, output_path, duration=5.0, fps=24):
-      img = Image.open(image_path).convert("RGB")  # Force RGB
-      w, h = img.size
-      # Ensure minimum dimensions (V-JEPA2 friendly)
-      if w < 256 or h < 256:
-          img = img.resize((max(w, 256), max(h, 256)), Image.LANCZOS)
-      # Ensure even dimensions (ffmpeg h264 requirement)
-      w, h = img.size
-      w, h = w - (w % 2), h - (h % 2)
-      img = img.resize((w, h))
-      clip = ImageClip(np.array(img)).with_duration(duration).with_fps(fps)
-      clip.write_videofile(str(output_path), codec="libx264", audio=False)
-  ```
-- Generate a silent audio track explicitly rather than relying on TRIBE v2 to handle missing audio. Use `ffmpeg` to add a silent audio stream: `ffmpeg -i video.mp4 -f lavfi -i anullsrc=r=16000:cl=mono -shortest output.mp4`.
-- Validate the output video file size and duration before passing to inference. A 0-byte or <1KB file indicates corrupted output.
-- Test with: JPEG, PNG, WebP, grayscale, RGBA, 100x100, 4000x3000, landscape, portrait, square.
+```typescript
+// Map ALL Stripe statuses to application behavior
+type SubStatus = 'active' | 'past_due' | 'unpaid' | 'canceled' | 'incomplete' | 'trialing';
+
+function getAccessLevel(status: SubStatus): {
+  hasAccess: boolean;
+  showWarning: boolean;
+  warningMessage?: string;
+} {
+  switch (status) {
+    case 'active':
+    case 'trialing':
+      return { hasAccess: true, showWarning: false };
+    case 'past_due':
+      return {
+        hasAccess: true, // grace period -- don't punish for bank glitch
+        showWarning: true,
+        warningMessage: 'Your payment failed. Please update your payment method to avoid losing access.'
+      };
+    case 'incomplete':
+      return {
+        hasAccess: false,
+        showWarning: true,
+        warningMessage: 'Your subscription setup is incomplete. Please complete payment.'
+      };
+    case 'unpaid':
+      return {
+        hasAccess: false,
+        showWarning: true,
+        warningMessage: 'Your subscription payment failed. Update your payment method to restore access.'
+      };
+    case 'canceled':
+      return { hasAccess: false, showWarning: false };
+  }
+}
+```
+
+Configure Stripe's dunning settings in Dashboard > Settings > Billing > Subscriptions and emails:
+- Enable Smart Retries (Stripe retries failed payments with ML-optimized timing)
+- Set retry schedule: 3 retries over 7 days
+- After all retries fail: mark subscription as `canceled` (not `unpaid` -- cleaner)
+- Enable failed payment email notifications from Stripe
 
 **Detection:**
-- TRIBE v2 `get_events_dataframe()` raising exceptions on image-derived videos
-- Audio feature extractor producing all-zero tensors
-- Output video file size being implausibly small (<10KB for a 5-second video)
+- Users with `past_due` status in Stripe Dashboard but no warning in the app
+- Support tickets about "I was charged but lost access" (card declined, past_due treated as inactive)
+- Orphan `incomplete` subscriptions in Stripe with no corresponding Supabase record
 
 **Phase to address:**
-Phase 2 (Image Pipeline) -- build and thoroughly test `image_to_video()` before connecting it to the inference pipeline.
+Phase 2 (Webhook Handler) -- handle ALL statuses from the start. Phase 4 (UI) -- show warning banners for past_due/unpaid.
 
 ---
 
-### Pitfall 5: Video-Only Mode vs Multimodal Mode Switching Creates a Dual-Pipeline Maintenance Burden
+### Pitfall 5: Test Mode Price IDs Hardcoded -- Everything Breaks Going Live
 
 **What goes wrong:**
-The v5.0 plan requires TWO distinct inference modes:
-1. **Video-only mode** (for images): `model.get_events_dataframe(video_path=converted_video)` -- sends the image-as-video through V-JEPA2 only, no audio, no text.
-2. **Full multimodal mode** (for text-spoken): `model.get_events_dataframe(text_path=text_file)` -- triggers gTTS, audio extraction, WhisperX transcription, and all three feature extractors.
-
-These are fundamentally different code paths through TRIBE v2 with different dependencies (gTTS, WhisperX), different failure modes, different latencies (text-spoken adds TTS + transcription overhead), and different output characteristics. But they both return the same `(predictions, segments)` tuple that the postprocessor must handle identically.
+Stripe test mode and live mode are completely separate environments. Products, prices, customers, subscriptions -- everything has different IDs. A price created in test mode (`price_1Abc...`) does not exist in live mode. If you hardcode test price IDs in your codebase or Supabase, switching to live mode causes "No such price" errors on every checkout attempt.
 
 **Why it happens:**
-TRIBE v2's API is designed for research flexibility ("pass any modality"), not for production routing. The model doesn't distinguish between "I'm doing video-only because the input is a static image" and "I'm doing video-only because I want to test visual-only predictions." The distinction matters for NeuroCut's UX and data interpretation but not for the model API.
+During development, you create products and prices in the Stripe test Dashboard, copy-paste the IDs into your code, and everything works. Nobody thinks about live mode until launch day.
 
 **Consequences:**
-- Bug in one mode silently affects the other (shared postprocessor, shared schema)
-- Text-spoken mode failures (gTTS) get reported as generic "inference failed" because error handling doesn't distinguish modes
-- Latency estimates on the processing page are wrong (video: ~12 min, text-spoken: maybe 2-3 min, image: maybe 1-2 min) but the UI shows one estimate
-- VRAM usage differs between modes (text-spoken loads LLaMA 3.2 + Wav2Vec-BERT; video-only loads only V-JEPA2), causing potential OOM on smaller GPUs if modes alternate
+- Checkout fails for every real customer on launch day
+- Scramble to create live products, update IDs, and redeploy
+- If IDs are stored in Supabase (e.g., a `plans` table), you need a data migration too
+- Webhook endpoint secret is also different between test and live mode
 
 **Prevention:**
-- Make `input_type` the first branch point in the handler, before any processing:
-  ```python
-  if params.input_type == 'video':
-      # existing video pipeline
-  elif params.input_type == 'image':
-      # convert image, then video-only inference
-  elif params.input_type == 'text_spoken':
-      # write text file, then text-path inference
-  elif params.input_type == 'text_visual':
-      # render text to image, convert to video, video-only inference
-  ```
-- Each branch has its OWN try/except with mode-specific error types. Never let a gTTS error be reported as "inference failed."
-- Track inference timing per mode separately. Store `inference_mode` in the job results so the frontend can show accurate ETAs.
-- Test each mode independently AND test mode alternation (image job followed immediately by text-spoken job on the same warm container) to catch VRAM fragmentation.
+```bash
+# .env.local (development)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_PRICE_CREATOR_MONTHLY=price_test_monthly_...
+STRIPE_PRICE_CREATOR_ANNUAL=price_test_annual_...
+
+# .env.production (Vercel environment variables)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_PRICE_CREATOR_MONTHLY=price_live_monthly_...
+STRIPE_PRICE_CREATOR_ANNUAL=price_live_annual_...
+```
+
+**Rules:**
+- NEVER hardcode price IDs in source code. Always use environment variables.
+- Create a checklist of ALL Stripe-related env vars that differ between test and live.
+- After creating live products, verify every env var is updated before deploying.
+- The webhook endpoint URL can be the same, but the webhook signing secret is different per endpoint. You need to register a new webhook endpoint in live mode Dashboard.
+- Test your live mode setup with a real $1 charge to yourself before announcing to users.
 
 **Detection:**
-- Different modes producing statistically different score distributions (expected but must be documented)
-- OOM errors on A40 when switching from video-only to text-spoken mode
-- Processing page showing "~12 min" for a text input that actually takes 2 minutes
+- "No such price" errors in Stripe API calls after switching to live mode
+- Webhook signature verification failing in production (wrong signing secret)
+- Checkout redirecting to Stripe but showing "Something went wrong"
 
 **Phase to address:**
-Phase 2 (Pipeline Branching) -- define the handler routing and per-mode error handling before implementing any new mode.
+Phase 1 (Setup) -- establish env var pattern from day one. Phase 6 (Go-Live) -- create live products and verify all env vars.
+
+---
+
+### Pitfall 6: Webhook Events Arrive Out of Order -- Handler Assumes Sequential Processing
+
+**What goes wrong:**
+Stripe explicitly states: "We don't guarantee delivery of events in the order in which they're generated." During a checkout flow, these events fire nearly simultaneously:
+- `checkout.session.completed`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `invoice.payment_succeeded`
+- `invoice.created`
+
+If your handler processes `customer.subscription.updated` before `customer.subscription.created`, and your code does `UPDATE subscriptions SET status = ...` without an UPSERT, the UPDATE finds no row and silently does nothing. The subscription is never recorded.
+
+**Why it happens:**
+Developers write webhook handlers with a mental model of sequential event flow: "first checkout completes, then subscription is created, then invoice is paid." Stripe's event delivery is async and non-deterministic.
+
+**Consequences:**
+- Missing subscription records for users who paid
+- Duplicate processing if handler is not idempotent (e.g., crediting the same payment twice)
+- Partial state updates (subscription exists but payment record doesn't, or vice versa)
+
+**Prevention:**
+```typescript
+// Use UPSERT, not INSERT or UPDATE
+// This handles any event order: first event creates, subsequent events update
+async function syncSubscription(subscription: Stripe.Subscription) {
+  const { error } = await supabaseAdmin
+    .from('subscriptions')
+    .upsert(
+      {
+        stripe_subscription_id: subscription.id,
+        user_id: getUserIdFromCustomer(subscription.customer),
+        stripe_customer_id: subscription.customer as string,
+        status: subscription.status,
+        price_id: subscription.items.data[0]?.price.id,
+        current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        cancel_at_period_end: subscription.cancel_at_period_end,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'stripe_subscription_id' }
+    );
+
+  if (error) throw error;
+}
+
+// In the webhook switch statement, multiple events call the same sync function:
+case 'customer.subscription.created':
+case 'customer.subscription.updated':
+case 'customer.subscription.deleted':
+  await syncSubscription(event.data.object as Stripe.Subscription);
+  break;
+```
+
+**Also implement idempotency:**
+```typescript
+// Store processed event IDs to prevent duplicate processing
+const { data: existing } = await supabaseAdmin
+  .from('stripe_events')
+  .select('id')
+  .eq('stripe_event_id', event.id)
+  .single();
+
+if (existing) {
+  return new Response('Already processed', { status: 200 });
+}
+
+// Process event...
+
+// Mark as processed
+await supabaseAdmin
+  .from('stripe_events')
+  .insert({ stripe_event_id: event.id, event_type: event.type, processed_at: new Date().toISOString() });
+```
+
+**Detection:**
+- Users with payments in Stripe but no `subscriptions` row in Supabase
+- Duplicate rows in subscriptions table (if using INSERT instead of UPSERT)
+- `stripe_events` table showing the same event ID processed multiple times
+
+**Phase to address:**
+Phase 2 (Webhook Handler) -- UPSERT pattern and idempotency table must be in the initial webhook implementation.
 
 ---
 
 ## Moderate Pitfalls
 
-### Pitfall 6: Text-Visual Mode Is Double Out-of-Distribution
+### Pitfall 7: Stripe Customer ID Not Linked to Supabase User Before Checkout
 
 **What goes wrong:**
-"Text visual mode" renders text onto a styled card image, converts that image to video, then runs video-only inference. This means the model sees a synthetic image (rendered text on a colored background) that has been looped into a video. This is doubly out-of-distribution: neither the visual content (rendered text, not a natural scene) nor the temporal structure (static, no motion) match the training data. The resulting predictions will likely reflect "brain response to looking at a blank-ish uniform image" rather than anything meaningful about the text content.
+When a `checkout.session.completed` webhook arrives, you need to know WHICH Supabase user to grant Creator access to. If you don't pass the user ID in the checkout session metadata, and you don't have a `stripe_customer_id` stored on the user's profile, you have no way to link the Stripe event to a Supabase user. You end up trying to match by email, which fails if the user's Stripe email differs from their Supabase auth email.
 
 **Why it happens:**
-It sounds logical: "If we can do image-to-video for thumbnails, we can render text as an image and do the same thing." But a thumbnail is at least a natural photograph. Rendered text on a solid background has almost no visual features for V-JEPA2 to extract.
+Checkout Session creation and webhook handling are separate code paths (one in API route, one in webhook route). It's easy to create the session without thinking about how the webhook will identify the user.
 
 **Prevention:**
-- Clearly document that text-visual mode exists for completeness but is the LEAST reliable mode.
-- Consider whether text-visual mode should even exist -- text-spoken mode (which uses TRIBE v2's native text pipeline) produces vastly more meaningful predictions because it uses the LLaMA 3.2 text encoder.
-- If text-visual ships, mark it as "Experimental" with a tooltip explaining that predictions are based on visual appearance only, not semantic content.
-- Run a validation study: compare text-visual scores for semantically different text (e.g., "BREAKING NEWS" vs "Grocery List") to see if the model produces meaningfully different predictions. If scores are indistinguishable, the mode is not useful.
+```typescript
+// When creating checkout session, ALWAYS include user metadata:
+const session = await stripe.checkout.sessions.create({
+  mode: 'subscription',
+  customer_email: user.email, // pre-fill, but don't rely on for matching
+  metadata: {
+    supabase_user_id: user.id, // THIS is what the webhook uses to identify the user
+  },
+  subscription_data: {
+    metadata: {
+      supabase_user_id: user.id, // Also on the subscription itself
+    },
+  },
+  line_items: [{ price: priceId, quantity: 1 }],
+  success_url: `${origin}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+  cancel_url: `${origin}/billing`,
+});
+```
+
+Store `stripe_customer_id` on the user's profile after first checkout so subsequent lookups are fast.
 
 **Phase to address:**
-Phase 3 (Text Input) -- may decide to defer or drop text-visual after evaluating text-spoken.
+Phase 3 (Checkout Session Creation) -- metadata must be included from the first checkout implementation.
 
 ---
 
-### Pitfall 7: Comparison Page Implies Score Equivalence Across Content Types
+### Pitfall 8: Not Returning 200 Fast Enough -- Stripe Thinks Webhook Failed
 
 **What goes wrong:**
-A side-by-side comparison view that shows two neural score charts with the same axes, same colors, and same scale implicitly tells the user "these numbers are directly comparable." When comparing a 60-second video (validated, full multimodal inference) with a thumbnail image (exploratory, video-only inference of a frozen frame), the visual parity of the charts is misleading.
+Stripe expects a 2xx response within a few seconds. If your webhook handler does heavy processing synchronously (multiple Supabase queries, sending emails, updating caches) before returning, Stripe may time out and retry the event. Retries cause duplicate processing if you haven't implemented idempotency (Pitfall 6).
 
 **Why it happens:**
-The natural UI for "compare two things" is to put them side by side with matching scales. This is correct when comparing two videos but incorrect when comparing a video with an image.
-
-**Prevention:**
-- When content types differ, show a comparison mode disclaimer at the top of the page: "You are comparing different content types. Neural scores are generated using different inference modes and are not directly comparable."
-- Visually differentiate the two sides: use a subtle background tint or border style per content type. Video results get the standard treatment; image results get a dashed border and "Exploratory" chip.
-- Disable or gray out "difference" calculations (e.g., "Video scored 12% higher than image") when content types differ. The delta is meaningless.
-- Consider restricting comparison to same content type only for v5.0, and allowing cross-type comparison in a later version with proper disclaimers.
-- On the comparison picker UI, group analyses by content type and show a warning icon when the user selects two different types.
-
-**Phase to address:**
-Phase 5 (Comparison View) -- the comparison UI must be content-type-aware from day one.
-
----
-
-### Pitfall 8: Database Schema Not Designed for Multi-Input From the Start
-
-**What goes wrong:**
-The current `jobs` table has `video_url text NOT NULL`. For image and text inputs, this column is semantically wrong: an image analysis doesn't have a video URL (it has an image URL that was converted), and a text analysis has no URL at all (it has text content). Teams either: (a) stuff the image URL into `video_url` and lose clarity, (b) make `video_url` nullable and break existing queries, or (c) add `image_url`, `text_content` as separate columns creating a sparse schema.
-
-**Why it happens:**
-The schema was correctly designed for video-only. Retrofitting a new input paradigm onto an existing schema is always a design challenge.
-
-**Prevention:**
-- Rename `video_url` to `source_url` (nullable) and add:
-  - `content_type text NOT NULL DEFAULT 'video'` -- discriminator
-  - `source_text text` -- for text inputs (nullable)
-  - `source_media_url text` -- URL to the original uploaded media (nullable, for video and image)
-  - `converted_video_url text` -- URL to the converted video file (nullable, for image-to-video results)
-- Backfill existing rows: `UPDATE jobs SET content_type = 'video', source_media_url = video_url`.
-- Do NOT make `video_url` nullable without a migration that moves data first. Queries like `SELECT video_url FROM jobs WHERE ...` exist throughout the codebase and will break.
-- Add a CHECK constraint: `CHECK (content_type IN ('video', 'image', 'text_visual', 'text_spoken'))`.
-- Update the `Job` TypeScript interface and all frontend queries in the same migration PR.
-
-**Detection:**
-- `NULL` values in `video_url` for image/text jobs
-- Frontend showing "undefined" or broken video players for non-video jobs
-- Supabase Storage paths mixed with RunPod input URLs in the same column
-
-**Phase to address:**
-Phase 1 (Schema Migration) -- must be the very first change, before any pipeline or UI work.
-
----
-
-### Pitfall 9: Upload Page Type Selector Creates User Confusion About What They're Testing
-
-**What goes wrong:**
-Users select "Image" and upload a thumbnail, expecting to learn "will this thumbnail get clicks?" But what they actually get is "how does a brain respond to staring at this image for 5 seconds?" -- a fundamentally different question. Similarly, "Text (Visual)" sounds like it tests copywriting effectiveness, but it actually tests "how does a brain respond to looking at text rendered on a card." User expectations and system capabilities are misaligned.
-
-**Why it happens:**
-The feature names imply business utility ("test your thumbnail", "test your copy") but the model provides neuroscience data ("predicted fMRI response to stimulus"). The gap between what users think they're buying and what the model actually does creates disappointment and churn.
+Developers process everything inline in the webhook handler: verify signature, parse event, query database, update subscription, send confirmation email, invalidate cache, THEN return 200.
 
 **Consequences:**
-- Users upload thumbnails, get low scores, conclude "NeuroCut doesn't work" because they expected thumbnail-specific analysis
-- "Text visual" scores are near-random, eroding trust in ALL of NeuroCut's predictions
-- Support burden from users asking "why did my thumbnail score lower than a video?"
+- Stripe retries the event up to 3 times over 72 hours
+- Each retry triggers duplicate processing (duplicate emails, duplicate database writes)
+- Webhook marked as failing in Stripe Dashboard, triggering alerts
 
 **Prevention:**
-- Write clear, honest copy on the upload page for each mode:
-  - **Video:** "Full neural analysis of your video content. Tracks brain response to visuals, audio, and speech across every 2-second segment."
-  - **Image:** "Exploratory: Predicts brain response to viewing this image as a static visual. Scores are not directly comparable to video scores. Best for comparing thumbnails against each other."
-  - **Text (Spoken):** "Analyzes brain response to hearing this text spoken aloud. Uses TRIBE v2's native text-to-speech pipeline."
-  - **Text (Visual):** "Experimental: Predicts brain response to viewing rendered text. Limited predictive value -- consider Spoken mode instead."
-- Gate text-visual behind a "Show experimental modes" toggle. Don't show it by default.
-- On results pages, always show the inference mode used, not just the content type.
+```typescript
+export async function POST(req: Request) {
+  const body = await req.text();
+  const sig = (await headers()).get('stripe-signature')!;
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err) {
+    return new Response('Invalid signature', { status: 400 });
+  }
+
+  // Do ONLY the critical database write synchronously
+  try {
+    await processStripeEvent(event); // upsert to Supabase -- fast
+  } catch (err) {
+    console.error('Webhook processing failed:', err);
+    return new Response('Processing error', { status: 500 }); // Stripe will retry
+  }
+
+  // Return 200 immediately
+  // Non-critical side effects (emails, cache invalidation) can happen after
+  return new Response('OK', { status: 200 });
+}
+```
+
+For NeuroCut's scale (low volume during validation), inline processing is fine. But structure the code so the critical path (DB write) is fast and non-critical work (emails) can be deferred later if needed.
 
 **Phase to address:**
-Phase 3 (Upload Page Redesign) -- copy and expectation management must be finalized before shipping new input types.
+Phase 2 (Webhook Handler) -- keep the handler lean from the start.
 
 ---
 
-### Pitfall 10: Silent Audio Track for Image-to-Video Causes Unexpected Model Behavior
+### Pitfall 9: Billing Portal Returns Users to Wrong Page or Stale State
 
 **What goes wrong:**
-When an image is converted to video, there is no audio. TRIBE v2's `get_events_dataframe(video_path=...)` automatically extracts audio and runs it through Wav2Vec-BERT. With silence, the audio feature extractor either: (a) produces zero tensors (acceptable -- modality dropout handles this), or (b) produces noise-floor features that the model interprets as ambient sound, subtly biasing predictions. Which behavior occurs depends on whether the silent audio track is truly digital silence (all-zero samples) or has encoding artifacts (dithering noise, DC offset).
-
-**Why it happens:**
-ffmpeg's silent audio generation (`anullsrc`) produces clean digital silence, but MoviePy's `write_videofile` without audio may produce no audio stream at all (not silence -- ABSENCE of audio). TRIBE v2's audio extraction may handle these two cases differently.
+Stripe's Customer Portal lets users manage subscriptions (cancel, update payment method, switch plans). When they finish, Stripe redirects them back to your `return_url`. Common mistakes:
+- `return_url` points to a page that doesn't exist or requires re-authentication
+- User cancels subscription in portal, returns to app, but sees "Creator" tier because the webhook hasn't been processed yet (same race condition as Pitfall 2)
+- User updates payment method successfully but the app still shows "Payment failed" warning
 
 **Prevention:**
-- Explicitly choose between two strategies and test both:
-  - **Strategy A: No audio track.** Generate video with `audio=False`. Test that TRIBE v2 handles the missing audio stream gracefully (zeroing out audio features via modality dropout).
-  - **Strategy B: Explicit silence.** Add a silent audio track with `ffmpeg -f lavfi -i anullsrc=r=16000:cl=mono`. Test that Wav2Vec-BERT produces zero/near-zero features for silence.
-- Whichever strategy produces more consistent results in testing, standardize on it.
-- Compare predictions with and without the audio track for the same image-as-video. If they differ significantly, the model IS using the audio features even for "silent" input.
-- For v5.0, recommend Strategy A (no audio) and calling `get_events_dataframe(video_path=..., audio_path=None)` if the API supports it, to explicitly signal "no audio modality."
+```typescript
+// Create billing portal session
+const portalSession = await stripe.billingPortal.sessions.create({
+  customer: stripeCustomerId,
+  return_url: `${origin}/billing`, // Must be a valid, authenticated page
+});
+```
+
+- Return URL should be the billing settings page, which re-fetches subscription status on mount
+- Add the same polling pattern from Pitfall 2 if you detect the user is returning from the portal (check for `?portal_return=true` query param)
+- Configure the Customer Portal in Stripe Dashboard: enable/disable specific actions (cancel, update payment, switch plans) based on what your app supports
 
 **Phase to address:**
-Phase 2 (Image Pipeline) -- test during image-to-video conversion implementation.
+Phase 5 (Billing Portal Integration) -- test the full round-trip: app -> portal -> cancel -> return -> app shows updated status.
+
+---
+
+### Pitfall 10: Credit Gating Race Condition -- User Exceeds Limits During Status Transition
+
+**What goes wrong:**
+NeuroCut gates analyses by tier: Free = 3/week, Creator = unlimited. During the window between checkout and webhook processing (Pitfall 2), or during a payment failure grace period (Pitfall 4), the credit check logic may read stale subscription status. A Creator user whose payment just failed might be immediately blocked from running analyses. Or a user who just subscribed might hit the Free tier limit because their subscription isn't recorded yet.
+
+**Prevention:**
+```typescript
+async function canUserAnalyze(userId: string): Promise<boolean> {
+  const sub = await getSubscription(userId);
+
+  // Creator with active or past_due (grace period) = unlimited
+  if (sub && ['active', 'past_due', 'trialing'].includes(sub.status)) {
+    return true;
+  }
+
+  // Free tier: check weekly count
+  const weeklyCount = await getWeeklyAnalysisCount(userId);
+  return weeklyCount < 3;
+}
+```
+
+- Be GENEROUS during edge cases. It is better to give one free analysis to a lapsed subscriber than to block a paying customer.
+- For the post-checkout window: if `session_id` is present in the URL (user just came from checkout), temporarily grant access for the current request while waiting for webhook.
+- Never cache subscription status in localStorage or cookies. Always query Supabase for the current status.
+
+**Phase to address:**
+Phase 4 (Credit Gating) -- implement alongside subscription status checks.
 
 ---
 
 ## Minor Pitfalls
 
-### Pitfall 11: Comparison Picker UX Is Harder Than It Looks
+### Pitfall 11: Stripe.js Loaded on Every Page -- Unnecessary Bundle Size
 
 **What goes wrong:**
-Letting users pick "any two completed analyses" sounds simple, but the picker needs to: (a) paginate through potentially hundreds of analyses, (b) show enough context per item (title, type, score, date) to make selection meaningful, (c) handle the case where a user has only 0 or 1 analyses, (d) pre-select when arriving from a results page ("compare this with..."), and (e) show the content type for each selectable item so users know when they're crossing types.
+Importing `@stripe/stripe-js` loads the Stripe.js library (~40KB gzipped) on every page, even pages that don't use Stripe (results page, discovery page, etc).
 
 **Prevention:**
-- Design the picker before building the comparison view. It is the hardest UI component.
-- Default behavior: results page has a "Compare" button that pre-selects the current analysis and opens the picker for the second.
-- Show content type badges in the picker list. Show a warning when cross-type selection is made.
-- Require minimum 2 completed analyses before showing the "Compare" feature at all.
+- Use `loadStripe()` lazily, only on pages that need it (pricing page, billing settings)
+- Use `@stripe/stripe-js/pure` to avoid the auto-injection of the Stripe.js script tag
+- For Checkout-only integrations (no embedded payment form), you may not need Stripe.js at all -- just redirect to `session.url` from the server
 
 **Phase to address:**
-Phase 5 (Comparison View).
+Phase 3 (Checkout Flow) -- architectural decision at the start.
 
 ---
 
-### Pitfall 12: Inference Latency Varies Wildly By Content Type
+### Pitfall 12: No Webhook Event Logging -- Debugging Billing Issues Becomes Impossible
 
 **What goes wrong:**
-Video inference takes ~12 minutes for 60 seconds of content. Image inference (5-second static video, no audio) might take 1-2 minutes. Text-spoken inference (gTTS + WhisperX + full multimodal) might take 3-5 minutes depending on text length. The processing page currently shows a single progress indicator calibrated for video. Users submitting an image will think inference is stuck or broken when the progress bar sits at "Processing..." for 90 seconds with no granular updates.
+When a user reports "I was charged twice" or "I canceled but was charged again," you need to see the exact sequence of webhook events received. Without a `stripe_events` log table, you're guessing based on Stripe Dashboard timestamps vs Supabase `updated_at` timestamps, which don't tell you what your server actually received.
 
 **Prevention:**
-- Store expected latency ranges per content type in a config:
-  ```
-  video: 8-15 min
-  image: 1-3 min
-  text_spoken: 2-5 min
-  text_visual: 1-3 min
-  ```
-- Show content-type-aware ETAs on the processing page.
-- For short inferences (image, text), consider not showing the processing page at all -- redirect to results with a "Processing..." skeleton that resolves quickly.
+```sql
+create table stripe_events (
+  id uuid default gen_random_uuid() primary key,
+  stripe_event_id text unique not null,
+  event_type text not null,
+  payload jsonb,
+  processed_at timestamptz default now(),
+  error text
+);
+
+-- RLS: no public access, only service role
+alter table stripe_events enable row level security;
+-- No policies = only service role can read/write
+```
+
+Log every webhook event, even ones you don't handle. Store the full payload for debugging. This table also serves as the idempotency check (Pitfall 6).
 
 **Phase to address:**
-Phase 4 (Processing Page Adaptation).
+Phase 1 (Database Schema) -- create this table alongside the `subscriptions` table.
 
 ---
 
-### Pitfall 13: Text Input Length Has No Obvious Limit
+### Pitfall 13: Mixing Up `cancel_at_period_end` with Immediate Cancellation
 
 **What goes wrong:**
-Users paste an entire blog post (2000+ words) into the text input. gTTS generates a 10-minute audio file. TRIBE v2 processes it as a 10-minute stimulus. Inference takes 2 hours. The user gets a bill for extended GPU time and a result that is not meaningfully different from processing just the first 100 words.
+Stripe supports two cancellation modes:
+1. **Cancel at period end** (`cancel_at_period_end: true`): Subscription stays active until the current billing period ends, then stops. User keeps access until they've used what they paid for. Status remains `active`.
+2. **Immediate cancellation** (`subscription.cancel()`): Subscription ends right now. Status changes to `canceled`.
+
+If your webhook handler treats both the same way, you'll either: (a) revoke access from users who canceled-at-period-end (they paid for the rest of the month!), or (b) keep granting access to users who immediately canceled.
 
 **Prevention:**
-- Enforce a character limit on text input (500 characters / ~100 words). This produces roughly 30-60 seconds of spoken audio, matching the existing video sweet spot.
-- Show a real-time character counter with remaining characters.
-- Explain the limit: "TRIBE v2 predicts brain response to 2-second segments. Short, punchy text (like titles, hooks, CTAs) produces the most actionable results."
+```typescript
+// In your access check:
+function hasAccess(sub: Subscription): boolean {
+  if (sub.status === 'active') return true; // includes cancel_at_period_end
+  if (sub.status === 'canceled') {
+    // Check if period hasn't ended yet (shouldn't happen with cancel_at_period_end,
+    // but defensive coding for immediate cancellation refund scenarios)
+    return new Date(sub.current_period_end) > new Date();
+  }
+  return false;
+}
+```
+
+Store `cancel_at_period_end` as a boolean in your `subscriptions` table. Show "Your plan will end on [date]" in the billing UI when true.
 
 **Phase to address:**
-Phase 3 (Text Input UI).
+Phase 5 (Billing Portal) -- cancellation handling must distinguish these two modes.
 
 ---
 
-## Integration Gotchas
+## Integration Gotchas: Stripe + Supabase Specific
 
-Common mistakes when connecting multi-modal features to existing NeuroCut systems.
+| Integration Point | Common Mistake | Correct Approach |
+|---|---|---|
+| Webhook handler + Supabase client | Using `createServerClient()` with anon key (from cookies). No cookies in webhook = RLS blocks writes. | Dedicated `supabaseAdmin` client using `SUPABASE_SERVICE_ROLE_KEY`. Only in server-side webhook/admin code. |
+| Subscription table + RLS policies | RLS policy requires `auth.uid() = user_id`. Webhook handler (service role) bypasses this but client-side queries need it. Forgetting the policy means any user can read any subscription. | `SELECT` policy: `auth.uid() = user_id`. No `INSERT/UPDATE/DELETE` policies for anon role (only service role writes via webhook). |
+| User profile + Stripe customer ID | Storing `stripe_customer_id` only in the `subscriptions` table. If subscription is deleted, you lose the customer link and create a duplicate Stripe customer on re-subscribe. | Store `stripe_customer_id` on the `profiles` table too. On checkout, check if user already has a Stripe customer before creating a new one. |
+| Supabase Realtime + subscription status | Subscribing to `subscriptions` table changes via Supabase Realtime to update UI. But Realtime requires RLS SELECT policy, and the webhook writes via service role. Service role writes DO trigger Realtime events, but only if the client's RLS policy allows reading that row. | Realtime works if your SELECT policy is `auth.uid() = user_id`. Test that the logged-in user receives the Realtime event when the webhook updates their subscription. |
+| Environment variables + Vercel | Using `NEXT_PUBLIC_STRIPE_SECRET_KEY` (exposing secret key to browser). Or forgetting to add env vars to Vercel (they don't auto-sync from `.env.local`). | Secret key: `STRIPE_SECRET_KEY` (no `NEXT_PUBLIC_` prefix). Publishable key: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`. Add all to Vercel Dashboard > Settings > Environment Variables for production. |
+| Checkout session + auth state | Creating checkout session in a client component. Secret key exposed. | Create checkout session in a Server Action or API route. Return only the `session.url` to the client for redirect. |
 
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| RunPod handler + new input types | Adding `image_url` and `text_content` as optional fields alongside required `video_url`, creating ambiguous input where multiple fields are populated | Use a discriminated union: `input_type` is required, and exactly one of `video_url`, `image_url`, `text_content` is present based on `input_type`. Validate with Pydantic `model_validator`. |
-| Supabase Storage + image uploads | Uploading images to the same bucket as videos. Images are small (KB), videos are large (MB-GB). Different access patterns, different lifecycle. | Create a separate `images` bucket. Keep existing `videos` bucket. Add a `media` bucket for converted files (image-to-video). |
-| Results page + content_type | Rendering the video player component for all analyses. Image and text analyses have no meaningful video to play back. | Branch the results page on `content_type`: video gets player, image gets the original image display, text gets the input text rendered in a card. |
-| Discovery page + mixed content | Showing all content types in one feed with identical card layouts. Users can't distinguish video analyses from image analyses at a glance. | Add content type icon/badge on discovery cards. Allow filtering by content type. |
-| Postprocessor + segments | Assuming all segments have equal duration (2s). Image analyses of 5-second converted video produce only 2-3 segments. Text-spoken analyses produce variable segments based on text length. | Frontend must handle variable segment counts gracefully. Neural timeline chart must scale X-axis to actual segment count. |
-| RunPod job creation + server-side conversion | Converting image-to-video on the Next.js server (API route). Server has no ffmpeg, no GPU, limited memory. | Conversion must happen inside the RunPod container where ffmpeg is already installed. Send the raw image URL to RunPod; let the handler do the conversion. Alternatively, use a lightweight conversion service, but the RunPod handler is simplest. |
+## Phase-Specific Warnings
 
-## Performance Traps
-
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Image-to-video conversion on every request | Same thumbnail analyzed multiple times generates a new video each time | Cache converted videos keyed by source image hash. Check cache before converting. | When users re-analyze the same image |
-| All content types in one leaderboard query | Content type filter requires scanning all public rows | Add partial indexes per content type: `CREATE INDEX ON jobs(score DESC) WHERE is_public AND content_type = 'video'` | 500+ public analyses across types |
-| gTTS latency added to inference time | Text-spoken jobs take 30-60s longer than expected from TTS overhead alone | Pre-generate TTS audio in the handler before starting inference. Log TTS time separately from inference time. | Always present, but invisible until you measure it |
-
-## UX Pitfalls
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Same results page layout for all content types | Image analysis shows empty video player, text analysis shows irrelevant "video segments" | Content-type-aware results layout: image shows the original image + neural heatmap, text shows the input text + timeline of predicted response to each segment |
-| No visual cue that image scores are exploratory | Users treat image scores as equally valid as video scores | Persistent "Exploratory" badge, different score accent color (amber instead of green), tooltip explaining limitations |
-| Comparison page with no content type awareness | Users compare video vs image and think the 30% score difference means something | Show content type badges on each comparison panel. Disable delta/difference displays for cross-type comparisons. Show disclaimer banner. |
-| Upload page type selector without explanation | Users guess what each mode does, pick wrong one | Inline help text per mode. Default to "Video" (the validated mode). Other modes show brief description of what they actually test. |
-| Text input looks like a "test your copy" tool | Users expect A/B testing of copywriting, get brain activation prediction instead | Frame as "Predict neural response to hearing this text" not "Test your copy." Avoid marketing language that overpromises. |
+| Phase Topic | Likely Pitfall | Mitigation |
+|---|---|---|
+| Phase 1: Database Schema | Subscriptions table missing fields (cancel_at_period_end, current_period_end, price_id) | Use the full schema from the start -- adding columns later requires migrations and backfills |
+| Phase 2: Webhook Handler | Silent failures (RLS blocks, wrong Supabase client, no error logging) | Test with `stripe trigger` CLI for every event type. Check Supabase table after each trigger. |
+| Phase 3: Checkout Flow | Hardcoded price IDs, missing user metadata on session | Environment variables for all Stripe IDs. Always include `supabase_user_id` in session metadata. |
+| Phase 4: Credit Gating | Stale subscription status, blocking paying users | Query Supabase live (no caching). Be generous on edge cases. |
+| Phase 5: Billing Portal | Cancel-at-period-end treated as immediate cancel, portal return shows stale state | Store `cancel_at_period_end` boolean. Poll for updates on portal return. |
+| Phase 6: Go-Live | Test mode IDs in production, webhook secret mismatch | Pre-launch checklist: all env vars updated, live webhook endpoint registered, test with real $1 charge. |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Schema:** `content_type` column exists on `jobs` table with backfill for existing rows as `'video'`
-- [ ] **Schema:** `video_url` renamed or aliased, non-video jobs don't have forced video URL
-- [ ] **Handler:** Input validation uses discriminated union (exactly one source per input_type)
-- [ ] **Handler:** Each input type has its own error handling with mode-specific error types
-- [ ] **Image conversion:** Handles grayscale, RGBA, small dimensions, missing audio track
-- [ ] **Image conversion:** Output video validated before inference (file size, duration, codec)
-- [ ] **gTTS:** Tested from RunPod container at volume (20+ sequential requests)
-- [ ] **gTTS:** Fallback plan documented or implemented for rate limiting
-- [ ] **Text input:** Character limit enforced (frontend + backend)
-- [ ] **Results page:** Branches on content_type (no video player for images/text)
-- [ ] **Discovery page:** Content type badge on cards, filter by type
-- [ ] **Comparison page:** Cross-type disclaimer shown, deltas disabled for mixed types
-- [ ] **Processing page:** Content-type-aware ETA estimates
-- [ ] **Leaderboard:** Image/text analyses clearly labeled or in separate leaderboard
-- [ ] **TypeScript types:** `Job` interface includes `content_type` field
-- [ ] **Score labeling:** "Exploratory" badge on all non-video results surfaces
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall | Prevention Phase | Verification |
-|---------|------------------|--------------|
-| Image OOD scores not comparable (Pitfall 1) | Phase 1 (Schema) + Phase 5 (Comparison) | Test: leaderboard shows content type badges, comparison shows cross-type disclaimer |
-| gTTS internet dependency (Pitfall 2) | Phase 2 (Text Pipeline) | Test: 20 sequential gTTS calls from RunPod pod succeed, OR offline fallback works |
-| Handler hardcoded for video (Pitfall 3) | Phase 1 (Schema) + Phase 2 (Pipeline) | Test: handler accepts image_url input, routes to image pipeline, returns results with content_type |
-| MoviePy ImageClip failures (Pitfall 4) | Phase 2 (Image Pipeline) | Test: JPEG, PNG, WebP, grayscale, RGBA, 100x100, 4000x3000 all produce valid video |
-| Dual pipeline maintenance (Pitfall 5) | Phase 2 (Pipeline Branching) | Test: video job then image job then text job on same warm container, all succeed |
-| Text-visual double OOD (Pitfall 6) | Phase 3 (Text Input) | Decision: ship or defer based on validation study |
-| Comparison implies equivalence (Pitfall 7) | Phase 5 (Comparison View) | Test: cross-type comparison shows disclaimer, deltas disabled |
-| Schema not multi-input ready (Pitfall 8) | Phase 1 (Schema Migration) | Test: `content_type` column exists, existing rows backfilled to 'video' |
-| User expectation mismatch (Pitfall 9) | Phase 3 (Upload Redesign) | UX review: copy accurately describes each mode |
-| Silent audio track behavior (Pitfall 10) | Phase 2 (Image Pipeline) | Test: compare predictions with/without audio track for same image |
-| Text length unbounded (Pitfall 13) | Phase 3 (Text Input) | Test: 501-character input rejected with helpful message |
+- [ ] **Webhook:** Uses `req.text()` not `req.json()` for raw body access
+- [ ] **Webhook:** Signature verification with `stripe.webhooks.constructEvent()` -- tested in production, not just dev
+- [ ] **Webhook:** Uses `supabaseAdmin` (service role key), not anon key
+- [ ] **Webhook:** Returns 200 quickly, heavy processing is minimal
+- [ ] **Webhook:** Idempotent -- `stripe_events` table prevents duplicate processing
+- [ ] **Webhook:** Handles ALL subscription statuses (active, past_due, unpaid, canceled, incomplete, trialing)
+- [ ] **Database:** `subscriptions` table has: stripe_subscription_id (unique), stripe_customer_id, user_id, status, price_id, current_period_start, current_period_end, cancel_at_period_end
+- [ ] **Database:** `stripe_events` log table exists for debugging
+- [ ] **Database:** `stripe_customer_id` stored on `profiles` table (not just subscriptions)
+- [ ] **Database:** RLS: SELECT policy on subscriptions (`auth.uid() = user_id`), no public write policies
+- [ ] **Checkout:** Session includes `metadata.supabase_user_id`
+- [ ] **Checkout:** Price IDs from environment variables, not hardcoded
+- [ ] **Checkout:** Success page handles webhook lag (polling or direct session verification)
+- [ ] **Credit gating:** `past_due` treated as active (grace period)
+- [ ] **Credit gating:** No subscription caching -- always query live
+- [ ] **Billing portal:** `cancel_at_period_end` stored and displayed correctly
+- [ ] **Billing portal:** Return URL is valid, authenticated page
+- [ ] **Env vars:** All Stripe IDs are environment variables, different between test and live
+- [ ] **Env vars:** Secret key has NO `NEXT_PUBLIC_` prefix
+- [ ] **Env vars:** Webhook signing secret is per-environment (test vs live endpoint)
+- [ ] **Go-live:** Live products/prices created in Stripe Dashboard
+- [ ] **Go-live:** Live webhook endpoint registered with correct events
+- [ ] **Go-live:** Tested with real card charge before public launch
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| Image scores misleadingly presented as equivalent to video | MEDIUM | Retroactively add "Exploratory" badges. Email users who compared cross-type. Cannot undo conclusions already drawn. |
-| gTTS blocked by Google from RunPod IPs | LOW | Switch to offline TTS (Kokoro/MeloTTS). Fork TRIBE v2's TextToEvents class. One-time effort but requires testing. |
-| Missing content_type in database | MEDIUM | Add column, backfill existing as 'video', update all queries. Must coordinate frontend + backend deployment. |
-| Users lost trust due to misleading image scores | HIGH | Trust damage is hard to undo. Requires transparent communication about what each mode does and doesn't promise. |
-| MoviePy producing corrupted videos in production | LOW | Add validation step. Retry with adjusted parameters. Log specific failures for debugging. |
+|---|---|---|
+| Webhook signature verification broken in production | LOW | Fix `req.text()` call, redeploy. Stripe retries failed events for 72 hours. Most events will be recovered automatically. |
+| RLS blocking all webhook writes | MEDIUM | Switch to service role client, redeploy. Replay missed events from Stripe Dashboard (Events > Resend). May need to manually sync users who paid during the outage. |
+| Test price IDs in production | LOW | Create live products/prices, update env vars, redeploy. No data corruption -- checkout just failed for affected users. |
+| Users granted access but subscription not recorded | HIGH | Must reconcile Stripe subscriptions with Supabase records. Use Stripe API to list all active subscriptions, cross-reference with Supabase, insert missing records. |
+| Past_due users locked out | MEDIUM | Change access logic to include past_due. Apologize to affected users. Consider crediting extra analyses. |
+| Duplicate subscription records | MEDIUM | Add unique constraint on `stripe_subscription_id`. Deduplicate existing rows (keep most recent). Add idempotency checks. |
 
 ## Sources
 
-- [TRIBE v2 GitHub Repository](https://github.com/facebookresearch/tribev2) -- API patterns, modality handling, gTTS dependency confirmed in TextToEvents
-- [TRIBE v2 Demo Notebook](https://github.com/facebookresearch/tribev2/blob/main/tribe_demo.ipynb) -- inference API: `get_events_dataframe()` + `predict()`
-- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- modality dropout training (each modality independently zeroed with p=0.3)
-- [MoviePy ImageClip Documentation](https://zulko.github.io/moviepy/reference/reference/moviepy.video.VideoClip.ImageClip.html) -- infinite duration default, compositing behavior
-- [MoviePy ImageClip Corruption Issue #1876](https://github.com/Zulko/moviepy/issues/1876) -- small image corruption
-- [MoviePy Monochrome Issue #1664](https://github.com/Zulko/moviepy/issues/1664) -- grayscale image failures
-- [gTTS Documentation](https://gtts.readthedocs.io/) -- requires internet, calls Google Translate API
-- [gTTS PyPI](https://pypi.org/project/gTTS/) -- confirms HTTP dependency
-- [Kokoro-82M TTS](https://bentoml.com/blog/exploring-the-world-of-open-source-text-to-speech-models) -- offline TTS alternative, 82M params, CPU-capable
-- [MeloTTS](https://northflank.com/blog/best-open-source-text-to-speech-models-and-how-to-run-them) -- lightweight offline TTS alternative
-- NeuroCut codebase: `src/handler.py`, `src/inference.py`, `src/schema.py` -- current video-only pipeline
-- NeuroCut codebase: `web/src/lib/database.types.ts` -- current Job type with `video_url` required
-- NeuroCut codebase: `web/src/app/(app)/upload/page.tsx` -- current video-only upload UI
+- [Stripe Official: Using Webhooks with Subscriptions](https://docs.stripe.com/billing/subscriptions/webhooks) -- event ordering, subscription lifecycle
+- [Stripe Official: Receive Stripe Events in Your Webhook Endpoint](https://docs.stripe.com/webhooks) -- signature verification, retry behavior
+- [Stripe Official: How Subscriptions Work](https://docs.stripe.com/billing/subscriptions/overview) -- subscription statuses, dunning
+- [Stripe Official: Automate Payment Retries (Smart Retries)](https://docs.stripe.com/billing/revenue-recovery/smart-retries) -- dunning configuration
+- [Stripe CLI Issue #418: Webhooks Sent in Incorrect Order](https://github.com/stripe/stripe-cli/issues/418) -- confirms non-deterministic event ordering
+- [Supabase Docs: Handling Stripe Webhooks](https://supabase.com/docs/guides/functions/examples/stripe-webhooks) -- Edge Function pattern
+- [Supabase Discussion #41877: Replication Lag Between Stripe + Supabase](https://github.com/orgs/supabase/discussions/41877) -- webhook timing and race conditions
+- [Supabase Docs: Use Service Key to Bypass RLS](https://egghead.io/lessons/supabase-use-the-supabase-service-key-to-bypass-row-level-security) -- service role for webhook handlers
+- [Next.js App Router + Stripe Webhook Signature Verification](https://kitson-broadhurst.medium.com/next-js-app-router-stripe-webhook-signature-verification-ea9d59f3593f) -- `req.text()` pattern
+- [Next.js Issue #60002: Cannot Access Request Raw Body for Stripe Webhook](https://github.com/vercel/next.js/issues/60002) -- body parsing gotcha
+- [DEV Community: The Race Condition You're Probably Shipping Right Now With Stripe Webhooks](https://dev.to/belazy/the-race-condition-youre-probably-shipping-right-now-with-stripe-webhooks-mj4) -- queue-based architecture, duplicate prevention
+- [DEV Community: 5 Things We Got Wrong About Stripe Billing](https://dev.to/obsidiancladlabs/5-things-we-got-wrong-about-stripe-billing-3439) -- post-mortem on subscription lifecycle, dunning, price management
+- [Stripe + Supabase SaaS Starter Kit](https://vercel.com/templates/next.js/stripe-supabase-saas-starter-kit) -- reference implementation patterns
+- [DEV Community: Stripe Integration Guide for Next.js 15 with Supabase](https://dev.to/flnzba/33-stripe-integration-guide-for-nextjs-15-with-supabase-13b5) -- end-to-end integration guide
+- [5 Things You Need to Know About Stripe's Test Mode](https://blog.tier.run/the-5-gotchas-of-stripe-test-mode) -- test/live mode separation, non-portable IDs
+- [WooCommerce Payments Issue #2943: Test Mode Price IDs Don't Exist in Live Mode](https://github.com/Automattic/woocommerce-payments/issues/2943) -- confirms ID non-portability
+- [Medium: Things You Should Avoid While Integrating Stripe Subscriptions](https://medium.com/@harisbakhabarpk/things-you-should-avoid-while-integrating-stripe-subscriptions-28c9d1974308) -- common integration mistakes
+- [Ben Foster: How to Handle Failed Subscription Payments in Stripe](https://benfoster.io/blog/stripe-failed-payments-how-to/) -- dunning and past_due handling
 
 ---
-*Pitfalls research for: NeuroCut v5.0 Multi-Modal Input & Comparison*
-*Researched: 2026-04-11*
+*Pitfalls research for: NeuroCut v6.0 Stripe Payments*
+*Researched: 2026-04-13*

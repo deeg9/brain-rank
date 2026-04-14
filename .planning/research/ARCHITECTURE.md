@@ -1,456 +1,446 @@
-# Architecture: Multi-Modal Input & Comparison Integration
+# Architecture: Stripe Subscription Integration
 
-**Domain:** Neural engagement testing platform (multi-modal expansion)
-**Researched:** 2026-04-11
-
-## Executive Summary
-
-NeuroCut v5.0 adds image upload, text input (visual + spoken modes), and a comparison page to the existing video-only pipeline. The core insight driving the architecture: **TRIBE v2 natively supports `text_path` (`.txt` file) via `get_events_dataframe(text_path=...)`**, which converts text to speech internally using gTTS, then runs audio-only inference. This means the "spoken text" path requires zero media conversion -- just save text to a file and pass it directly. Image and "visual text" paths require server-side conversion to video (via ffmpeg on the RunPod worker), since TRIBE v2 only accepts `video_path`, `audio_path`, or `text_path`.
-
-The comparison page is purely a frontend concern -- two existing result views side-by-side with no backend changes needed beyond querying two jobs.
-
-## Current Architecture (Baseline)
-
-```
-Browser                    Next.js API Routes          Supabase              RunPod
-  |                              |                        |                    |
-  |-- uploadVideo(file) -------->|-- Storage.upload ------>| videos bucket      |
-  |                              |                        |                    |
-  |-- createJob(videoUrl) ------>|-- jobs.insert --------->| jobs table         |
-  |                              |-- POST /run ----------->|                    |-- handler(job)
-  |                              |                        |                    |    download_video()
-  |-- GET /api/jobs/[id] ------->|-- poll /status/[rpid] ->|                    |    run_inference()
-  |                              |-- jobs.update --------->|                    |    postprocess()
-  |                              |                        |                    |
-  |-- /results/[id] page ------->|                        |                    |
-```
-
-Key touchpoints for modification:
-- `web/src/app/(app)/upload/page.tsx` -- upload UI (video-only)
-- `web/src/app/(app)/upload/actions.ts` -- `createJob(videoUrl)` server action
-- `web/src/lib/upload.ts` -- `uploadVideo(file)` to Supabase Storage
-- `web/src/lib/database.types.ts` -- `Job` interface (video_url field, no input_type)
-- `src/handler.py` -- RunPod handler (video_url only in InputSchema)
-- `src/schema.py` -- `InputSchema(video_url: str)` 
-- `src/inference.py` -- `run_inference(model, video_path, job_id)`
-- `web/src/app/(app)/results/[id]/page.tsx` -- shows VideoPlayer + BrainViewer
+**Domain:** SaaS subscription payments (Stripe + Next.js 16 App Router + Supabase)
+**Researched:** 2026-04-13
 
 ## Recommended Architecture
 
-### Three Input Paths, One Inference Output
-
-All three input types ultimately produce the same `OutputSchema` (segments, summary, raw_shape). The difference is what happens *before* inference.
+### High-Level Data Flow
 
 ```
-INPUT TYPE        FRONTEND           SERVER ACTION          RUNPOD HANDLER
------------       --------           -------------          ---------------
-Video             File upload        createJob(videoUrl)    download_video() -> run_inference(video_path=...)
-                  (existing)         (existing)             (existing, no changes)
-
-Image             File upload        createJob(mediaUrl,    download_image() -> ffmpeg_to_video() ->
-                  (JPEG/PNG)         inputType='image')     run_inference(video_path=...)
-
-Text (visual)     Text textarea      createJob(null,        render_text_card() -> ffmpeg_to_video() ->
-                  + style picker     inputType='text_v',    run_inference(video_path=...)
-                                     textContent='...')
-
-Text (spoken)     Text textarea      createJob(null,        save_text_to_file() ->
-                                     inputType='text_s',    model.get_events_dataframe(text_path=...)
-                                     textContent='...')     -> model.predict()
+User clicks "Upgrade to Creator"
+       |
+       v
+[PricingCard / BillingPage]  (client component)
+       |
+       v
+POST /api/stripe/checkout   (API route - creates Checkout Session)
+       |
+       v
+[Stripe Checkout]           (hosted by Stripe - handles payment)
+       |
+       v
+Stripe fires webhook  ---->  POST /api/stripe/webhook  (API route)
+       |                            |
+       v                            v
+User redirected to           Upsert `subscriptions` table in Supabase
+/dashboard?checkout=success  Update `customers` table (stripe_customer_id)
+                             Credit gating now active
 ```
 
-### Component Boundaries
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| Upload Page (modified) | Input type selector, type-specific UI, validation | Server action, Supabase Storage |
-| `createJob` action (modified) | Insert job with input_type, text_content; dispatch to RunPod with new payload | Supabase, RunPod API |
-| `uploadMedia` lib (new) | Upload image/video to Supabase Storage, return public URL | Supabase Storage |
-| RunPod InputSchema (modified) | Accept video_url OR text_content + input_type | handler.py |
-| Media Converter (new, RunPod-side) | Image-to-video, text-card-to-video via ffmpeg/Pillow | handler.py, ffmpeg |
-| Inference wrapper (modified) | Route to correct `get_events_dataframe` call based on input_type | TRIBE v2 model |
-| Results page (modified) | Conditionally show/hide VideoPlayer based on input_type | API, components |
-| Comparison page (new) | Side-by-side two completed analyses | API (two job fetches) |
-
-### Data Flow: Image Upload
+### Billing Portal Flow (manage/cancel)
 
 ```
-1. User drops JPEG/PNG on upload zone
-2. Frontend uploads to Supabase Storage (same 'videos' bucket, or new 'media' bucket)
-3. createJob(mediaUrl, inputType='image') inserts job + dispatches to RunPod:
-   { input: { media_url: "https://...", input_type: "image", job_id: "..." } }
-4. RunPod handler:
-   a. Downloads image to /tmp/job_id.jpg
-   b. Converts to 2-second silent video via ffmpeg:
-      ffmpeg -loop 1 -i input.jpg -c:v libx264 -t 2 -pix_fmt yuv420p -r 1 output.mp4
-   c. Calls model.get_events_dataframe(video_path=output.mp4)
-   d. Calls model.predict(events=df)
-   e. Returns OutputSchema (will have 1 segment for the 2s window)
-5. Polling + results display as normal (but no video player -- show static image)
+User clicks "Manage Subscription" on /settings/billing
+       |
+       v
+POST /api/stripe/portal   (API route - creates Portal Session)
+       |
+       v
+[Stripe Customer Portal]  (hosted by Stripe - update card, cancel, etc.)
+       |
+       v
+Stripe fires webhooks ---> POST /api/stripe/webhook
+       |
+       v
+Update subscription status in Supabase
 ```
 
-**Why 2 seconds:** TRIBE v2 uses 2-second windows. A single still frame stretched to 2s gives exactly one segment of brain activation data -- which is all you need for a thumbnail/image test.
+## Component Boundaries
 
-### Data Flow: Text (Spoken Mode)
+### New Files to Create
 
-```
-1. User types text in textarea, selects "Spoken" mode
-2. createJob(null, inputType='text_s', textContent='...') inserts job + dispatches:
-   { input: { text_content: "...", input_type: "text_spoken", job_id: "..." } }
-3. RunPod handler:
-   a. Saves text to /tmp/job_id.txt (UTF-8 .txt file)
-   b. Calls model.get_events_dataframe(text_path="/tmp/job_id.txt")
-      - TRIBE v2 internally: gTTS converts text to speech -> WhisperX transcribes
-        for word-level timings -> extracts LLaMA + Wav2Vec features
-   c. Calls model.predict(events=df)
-   d. Returns OutputSchema (segments based on text duration)
-4. Results page shows text content + brain viewer + timeline (no video player)
-```
+| Component | Path | Responsibility |
+|-----------|------|---------------|
+| Stripe checkout route | `src/app/api/stripe/checkout/route.ts` | Create Stripe Checkout Session with user_id in metadata |
+| Stripe webhook route | `src/app/api/stripe/webhook/route.ts` | Receive Stripe events, sync state to Supabase |
+| Stripe portal route | `src/app/api/stripe/portal/route.ts` | Create Billing Portal Session, return redirect URL |
+| Stripe server lib | `src/lib/stripe.ts` | Stripe SDK singleton, shared config |
+| Supabase admin client | `src/lib/supabase/admin.ts` | Service role client for webhook writes (bypasses RLS) |
+| Subscription queries | `src/lib/subscription.ts` | Helper to fetch user subscription status from Supabase |
+| Credit gating logic | `src/lib/credits.ts` | Check weekly usage count vs tier limits |
 
-**Key finding:** `get_events_dataframe` accepts `text_path` natively. No conversion needed. TRIBE v2 handles TTS internally. This is the simplest path -- HIGH confidence from GitHub source.
+### Existing Files to Modify
 
-### Data Flow: Text (Visual Mode)
+| File | Change |
+|------|--------|
+| `src/components/pricing/PricingCard.tsx` | Replace `alert()` with checkout redirect call |
+| `src/components/pricing/pricing-data.ts` | Add Stripe Price IDs to tier data |
+| `src/app/(app)/settings/billing/page.tsx` | Wire "Manage Subscription" to portal, show real subscription status |
+| `src/lib/database.types.ts` | Add Subscription, Customer, CreditUsage types |
+| `src/app/api/jobs/route.ts` | Add credit check before creating job in POST handler |
 
-```
-1. User types text in textarea, selects "Visual" mode, picks style/font/color
-2. createJob(null, inputType='text_v', textContent='...', textStyle={...}) 
-   inserts job + dispatches:
-   { input: { text_content: "...", input_type: "text_visual", 
-              text_style: { font: "Inter", bg: "#000", color: "#fff" }, job_id: "..." } }
-3. RunPod handler:
-   a. Renders text onto a 1920x1080 image using Pillow:
-      - Create blank canvas with bg color
-      - Draw text centered with specified font/color
-   b. Converts image to 2-second silent video via ffmpeg (same as image path)
-   c. Calls model.get_events_dataframe(video_path=output.mp4)
-   d. Calls model.predict(events=df)
-   e. Returns OutputSchema (1 segment for 2s window)
-4. Results page shows rendered text card + brain viewer (no video player)
-```
+### Files That Do NOT Need Changes
 
-### Data Flow: Comparison Page
+| File | Why |
+|------|-----|
+| `web/middleware.ts` | Auth session handling stays the same. Webhook route is already allowed through matcher. |
+| `src/app/(app)/pricing/page.tsx` | Already renders PricingPage component, no changes needed. |
+| `src/lib/supabase/server.ts` | Existing server client is correct for authenticated routes. Webhook uses separate admin client. |
 
-```
-1. User navigates to /compare?a=job_id_1&b=job_id_2
-   (or picks two analyses from dashboard via checkboxes)
-2. Page fetches both jobs via /api/jobs/[id] (two parallel requests)
-3. Renders two ResultsDetailPage-like views side by side:
-   - Left: Job A results (brain viewer, timeline, metrics)
-   - Right: Job B results (brain viewer, timeline, metrics)
-   - Bottom: Delta comparison strip (which regions differ most)
-4. No new API routes needed -- reuses existing GET /api/jobs/[id]
-```
+## Supabase Schema
 
-## Schema Changes
-
-### Supabase `jobs` Table
+### New Tables
 
 ```sql
--- New columns
-ALTER TABLE jobs ADD COLUMN input_type TEXT NOT NULL DEFAULT 'video'
-  CHECK (input_type IN ('video', 'image', 'text_spoken', 'text_visual'));
+-- Maps auth.users to Stripe customer IDs (private, no public read)
+CREATE TABLE customers (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  stripe_customer_id TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
-ALTER TABLE jobs ADD COLUMN text_content TEXT;
--- text_content stores the raw text for text_spoken and text_visual modes
--- NULL for video and image types
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+-- No SELECT policy = only service role can read
+-- This is intentional: stripe_customer_id is sensitive and only needed server-side
 
-ALTER TABLE jobs ADD COLUMN text_style JSONB;
--- text_style stores font/color/bg preferences for text_visual mode
--- NULL for all other types
+-- Subscription state synced from Stripe webhooks
+CREATE TYPE subscription_status AS ENUM (
+  'trialing', 'active', 'canceled', 'incomplete',
+  'incomplete_expired', 'past_due', 'unpaid', 'paused'
+);
+
+CREATE TABLE subscriptions (
+  id TEXT PRIMARY KEY,                          -- Stripe subscription ID (sub_xxx)
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  status subscription_status NOT NULL,
+  price_id TEXT,                                -- Stripe price ID (price_xxx)
+  quantity INTEGER DEFAULT 1,
+  cancel_at_period_end BOOLEAN DEFAULT false,
+  cancel_at TIMESTAMPTZ,
+  canceled_at TIMESTAMPTZ,
+  current_period_start TIMESTAMPTZ,
+  current_period_end TIMESTAMPTZ,
+  trial_start TIMESTAMPTZ,
+  trial_end TIMESTAMPTZ,
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Users can read their own subscription (needed for client-side status display)
+CREATE POLICY "Users can view own subscriptions"
+  ON subscriptions FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Only service role (webhook handler) can INSERT/UPDATE/DELETE
+-- No INSERT/UPDATE/DELETE policies = service role only
+
+-- Index for looking up active subscription by user
+CREATE INDEX idx_subscriptions_user_status
+  ON subscriptions (user_id, status);
 ```
 
-**Migration strategy:** Add `input_type` with default 'video' so all existing rows remain valid. The `video_url` column stays as-is -- existing video jobs keep working. Image uploads also use `video_url` to store the Supabase Storage URL. Text jobs have `video_url = NULL` and `text_content` populated.
+### Credit Tracking Table
 
-**Why NOT rename video_url:** Renaming to `media_url` would break every existing query, component, and API response. The semantic mismatch (video_url holding an image URL) is acceptable -- document it and move on. New TypeScript code can alias: `const mediaUrl = job.video_url`.
+```sql
+-- Track per-analysis credit usage for free tier gating
+CREATE TABLE credit_usage (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
-### TypeScript Types Update
+ALTER TABLE credit_usage ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own credit usage"
+  ON credit_usage FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- Index for weekly count queries (the core gating query)
+CREATE INDEX idx_credit_usage_user_week
+  ON credit_usage (user_id, created_at DESC);
+```
+
+### Why NOT Use the Stripe Sync Engine
+
+Supabase offers a Stripe Sync Engine that mirrors all Stripe objects into a `stripe` schema. **Do not use it.** It syncs products, invoices, payment methods, charges -- all of which NeuroCut does not need. The manual webhook approach gives full control over exactly which fields get stored, has no additional infrastructure to deploy, and is the standard pattern used by every production Next.js + Stripe integration.
+
+## API Route Implementation Patterns
+
+### 1. Stripe SDK Singleton (`src/lib/stripe.ts`)
 
 ```typescript
-export type InputType = 'video' | 'image' | 'text_spoken' | 'text_visual'
+import Stripe from 'stripe';
 
-export interface Job {
-  id: string
-  user_id: string
-  video_url: string           // kept for backward compat; stores image URLs too
-  title: string | null
-  is_public: boolean
-  view_count: number
-  status: JobStatus
-  input_type: InputType       // NEW
-  text_content: string | null // NEW: raw text for text modes
-  text_style: Record<string, string> | null // NEW: visual mode styling
-  runpod_id: string | null
-  results: Record<string, unknown> | null
-  error_message: string | null
-  created_at: string
-  updated_at: string
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2025-12-18.acacia',  // pin to latest stable
+  typescript: true,
+});
+```
+
+### 2. Supabase Admin Client (`src/lib/supabase/admin.ts`)
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/lib/database.types';
+
+// Service role client -- bypasses RLS. Use ONLY in webhook handler and server-only code.
+// NEVER import this in client components or expose SUPABASE_SERVICE_ROLE_KEY to the browser.
+export const supabaseAdmin = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+```
+
+### 3. Checkout Session Route (`src/app/api/stripe/checkout/route.ts`)
+
+Key implementation details:
+- Authenticate user via `supabase.auth.getUser()` (same pattern as existing `/api/jobs`)
+- Look up or create Stripe customer (upsert `customers` table)
+- Pass `user_id` in BOTH checkout session metadata AND subscription_data metadata
+- Accept `priceId` from request body (monthly vs annual)
+- Return checkout session URL for client-side redirect
+
+```typescript
+// Critical: pass user_id in metadata so webhook can link subscription to user
+const session = await stripe.checkout.sessions.create({
+  customer: stripeCustomerId,
+  mode: 'subscription',
+  line_items: [{ price: priceId, quantity: 1 }],
+  success_url: `${origin}/dashboard?checkout=success`,
+  cancel_url: `${origin}/pricing?checkout=canceled`,
+  metadata: { user_id: user.id },
+  subscription_data: {
+    metadata: { user_id: user.id },  // IMPORTANT: set on subscription object too
+  },
+});
+```
+
+**Why metadata on BOTH session AND subscription_data:** `checkout.session.completed` carries session metadata, but `customer.subscription.updated` and `customer.subscription.deleted` only carry subscription metadata. Without this, the webhook cannot map later lifecycle events back to the user.
+
+### 4. Webhook Handler (`src/app/api/stripe/webhook/route.ts`)
+
+```typescript
+import { stripe } from '@/lib/stripe';
+import { supabaseAdmin } from '@/lib/supabase/admin';
+import { NextResponse } from 'next/server';
+
+export async function POST(req: Request) {
+  const body = await req.text();  // MUST be raw text, not json()
+  const signature = req.headers.get('stripe-signature')!;
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!,
+    );
+  } catch (err) {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  // Handle events...
+  return NextResponse.json({ received: true }, { status: 200 });
 }
 ```
 
-### RunPod InputSchema Update
+Events to handle:
 
-```python
-class InputSchema(BaseModel):
-    # Existing
-    video_url: str | None = None     # was required, now optional
-    include_raw: bool = False
-    include_vertex_data: bool = True
-    
-    # New
-    input_type: Literal["video", "image", "text_spoken", "text_visual"] = "video"
-    text_content: str | None = None  # for text_spoken and text_visual
-    text_style: dict | None = None   # for text_visual (font, bg, color)
-    
-    @model_validator(mode="after")
-    def validate_input_combination(self):
-        if self.input_type == "video" and not self.video_url:
-            raise ValueError("video_url required for video input")
-        if self.input_type == "image" and not self.video_url:
-            raise ValueError("video_url (media URL) required for image input")
-        if self.input_type in ("text_spoken", "text_visual") and not self.text_content:
-            raise ValueError("text_content required for text input")
-        return self
-```
+| Event | Action |
+|-------|--------|
+| `checkout.session.completed` | Upsert `customers` row (user_id -> stripe_customer_id). Upsert `subscriptions` row from session.subscription. |
+| `customer.subscription.updated` | Update subscription status, period dates, cancel_at_period_end in `subscriptions` table. |
+| `customer.subscription.deleted` | Set subscription status to `'canceled'` in `subscriptions` table. |
+| `invoice.payment_failed` | Update subscription status to `'past_due'`. |
 
-## New API Routes
+**Critical:** The webhook route must NOT call `supabase.auth.getUser()`. It receives requests from Stripe servers, not authenticated users. Use `supabaseAdmin` (service role) for all database writes.
 
-No new API routes are strictly needed. The existing routes handle everything:
-
-| Route | Current | Change Needed |
-|-------|---------|---------------|
-| `POST /api/jobs` (via server action) | Creates job with video_url | Accept input_type, text_content, text_style; dispatch with new payload |
-| `GET /api/jobs/[id]` | Returns job + polls RunPod | No changes -- already returns full job row |
-| `PATCH /api/jobs/[id]` | Updates title, is_public | No changes needed |
-
-**Optional new route:** `GET /api/compare?a=id1&b=id2` could batch-fetch two jobs in one request, but two parallel `GET /api/jobs/[id]` calls are simpler and reuse existing auth/visibility logic.
-
-## New & Modified Files
-
-### New Files (Frontend)
-
-| File | Purpose |
-|------|---------|
-| `web/src/app/(app)/upload/InputTypeSelector.tsx` | Tab/pill selector: Video / Image / Text |
-| `web/src/app/(app)/upload/ImageUploadZone.tsx` | Drop zone for JPEG/PNG (reuses AnimatedFileUpload pattern with image types) |
-| `web/src/app/(app)/upload/TextInputForm.tsx` | Textarea + mode toggle (Visual/Spoken) + style picker for visual mode |
-| `web/src/app/(app)/compare/page.tsx` | Side-by-side comparison of two analyses |
-| `web/src/components/results/StaticMediaViewer.tsx` | Shows original image or rendered text card instead of VideoPlayer |
-| `web/src/lib/upload-media.ts` | `uploadMedia(file)` -- accepts image or video, uploads to Supabase Storage |
-
-### Modified Files (Frontend)
-
-| File | Change |
-|------|--------|
-| `web/src/app/(app)/upload/page.tsx` | Add InputTypeSelector, conditionally render upload zone vs text form |
-| `web/src/app/(app)/upload/actions.ts` | `createJob` accepts input_type, text_content, text_style; dispatches enriched payload to RunPod |
-| `web/src/lib/database.types.ts` | Add InputType, update Job interface |
-| `web/src/app/(app)/results/[id]/page.tsx` | Conditionally render VideoPlayer vs StaticMediaViewer based on input_type |
-| `web/src/app/(app)/dashboard/page.tsx` | Show input_type icon on job cards; add "Compare" selection UI |
-| `web/src/app/(app)/discover/page.tsx` | Add input_type filter; show appropriate thumbnail for non-video |
-| `web/src/components/upload/AnimatedFileUpload.tsx` | Accept configurable `acceptedTypes` for image support |
-
-### New Files (RunPod Worker)
-
-| File | Purpose |
-|------|---------|
-| `src/media_converter.py` | `image_to_video(image_path) -> video_path` and `text_to_image(text, style) -> image_path` using ffmpeg + Pillow |
-
-### Modified Files (RunPod Worker)
-
-| File | Change |
-|------|--------|
-| `src/schema.py` | InputSchema: add input_type, text_content, text_style; make video_url optional |
-| `src/handler.py` | Route based on input_type: video (existing), image (convert+infer), text_spoken (direct text_path), text_visual (render+convert+infer) |
-| `src/inference.py` | `run_inference` accepts optional `text_path` param; routes to correct `get_events_dataframe` call |
-| `Dockerfile` | Add `python3-pil` (Pillow) for text card rendering |
-
-## Patterns to Follow
-
-### Pattern 1: Input Type Routing in Handler
-
-```python
-# src/handler.py - modified handler function
-def handler(job):
-    params = InputSchema(**job["input"])
-    
-    if params.input_type == "video":
-        video_path = download_video(params.video_url, job_id)
-        preds, segments, timing = run_inference(model, video_path=str(video_path))
-        
-    elif params.input_type == "image":
-        image_path = download_media(params.video_url, job_id)
-        video_path = image_to_video(image_path)
-        preds, segments, timing = run_inference(model, video_path=str(video_path))
-        
-    elif params.input_type == "text_spoken":
-        text_path = save_text_file(params.text_content, job_id)
-        preds, segments, timing = run_inference(model, text_path=str(text_path))
-        
-    elif params.input_type == "text_visual":
-        image_path = render_text_card(params.text_content, params.text_style)
-        video_path = image_to_video(image_path)
-        preds, segments, timing = run_inference(model, video_path=str(video_path))
-```
-
-### Pattern 2: Conditional Video Player on Results Page
+### 5. Portal Route (`src/app/api/stripe/portal/route.ts`)
 
 ```typescript
-// In results/[id]/page.tsx
-const isVideoInput = !job.input_type || job.input_type === 'video'
-
-// In the grid:
-{isVideoInput ? (
-  <VideoPlayer src={results.video_url} ... />
-) : (
-  <StaticMediaViewer job={job} />
-)}
+// Authenticated route (same pattern as /api/jobs)
+// 1. Get user via supabase.auth.getUser()
+// 2. Look up stripe_customer_id from customers table
+// 3. Create portal session
+const session = await stripe.billingPortal.sessions.create({
+  customer: stripeCustomerId,
+  return_url: `${origin}/settings/billing`,
+});
+return NextResponse.json({ url: session.url });
 ```
 
-### Pattern 3: Image-to-Video Conversion (RunPod-side)
+## Credit Gating Architecture
 
-```python
-# src/media_converter.py
-import subprocess
-from pathlib import Path
+### How It Works
 
-def image_to_video(image_path: Path, duration: float = 2.0) -> Path:
-    """Convert a still image to a silent video for TRIBE v2 inference."""
-    output = image_path.with_suffix('.mp4')
-    subprocess.run([
-        'ffmpeg', '-y',
-        '-loop', '1',
-        '-i', str(image_path),
-        '-c:v', 'libx264',
-        '-t', str(duration),
-        '-pix_fmt', 'yuv420p',
-        '-r', '1',           # 1 fps (minimum for still image)
-        '-an',                # no audio
-        str(output)
-    ], check=True, capture_output=True)
-    return output
+```
+POST /api/jobs (user wants to analyze content)
+       |
+       v
+1. Auth check (existing)
+2. Query `subscriptions` table: active subscription for this user?
+3. If status = 'active' or 'trialing' -> unlimited, skip credit check
+4. If no active subscription (free tier):
+   a. COUNT(*) from `credit_usage` WHERE user_id = X AND created_at > (now - 7 days)
+   b. If count >= 3 -> return 403 { error: "Weekly credit limit reached", upgrade_url: "/pricing" }
+   c. Else -> proceed, INSERT row into `credit_usage` after job creation
+5. Create job (existing flow continues)
 ```
 
-### Pattern 4: Text Card Rendering (RunPod-side)
+### Subscription Status Helper (`src/lib/subscription.ts`)
 
-```python
-# src/media_converter.py
-from PIL import Image, ImageDraw, ImageFont
-from pathlib import Path
+```typescript
+export async function getUserSubscription(supabase: SupabaseClient, userId: string) {
+  const { data } = await supabase
+    .from('subscriptions')
+    .select('id, status, price_id, cancel_at_period_end, current_period_end')
+    .eq('user_id', userId)
+    .in('status', ['active', 'trialing'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-def render_text_card(text: str, style: dict | None, job_id: str) -> Path:
-    """Render styled text onto a 1920x1080 image."""
-    style = style or {}
-    bg = style.get('bg_color', '#000000')
-    fg = style.get('text_color', '#FFFFFF')
-    
-    img = Image.new('RGB', (1920, 1080), color=bg)
-    draw = ImageDraw.Draw(img)
-    font = ImageFont.load_default(size=72)
-    
-    # Center text with word wrap
-    bbox = draw.textbbox((0, 0), text, font=font)
-    x = (1920 - (bbox[2] - bbox[0])) // 2
-    y = (1080 - (bbox[3] - bbox[1])) // 2
-    draw.text((x, y), text, fill=fg, font=font)
-    
-    output = Path(f'/tmp/{job_id}_text_card.png')
-    img.save(output)
-    return output
+  return data;  // null = free tier
+}
+
+export function hasActivePlan(subscription: Subscription | null): boolean {
+  return subscription !== null;
+}
 ```
+
+### Why Application-Level Gating, Not RLS
+
+Credit gating via RLS would require a Postgres function call on every INSERT into `jobs` that counts `credit_usage` rows, checks subscription status, and conditionally allows/denies. This is:
+1. **Slow** -- function evaluates per-row on every insert
+2. **Fragile** -- business logic (3/week limit, tier names) baked into SQL
+3. **Hard to debug** -- RLS failures return opaque "new row violates policy" errors
+
+RLS is correct for data isolation (users see only their own subscriptions). Credit gating is business logic that belongs in the API route where it can return meaningful error messages and be easily modified.
+
+## Environment Variables
+
+```bash
+# Add to .env.local (all new)
+STRIPE_SECRET_KEY=sk_test_...              # Stripe Dashboard -> Developers -> API Keys
+STRIPE_WEBHOOK_SECRET=whsec_...            # Stripe CLI prints this, or Dashboard -> Webhooks
+STRIPE_PRICE_ID_MONTHLY=price_...          # Create in Stripe Dashboard -> Product Catalog
+STRIPE_PRICE_ID_ANNUAL=price_...           # Create in Stripe Dashboard -> Product Catalog
+SUPABASE_SERVICE_ROLE_KEY=eyJ...           # Supabase Dashboard -> Settings -> API -> service_role
+```
+
+The `SUPABASE_SERVICE_ROLE_KEY` is the only existing Supabase secret not already in `.env.local`. All Stripe keys are new.
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Client-Side Media Conversion
-**What:** Converting image-to-video or rendering text cards in the browser before upload.
-**Why bad:** Large canvas/video processing in browser is slow, unreliable, and varies by device. The user should upload raw input; the server handles conversion.
-**Instead:** All conversion happens on the RunPod worker where ffmpeg and Pillow are available.
+### Anti-Pattern 1: Fulfilling on redirect, not webhook
+**What:** Granting subscription access when user hits `success_url` after checkout.
+**Why bad:** User can close browser before redirect. Redirect URL can be visited manually. Race condition between redirect and webhook arrival.
+**Instead:** Only grant access via webhook handler writing to `subscriptions` table. The success page should read subscription status from Supabase (which the webhook populates).
 
-### Anti-Pattern 2: Separate RunPod Endpoints per Input Type
-**What:** Creating `/v2/image-endpoint/run`, `/v2/text-endpoint/run` etc.
-**Why bad:** Multiplies infrastructure, cold starts, and maintenance. The model is the same.
-**Instead:** Single endpoint, `input_type` field in payload routes to correct pre-processing.
+### Anti-Pattern 2: Storing payment details in your database
+**What:** Saving card numbers, payment method details, invoice amounts in Supabase.
+**Why bad:** PCI compliance nightmare.
+**Instead:** Store only: stripe_customer_id, subscription_id, status, price_id, period dates. Use Stripe Dashboard or Customer Portal for payment details.
 
-### Anti-Pattern 3: Storing Rendered Media Back to Supabase
-**What:** After RunPod converts image-to-video, uploading the generated video back to storage.
-**Why bad:** Unnecessary network round-trip, storage cost, and complexity. The generated video is a transient artifact only needed for inference.
-**Instead:** Generate in /tmp, run inference, delete. The original image/text is preserved in the job record.
+### Anti-Pattern 3: Using anon key in webhook handler
+**What:** Using the Supabase anon key (which respects RLS) in the webhook handler.
+**Why bad:** Webhook has no user session, so RLS blocks all writes. The webhook silently fails to insert/update and returns 200 to Stripe, which stops retrying.
+**Instead:** Use service role key via `supabaseAdmin` client. This bypasses RLS intentionally.
 
-### Anti-Pattern 4: Renaming video_url Column
-**What:** `ALTER TABLE jobs RENAME COLUMN video_url TO media_url` for semantic correctness.
-**Why bad:** Breaks every existing query, component, and API response. Migration risk for cosmetic gain.
-**Instead:** Keep `video_url`. It stores image URLs too. Document the semantic mismatch.
+### Anti-Pattern 4: Not verifying webhook signatures
+**What:** Trusting the webhook payload without calling `constructEvent()`.
+**Why bad:** Anyone can POST to `/api/stripe/webhook` with a crafted payload granting themselves a subscription.
+**Instead:** Always verify with `stripe.webhooks.constructEvent()` using raw body + signing secret.
 
-### Anti-Pattern 5: Converting Text to Video Client-Side for Visual Mode
-**What:** Using HTML Canvas to render text card as image in browser, then converting to video.
-**Why bad:** Requires complex browser APIs (MediaRecorder, Canvas), inconsistent across browsers, adds large upload for what started as a few bytes of text.
-**Instead:** Send raw text + style to RunPod. Worker renders with Pillow (deterministic, fast).
+### Anti-Pattern 5: Creating a new Stripe customer per checkout
+**What:** Calling `stripe.customers.create()` every time the user clicks "Upgrade."
+**Why bad:** Duplicate customers in Stripe, broken portal links, billing confusion.
+**Instead:** Check `customers` table first. Create once, reuse the `stripe_customer_id` for all sessions.
+
+### Anti-Pattern 6: Using `req.json()` in webhook handler
+**What:** Parsing the webhook body as JSON before signature verification.
+**Why bad:** `constructEvent()` requires the raw string body. Parsing and re-stringifying changes whitespace/ordering, breaking the signature.
+**Instead:** Use `await req.text()` to get the raw body string.
 
 ## Suggested Build Order
 
-Build order driven by dependency chains and incremental testability.
+Build order follows dependency chain. Each phase can be tested independently before moving to the next.
 
-### Phase 1: Schema & Infrastructure (foundation -- everything depends on this)
-1. Supabase migration: add `input_type`, `text_content`, `text_style` columns
-2. Update `database.types.ts` with new fields
-3. Update RunPod `InputSchema` to accept new fields (backward-compatible)
-4. Update `createJob` action to accept and pass new fields
+### Phase 1: Foundation (no UI changes)
+1. `npm install stripe` in web/
+2. Create `src/lib/stripe.ts` (SDK singleton)
+3. Create `src/lib/supabase/admin.ts` (service role client)
+4. Run Supabase migrations: `customers`, `subscriptions`, `credit_usage` tables + RLS + indexes
+5. Add all env vars to `.env.local`
+6. Update `src/lib/database.types.ts` with new types
+7. Create Stripe Products + Prices in Stripe Dashboard (test mode)
 
-### Phase 2: Image Upload (simplest new input type)
-1. Modify `AnimatedFileUpload` to accept configurable MIME types
-2. Add `InputTypeSelector` component (Video/Image/Text tabs)
-3. Modify upload page to show image upload zone when Image selected
-4. Add `image_to_video()` in `src/media_converter.py`
-5. Modify handler to route image input through conversion -> inference
-6. Test: upload a JPEG, get back 1-segment brain activation
+**Depends on:** Nothing. **Enables:** Everything else.
 
-### Phase 3: Text Spoken Mode (leverages native TRIBE v2 capability)
-1. Add `TextInputForm` component with textarea
-2. Modify upload page to show text form when Text selected
-3. Modify handler to route text_spoken through `get_events_dataframe(text_path=...)`
-4. Modify `run_inference` to accept text_path parameter
-5. Test: enter text, get back multi-segment brain activation
+### Phase 2: Checkout Flow
+1. Create `src/app/api/stripe/checkout/route.ts`
+2. Add Stripe Price IDs to `pricing-data.ts`
+3. Wire `PricingCard.tsx` button to call checkout API and `window.location.href` redirect
+4. Wire billing page button similarly
+5. Add success/cancel query param handling on dashboard/pricing pages
 
-### Phase 4: Text Visual Mode (builds on image conversion from Phase 2)
-1. Add visual/spoken mode toggle to `TextInputForm`
-2. Add style picker (bg color, text color) for visual mode
-3. Add `render_text_card()` in `src/media_converter.py` (Pillow)
-4. Add Pillow to Dockerfile
-5. Modify handler to route text_visual through render -> convert -> inference
-6. Test: enter styled text, get back 1-segment brain activation
+**Depends on:** Phase 1. **Test:** Click "Upgrade to Creator" -> redirected to Stripe Checkout -> complete with test card -> redirected back to dashboard.
 
-### Phase 5: Results Adaptations
-1. Create `StaticMediaViewer` component (shows image or text card)
-2. Modify results page: conditionally render VideoPlayer vs StaticMediaViewer
-3. Handle 1-segment results gracefully in timeline (no meaningful timeline for single segment)
-4. Update dashboard cards to show input_type icon
-5. Update discover page with input_type filter
+### Phase 3: Webhook + State Sync
+1. Create `src/app/api/stripe/webhook/route.ts`
+2. Create `src/lib/subscription.ts` (status query helpers)
+3. Set up Stripe CLI for local webhook forwarding: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+4. Test full flow: checkout -> Stripe fires webhook -> `customers` + `subscriptions` rows appear in Supabase
 
-### Phase 6: Comparison Page
-1. Create `/compare` route with query params `?a=id1&b=id2`
-2. Build side-by-side layout reusing results components
-3. Add comparison selection UI on dashboard (checkboxes + "Compare" button)
-4. Add delta metrics strip (difference between two analyses)
+**Depends on:** Phase 2. **Test:** Complete a test checkout, verify subscription row exists in Supabase with status='active'.
 
-**Phase ordering rationale:**
-- Phase 1 must come first (schema changes are foundational)
-- Phase 2 before Phase 4 (image conversion is reused by text_visual)
-- Phase 3 can run in parallel with Phase 2 (independent paths)
-- Phase 5 depends on Phases 2-4 (needs all input types working)
-- Phase 6 is fully independent of Phases 2-5 (only needs two completed jobs)
+### Phase 4: Credit Gating
+1. Create `src/lib/credits.ts` (usage counting + tier check)
+2. Modify `src/app/api/jobs/route.ts` POST handler: check subscription, check credits, insert credit_usage row
+3. Add UI feedback: remaining credits on upload page, "upgrade" prompt when limit hit
 
-## Scalability Considerations
+**Depends on:** Phase 3 (needs subscription status in Supabase). **Test:** Free user hits 3 analyses/week, gets 403. Creator user has no limit.
 
-| Concern | Current (video only) | With multi-modal |
-|---------|---------------------|------------------|
-| Storage | ~100MB per video | Images: ~5MB, Text: <1KB. Negligible added cost. |
-| Inference time | ~12 min / 60s video | Image: ~2 min (2s video), Text spoken: ~3-5 min, Text visual: ~2 min. Much faster for non-video. |
-| Cold start | Same | Same -- no new models needed. Pillow + ffmpeg already in container. |
-| RunPod cost | ~$0.07/job (A40) | Image/text jobs: ~$0.01-0.02/job. Much cheaper. |
+### Phase 5: Billing Portal + Settings
+1. Create `src/app/api/stripe/portal/route.ts`
+2. Rewrite `src/app/(app)/settings/billing/page.tsx` to fetch real subscription from Supabase
+3. Show: current plan name, status, renewal date, cancel_at_period_end
+4. Add "Manage Subscription" button -> calls portal API -> redirects to Stripe Portal
+
+**Depends on:** Phase 3. **Test:** Subscribed user clicks "Manage Subscription" -> Stripe Portal opens -> can cancel/update card -> webhook updates Supabase.
+
+### Phase 6: Polish + Production
+1. Handle edge cases: resubscription after cancel, past_due grace period
+2. Add plan badge to dashboard header/nav
+3. Webhook idempotency (check if subscription row already matches before updating)
+4. Configure production webhook endpoint in Stripe Dashboard
+5. Switch from test keys to live keys in production env
+
+**Depends on:** Phases 1-5 complete.
+
+## Stripe Test Mode Workflow
+
+```bash
+# Install Stripe CLI (one-time)
+brew install stripe/stripe-cli/stripe
+
+# Login
+stripe login
+
+# Forward webhooks to local dev server
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+# CLI prints: whsec_xxx -- copy to .env.local as STRIPE_WEBHOOK_SECRET
+
+# Test cards
+# Success: 4242 4242 4242 4242
+# Decline: 4000 0000 0000 0002
+# Requires auth: 4000 0025 0000 3155
+```
 
 ## Sources
 
-- [TRIBE v2 GitHub](https://github.com/facebookresearch/tribev2) -- `get_events_dataframe(text_path=..., audio_path=..., video_path=...)` signature confirmed in `tribev2/demo_utils.py` (HIGH confidence)
-- [TRIBE v2 README](https://github.com/facebookresearch/tribev2) -- "You can also pass text_path or audio_path to model.get_events_dataframe" (HIGH confidence)
-- [Meta AI Blog: TRIBE v2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/) -- Architecture: LLaMA 3.2 (text), V-JEPA2 (video), Wav2Vec-BERT (audio) (HIGH confidence)
-- [FFmpeg image-to-video](https://shotstack.io/learn/use-ffmpeg-to-convert-images-to-video/) -- `ffmpeg -loop 1 -i input.jpg -t 2 output.mp4` pattern (HIGH confidence)
-- Existing codebase analysis: handler.py, schema.py, inference.py, upload/page.tsx, results/[id]/page.tsx, database.types.ts (HIGH confidence)
+- [Stripe Official Webhook Example for Next.js App Router](https://github.com/stripe/stripe-node/blob/master/examples/webhook-signing/nextjs/app/api/webhooks/route.ts) -- verified raw body + constructEvent pattern (HIGH confidence)
+- [Stripe Subscription Lifecycle in Next.js 2026](https://dev.to/thekarlesi/stripe-subscription-lifecycle-in-nextjs-the-complete-developer-guide-2026-4l9d) -- full lifecycle guide (MEDIUM confidence)
+- [Stripe + Next.js 15 Complete Guide](https://www.pedroalonso.net/blog/stripe-nextjs-complete-guide-2025/) -- checkout + portal patterns (MEDIUM confidence)
+- [Supabase Stripe Subscription SQL Schema](https://supabase-sql.vercel.app/stripe-subscriptions) -- standard table design (HIGH confidence, community-standard pattern)
+- [Stripe Customer Portal API](https://docs.stripe.com/api/customer_portal/sessions/create) -- portal session creation (HIGH confidence, official docs)
+- [Stripe Checkout + Webhook in Next.js 15](https://medium.com/@gragson.john/stripe-checkout-and-webhook-in-a-next-js-15-2025-925d7529855e) -- raw body handling (MEDIUM confidence)
+- [Supabase RLS Documentation](https://supabase.com/docs/guides/database/postgres/row-level-security) -- policy patterns (HIGH confidence, official docs)
+- [Stripe Integration with Supabase + Next.js](https://dev.to/flnzba/33-stripe-integration-guide-for-nextjs-15-with-supabase-13b5) -- end-to-end pattern (MEDIUM confidence)
+- [Stripe Metadata Documentation](https://docs.stripe.com/metadata) -- metadata propagation rules (HIGH confidence, official docs)
+- Existing codebase analysis: api/jobs/route.ts, supabase/server.ts, supabase/middleware.ts, pricing components, database.types.ts (HIGH confidence)
