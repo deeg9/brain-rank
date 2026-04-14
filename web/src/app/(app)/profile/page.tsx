@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { VideoThumb } from "../dashboard/VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
@@ -79,6 +80,7 @@ export default async function ProfilePage() {
   const recentJobs = allJobs.slice(0, 5);
 
   return (
+    <PageTransition>
     <div className="max-w-6xl mx-auto space-y-8 pt-6">
       {/* Hero Profile Card */}
       <section className="bg-white rounded-xl p-10 flex flex-col md:flex-row items-center justify-between shadow-sm">
@@ -203,5 +205,6 @@ export default async function ProfilePage() {
         </div>
       </div>
     </div>
+    </PageTransition>
   );
 }

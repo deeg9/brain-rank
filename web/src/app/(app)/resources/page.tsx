@@ -1,5 +1,6 @@
 import { BenchmarkLegend } from "@/components/ui/BenchmarkLegend";
 import { MetricInfo } from "@/components/results/MetricInfo";
+import { PageTransition } from "@/components/ui/PageTransition";
 import Link from "next/link";
 
 export const metadata = {
@@ -9,6 +10,7 @@ export const metadata = {
 
 export default function ResourcesPage() {
   return (
+    <PageTransition>
     <div className="max-w-4xl mx-auto space-y-12 pt-6 pb-16">
       {/* Header */}
       <div>
@@ -286,5 +288,6 @@ export default function ResourcesPage() {
         </p>
       </section>
     </div>
+    </PageTransition>
   );
 }

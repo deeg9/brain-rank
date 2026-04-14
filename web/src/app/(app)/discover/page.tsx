@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { DiscoverCard, type DiscoverAnalysis } from "./DiscoverCard";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
@@ -196,6 +197,7 @@ export default function DiscoverPage() {
   const isFiltering = searchQuery !== "" || scoreFilter !== "all" || categoryFilter !== "all";
 
   return (
+    <PageTransition>
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
       {/* Header */}
       <div>
@@ -337,5 +339,6 @@ export default function DiscoverPage() {
         />
       )}
     </div>
+    </PageTransition>
   );
 }

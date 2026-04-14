@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { SettingsForm } from "./SettingsForm";
 
 export default async function SettingsPage() {
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
     .single();
 
   return (
+    <PageTransition>
     <div className="space-y-10 pt-6">
       <header className="mb-12">
         <h1 className="text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">
@@ -45,5 +47,6 @@ export default async function SettingsPage() {
         userId={user.id}
       />
     </div>
+    </PageTransition>
   );
 }

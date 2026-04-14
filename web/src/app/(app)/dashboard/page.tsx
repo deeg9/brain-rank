@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { DashboardGrid } from "./DashboardGrid";
@@ -95,6 +96,7 @@ export default async function DashboardPage() {
   const firstName = getFirstName(user);
 
   return (
+    <PageTransition>
     <div className="pt-6 space-y-10">
       {/* Welcome Header */}
       <section className="flex justify-between items-end">
@@ -259,5 +261,6 @@ export default async function DashboardPage() {
         </>
       )}
     </div>
+    </PageTransition>
   );
 }

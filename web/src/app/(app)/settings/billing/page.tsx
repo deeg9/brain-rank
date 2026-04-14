@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { PageTransition } from "@/components/ui/PageTransition";
 import NumberFlow from "@number-flow/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -245,6 +246,7 @@ export default function BillingPage() {
     : null;
 
   return (
+    <PageTransition>
     <div className="relative flex flex-col items-center justify-center max-w-5xl py-12 mx-auto">
       {/* Header */}
       <div className="flex flex-col items-center justify-center max-w-2xl mx-auto">
@@ -289,5 +291,6 @@ export default function BillingPage() {
         ))}
       </div>
     </div>
+    </PageTransition>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { PublicAvatarDisplay } from "@/app/u/[username]/PublicAvatarDisplay";
 import { ViewCount } from "@/components/social/ViewCount";
 import { BookmarkButton } from "@/components/social/BookmarkButton";
@@ -38,6 +39,7 @@ export default function BookmarksPage() {
   }, []);
 
   return (
+    <PageTransition>
     <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
       {/* Header */}
       <div>
@@ -178,5 +180,6 @@ export default function BookmarksPage() {
               })}
       </div>
     </div>
+    </PageTransition>
   );
 }

@@ -3,6 +3,7 @@
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { Button } from "@/components/ui/Button";
 import { GlassPanel } from "@/components/ui/GlassPanel";
 import { Card } from "@/components/ui/Card";
@@ -179,6 +180,7 @@ export default function UploadPage() {
   ];
 
   return (
+    <PageTransition>
     <div className="max-w-5xl mx-auto pt-6 space-y-6">
       {/* Headline with stagger animation */}
       <motion.header
@@ -478,5 +480,6 @@ export default function UploadPage() {
         ))}
       </section>
     </div>
+    </PageTransition>
   );
 }

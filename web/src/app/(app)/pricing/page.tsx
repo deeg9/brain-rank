@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { PricingPage } from "@/components/pricing/PricingPage";
 
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function PricingRoute() {
-  return <PricingPage />;
+  return <PageTransition><PricingPage /></PageTransition>;
 }

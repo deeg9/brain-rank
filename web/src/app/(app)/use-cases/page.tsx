@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export const metadata = {
   title: "Use Cases | BrainRank",
@@ -7,6 +8,7 @@ export const metadata = {
 
 export default function UseCasesPage() {
   return (
+    <PageTransition>
     <div className="max-w-4xl mx-auto space-y-12 pt-6 pb-16">
       {/* Header */}
       <div>
@@ -188,5 +190,6 @@ export default function UseCasesPage() {
         </Link>
       </section>
     </div>
+    </PageTransition>
   );
 }
