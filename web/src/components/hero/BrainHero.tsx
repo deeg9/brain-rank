@@ -14,9 +14,9 @@ type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
 const NETWORK_KEYS = Object.keys(REGION_COLORS) as (keyof SegmentRegionScores)[];
 
-const BASE_R = 0.93;
-const BASE_G = 0.93;
-const BASE_B = 0.95;
+const BASE_R = 0.75;
+const BASE_G = 0.75;
+const BASE_B = 0.78;
 
 function hexToRGB(hex: string): [number, number, number] {
   return [
@@ -234,8 +234,9 @@ export function BrainHero() {
         onCreated={({ gl }) => { glRef.current = gl.getContext(); }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.8} color="#ffffff" />
-          <pointLight position={[2, 3, 4]} intensity={0.7} color="#ffffff" />
+          <ambientLight intensity={1.0} />
+          <directionalLight position={[5, 5, 5]} intensity={0.7} />
+          <directionalLight position={[-3, -2, 4]} intensity={0.35} />
           <SlowRotatingGroup>
             <Center>
               <DecorativeBrainMesh reducedMotion={reducedMotion} />
