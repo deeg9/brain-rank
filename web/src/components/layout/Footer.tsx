@@ -42,11 +42,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-8 pt-6 flex items-center justify-between">
+        <div className="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-xs text-white/40">
             &copy; {new Date().getFullYear()} <span className="font-headline font-black tracking-widest uppercase">BRAIN<span className="text-white/20 mx-px">|</span>RANK</span>
           </p>
-          <p className="text-xs text-white/40">
+          <p className="text-[10px] md:text-xs text-white/40 text-center">
             Neural activation predictions are computational estimates, not medical measurements.
           </p>
         </div>

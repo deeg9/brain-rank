@@ -14,7 +14,7 @@ export function FinalCTA() {
           </Button>
         </Link>
         <p className="text-on-surface-variant text-sm mt-4">
-          Free to use. No credit card required.
+          No credit card required.
         </p>
       </div>
     </section>

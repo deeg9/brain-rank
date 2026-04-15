@@ -1,6 +1,6 @@
 "use client";
 
-const STEPS = [
+const STEPS: { number: string; icon: string; title: string; description: string; link?: { label: string; href: string } }[] = [
   {
     number: "01",
     icon: "upload",
@@ -12,6 +12,7 @@ const STEPS = [
     icon: "psychology",
     title: "Neural Analysis",
     description: "TRIBE v2 maps brain activation across 9 neural networks.",
+    link: { label: "Learn more about TRIBE v2", href: "https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/" },
   },
   {
     number: "03",
@@ -43,6 +44,16 @@ export function HowItWorks() {
             <p className="text-white text-sm mt-2 max-w-xs text-center">
               {step.description}
             </p>
+            {step.link && (
+              <a
+                href={step.link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 text-xs mt-3 underline underline-offset-2 hover:text-white transition-colors"
+              >
+                {step.link.label} &rarr;
+              </a>
+            )}
           </div>
         ))}
       </div>

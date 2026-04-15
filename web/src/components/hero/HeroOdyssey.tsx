@@ -48,7 +48,7 @@ export function HeroOdyssey() {
           </div>
           <Link
             href="/login"
-            className="font-label text-sm text-on-surface-variant transition-colors duration-200 hover:text-on-surface"
+            className="font-label text-sm text-white transition-colors duration-200 hover:text-white/70"
           >
             Login
           </Link>
@@ -73,9 +73,11 @@ export function HeroOdyssey() {
             animate="animate"
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            Neural A/B testing for content creators. Upload a video and see
-            exactly where viewers&apos; brains light up &mdash; and where they
-            tune out.
+            Neural A/B testing for marketers and content creators. Upload a
+            video, picture, or text to see a prediction of where
+            viewers&apos; brains light up.
+            <br />
+            <a href="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/" target="_blank" rel="noopener noreferrer" className="text-white/60 text-sm md:text-base underline underline-offset-2 hover:text-white transition-colors">Powered by Meta&apos;s TRIBE v2 model.</a>
           </motion.p>
 
           <motion.div
