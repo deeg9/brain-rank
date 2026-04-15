@@ -104,26 +104,26 @@ Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HERO-01 | — | Pending |
-| HERO-02 | — | Pending |
-| HERO-03 | — | Pending |
-| HOW-01 | — | Pending |
-| HOW-02 | — | Pending |
-| FEAT-01 | — | Pending |
-| FEAT-02 | — | Pending |
-| PREV-01 | — | Pending |
-| CTA-01 | — | Pending |
-| DES-01 | — | Pending |
-| DES-02 | — | Pending |
-| DES-03 | — | Pending |
-| DES-04 | — | Pending |
-| DES-05 | — | Pending |
+| HERO-01 | Phase 65 | Pending |
+| HERO-02 | Phase 65 | Pending |
+| HERO-03 | Phase 65 | Pending |
+| HOW-01 | Phase 66 | Pending |
+| HOW-02 | Phase 66 | Pending |
+| FEAT-01 | Phase 66 | Pending |
+| FEAT-02 | Phase 66 | Pending |
+| PREV-01 | Phase 66 | Pending |
+| CTA-01 | Phase 66 | Pending |
+| DES-01 | Phase 65 | Pending |
+| DES-02 | Phase 65 | Pending |
+| DES-03 | Phase 67 | Pending |
+| DES-04 | Phase 67 | Pending |
+| DES-05 | Phase 65 | Pending |
 
 **Coverage:**
 - v7.0 requirements: 14 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 14
+- Mapped to phases: 14
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-15*
-*Last updated: 2026-04-15 after initial definition*
+*Last updated: 2026-04-15 after roadmap creation*

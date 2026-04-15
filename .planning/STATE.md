@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v7.0
 milestone_name: BrainRank Landing Page
-status: defining_requirements
+status: ready_to_plan
 stopped_at: null
 last_updated: "2026-04-15"
 last_activity: 2026-04-15
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15)
 
 **Core value:** Content creators upload content and get per-segment neural engagement scores showing where brains light up and where they tune out
-**Current focus:** Defining requirements for v7.0 BrainRank Landing Page
+**Current focus:** v7.0 BrainRank Landing Page — Phase 65 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-15 — Milestone v7.0 started
+Phase: 65 of 67 (Landing Page Foundation & Hero)
+Plan: — (not yet planned)
+Status: Ready to plan
+Last activity: 2026-04-15 — Roadmap created for v7.0
 
-Progress: [░░░░░░░░░░] 0% (v7.0: 0/0 phases)
+Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 
 ## Performance Metrics
 
@@ -50,12 +50,6 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/0 phases)
 | v3.0 (38-43) | 9 | ~0.5 days | - |
 | v4.0 (44-51) | 10 | ~1 day | - |
 | v5.0 (52-58) | 11 | ~1 day | - |
-| 59 | 2 | - | - |
-| 60 | 1 | - | - |
-| 61 | 0 | - | - |
-| 62 | 0 | - | - |
-| 63 | 0 | - | - |
-| 64 | 0 | - | - |
 
 *Updated after each plan completion*
 
@@ -63,10 +57,11 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/0 phases)
 
 ### Decisions
 
-- [v6.0]: 6 phases derived from 17 requirements (SUB, CRED, BILL, PROD, POL categories)
-- [v6.0]: Webhook handler (Phase 60) must be ready before checkout (Phase 61) so events are processed
-- [v6.0]: Credit gating (Phase 62) only depends on Phase 59 (schema) -- can run parallel with 60/61 if needed
-- [v6.0]: Free tier = 5 analyses/week, Creator = unlimited
+- [v7.0]: 3 phases derived from 14 requirements — Foundation/Hero, Content Sections, Polish/Responsiveness
+- [v7.0]: Existing BrainViewer.tsx (Three.js/R3F) reused for hero 3D brain — no new 3D setup needed
+- [v7.0]: Brutalist aesthetic (black/white/gray only) — departure from existing purple/cyan app theme
+- [v7.0]: DES-01/DES-02 assigned to Phase 65 (foundation) since all sections depend on the design system
+- [v7.0]: 21st.dev magic MCP components deferred to Phase 67 (polish pass after content exists)
 
 ### Pending Todos
 
@@ -74,11 +69,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- Stripe test mode vs live mode key management -- must verify env var pattern works in both Vercel preview and production
-- Webhook endpoint must be publicly accessible for Stripe to reach it (Vercel handles this, but local dev needs stripe listen CLI)
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-13
-Stopped at: v6.0 roadmap created, ready to plan Phase 59
+Last session: 2026-04-15
+Stopped at: v7.0 roadmap created, ready to plan Phase 65
 Resume file: None
