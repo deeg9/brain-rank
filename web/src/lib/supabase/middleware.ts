@@ -38,21 +38,17 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Define route sets for redirect logic
-  const publicRoutes = ['/login', '/signup']
+  const pathname = request.nextUrl.pathname
+  const publicRoutes = ['/login', '/signup', '/welcome', '/privacy', '/terms', '/disclaimer', '/resources', '/use-cases', '/about', '/pricing', '/forgot-password']
   const isPublicRoute = publicRoutes.some(route =>
-    request.nextUrl.pathname.startsWith(route)
+    pathname.startsWith(route)
   )
-  const isWelcomePage = request.nextUrl.pathname === '/welcome'
+  const isLandingPage = pathname === '/'
+  const isPublicProfile = pathname.startsWith('/u/')
+  const isPublicAnalysis = pathname.startsWith('/analysis/')
 
   // AUTH-04: Unauthenticated users on protected routes -> redirect to /login
-  if (!user && !isPublicRoute && !isWelcomePage) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/login'
-    return NextResponse.redirect(loginUrl)
-  }
-
-  // Unauthenticated users on /welcome -> redirect to /login
-  if (!user && isWelcomePage) {
+  if (!user && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
