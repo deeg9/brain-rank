@@ -81,7 +81,9 @@ Plans:
   1. Page uses 21st.dev magic MCP components for animations and layout polish (scroll reveals, transitions, etc.)
   2. All sections (hero, how it works, features, preview, CTA) render correctly on desktop (1440px+), tablet (768px), and mobile (375px)
   3. Interactive elements (3D brain, CTA buttons) remain functional and properly sized on all breakpoints
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 67-01-PLAN.md — ScrollReveal animation wrapper (Framer Motion useInView) and responsive classes across all landing components
 **UI hint**: yes
 
 ## Progress
@@ -90,4 +92,4 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 65. Landing Page Foundation & Hero | v7.0 | 2/2 | Complete   | 2026-04-15 |
 | 66. Content Sections | v7.0 | 2/2 | Complete   | 2026-04-15 |
-| 67. Polish & Responsiveness | v7.0 | 0/? | Not started | - |
+| 67. Polish & Responsiveness | v7.0 | 0/1 | Not started | - |
