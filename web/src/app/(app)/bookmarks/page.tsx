@@ -6,7 +6,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { PublicAvatarDisplay } from "@/app/u/[username]/PublicAvatarDisplay";
 import { ViewCount } from "@/components/social/ViewCount";
 import { BookmarkButton } from "@/components/social/BookmarkButton";
-import type { DiscoverAnalysis } from "@/app/discover/DiscoverCard";
+import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
 
 export default function BookmarksPage() {
   const [analyses, setAnalyses] = useState<DiscoverAnalysis[]>([]);
