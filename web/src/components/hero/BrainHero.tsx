@@ -179,12 +179,10 @@ function DecorativeBrainMesh({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
-function RotatingGroup({ children, reducedMotion }: { children: React.ReactNode; reducedMotion: boolean }) {
-  const ref = useRef<THREE.Group>(null);
-  useFrame((_, delta) => {
-    if (ref.current && !reducedMotion) ref.current.rotation.y += delta * 0.3;
-  });
-  return <group ref={ref} rotation={[-Math.PI / 2, 0, 0]}>{children}</group>;
+function StaticGroup({ children }: { children: React.ReactNode }) {
+  // Fixed frontal view: brain upright, symmetric, both hemispheres visible
+  // x: -PI/2 flips upright from the model's default orientation
+  return <group rotation={[-Math.PI / 2, 0, 0]}>{children}</group>;
 }
 
 export function BrainHero() {
@@ -231,9 +229,9 @@ export function BrainHero() {
           <ambientLight intensity={0.8} color="#ffffff" />
           <pointLight position={[2, 3, 4]} intensity={0.7} color="#ffffff" />
           <Center>
-            <RotatingGroup reducedMotion={reducedMotion}>
+            <StaticGroup>
               <DecorativeBrainMesh reducedMotion={reducedMotion} />
-            </RotatingGroup>
+            </StaticGroup>
           </Center>
           <EffectComposer>
             <Bloom
