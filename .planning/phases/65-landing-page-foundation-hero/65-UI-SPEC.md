@@ -1,7 +1,7 @@
 ---
 phase: 65
 slug: landing-page-foundation-hero
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-15
@@ -51,8 +51,8 @@ Exceptions: none
 |------|------|------|--------|-------------|-------|
 | Display | Space Grotesk | 72px (lg), 48px (md), 36px (sm) | 700 (bold) | 1.1 | Hero headline "See What Brains See" |
 | Body | Inter | 20px (lg), 18px (md), 16px (sm) | 400 (regular) | 1.5 | Value proposition subhead |
-| Label | Inter | 14px | 500 (medium) | 1.4 | Header login link, footer text |
-| Mono | monospace (system) | 10px | 400 | 1.2 | Footer version string, feature pill text (12px, uppercase, tracking-wider) |
+| Label | Inter | 14px | 400 (regular) | 1.4 | Header login link, footer text |
+| Mono | monospace (system) | 12px | 400 | 1.2 | Footer version string, feature pill text (uppercase, tracking-wider) |
 
 Responsive breakpoints for typography:
 - `sm` = below 768px (mobile)
@@ -223,11 +223,11 @@ No third-party component registries are used in this phase. All components are c
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: FLAG (Login single word — acceptable in minimal header context)
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: FLAG (Accent and Text primary share #ffffff — intentional in B/W system)
+- [x] Dimension 4 Typography: PASS (revised: 2 weights — 400/700; 4 sizes — display/body/label/mono)
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved (2 FLAGs, non-blocking)
