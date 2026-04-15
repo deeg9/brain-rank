@@ -5,10 +5,73 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Center } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
+import { REGION_COLORS } from '../results/brain-utils';
+import type { SegmentRegionScores } from '../results/brain-utils';
+import { VERTEX_COUNT } from '@/lib/vertex-codec';
 
 type GLTFNodes = Record<string, THREE.Mesh>;
+type NetworkVertexMap = Record<keyof SegmentRegionScores, number[]>;
 
-function DecorativeBrainMesh() {
+const NETWORK_KEYS = Object.keys(REGION_COLORS) as (keyof SegmentRegionScores)[];
+
+const BASE_R = 0.93;
+const BASE_G = 0.93;
+const BASE_B = 0.95;
+
+function hexToRGB(hex: string): [number, number, number] {
+  return [
+    parseInt(hex.slice(1, 3), 16) / 255,
+    parseInt(hex.slice(3, 5), 16) / 255,
+    parseInt(hex.slice(5, 7), 16) / 255,
+  ];
+}
+
+function buildRegionColors(
+  regions: SegmentRegionScores,
+  vertexMap: NetworkVertexMap,
+  out: Float32Array,
+): void {
+  for (let i = 0; i < VERTEX_COUNT; i++) {
+    out[i * 3] = BASE_R;
+    out[i * 3 + 1] = BASE_G;
+    out[i * 3 + 2] = BASE_B;
+  }
+
+  for (const [network, indices] of Object.entries(vertexMap)) {
+    const score = regions[network as keyof SegmentRegionScores] ?? 0;
+    if (score < 0.05) continue;
+
+    const color = REGION_COLORS[network as keyof SegmentRegionScores];
+    if (!color) continue;
+    const [cr, cg, cb] = hexToRGB(color);
+
+    const t = Math.max(0.4, Math.min(1, score * 2.5));
+    const emissiveBoost = score > 0.2 ? 1.0 + (score - 0.2) * 2.5 : 1.0;
+
+    for (const idx of indices) {
+      if (idx >= VERTEX_COUNT) continue;
+      out[idx * 3]     = (BASE_R + (cr - BASE_R) * t) * emissiveBoost;
+      out[idx * 3 + 1] = (BASE_G + (cg - BASE_G) * t) * emissiveBoost;
+      out[idx * 3 + 2] = (BASE_B + (cb - BASE_B) * t) * emissiveBoost;
+    }
+  }
+}
+
+function generateRandomRegions(): SegmentRegionScores {
+  const regions = {} as SegmentRegionScores;
+  const activeCount = 2 + Math.floor(Math.random() * 3);
+  const shuffled = [...NETWORK_KEYS].sort(() => Math.random() - 0.5);
+
+  for (const key of NETWORK_KEYS) {
+    regions[key] = 0.05 + Math.random() * 0.15;
+  }
+  for (let i = 0; i < activeCount; i++) {
+    regions[shuffled[i]] = 0.5 + Math.random() * 0.5;
+  }
+  return regions;
+}
+
+function DecorativeBrainMesh({ reducedMotion }: { reducedMotion: boolean }) {
   const { nodes } = useGLTF('/models/brain-fsaverage5-unified.glb') as unknown as { nodes: GLTFNodes };
 
   const { clonedGeometry, colorAttr } = useMemo(() => {
@@ -22,35 +85,84 @@ function DecorativeBrainMesh() {
   }, [nodes.brain.geometry]);
 
   const positionsRef = useRef<Float32Array | null>(null);
+  const [vertexMap, setVertexMap] = useState<NetworkVertexMap | null>(null);
+  const targetRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
+  const currentRegionsRef = useRef<SegmentRegionScores>(generateRandomRegions());
+  const regionColorBuffer = useMemo(() => new Float32Array(VERTEX_COUNT * 3), []);
 
   useEffect(() => {
     const pos = clonedGeometry.attributes.position;
-    if (pos) {
-      positionsRef.current = pos.array as Float32Array;
-    }
+    if (pos) positionsRef.current = pos.array as Float32Array;
   }, [clonedGeometry]);
 
   useEffect(() => {
     return () => { clonedGeometry.dispose(); };
   }, [clonedGeometry]);
 
+  // Load network vertex map
+  useEffect(() => {
+    fetch('/data/network-vertex-map.json')
+      .then((r) => r.json())
+      .then((data) => setVertexMap(data as NetworkVertexMap))
+      .catch(() => {});
+  }, []);
+
+  // Cycle random network activations every 800ms
+  useEffect(() => {
+    if (reducedMotion) return;
+    const interval = setInterval(() => {
+      targetRegionsRef.current = generateRandomRegions();
+    }, 800);
+    return () => clearInterval(interval);
+  }, [reducedMotion]);
+
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
     const positions = positionsRef.current;
     if (!positions) return;
 
     const colors = colorAttr.array as Float32Array;
-    const vertexCount = positions.length / 3;
+    const t = clock.getElapsedTime();
 
-    for (let i = 0; i < vertexCount; i++) {
-      const px = positions[i * 3];
-      const py = positions[i * 3 + 1];
-      const wave = Math.sin(px * 0.05 + t * Math.PI) * 0.5 + 0.5;
-      const emissive = 0.12 + wave * 0.06;
-      const val = 0.2 + emissive;
-      colors[i * 3] = val;
-      colors[i * 3 + 1] = val;
-      colors[i * 3 + 2] = val;
+    if (vertexMap) {
+      // Lerp region scores toward targets
+      const current = currentRegionsRef.current;
+      const target = targetRegionsRef.current;
+      const lerpSpeed = 0.06;
+
+      for (const key of NETWORK_KEYS) {
+        const noise = (Math.random() - 0.5) * 0.01;
+        current[key] += (target[key] - current[key]) * lerpSpeed + noise;
+        current[key] = Math.max(0, Math.min(1, current[key]));
+      }
+
+      // Build region colors into buffer
+      buildRegionColors(current, vertexMap, regionColorBuffer);
+
+      // Apply aurora shimmer on top + copy to vertex colors
+      const vertexCount = positions.length / 3;
+      for (let i = 0; i < vertexCount; i++) {
+        const px = positions[i * 3];
+        const py = positions[i * 3 + 1];
+        const wave1 = Math.sin(px * 0.06 + t * 1.2);
+        const wave2 = Math.sin(py * 0.07 - t * 0.9);
+        const shimmer = (wave1 + wave2) * 0.03;
+
+        colors[i * 3]     = regionColorBuffer[i * 3] + shimmer;
+        colors[i * 3 + 1] = regionColorBuffer[i * 3 + 1] + shimmer;
+        colors[i * 3 + 2] = regionColorBuffer[i * 3 + 2] + shimmer;
+      }
+    } else {
+      // Fallback: monochrome shimmer while vertex map loads
+      const vertexCount = positions.length / 3;
+      for (let i = 0; i < vertexCount; i++) {
+        const px = positions[i * 3];
+        const wave = Math.sin(px * 0.05 + t * Math.PI) * 0.5 + 0.5;
+        const emissive = 0.12 + wave * 0.06;
+        const val = 0.2 + emissive;
+        colors[i * 3] = val;
+        colors[i * 3 + 1] = val;
+        colors[i * 3 + 2] = val;
+      }
     }
     colorAttr.needsUpdate = true;
   });
@@ -62,9 +174,6 @@ function DecorativeBrainMesh() {
         toneMapped={false}
         roughness={0.7}
         metalness={0.1}
-        emissive="#ffffff"
-        emissiveIntensity={0.15}
-        color="#333333"
       />
     </mesh>
   );
@@ -119,19 +228,18 @@ export function BrainHero() {
         onCreated={({ gl }) => { glRef.current = gl.getContext(); }}
       >
         <Suspense fallback={null}>
-          <ambientLight intensity={0.3} color="#ffffff" />
-          <pointLight position={[2, 3, 4]} intensity={0.8} color="#ffffff" />
+          <ambientLight intensity={0.8} color="#ffffff" />
+          <pointLight position={[2, 3, 4]} intensity={0.7} color="#ffffff" />
           <Center>
             <RotatingGroup reducedMotion={reducedMotion}>
-              <DecorativeBrainMesh />
+              <DecorativeBrainMesh reducedMotion={reducedMotion} />
             </RotatingGroup>
           </Center>
           <EffectComposer>
             <Bloom
-              luminanceThreshold={0.6}
+              luminanceThreshold={0.9}
               luminanceSmoothing={0.4}
-              intensity={1.5}
-              radius={0.8}
+              intensity={0.8}
               mipmapBlur
             />
           </EffectComposer>
