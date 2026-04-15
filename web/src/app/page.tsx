@@ -5,6 +5,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { FeatureCards } from "@/components/landing/FeatureCards";
 import { PreviewSection } from "@/components/landing/PreviewSection";
 import { FinalCTA } from "@/components/landing/FinalCTA";
+import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -17,10 +18,18 @@ export default async function Home() {
   return (
     <div data-landing className="bg-background">
       <HeroOdyssey />
-      <HowItWorks />
-      <FeatureCards />
-      <PreviewSection />
-      <FinalCTA />
+      <ScrollReveal>
+        <HowItWorks />
+      </ScrollReveal>
+      <ScrollReveal delay={0.1}>
+        <FeatureCards />
+      </ScrollReveal>
+      <ScrollReveal delay={0.1}>
+        <PreviewSection />
+      </ScrollReveal>
+      <ScrollReveal delay={0.1}>
+        <FinalCTA />
+      </ScrollReveal>
     </div>
   );
 }
