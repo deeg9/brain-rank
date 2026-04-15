@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v7.0
 milestone_name: BrainRank Landing Page
 status: executing
-stopped_at: Completed 66-02-PLAN.md
-last_updated: "2026-04-15T19:33:49.382Z"
-last_activity: 2026-04-15 -- Phase 66 planning complete
+stopped_at: Completed 67-01-PLAN.md (Tasks 1-2, Task 3 pending human-verify)
+last_updated: "2026-04-15T19:51:00Z"
+last_activity: 2026-04-15 -- Phase 67 Plan 01 auto tasks complete
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
   percent: 100
 ---
 
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-15)
 
 ## Current Position
 
-Phase: 65 of 67 (Landing Page Foundation & Hero)
-Plan: — (not yet planned)
-Status: Ready to execute
-Last activity: 2026-04-15 -- Phase 66 planning complete
+Phase: 67 of 67 (Polish & Responsiveness)
+Plan: 01 (Tasks 1-2 complete, Task 3 pending human-verify)
+Status: Awaiting checkpoint verification
+Last activity: 2026-04-15 -- Phase 67 Plan 01 auto tasks complete
 
 Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 | Phase 65 P02 | 93s | 2 tasks | 2 files |
 | Phase 66 P01 | 94s | 2 tasks | 3 files |
 | Phase 66 P02 | 52s | 1 tasks | 3 files |
+| Phase 67 P01 | 134s | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,8 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 - [Phase 65]: Camera distance 190 reused from existing BrainViewer for decorative brain hero
 - [Phase 66]: Named exports for landing components; min-h-screen removed for multi-section scroll
 - [Phase 66]: CSS mockup over static screenshot for preview section — more maintainable and matches brutalist aesthetic
+- [Phase 67]: ScrollReveal uses Framer Motion useInView with once:true and -100px margin for subtle fade-up on first scroll
+- [Phase 67]: Mobile DPR capped at [1,1] via matchMedia to prevent GPU overload on low-end devices
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-15T19:33:49.379Z
-Stopped at: Completed 66-02-PLAN.md
+Last session: 2026-04-15T19:51:00Z
+Stopped at: Completed 67-01-PLAN.md (Tasks 1-2, Task 3 pending human-verify)
 Resume file: None
