@@ -6,6 +6,7 @@ import { FeatureCards } from "@/components/landing/FeatureCards";
 import { PreviewSection } from "@/components/landing/PreviewSection";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
+import { Footer } from "@/components/layout/Footer";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -30,6 +31,7 @@ export default async function Home() {
       <ScrollReveal delay={0.1}>
         <FinalCTA />
       </ScrollReveal>
+      <Footer />
     </div>
   );
 }

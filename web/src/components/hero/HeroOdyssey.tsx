@@ -107,7 +107,7 @@ export function HeroOdyssey() {
             {FEATURE_PILLS.map((pill) => (
               <span
                 key={pill}
-                className="rounded-full border border-outline-variant/10 bg-surface-container/60 px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-on-surface-variant backdrop-blur-sm"
+                className="rounded-full border border-white/20 bg-black/40 px-4 py-1.5 text-xs font-mono uppercase tracking-wider text-white font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] backdrop-blur-sm"
               >
                 {pill}
               </span>

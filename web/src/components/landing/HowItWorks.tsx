@@ -31,7 +31,7 @@ export function HowItWorks() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-5xl mx-auto">
         {STEPS.map((step) => (
           <div key={step.number} className="flex flex-col items-center">
-            <span className="font-headline text-4xl md:text-5xl font-black text-on-surface-variant/30">
+            <span className="font-headline text-4xl md:text-5xl font-black text-white/40">
               {step.number}
             </span>
             <span className="material-symbols-outlined text-4xl text-on-background">
@@ -40,7 +40,7 @@ export function HowItWorks() {
             <h3 className="font-headline text-xl font-bold text-on-background mt-4">
               {step.title}
             </h3>
-            <p className="text-on-surface-variant text-sm mt-2 max-w-xs text-center">
+            <p className="text-white text-sm mt-2 max-w-xs text-center">
               {step.description}
             </p>
           </div>
