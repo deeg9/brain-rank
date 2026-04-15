@@ -52,9 +52,9 @@ See MILESTONES.md for full history of shipped phases 1-58.
   3. Visitor sees a bold BrainRank headline with a one-line value proposition in Space Grotesk
   4. Visitor can click a primary CTA button that navigates to the signup flow
   5. The page uses a brutalist black/white/gray palette with Space Grotesk headlines and Inter body text
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 65-01-PLAN.md — Brutalist design system ([data-landing] CSS tokens, landing button variant) and root route setup with auth redirect
+- [x] 65-01-PLAN.md — Brutalist design system ([data-landing] CSS tokens, landing button variant) and root route setup with auth redirect
 - [ ] 65-02-PLAN.md — Decorative BrainHero 3D component and HeroOdyssey evolution (replace LightningShader, wire landing CTA)
 **UI hint**: yes
 
@@ -85,6 +85,6 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 65. Landing Page Foundation & Hero | v7.0 | 0/2 | Planning complete | - |
+| 65. Landing Page Foundation & Hero | v7.0 | 1/2 | In Progress|  |
 | 66. Content Sections | v7.0 | 0/? | Not started | - |
 | 67. Polish & Responsiveness | v7.0 | 0/? | Not started | - |

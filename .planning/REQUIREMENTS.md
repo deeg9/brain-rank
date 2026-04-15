@@ -11,7 +11,7 @@ Requirements for BrainRank Landing Page milestone. Create a visually striking la
 
 - [ ] **HERO-01**: Visitor sees an interactive 3D brain model with auto-rotation, shimmer, and bloom effects as the page centerpiece
 - [ ] **HERO-02**: Visitor sees a bold BrainRank headline with a one-line value proposition
-- [ ] **HERO-03**: Visitor can click a primary CTA button to navigate to signup
+- [x] **HERO-03**: Visitor can click a primary CTA button to navigate to signup
 
 ### How It Works
 
@@ -33,11 +33,11 @@ Requirements for BrainRank Landing Page milestone. Create a visually striking la
 
 ### Design & Polish
 
-- [ ] **DES-01**: Landing page uses brutalist minimalist aesthetic — black/white/gray palette only
-- [ ] **DES-02**: Typography uses Space Grotesk (headlines) and Inter (body), matching existing app
+- [x] **DES-01**: Landing page uses brutalist minimalist aesthetic — black/white/gray palette only
+- [x] **DES-02**: Typography uses Space Grotesk (headlines) and Inter (body), matching existing app
 - [ ] **DES-03**: Page uses 21st.dev components via magic MCP for animations and layout polish
 - [ ] **DES-04**: Page is responsive across desktop, tablet, and mobile
-- [ ] **DES-05**: Landing page is served at the root route (`/`) instead of redirecting to dashboard
+- [x] **DES-05**: Landing page is served at the root route (`/`) instead of redirecting to dashboard
 
 ## v6.0 Requirements (Paused)
 
@@ -106,18 +106,18 @@ Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 |-------------|-------|--------|
 | HERO-01 | Phase 65 | Pending |
 | HERO-02 | Phase 65 | Pending |
-| HERO-03 | Phase 65 | Pending |
+| HERO-03 | Phase 65 | Complete |
 | HOW-01 | Phase 66 | Pending |
 | HOW-02 | Phase 66 | Pending |
 | FEAT-01 | Phase 66 | Pending |
 | FEAT-02 | Phase 66 | Pending |
 | PREV-01 | Phase 66 | Pending |
 | CTA-01 | Phase 66 | Pending |
-| DES-01 | Phase 65 | Pending |
-| DES-02 | Phase 65 | Pending |
+| DES-01 | Phase 65 | Complete |
+| DES-02 | Phase 65 | Complete |
 | DES-03 | Phase 67 | Pending |
 | DES-04 | Phase 67 | Pending |
-| DES-05 | Phase 65 | Pending |
+| DES-05 | Phase 65 | Complete |
 
 **Coverage:**
 - v7.0 requirements: 14 total
