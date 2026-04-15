@@ -9,8 +9,8 @@ Requirements for BrainRank Landing Page milestone. Create a visually striking la
 
 ### Hero Section
 
-- [ ] **HERO-01**: Visitor sees an interactive 3D brain model with auto-rotation, shimmer, and bloom effects as the page centerpiece
-- [ ] **HERO-02**: Visitor sees a bold BrainRank headline with a one-line value proposition
+- [x] **HERO-01**: Visitor sees an interactive 3D brain model with auto-rotation, shimmer, and bloom effects as the page centerpiece
+- [x] **HERO-02**: Visitor sees a bold BrainRank headline with a one-line value proposition
 - [x] **HERO-03**: Visitor can click a primary CTA button to navigate to signup
 
 ### How It Works
@@ -104,8 +104,8 @@ Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HERO-01 | Phase 65 | Pending |
-| HERO-02 | Phase 65 | Pending |
+| HERO-01 | Phase 65 | Complete |
+| HERO-02 | Phase 65 | Complete |
 | HERO-03 | Phase 65 | Complete |
 | HOW-01 | Phase 66 | Pending |
 | HOW-02 | Phase 66 | Pending |

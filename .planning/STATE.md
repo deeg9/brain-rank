@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v7.0
 milestone_name: BrainRank Landing Page
 status: executing
-stopped_at: Completed 65-01-PLAN.md
-last_updated: "2026-04-15T19:09:56.543Z"
+stopped_at: Completed 65-02-PLAN.md (Tasks 1-2, Task 3 checkpoint pending)
+last_updated: "2026-04-15T19:12:51.197Z"
 last_activity: 2026-04-15 -- Phase 65 planning complete
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 100
 ---
 
 # Project State
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 
 *Updated after each plan completion*
 | Phase 65 P01 | 43s | 2 tasks | 3 files |
+| Phase 65 P02 | 93s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,7 @@ Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
 - [v7.0]: DES-01/DES-02 assigned to Phase 65 (foundation) since all sections depend on the design system
 - [v7.0]: 21st.dev magic MCP components deferred to Phase 67 (polish pass after content exists)
 - [Phase 65]: [data-landing] CSS scope for brutalist grayscale tokens, placed after .dark for specificity
+- [Phase 65]: Camera distance 190 reused from existing BrainViewer for decorative brain hero
 
 ### Pending Todos
 
@@ -75,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-15T19:09:56.541Z
-Stopped at: Completed 65-01-PLAN.md
+Last session: 2026-04-15T19:12:51.195Z
+Stopped at: Completed 65-02-PLAN.md (Tasks 1-2, Task 3 checkpoint pending)
 Resume file: None
