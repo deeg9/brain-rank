@@ -1,11 +1,47 @@
-# Requirements: NeuroCut
+# Requirements: BrainRank
 
-**Defined:** 2026-04-13
+**Defined:** 2026-04-15
 **Core Value:** Content creators upload content and get per-segment neural engagement scores — showing exactly where viewers' brains light up and where they tune out
 
-## v6.0 Requirements
+## v7.0 Requirements
 
-Requirements for Stripe Payments milestone. Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr).
+Requirements for BrainRank Landing Page milestone. Create a visually striking landing page that introduces BrainRank and drives signups.
+
+### Hero Section
+
+- [ ] **HERO-01**: Visitor sees an interactive 3D brain model with auto-rotation, shimmer, and bloom effects as the page centerpiece
+- [ ] **HERO-02**: Visitor sees a bold BrainRank headline with a one-line value proposition
+- [ ] **HERO-03**: Visitor can click a primary CTA button to navigate to signup
+
+### How It Works
+
+- [ ] **HOW-01**: Visitor sees a 3-step visual walkthrough: Upload → Analyze → See Results
+- [ ] **HOW-02**: Each step has an icon/visual, title, and brief description
+
+### Feature Highlights
+
+- [ ] **FEAT-01**: Visitor sees key platform capabilities presented as feature cards (multi-modal input, brain networks, discovery feed)
+- [ ] **FEAT-02**: Feature cards use icons or visuals consistent with the brutalist black/white/gray aesthetic
+
+### Visual Preview
+
+- [ ] **PREV-01**: Visitor sees a demo preview showing what brain analysis output looks like
+
+### Final CTA
+
+- [ ] **CTA-01**: Visitor sees a closing CTA section with headline and "Get Started" button
+
+### Design & Polish
+
+- [ ] **DES-01**: Landing page uses brutalist minimalist aesthetic — black/white/gray palette only
+- [ ] **DES-02**: Typography uses Space Grotesk (headlines) and Inter (body), matching existing app
+- [ ] **DES-03**: Page uses 21st.dev components via magic MCP for animations and layout polish
+- [ ] **DES-04**: Page is responsive across desktop, tablet, and mobile
+- [ ] **DES-05**: Landing page is served at the root route (`/`) instead of redirecting to dashboard
+
+## v6.0 Requirements (Paused)
+
+Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 
 ### Subscription & Checkout
 
@@ -56,44 +92,38 @@ Requirements for Stripe Payments milestone. Integrate Stripe to enable real paym
 
 | Feature | Reason |
 |---------|--------|
+| Testimonials | Not needed for initial landing page launch |
+| Pricing section on landing page | Stripe payments (v6.0) not yet live |
+| Blog/content section | Unnecessary complexity for landing page |
+| Login/signup forms embedded on page | Separate auth routes already exist |
+| Animation-heavy parallax | Keep it brutalist and minimal |
 | Team collaboration / seats | Major feature, not needed for initial billing launch |
-| Trial periods | Free tier with 5 credits/week IS the trial |
-| Custom dunning / retry logic | Stripe Smart Retries handles this automatically (~57% recovery) |
-| Proration | Only 2 tiers (Free + Creator), no paid-to-paid plan switches |
-| Coupon/promo codes | Adds UI complexity and abuse surface; defer to future |
-| Tax calculation | Compliance complexity premature before revenue justifies it |
-| Usage-based billing | Flat subscription + credit limits is simpler |
-| Custom payment form (Stripe Elements) | Stripe Checkout converts better, handles PCI, supports 40+ payment methods |
-| Invoice PDF generation | Stripe generates and hosts invoices via Customer Portal |
-| Refund automation | Handle manually through Stripe Dashboard for now |
+| Trial periods | Free tier with credit limits IS the trial |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SUB-01 | Phase 61 | Pending |
-| SUB-02 | Phase 60 | Pending |
-| SUB-03 | Phase 59 | Pending |
-| SUB-04 | Phase 59 | Pending |
-| CRED-01 | Phase 62 | Pending |
-| CRED-02 | Phase 62 | Pending |
-| CRED-03 | Phase 62 | Pending |
-| CRED-04 | Phase 62 | Pending |
-| BILL-01 | Phase 63 | Pending |
-| BILL-02 | Phase 63 | Pending |
-| BILL-03 | Phase 63 | Pending |
-| PROD-01 | Phase 59 | Pending |
-| PROD-02 | Phase 60 | Pending |
-| PROD-03 | Phase 60 | Pending |
-| POL-01 | Phase 62 | Pending |
-| POL-02 | Phase 64 | Pending |
-| POL-03 | Phase 63 | Pending |
+| HERO-01 | — | Pending |
+| HERO-02 | — | Pending |
+| HERO-03 | — | Pending |
+| HOW-01 | — | Pending |
+| HOW-02 | — | Pending |
+| FEAT-01 | — | Pending |
+| FEAT-02 | — | Pending |
+| PREV-01 | — | Pending |
+| CTA-01 | — | Pending |
+| DES-01 | — | Pending |
+| DES-02 | — | Pending |
+| DES-03 | — | Pending |
+| DES-04 | — | Pending |
+| DES-05 | — | Pending |
 
 **Coverage:**
-- v6.0 requirements: 17 total
-- Mapped to phases: 17/17
-- Unmapped: 0
+- v7.0 requirements: 14 total
+- Mapped to phases: 0 (awaiting roadmap)
+- Unmapped: 14
 
 ---
-*Requirements defined: 2026-04-13*
-*Last updated: 2026-04-13 after roadmap creation*
+*Requirements defined: 2026-04-15*
+*Last updated: 2026-04-15 after initial definition*
