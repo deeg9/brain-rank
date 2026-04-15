@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Job } from "@/lib/database.types";
@@ -14,6 +14,14 @@ import { ActivationTimeline } from "@/components/results/ActivationTimeline";
 import { Skeleton } from "@/components/ui";
 
 export default function ResultsPage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto space-y-8"><Skeleton variant="card" className="aspect-video" /></div>}>
+      <ResultsContent />
+    </Suspense>
+  );
+}
+
+function ResultsContent() {
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
 
