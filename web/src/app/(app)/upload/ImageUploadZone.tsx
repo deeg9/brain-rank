@@ -196,7 +196,7 @@ export function ImageUploadZone({ file, onFileSelect, disabled = false }: ImageU
                 JPEG, PNG. Max 10MB.
               </p>
               <Button
-                variant="secondary"
+                variant="primary"
                 size="md"
                 onClick={(e) => {
                   e.stopPropagation();

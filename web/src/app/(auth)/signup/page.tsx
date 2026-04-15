@@ -141,11 +141,11 @@ export default function SignupPage() {
           </div>
           <span className="text-sm text-on-surface-variant leading-snug">
             I agree to the{' '}
-            <Link href="#" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+            <Link href="/terms" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="#" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+            <Link href="/privacy" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
               Privacy Policy
             </Link>
           </span>

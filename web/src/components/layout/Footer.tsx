@@ -8,20 +8,15 @@ export function Footer() {
           {/* Brand */}
           <div>
             <h3 className="font-headline font-black text-lg tracking-widest uppercase text-black">BRAIN<span className="text-black/30 mx-0.5">|</span>RANK</h3>
-            <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-              Neural A/B testing for content creators. See how your content ranks using brain predictive modeling.
-            </p>
           </div>
 
-          {/* Product */}
+          {/* Legal */}
           <div>
-            <h4 className="font-headline font-bold text-xs uppercase tracking-widest text-black mb-3">Product</h4>
+            <h4 className="font-headline font-bold text-xs uppercase tracking-widest text-black mb-3">Legal</h4>
             <ul className="space-y-2">
-              <li><Link href="/dashboard" className="text-sm text-gray-500 hover:text-black transition-colors">Dashboard</Link></li>
-              <li><Link href="/upload" className="text-sm text-gray-500 hover:text-black transition-colors">Upload</Link></li>
-              <li><Link href="/discover" className="text-sm text-gray-500 hover:text-black transition-colors">Discover</Link></li>
-              <li><Link href="/bookmarks" className="text-sm text-gray-500 hover:text-black transition-colors">Bookmarks</Link></li>
-              <li><Link href="/pricing" className="text-sm text-gray-500 hover:text-black transition-colors">Pricing</Link></li>
+              <li><Link href="/privacy" className="text-sm text-gray-500 hover:text-black transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-sm text-gray-500 hover:text-black transition-colors">Terms and Conditions</Link></li>
+              <li><Link href="/disclaimer" className="text-sm text-gray-500 hover:text-black transition-colors">Disclaimer</Link></li>
             </ul>
           </div>
 
@@ -33,6 +28,7 @@ export function Footer() {
               <li><Link href="/resources#scores" className="text-sm text-gray-500 hover:text-black transition-colors">Understanding Scores</Link></li>
               <li><Link href="/resources#regions" className="text-sm text-gray-500 hover:text-black transition-colors">Brain Regions</Link></li>
               <li><Link href="/use-cases" className="text-sm text-gray-500 hover:text-black transition-colors">Use Cases</Link></li>
+              <li><a href="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-black transition-colors">TRIBE v2</a></li>
             </ul>
           </div>
 
@@ -40,9 +36,8 @@ export function Footer() {
           <div>
             <h4 className="font-headline font-bold text-xs uppercase tracking-widest text-black mb-3">Company</h4>
             <ul className="space-y-2">
-              <li><Link href="/settings/billing" className="text-sm text-gray-500 hover:text-black transition-colors">Billing</Link></li>
-              <li><Link href="/settings" className="text-sm text-gray-500 hover:text-black transition-colors">Settings</Link></li>
-              <li><Link href="/profile" className="text-sm text-gray-500 hover:text-black transition-colors">Profile</Link></li>
+              <li><Link href="/pricing" className="text-sm text-gray-500 hover:text-black transition-colors">Pricing</Link></li>
+              <li><Link href="/about" className="text-sm text-gray-500 hover:text-black transition-colors">About</Link></li>
             </ul>
           </div>
         </div>

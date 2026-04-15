@@ -1,0 +1,202 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - link "arrow_back Back to app" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: arrow_back
+        - text: Back to app
+    - main [ref=e7]:
+      - article [ref=e8]:
+        - heading "Privacy Policy" [level=1] [ref=e9]
+        - paragraph [ref=e10]: "Effective Date: April 15, 2026"
+        - paragraph [ref=e11]: "Last Updated: April 15, 2026"
+        - paragraph [ref=e12]: This Privacy Policy describes how BrainRank ("we," "us," or "our") collects, uses, discloses, and protects your personal information when you access or use our website, applications, and related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
+        - heading "1. Information We Collect" [level=2] [ref=e13]
+        - heading "1.1 Account Information" [level=3] [ref=e14]
+        - paragraph [ref=e15]: When you create an account, we collect your email address and password. You may optionally provide additional profile information including a username, biography, and profile picture (avatar). Your username, biography, and avatar are publicly visible once set.
+        - heading "1.2 Content You Upload" [level=3] [ref=e16]
+        - paragraph [ref=e17]: When you use the Service to analyze content, we collect and store the media you upload, including video files, image files, and text submissions. This content is stored in our cloud infrastructure and is used solely to perform the analysis you request.
+        - heading "1.3 Analysis Results" [level=3] [ref=e18]
+        - paragraph [ref=e19]: When we process your content through our AI analysis pipeline, the resulting neural activation scores, segment data, brain region activations, and associated metadata are stored in our database and linked to your account.
+        - heading "1.4 Payment Information" [level=3] [ref=e20]
+        - paragraph [ref=e21]:
+          - text: If you subscribe to a paid plan, your payment is processed by our third-party payment processor, Stripe, Inc. We transmit your email address to Stripe to create a customer record. We do not receive, store, or process your credit card number, CVV, or full billing details. Stripe's collection and use of your payment information is governed by the
+          - link "Stripe Privacy Policy" [ref=e22] [cursor=pointer]:
+            - /url: https://stripe.com/privacy
+          - text: .
+        - heading "1.5 Usage Data" [level=3] [ref=e23]
+        - paragraph [ref=e24]: We track credit consumption for free-tier users to enforce weekly usage limits. This includes records of when analyses were initiated and which job they correspond to. We also store subscription status information (active, canceled, etc.) synced from Stripe via webhooks.
+        - heading "1.6 Automatically Collected Information" [level=3] [ref=e25]
+        - paragraph [ref=e26]: We use essential authentication cookies provided by Supabase to maintain your login session. These are strictly functional cookies required for the Service to operate.
+        - paragraph [ref=e27]:
+          - strong [ref=e28]: "We do not use:"
+        - list [ref=e29]:
+          - listitem [ref=e30]: Analytics or tracking cookies
+          - listitem [ref=e31]: Advertising cookies or pixels
+          - listitem [ref=e32]: Third-party tracking scripts (e.g., Google Analytics, Meta Pixel, Segment)
+          - listitem [ref=e33]: Device fingerprinting
+          - listitem [ref=e34]: IP address logging for tracking purposes
+          - listitem [ref=e35]: Geolocation tracking
+        - heading "2. How We Use Your Information" [level=2] [ref=e36]
+        - paragraph [ref=e37]: "We use the information we collect to:"
+        - list [ref=e38]:
+          - listitem [ref=e39]: Provide, maintain, and improve the Service, including processing your content through our AI analysis pipeline
+          - listitem [ref=e40]: Process payments and manage your subscription
+          - listitem [ref=e41]: Track and enforce credit usage limits for free-tier accounts
+          - listitem [ref=e42]: Display your public profile and public analyses on the Discover page and your profile page (only when you choose to make content public)
+          - listitem [ref=e43]: Communicate with you about service-related matters, including account verification, billing, and policy changes
+          - listitem [ref=e44]: Detect, investigate, and prevent fraudulent transactions, unauthorized access, and other illegal activities
+          - listitem [ref=e45]: Comply with legal obligations
+        - heading "3. How We Process Your Content" [level=2] [ref=e46]
+        - paragraph [ref=e47]: "When you submit content for analysis, the following processing occurs:"
+        - list [ref=e48]:
+          - listitem [ref=e49]: Your uploaded media is stored securely in our cloud storage infrastructure (hosted by Supabase).
+          - listitem [ref=e50]: A URL referencing your uploaded content is transmitted to RunPod, a third-party GPU compute provider, where Meta's TRIBE v2 brain-predictive foundation model processes the content and generates neural activation predictions.
+          - listitem [ref=e51]: The resulting analysis data (scores, segments, brain region activations) is returned to our servers and stored in our database.
+        - paragraph [ref=e52]:
+          - strong [ref=e53]: "Important:"
+        - list [ref=e54]:
+          - listitem [ref=e55]:
+            - text: We do
+            - strong [ref=e56]: not
+            - text: use your content to train, fine-tune, or improve any AI or machine learning models.
+          - listitem [ref=e57]:
+            - text: We do
+            - strong [ref=e58]: not
+            - text: sell, license, or otherwise distribute your content to third parties.
+          - listitem [ref=e59]: Your content is processed solely to deliver the analysis you requested.
+        - heading "4. Third-Party Service Providers" [level=2] [ref=e60]
+        - paragraph [ref=e61]: "We engage the following third-party service providers to operate the Service. Each provider's use of your data is governed by their own privacy policy:"
+        - table [ref=e62]:
+          - rowgroup [ref=e63]:
+            - row "Provider Purpose Data Shared Privacy Policy" [ref=e64]:
+              - columnheader "Provider" [ref=e65]
+              - columnheader "Purpose" [ref=e66]
+              - columnheader "Data Shared" [ref=e67]
+              - columnheader "Privacy Policy" [ref=e68]
+          - rowgroup [ref=e69]:
+            - row "Supabase Database, authentication, file storage Account data, uploaded content, analysis results supabase.com/privacy" [ref=e70]:
+              - cell "Supabase" [ref=e71]:
+                - strong [ref=e72]: Supabase
+              - cell "Database, authentication, file storage" [ref=e73]
+              - cell "Account data, uploaded content, analysis results" [ref=e74]
+              - cell "supabase.com/privacy" [ref=e75]:
+                - link "supabase.com/privacy" [ref=e76] [cursor=pointer]:
+                  - /url: https://supabase.com/privacy
+            - row "Stripe Payment processing, subscription management Email address, payment information (collected directly by Stripe) stripe.com/privacy" [ref=e77]:
+              - cell "Stripe" [ref=e78]:
+                - strong [ref=e79]: Stripe
+              - cell "Payment processing, subscription management" [ref=e80]
+              - cell "Email address, payment information (collected directly by Stripe)" [ref=e81]
+              - cell "stripe.com/privacy" [ref=e82]:
+                - link "stripe.com/privacy" [ref=e83] [cursor=pointer]:
+                  - /url: https://stripe.com/privacy
+            - row "RunPod GPU compute for AI model inference Content URLs for processing runpod.io/legal/privacy-policy" [ref=e84]:
+              - cell "RunPod" [ref=e85]:
+                - strong [ref=e86]: RunPod
+              - cell "GPU compute for AI model inference" [ref=e87]
+              - cell "Content URLs for processing" [ref=e88]
+              - cell "runpod.io/legal/privacy-policy" [ref=e89]:
+                - link "runpod.io/legal/privacy-policy" [ref=e90] [cursor=pointer]:
+                  - /url: https://www.runpod.io/legal/privacy-policy
+        - paragraph [ref=e91]: We do not share your personal information with any other third parties for marketing, advertising, or data brokering purposes.
+        - heading "5. Public Content & Social Features" [level=2] [ref=e92]
+        - list [ref=e93]:
+          - listitem [ref=e94]:
+            - strong [ref=e95]: Private by default.
+            - text: All analyses are private when created. You must explicitly choose to make an analysis public.
+          - listitem [ref=e96]:
+            - strong [ref=e97]: Public analyses
+            - text: are visible on the Discover page and your public profile page. Other authenticated users may view and bookmark your public analyses.
+          - listitem [ref=e98]:
+            - strong [ref=e99]: Public profiles
+            - text: display your username, avatar, biography, and any analyses you have made public.
+          - listitem [ref=e100]:
+            - strong [ref=e101]: View counts
+            - text: on public analyses are tracked anonymously. We do not record the identity of individual viewers.
+          - listitem [ref=e102]: You may change an analysis from public to private (or vice versa) at any time.
+        - heading "6. Cookies & Tracking Technologies" [level=2] [ref=e103]
+        - paragraph [ref=e104]:
+          - text: BrainRank uses only
+          - strong [ref=e105]: essential, first-party authentication cookies
+          - text: provided by Supabase to maintain your login session. These cookies are strictly necessary for the Service to function and cannot be opted out of while using the Service.
+        - paragraph [ref=e106]: We do not deploy any analytics, advertising, or third-party tracking cookies. We do not use web beacons, pixel tags, or similar tracking technologies. Because we use only essential functional cookies, no cookie consent banner is required.
+        - heading "7. Data Retention" [level=2] [ref=e107]
+        - list [ref=e108]:
+          - listitem [ref=e109]:
+            - strong [ref=e110]: Account data
+            - text: is retained for as long as your account is active.
+          - listitem [ref=e111]:
+            - strong [ref=e112]: Uploaded content and analysis results
+            - text: are retained until you delete them or delete your account.
+          - listitem [ref=e113]:
+            - strong [ref=e114]: Credit usage records
+            - text: are retained for billing audit and compliance purposes.
+          - listitem [ref=e115]:
+            - strong [ref=e116]: Payment and subscription records
+            - text: synced from Stripe are retained for financial reconciliation and legal compliance.
+          - listitem [ref=e117]:
+            - strong [ref=e118]: "Account deletion:"
+            - text: You may request deletion of your account and associated data by contacting us. Upon account deletion, we will remove your personal data from our active systems, subject to any legal retention requirements.
+        - heading "8. Data Security" [level=2] [ref=e119]
+        - paragraph [ref=e120]: "We implement reasonable technical and organizational measures to protect your personal information, including:"
+        - list [ref=e121]:
+          - listitem [ref=e122]: All data transmitted between your browser and our servers is encrypted via HTTPS/TLS.
+          - listitem [ref=e123]: Database access is controlled through row-level security policies, ensuring users can only access their own data.
+          - listitem [ref=e124]: Sensitive API keys and service credentials are stored server-side and never exposed to client applications.
+          - listitem [ref=e125]: Payment processing is handled entirely by Stripe, a PCI DSS Level 1 certified provider.
+        - paragraph [ref=e126]: While we strive to protect your personal information, no method of transmission over the Internet or method of electronic storage is 100% secure. We cannot guarantee absolute security. You use the Service at your own risk.
+        - heading "9. Children's Privacy" [level=2] [ref=e127]
+        - paragraph [ref=e128]: The Service is not intended for use by individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete such information promptly. If you believe that a child under 13 has provided us with personal information, please contact us at the address below.
+        - heading "10. Your Rights" [level=2] [ref=e129]
+        - paragraph [ref=e130]: "Depending on your location, you may have the following rights regarding your personal information:"
+        - heading "All Users" [level=3] [ref=e131]
+        - list [ref=e132]:
+          - listitem [ref=e133]: Access, correct, or update your account information through your Settings page.
+          - listitem [ref=e134]: Delete individual analyses and their associated uploaded content.
+          - listitem [ref=e135]: Toggle any analysis between public and private.
+          - listitem [ref=e136]: Cancel your subscription at any time through the Billing settings.
+          - listitem [ref=e137]: Request deletion of your account by contacting us.
+        - heading "California Residents (CCPA/CPRA)" [level=3] [ref=e138]
+        - paragraph [ref=e139]: "If you are a California resident, you have the right to:"
+        - list [ref=e140]:
+          - listitem [ref=e141]: Request disclosure of the categories and specific pieces of personal information we have collected about you.
+          - listitem [ref=e142]: Request deletion of your personal information.
+          - listitem [ref=e143]:
+            - text: Opt out of the sale or sharing of your personal information.
+            - strong [ref=e144]: We do not sell or share your personal information.
+          - listitem [ref=e145]: Not be discriminated against for exercising your privacy rights.
+        - heading "European Economic Area, United Kingdom & Switzerland (GDPR)" [level=3] [ref=e146]
+        - paragraph [ref=e147]: "If you are located in the EEA, UK, or Switzerland, you have the right to:"
+        - list [ref=e148]:
+          - listitem [ref=e149]: Access, rectify, or erase your personal data.
+          - listitem [ref=e150]: Restrict or object to processing of your personal data.
+          - listitem [ref=e151]: Data portability (receive your data in a structured, machine-readable format).
+          - listitem [ref=e152]: Withdraw consent at any time where processing is based on consent.
+          - listitem [ref=e153]: Lodge a complaint with your local Data Protection Authority.
+        - paragraph [ref=e154]: "Our legal bases for processing your personal data include: performance of a contract (providing the Service), legitimate interests (improving and securing the Service), compliance with legal obligations, and your consent where applicable."
+        - heading "11. International Data Transfers" [level=2] [ref=e155]
+        - paragraph [ref=e156]: Your information may be transferred to, stored, and processed in the United States and other countries where our service providers operate. These countries may have data protection laws that differ from the laws of your country. By using the Service, you consent to the transfer of your information to the United States and other jurisdictions. We take reasonable steps to ensure that your data is treated securely and in accordance with this Privacy Policy.
+        - heading "12. Changes to This Privacy Policy" [level=2] [ref=e157]
+        - paragraph [ref=e158]: We may update this Privacy Policy from time to time. If we make material changes, we will notify you by posting the updated policy on this page with a revised "Last Updated" date. Your continued use of the Service after any changes constitutes your acceptance of the updated policy. We encourage you to review this policy periodically.
+        - heading "13. Contact Us" [level=2] [ref=e159]
+        - paragraph [ref=e160]: "If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:"
+        - paragraph [ref=e161]:
+          - strong [ref=e162]: "Email:"
+          - text: privacy@brainrank.app
+    - contentinfo [ref=e163]:
+      - generic [ref=e164]:
+        - paragraph [ref=e165]:
+          - text: © 2026
+          - generic [ref=e166]: BRAIN|RANK
+        - generic [ref=e167]:
+          - link "Privacy" [ref=e168] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e169] [cursor=pointer]:
+            - /url: /terms
+          - link "Disclaimer" [ref=e170] [cursor=pointer]:
+            - /url: /disclaimer
+  - button "Open Next.js Dev Tools" [ref=e176] [cursor=pointer]:
+    - img [ref=e177]

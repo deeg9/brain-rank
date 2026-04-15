@@ -7,6 +7,7 @@ import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { DashboardGrid } from "./DashboardGrid";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
+import { getCreditStatus } from "@/lib/credits";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -95,6 +96,9 @@ export default async function DashboardPage() {
   const avgScore = computeAvgScore(jobList);
   const firstName = getFirstName(user);
 
+  const credits = await getCreditStatus(supabase, user.id);
+  const creditsDisplay = credits.isCreator ? "∞" : String(credits.remaining);
+
   return (
     <PageTransition>
     <div className="pt-6 space-y-10">
@@ -142,7 +146,7 @@ export default async function DashboardPage() {
         <StatTile
           icon="toll"
           label="Credits Remaining"
-          value="250"
+          value={creditsDisplay}
           accentColor="secondary"
         />
         <StatTile

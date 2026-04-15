@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PostHogProvider } from "@/components/PostHogProvider";
+import { PostHogPageView } from "@/components/PostHogPageView";
+import { CookieConsent } from "@/components/CookieConsent";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -34,9 +37,13 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface font-body min-h-screen antialiased">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider>
+            <PostHogPageView />
+            {children}
+            <CookieConsent />
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

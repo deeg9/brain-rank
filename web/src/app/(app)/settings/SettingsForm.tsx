@@ -370,18 +370,21 @@ export function SettingsForm({
               <label className="text-xs font-headline uppercase tracking-widest text-black font-bold">
                 Username
               </label>
-              <input
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-on-surface focus:bg-white focus:border-black focus:ring-0 transition-all"
-                type="text"
-                value={username}
-                onChange={(e) =>
-                  setUsername(
-                    e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
-                  )
-                }
-                maxLength={20}
-                placeholder="choose_a_username"
-              />
+              <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg focus-within:bg-white focus-within:border-black transition-all">
+                <span className="pl-4 text-on-surface-variant font-medium select-none">@</span>
+                <input
+                  className="flex-1 bg-transparent border-none pl-1 pr-4 py-3 text-on-surface focus:ring-0 outline-none"
+                  type="text"
+                  value={username}
+                  onChange={(e) =>
+                    setUsername(
+                      e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
+                    )
+                  }
+                  maxLength={20}
+                  placeholder="choose_a_username"
+                />
+              </div>
               <div className="min-h-[20px]">
                 {checking && (
                   <p className="text-xs text-on-surface-variant">Checking...</p>

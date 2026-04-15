@@ -1,0 +1,1218 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e5]: BRAIN|RANK
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: "@diego"
+        - paragraph [ref=e16]: Unlimited
+      - button "diego" [ref=e18]:
+        - img "diego" [ref=e19]
+  - main [ref=e20]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "Welcome back, diego" [level=1] [ref=e25]
+        - link "add New Analysis" [ref=e26] [cursor=pointer]:
+          - /url: /upload
+          - generic [ref=e27]: add
+          - text: New Analysis
+      - generic [ref=e28]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - paragraph [ref=e33]: Total Analyses
+            - generic [ref=e35]: "39"
+          - generic [ref=e37]: analytics
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: Credits Remaining
+            - generic [ref=e44]: ∞
+          - generic [ref=e46]: toll
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - paragraph [ref=e51]: Avg Attention Score
+            - generic [ref=e53]: "0.83"
+          - generic [ref=e55]: neurology
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - heading "Analysis History" [level=3] [ref=e58]
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: search
+              - textbox "Search analyses..." [ref=e62]
+            - generic [ref=e63]: 39 Total
+        - generic [ref=e64]:
+          - generic [ref=e66] [cursor=pointer]:
+            - generic [ref=e69]: movie
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]:
+                  - heading "b58b2965-63ba-4d7c-9a8a-4bbddb300042.mp4" [level=4] [ref=e73]
+                  - generic [ref=e74]:
+                    - button "compare_arrows" [ref=e75]:
+                      - generic [ref=e76]: compare_arrows
+                    - button "more_vert" [ref=e78]:
+                      - generic [ref=e79]: more_vert
+                - generic [ref=e80]:
+                  - generic [ref=e81]: Complete
+                  - generic [ref=e82]:
+                    - generic [ref=e83]: videocam
+                    - generic [ref=e84]: Video
+                  - button "lock Private" [ref=e86]:
+                    - generic [ref=e87]: lock
+                    - generic [ref=e88]: Private
+                  - generic [ref=e89]: · Beauty
+                - generic [ref=e90]:
+                  - generic [ref=e91]:
+                    - generic [ref=e92]: calendar_today
+                    - text: Apr 14, 2026
+                  - generic [ref=e93]:
+                    - generic [ref=e94]: trophy
+                    - generic [ref=e95]: N/A
+              - link "View Results" [ref=e97]:
+                - /url: /results/58700669-f259-4b0a-bb30-a42b08d5ef43
+          - generic [ref=e99] [cursor=pointer]:
+            - generic [ref=e102]: movie
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - heading "8f8a62e2-37fe-4540-bdf6-4ad2459aa443.txt" [level=4] [ref=e106]
+                  - generic [ref=e107]:
+                    - button "compare_arrows" [ref=e108]:
+                      - generic [ref=e109]: compare_arrows
+                    - button "more_vert" [ref=e111]:
+                      - generic [ref=e112]: more_vert
+                - generic [ref=e113]:
+                  - generic [ref=e114]: Complete
+                  - generic [ref=e115]:
+                    - generic [ref=e116]: text_fields
+                    - generic [ref=e117]: Text
+                  - button "lock Private" [ref=e119]:
+                    - generic [ref=e120]: lock
+                    - generic [ref=e121]: Private
+                  - generic [ref=e122]: · Other
+                - generic [ref=e123]:
+                  - generic [ref=e124]:
+                    - generic [ref=e125]: calendar_today
+                    - text: Apr 14, 2026
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: trophy
+                    - generic [ref=e128]: N/A
+              - link "View Results" [ref=e130]:
+                - /url: /results/34ce224f-c23c-4515-acb4-2bb49be59e39
+          - generic [ref=e132] [cursor=pointer]:
+            - generic [ref=e135]: movie
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - generic [ref=e138]:
+                  - heading "796853e8-a73f-4cb4-85c5-d7e60be8a1f5.png" [level=4] [ref=e139]
+                  - generic [ref=e140]:
+                    - button "compare_arrows" [ref=e141]:
+                      - generic [ref=e142]: compare_arrows
+                    - button "more_vert" [ref=e144]:
+                      - generic [ref=e145]: more_vert
+                - generic [ref=e146]:
+                  - generic [ref=e147]: Complete
+                  - generic [ref=e148]:
+                    - generic [ref=e149]: image
+                    - generic [ref=e150]: Image
+                  - button "lock Private" [ref=e152]:
+                    - generic [ref=e153]: lock
+                    - generic [ref=e154]: Private
+                  - generic [ref=e155]: · Beauty
+                - generic [ref=e156]:
+                  - generic [ref=e157]:
+                    - generic [ref=e158]: calendar_today
+                    - text: Apr 14, 2026
+                  - generic [ref=e159]:
+                    - generic [ref=e160]: trophy
+                    - generic [ref=e161]: N/A
+              - link "View Results" [ref=e163]:
+                - /url: /results/a32dd1ee-3fd7-4c2c-a4a5-4ea60bdd6374
+          - generic [ref=e165] [cursor=pointer]:
+            - generic [ref=e168]: movie
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e171]:
+                  - heading "d022614f-a48e-4a7a-85e4-e42de786728a.png" [level=4] [ref=e172]
+                  - button "more_vert" [ref=e175]:
+                    - generic [ref=e176]: more_vert
+                - generic [ref=e177]:
+                  - generic [ref=e178]: Failed
+                  - generic [ref=e179]:
+                    - generic [ref=e180]: image
+                    - generic [ref=e181]: Image
+                  - button "lock Private" [ref=e183]:
+                    - generic [ref=e184]: lock
+                    - generic [ref=e185]: Private
+                  - generic [ref=e186]: · Beauty
+                - generic [ref=e188]:
+                  - generic [ref=e189]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e191]:
+                - /url: /results/d06b0762-9cf5-478c-bb58-09af68015448
+          - generic [ref=e193] [cursor=pointer]:
+            - generic [ref=e196]: movie
+            - generic [ref=e197]:
+              - generic [ref=e198]:
+                - generic [ref=e199]:
+                  - heading "4e82e1ea-54ee-43cc-b173-184fb39ef802.mov" [level=4] [ref=e200]
+                  - generic [ref=e201]:
+                    - button "compare_arrows" [ref=e202]:
+                      - generic [ref=e203]: compare_arrows
+                    - button "more_vert" [ref=e205]:
+                      - generic [ref=e206]: more_vert
+                - generic [ref=e207]:
+                  - generic [ref=e208]: Complete
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: videocam
+                    - generic [ref=e211]: Video
+                  - button "lock Private" [ref=e213]:
+                    - generic [ref=e214]: lock
+                    - generic [ref=e215]: Private
+                  - generic [ref=e216]: · Comedy
+                - generic [ref=e217]:
+                  - generic [ref=e218]:
+                    - generic [ref=e219]: calendar_today
+                    - text: Apr 14, 2026
+                  - generic [ref=e220]:
+                    - generic [ref=e221]: trophy
+                    - generic [ref=e222]: N/A
+              - link "View Results" [ref=e224]:
+                - /url: /results/a59fb7a5-53a6-4a12-b0f3-e6a24bed1f9c
+          - generic [ref=e226] [cursor=pointer]:
+            - generic [ref=e229]: movie
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]:
+                  - heading "74374744-2008-4e37-bd68-345ecef003fd.MP4" [level=4] [ref=e233]
+                  - button "more_vert" [ref=e236]:
+                    - generic [ref=e237]: more_vert
+                - generic [ref=e238]:
+                  - generic [ref=e239]: Processing
+                  - generic [ref=e243]:
+                    - generic [ref=e244]: videocam
+                    - generic [ref=e245]: Video
+                  - button "lock Private" [ref=e247]:
+                    - generic [ref=e248]: lock
+                    - generic [ref=e249]: Private
+                  - generic [ref=e250]: · Comedy
+                - generic [ref=e252]:
+                  - generic [ref=e253]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e255]:
+                - /url: /results/59296bf9-949c-46fe-99ca-287c5122888d
+          - generic [ref=e257] [cursor=pointer]:
+            - generic [ref=e260]: movie
+            - generic [ref=e261]:
+              - generic [ref=e262]:
+                - generic [ref=e263]:
+                  - heading "348b1d25-8e9a-4b32-9c72-1ef8b36faa65.mov" [level=4] [ref=e264]
+                  - button "more_vert" [ref=e267]:
+                    - generic [ref=e268]: more_vert
+                - generic [ref=e269]:
+                  - generic [ref=e270]: Processing
+                  - generic [ref=e274]:
+                    - generic [ref=e275]: videocam
+                    - generic [ref=e276]: Video
+                  - button "lock Private" [ref=e278]:
+                    - generic [ref=e279]: lock
+                    - generic [ref=e280]: Private
+                  - generic [ref=e281]: · Comedy
+                - generic [ref=e283]:
+                  - generic [ref=e284]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e286]:
+                - /url: /results/fc154619-26e2-450e-9ecd-71f9b399afb3
+          - generic [ref=e288] [cursor=pointer]:
+            - generic [ref=e291]: movie
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - generic [ref=e294]:
+                  - heading "5fe59db6-ffb8-49ba-a1fd-addeb64a9377.mp4" [level=4] [ref=e295]
+                  - button "more_vert" [ref=e298]:
+                    - generic [ref=e299]: more_vert
+                - generic [ref=e300]:
+                  - generic [ref=e301]: Processing
+                  - generic [ref=e305]:
+                    - generic [ref=e306]: videocam
+                    - generic [ref=e307]: Video
+                  - button "lock Private" [ref=e309]:
+                    - generic [ref=e310]: lock
+                    - generic [ref=e311]: Private
+                  - generic [ref=e312]: · Education
+                - generic [ref=e314]:
+                  - generic [ref=e315]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e317]:
+                - /url: /results/c4223433-caea-4053-af48-2ad358188126
+          - generic [ref=e319] [cursor=pointer]:
+            - generic [ref=e322]: movie
+            - generic [ref=e323]:
+              - generic [ref=e324]:
+                - generic [ref=e325]:
+                  - heading "e7dc5acf-9aa3-4d69-9701-02041911d9b9.MOV" [level=4] [ref=e326]
+                  - button "more_vert" [ref=e329]:
+                    - generic [ref=e330]: more_vert
+                - generic [ref=e331]:
+                  - generic [ref=e332]: Failed
+                  - generic [ref=e333]:
+                    - generic [ref=e334]: videocam
+                    - generic [ref=e335]: Video
+                  - button "lock Private" [ref=e337]:
+                    - generic [ref=e338]: lock
+                    - generic [ref=e339]: Private
+                  - generic [ref=e340]: · Comedy
+                - generic [ref=e342]:
+                  - generic [ref=e343]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e345]:
+                - /url: /results/9aa4cc8b-a865-4a23-8c0f-5f2a1f623a32
+          - generic [ref=e347] [cursor=pointer]:
+            - generic [ref=e350]: movie
+            - generic [ref=e351]:
+              - generic [ref=e352]:
+                - generic [ref=e353]:
+                  - heading "c831facb-e3ea-4a01-8d79-fcab76d0e24b.MP4" [level=4] [ref=e354]
+                  - button "more_vert" [ref=e357]:
+                    - generic [ref=e358]: more_vert
+                - generic [ref=e359]:
+                  - generic [ref=e360]: Failed
+                  - generic [ref=e361]:
+                    - generic [ref=e362]: videocam
+                    - generic [ref=e363]: Video
+                  - button "lock Private" [ref=e365]:
+                    - generic [ref=e366]: lock
+                    - generic [ref=e367]: Private
+                  - generic [ref=e368]: · Comedy
+                - generic [ref=e370]:
+                  - generic [ref=e371]: calendar_today
+                  - text: Apr 14, 2026
+              - link "View Results" [ref=e373]:
+                - /url: /results/6c371461-9f59-41c6-a28e-d769d2afc022
+          - generic [ref=e375] [cursor=pointer]:
+            - generic [ref=e378]: movie
+            - generic [ref=e379]:
+              - generic [ref=e380]:
+                - generic [ref=e381]:
+                  - heading "e8ca3de3-d6ed-469d-906c-7e5f3d31a7fd.MOV" [level=4] [ref=e382]
+                  - button "more_vert" [ref=e385]:
+                    - generic [ref=e386]: more_vert
+                - generic [ref=e387]:
+                  - generic [ref=e388]: Processing
+                  - generic [ref=e392]:
+                    - generic [ref=e393]: videocam
+                    - generic [ref=e394]: Video
+                  - button "lock Private" [ref=e396]:
+                    - generic [ref=e397]: lock
+                    - generic [ref=e398]: Private
+                  - generic [ref=e399]: · Comedy
+                - generic [ref=e401]:
+                  - generic [ref=e402]: calendar_today
+                  - text: Apr 13, 2026
+              - link "View Results" [ref=e404]:
+                - /url: /results/3b3f10a9-fb71-47e1-8133-ba9766a0213c
+          - generic [ref=e406] [cursor=pointer]:
+            - generic [ref=e409]: movie
+            - generic [ref=e410]:
+              - generic [ref=e411]:
+                - generic [ref=e412]:
+                  - heading "bdfd3833-19aa-4e4e-b90c-9261798b1a6f.mp4" [level=4] [ref=e413]
+                  - button "more_vert" [ref=e416]:
+                    - generic [ref=e417]: more_vert
+                - generic [ref=e418]:
+                  - generic [ref=e419]: Failed
+                  - generic [ref=e420]:
+                    - generic [ref=e421]: videocam
+                    - generic [ref=e422]: Video
+                  - button "public Public" [ref=e424]:
+                    - generic [ref=e425]: public
+                    - generic [ref=e426]: Public
+                  - generic [ref=e427]: · Beauty
+                - generic [ref=e428]:
+                  - generic [ref=e429]:
+                    - generic [ref=e430]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e431]:
+                    - generic [ref=e432]: visibility
+                    - text: 0 views
+              - link "View Results" [ref=e434]:
+                - /url: /results/012342b0-d376-474a-a276-7cd9f5663f2c
+          - generic [ref=e436] [cursor=pointer]:
+            - generic [ref=e439]: movie
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - generic [ref=e442]:
+                  - heading "1d4e9a91-f1d9-45c1-9536-c45e93d298b2.mp4" [level=4] [ref=e443]
+                  - button "more_vert" [ref=e446]:
+                    - generic [ref=e447]: more_vert
+                - generic [ref=e448]:
+                  - generic [ref=e449]: Failed
+                  - generic [ref=e450]:
+                    - generic [ref=e451]: videocam
+                    - generic [ref=e452]: Video
+                  - button "lock Private" [ref=e454]:
+                    - generic [ref=e455]: lock
+                    - generic [ref=e456]: Private
+                  - generic [ref=e457]: · Beauty
+                - generic [ref=e459]:
+                  - generic [ref=e460]: calendar_today
+                  - text: Apr 13, 2026
+              - link "View Results" [ref=e462]:
+                - /url: /results/e170e44b-e525-4625-84f2-148ea1f02840
+          - generic [ref=e464] [cursor=pointer]:
+            - generic [ref=e467]: movie
+            - generic [ref=e468]:
+              - generic [ref=e469]:
+                - generic [ref=e470]:
+                  - heading "yuh" [level=4] [ref=e471]
+                  - generic [ref=e472]:
+                    - button "compare_arrows" [ref=e473]:
+                      - generic [ref=e474]: compare_arrows
+                    - button "more_vert" [ref=e476]:
+                      - generic [ref=e477]: more_vert
+                - generic [ref=e478]:
+                  - generic [ref=e479]: Complete
+                  - generic [ref=e480]:
+                    - generic [ref=e481]: videocam
+                    - generic [ref=e482]: Video
+                  - button "public Public" [ref=e484]:
+                    - generic [ref=e485]: public
+                    - generic [ref=e486]: Public
+                  - generic [ref=e487]: · Comedy
+                - generic [ref=e488]:
+                  - generic [ref=e489]:
+                    - generic [ref=e490]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e491]:
+                    - generic [ref=e492]: visibility
+                    - text: 0 views
+                  - generic [ref=e493]:
+                    - generic [ref=e494]: trophy
+                    - generic [ref=e495]: N/A
+              - link "View Results" [ref=e497]:
+                - /url: /results/9eb81964-ed51-48aa-99b1-03ec4ae1a834
+          - generic [ref=e499] [cursor=pointer]:
+            - generic [ref=e502]: movie
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - generic [ref=e505]:
+                  - heading "a1411485-cebe-4fa0-a82c-9abc3063c80b.mp4" [level=4] [ref=e506]
+                  - generic [ref=e507]:
+                    - button "compare_arrows" [ref=e508]:
+                      - generic [ref=e509]: compare_arrows
+                    - button "more_vert" [ref=e511]:
+                      - generic [ref=e512]: more_vert
+                - generic [ref=e513]:
+                  - generic [ref=e514]: Complete
+                  - generic [ref=e515]:
+                    - generic [ref=e516]: videocam
+                    - generic [ref=e517]: Video
+                  - button "lock Private" [ref=e519]:
+                    - generic [ref=e520]: lock
+                    - generic [ref=e521]: Private
+                  - generic [ref=e522]: · Comedy
+                - generic [ref=e523]:
+                  - generic [ref=e524]:
+                    - generic [ref=e525]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e526]:
+                    - generic [ref=e527]: trophy
+                    - generic [ref=e528]: N/A
+              - link "View Results" [ref=e530]:
+                - /url: /results/487e0468-6aba-4878-8221-38af1935b5cf
+          - generic [ref=e532] [cursor=pointer]:
+            - generic [ref=e535]: movie
+            - generic [ref=e536]:
+              - generic [ref=e537]:
+                - generic [ref=e538]:
+                  - heading "e78b582c-9be9-46b6-bc16-2a84741990b4.MOV" [level=4] [ref=e539]
+                  - generic [ref=e540]:
+                    - button "compare_arrows" [ref=e541]:
+                      - generic [ref=e542]: compare_arrows
+                    - button "more_vert" [ref=e544]:
+                      - generic [ref=e545]: more_vert
+                - generic [ref=e546]:
+                  - generic [ref=e547]: Complete
+                  - generic [ref=e548]:
+                    - generic [ref=e549]: videocam
+                    - generic [ref=e550]: Video
+                  - button "lock Private" [ref=e552]:
+                    - generic [ref=e553]: lock
+                    - generic [ref=e554]: Private
+                  - generic [ref=e555]: · Comedy
+                - generic [ref=e556]:
+                  - generic [ref=e557]:
+                    - generic [ref=e558]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e559]:
+                    - generic [ref=e560]: trophy
+                    - generic [ref=e561]: N/A
+              - link "View Results" [ref=e563]:
+                - /url: /results/adf8110a-3365-427d-8577-13815370c9c3
+          - generic [ref=e565] [cursor=pointer]:
+            - generic [ref=e568]: movie
+            - generic [ref=e569]:
+              - generic [ref=e570]:
+                - generic [ref=e571]:
+                  - heading "9bbeee4c-d598-4742-8049-4f359c3f22b8.mov" [level=4] [ref=e572]
+                  - button "more_vert" [ref=e575]:
+                    - generic [ref=e576]: more_vert
+                - generic [ref=e577]:
+                  - generic [ref=e578]: Failed
+                  - generic [ref=e579]:
+                    - generic [ref=e580]: videocam
+                    - generic [ref=e581]: Video
+                  - button "lock Private" [ref=e583]:
+                    - generic [ref=e584]: lock
+                    - generic [ref=e585]: Private
+                  - generic [ref=e586]: · Education
+                - generic [ref=e588]:
+                  - generic [ref=e589]: calendar_today
+                  - text: Apr 13, 2026
+              - link "View Results" [ref=e591]:
+                - /url: /results/a828f620-5d0f-46ba-8dc0-24dda0a9b3cf
+          - generic [ref=e593] [cursor=pointer]:
+            - generic [ref=e596]: movie
+            - generic [ref=e597]:
+              - generic [ref=e598]:
+                - generic [ref=e599]:
+                  - heading "e80e731d-b8d9-4b6b-b7dc-dd5e5674cb70.mov" [level=4] [ref=e600]
+                  - generic [ref=e601]:
+                    - button "compare_arrows" [ref=e602]:
+                      - generic [ref=e603]: compare_arrows
+                    - button "more_vert" [ref=e605]:
+                      - generic [ref=e606]: more_vert
+                - generic [ref=e607]:
+                  - generic [ref=e608]: Complete
+                  - generic [ref=e609]:
+                    - generic [ref=e610]: videocam
+                    - generic [ref=e611]: Video
+                  - button "public Public" [ref=e613]:
+                    - generic [ref=e614]: public
+                    - generic [ref=e615]: Public
+                  - generic [ref=e616]: · Comedy
+                - generic [ref=e617]:
+                  - generic [ref=e618]:
+                    - generic [ref=e619]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e620]:
+                    - generic [ref=e621]: visibility
+                    - text: 0 views
+                  - generic [ref=e622]:
+                    - generic [ref=e623]: trophy
+                    - generic [ref=e624]: N/A
+              - link "View Results" [ref=e626]:
+                - /url: /results/c4aecf54-f26f-42a0-bd76-82e541fde838
+          - generic [ref=e628] [cursor=pointer]:
+            - generic [ref=e631]: movie
+            - generic [ref=e632]:
+              - generic [ref=e633]:
+                - generic [ref=e634]:
+                  - heading "17b40c83-cfcc-41cf-a294-829ac2e92245.mov" [level=4] [ref=e635]
+                  - generic [ref=e636]:
+                    - button "compare_arrows" [ref=e637]:
+                      - generic [ref=e638]: compare_arrows
+                    - button "more_vert" [ref=e640]:
+                      - generic [ref=e641]: more_vert
+                - generic [ref=e642]:
+                  - generic [ref=e643]: Complete
+                  - generic [ref=e644]:
+                    - generic [ref=e645]: videocam
+                    - generic [ref=e646]: Video
+                  - button "lock Private" [ref=e648]:
+                    - generic [ref=e649]: lock
+                    - generic [ref=e650]: Private
+                  - generic [ref=e651]: · Comedy
+                - generic [ref=e652]:
+                  - generic [ref=e653]:
+                    - generic [ref=e654]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e655]:
+                    - generic [ref=e656]: trophy
+                    - generic [ref=e657]: N/A
+              - link "View Results" [ref=e659]:
+                - /url: /results/d1719563-19dd-4dc1-b8c9-fb3a80c0f210
+          - generic [ref=e661] [cursor=pointer]:
+            - generic [ref=e664]: movie
+            - generic [ref=e665]:
+              - generic [ref=e666]:
+                - generic [ref=e667]:
+                  - heading "67e676f3-7b98-4702-9a86-49004d614dc5.mp4" [level=4] [ref=e668]
+                  - generic [ref=e669]:
+                    - button "compare_arrows" [ref=e670]:
+                      - generic [ref=e671]: compare_arrows
+                    - button "more_vert" [ref=e673]:
+                      - generic [ref=e674]: more_vert
+                - generic [ref=e675]:
+                  - generic [ref=e676]: Complete
+                  - generic [ref=e677]:
+                    - generic [ref=e678]: videocam
+                    - generic [ref=e679]: Video
+                  - button "lock Private" [ref=e681]:
+                    - generic [ref=e682]: lock
+                    - generic [ref=e683]: Private
+                  - generic [ref=e684]: · Travel
+                - generic [ref=e685]:
+                  - generic [ref=e686]:
+                    - generic [ref=e687]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e688]:
+                    - generic [ref=e689]: trophy
+                    - generic [ref=e690]: N/A
+              - link "View Results" [ref=e692]:
+                - /url: /results/cacf9131-6167-4e1c-9c65-40aa305d4995
+          - generic [ref=e694] [cursor=pointer]:
+            - generic [ref=e697]: movie
+            - generic [ref=e698]:
+              - generic [ref=e699]:
+                - generic [ref=e700]:
+                  - heading "370b52e3-7178-4a56-9a26-8075c7d83fd1.mov" [level=4] [ref=e701]
+                  - generic [ref=e702]:
+                    - button "compare_arrows" [ref=e703]:
+                      - generic [ref=e704]: compare_arrows
+                    - button "more_vert" [ref=e706]:
+                      - generic [ref=e707]: more_vert
+                - generic [ref=e708]:
+                  - generic [ref=e709]: Complete
+                  - generic [ref=e710]:
+                    - generic [ref=e711]: videocam
+                    - generic [ref=e712]: Video
+                  - button "public Public" [ref=e714]:
+                    - generic [ref=e715]: public
+                    - generic [ref=e716]: Public
+                  - generic [ref=e717]: · Travel
+                - generic [ref=e718]:
+                  - generic [ref=e719]:
+                    - generic [ref=e720]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e721]:
+                    - generic [ref=e722]: visibility
+                    - text: 1 views
+                  - generic [ref=e723]:
+                    - generic [ref=e724]: trophy
+                    - generic [ref=e725]: N/A
+              - link "View Results" [ref=e727]:
+                - /url: /results/f00a5652-01ac-4712-9d42-3faf6f44d4fe
+          - generic [ref=e729] [cursor=pointer]:
+            - generic [ref=e732]: movie
+            - generic [ref=e733]:
+              - generic [ref=e734]:
+                - generic [ref=e735]:
+                  - heading "testing this one" [level=4] [ref=e736]
+                  - generic [ref=e737]:
+                    - button "compare_arrows" [ref=e738]:
+                      - generic [ref=e739]: compare_arrows
+                    - button "more_vert" [ref=e741]:
+                      - generic [ref=e742]: more_vert
+                - generic [ref=e743]:
+                  - generic [ref=e744]: Complete
+                  - generic [ref=e745]:
+                    - generic [ref=e746]: videocam
+                    - generic [ref=e747]: Video
+                  - button "public Public" [ref=e749]:
+                    - generic [ref=e750]: public
+                    - generic [ref=e751]: Public
+                  - generic [ref=e752]: · Travel
+                - generic [ref=e753]:
+                  - generic [ref=e754]:
+                    - generic [ref=e755]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e756]:
+                    - generic [ref=e757]: visibility
+                    - text: 2 views
+                  - generic [ref=e758]:
+                    - generic [ref=e759]: trophy
+                    - generic [ref=e760]: N/A
+              - link "View Results" [ref=e762]:
+                - /url: /results/945bddd9-e00a-48be-9777-795476ef8c4e
+          - generic [ref=e764] [cursor=pointer]:
+            - generic [ref=e767]: movie
+            - generic [ref=e768]:
+              - generic [ref=e769]:
+                - generic [ref=e770]:
+                  - heading "581b4cc7-33f0-479f-8b16-ab863e90a1a1.MP4" [level=4] [ref=e771]
+                  - generic [ref=e772]:
+                    - button "compare_arrows" [ref=e773]:
+                      - generic [ref=e774]: compare_arrows
+                    - button "more_vert" [ref=e776]:
+                      - generic [ref=e777]: more_vert
+                - generic [ref=e778]:
+                  - generic [ref=e779]: Complete
+                  - generic [ref=e780]:
+                    - generic [ref=e781]: videocam
+                    - generic [ref=e782]: Video
+                  - button "lock Private" [ref=e784]:
+                    - generic [ref=e785]: lock
+                    - generic [ref=e786]: Private
+                  - generic [ref=e787]: · Other
+                - generic [ref=e788]:
+                  - generic [ref=e789]:
+                    - generic [ref=e790]: calendar_today
+                    - text: Apr 13, 2026
+                  - generic [ref=e791]:
+                    - generic [ref=e792]: trophy
+                    - generic [ref=e793]: N/A
+              - link "View Results" [ref=e795]:
+                - /url: /results/464e1f42-ee3d-41aa-bdb5-921977451283
+          - generic [ref=e797] [cursor=pointer]:
+            - generic [ref=e800]: movie
+            - generic [ref=e801]:
+              - generic [ref=e802]:
+                - generic [ref=e803]:
+                  - heading "Social Post — Product Launch" [level=4] [ref=e804]
+                  - generic [ref=e805]:
+                    - button "compare_arrows" [ref=e806]:
+                      - generic [ref=e807]: compare_arrows
+                    - button "more_vert" [ref=e809]:
+                      - generic [ref=e810]: more_vert
+                - generic [ref=e811]:
+                  - generic [ref=e812]: Complete
+                  - generic [ref=e813]:
+                    - generic [ref=e814]: text_fields
+                    - generic [ref=e815]: Text
+                  - button "public Public" [ref=e817]:
+                    - generic [ref=e818]: public
+                    - generic [ref=e819]: Public
+                  - generic [ref=e820]: · Other
+                - generic [ref=e821]:
+                  - generic [ref=e822]:
+                    - generic [ref=e823]: calendar_today
+                    - text: Apr 12, 2026
+                  - generic [ref=e824]:
+                    - generic [ref=e825]: visibility
+                    - text: 0 views
+                  - generic [ref=e826]:
+                    - generic [ref=e827]: trophy
+                    - generic [ref=e828]: N/A
+              - link "View Results" [ref=e830]:
+                - /url: /results/869cd539-6023-41cc-9ae9-c68fe9f376c0
+          - generic [ref=e832] [cursor=pointer]:
+            - generic [ref=e835]: movie
+            - generic [ref=e836]:
+              - generic [ref=e837]:
+                - generic [ref=e838]:
+                  - heading "Billboard — \"Think Different\"" [level=4] [ref=e839]
+                  - generic [ref=e840]:
+                    - button "compare_arrows" [ref=e841]:
+                      - generic [ref=e842]: compare_arrows
+                    - button "more_vert" [ref=e844]:
+                      - generic [ref=e845]: more_vert
+                - generic [ref=e846]:
+                  - generic [ref=e847]: Complete
+                  - generic [ref=e848]:
+                    - generic [ref=e849]: text_fields
+                    - generic [ref=e850]: Text
+                  - button "public Public" [ref=e852]:
+                    - generic [ref=e853]: public
+                    - generic [ref=e854]: Public
+                  - generic [ref=e855]: · Other
+                - generic [ref=e856]:
+                  - generic [ref=e857]:
+                    - generic [ref=e858]: calendar_today
+                    - text: Apr 12, 2026
+                  - generic [ref=e859]:
+                    - generic [ref=e860]: visibility
+                    - text: 0 views
+                  - generic [ref=e861]:
+                    - generic [ref=e862]: trophy
+                    - generic [ref=e863]: N/A
+              - link "View Results" [ref=e865]:
+                - /url: /results/4cdd9b5c-ee35-4169-bca9-88dcf9415713
+          - generic [ref=e867] [cursor=pointer]:
+            - generic [ref=e870]: movie
+            - generic [ref=e871]:
+              - generic [ref=e872]:
+                - generic [ref=e873]:
+                  - heading "Ad Copy — \"Just Do It\" Campaign" [level=4] [ref=e874]
+                  - generic [ref=e875]:
+                    - button "compare_arrows" [ref=e876]:
+                      - generic [ref=e877]: compare_arrows
+                    - button "more_vert" [ref=e879]:
+                      - generic [ref=e880]: more_vert
+                - generic [ref=e881]:
+                  - generic [ref=e882]: Complete
+                  - generic [ref=e883]:
+                    - generic [ref=e884]: text_fields
+                    - generic [ref=e885]: Text
+                  - button "public Public" [ref=e887]:
+                    - generic [ref=e888]: public
+                    - generic [ref=e889]: Public
+                  - generic [ref=e890]: · Other
+                - generic [ref=e891]:
+                  - generic [ref=e892]:
+                    - generic [ref=e893]: calendar_today
+                    - text: Apr 12, 2026
+                  - generic [ref=e894]:
+                    - generic [ref=e895]: visibility
+                    - text: 0 views
+                  - generic [ref=e896]:
+                    - generic [ref=e897]: trophy
+                    - generic [ref=e898]: N/A
+              - link "View Results" [ref=e900]:
+                - /url: /results/ca9811ec-9a3c-47b1-89be-da5a03e6ed37
+          - generic [ref=e902] [cursor=pointer]:
+            - generic [ref=e905]: movie
+            - generic [ref=e906]:
+              - generic [ref=e907]:
+                - generic [ref=e908]:
+                  - heading "YouTube Thumbnail — Gangnam Style" [level=4] [ref=e909]
+                  - generic [ref=e910]:
+                    - button "compare_arrows" [ref=e911]:
+                      - generic [ref=e912]: compare_arrows
+                    - button "more_vert" [ref=e914]:
+                      - generic [ref=e915]: more_vert
+                - generic [ref=e916]:
+                  - generic [ref=e917]: Complete
+                  - generic [ref=e918]:
+                    - generic [ref=e919]: image
+                    - generic [ref=e920]: Image
+                  - button "public Public" [ref=e922]:
+                    - generic [ref=e923]: public
+                    - generic [ref=e924]: Public
+                  - generic [ref=e925]: · Music
+                - generic [ref=e926]:
+                  - generic [ref=e927]:
+                    - generic [ref=e928]: calendar_today
+                    - text: Apr 12, 2026
+                  - generic [ref=e929]:
+                    - generic [ref=e930]: visibility
+                    - text: 1 views
+                  - generic [ref=e931]:
+                    - generic [ref=e932]: trophy
+                    - generic [ref=e933]: N/A
+              - link "View Results" [ref=e935]:
+                - /url: /results/09ef3db2-a9b7-40ae-b29a-d5161e701dcf
+          - generic [ref=e937] [cursor=pointer]:
+            - generic [ref=e940]: movie
+            - generic [ref=e941]:
+              - generic [ref=e942]:
+                - generic [ref=e943]:
+                  - heading "YouTube Thumbnail — Rick Astley" [level=4] [ref=e944]
+                  - generic [ref=e945]:
+                    - button "compare_arrows" [ref=e946]:
+                      - generic [ref=e947]: compare_arrows
+                    - button "more_vert" [ref=e949]:
+                      - generic [ref=e950]: more_vert
+                - generic [ref=e951]:
+                  - generic [ref=e952]: Complete
+                  - generic [ref=e953]:
+                    - generic [ref=e954]: image
+                    - generic [ref=e955]: Image
+                  - button "public Public" [ref=e957]:
+                    - generic [ref=e958]: public
+                    - generic [ref=e959]: Public
+                  - generic [ref=e960]: · Music
+                - generic [ref=e961]:
+                  - generic [ref=e962]:
+                    - generic [ref=e963]: calendar_today
+                    - text: Apr 12, 2026
+                  - generic [ref=e964]:
+                    - generic [ref=e965]: visibility
+                    - text: 0 views
+                  - generic [ref=e966]:
+                    - generic [ref=e967]: trophy
+                    - generic [ref=e968]: N/A
+              - link "View Results" [ref=e970]:
+                - /url: /results/b58e6fd9-50a5-497c-8dcf-70807b3b08d8
+          - generic [ref=e972] [cursor=pointer]:
+            - generic [ref=e975]: movie
+            - generic [ref=e976]:
+              - generic [ref=e977]:
+                - generic [ref=e978]:
+                  - heading "fa347ebd-96eb-4036-b1d0-1d30c8057c6b.MP4" [level=4] [ref=e979]
+                  - button "more_vert" [ref=e982]:
+                    - generic [ref=e983]: more_vert
+                - generic [ref=e984]:
+                  - generic [ref=e985]: Failed
+                  - generic [ref=e986]:
+                    - generic [ref=e987]: videocam
+                    - generic [ref=e988]: Video
+                  - button "lock Private" [ref=e990]:
+                    - generic [ref=e991]: lock
+                    - generic [ref=e992]: Private
+                - generic [ref=e994]:
+                  - generic [ref=e995]: calendar_today
+                  - text: Apr 10, 2026
+              - link "View Results" [ref=e997]:
+                - /url: /results/180b9fe2-4ce4-4b50-b51e-cbd2fd46bacc
+          - generic [ref=e999] [cursor=pointer]:
+            - generic [ref=e1002]: movie
+            - generic [ref=e1003]:
+              - generic [ref=e1004]:
+                - generic [ref=e1005]:
+                  - heading "test" [level=4] [ref=e1006]
+                  - generic [ref=e1007]:
+                    - button "compare_arrows" [ref=e1008]:
+                      - generic [ref=e1009]: compare_arrows
+                    - button "more_vert" [ref=e1011]:
+                      - generic [ref=e1012]: more_vert
+                - generic [ref=e1013]:
+                  - generic [ref=e1014]: Complete
+                  - generic [ref=e1015]:
+                    - generic [ref=e1016]: videocam
+                    - generic [ref=e1017]: Video
+                  - button "public Public" [ref=e1019]:
+                    - generic [ref=e1020]: public
+                    - generic [ref=e1021]: Public
+                  - generic [ref=e1022]: · Other
+                - generic [ref=e1023]:
+                  - generic [ref=e1024]:
+                    - generic [ref=e1025]: calendar_today
+                    - text: Apr 9, 2026
+                  - generic [ref=e1026]:
+                    - generic [ref=e1027]: visibility
+                    - text: 30 views
+                  - generic [ref=e1028]:
+                    - generic [ref=e1029]: trophy
+                    - generic [ref=e1030]: N/A
+              - link "View Results" [ref=e1032]:
+                - /url: /results/d2357b7b-3b1a-41b3-9015-06c9a8b5edcb
+          - generic [ref=e1034] [cursor=pointer]:
+            - generic [ref=e1037]: movie
+            - generic [ref=e1038]:
+              - generic [ref=e1039]:
+                - generic [ref=e1040]:
+                  - heading "Untitled Analysis" [level=4] [ref=e1041]
+                  - generic [ref=e1042]:
+                    - button "compare_arrows" [ref=e1043]:
+                      - generic [ref=e1044]: compare_arrows
+                    - button "more_vert" [ref=e1046]:
+                      - generic [ref=e1047]: more_vert
+                - generic [ref=e1048]:
+                  - generic [ref=e1049]: Complete
+                  - generic [ref=e1050]:
+                    - generic [ref=e1051]: videocam
+                    - generic [ref=e1052]: Video
+                  - button "public Public" [ref=e1054]:
+                    - generic [ref=e1055]: public
+                    - generic [ref=e1056]: Public
+                  - generic [ref=e1057]: · Other
+                - generic [ref=e1058]:
+                  - generic [ref=e1059]:
+                    - generic [ref=e1060]: calendar_today
+                    - text: Apr 9, 2026
+                  - generic [ref=e1061]:
+                    - generic [ref=e1062]: visibility
+                    - text: 7 views
+                  - generic [ref=e1063]:
+                    - generic [ref=e1064]: trophy
+                    - generic [ref=e1065]: N/A
+              - link "View Results" [ref=e1067]:
+                - /url: /results/bdf77a41-4027-4653-937c-31dfe283ea4b
+          - generic [ref=e1069] [cursor=pointer]:
+            - generic [ref=e1072]: movie
+            - generic [ref=e1073]:
+              - generic [ref=e1074]:
+                - generic [ref=e1075]:
+                  - heading "c1bcfc8d-7f05-44c1-9d67-02c6f4d80a03.MP4" [level=4] [ref=e1076]
+                  - button "more_vert" [ref=e1079]:
+                    - generic [ref=e1080]: more_vert
+                - generic [ref=e1081]:
+                  - generic [ref=e1082]: Queued
+                  - generic [ref=e1083]:
+                    - generic [ref=e1084]: videocam
+                    - generic [ref=e1085]: Video
+                  - button "lock Private" [ref=e1087]:
+                    - generic [ref=e1088]: lock
+                    - generic [ref=e1089]: Private
+                - generic [ref=e1091]:
+                  - generic [ref=e1092]: calendar_today
+                  - text: Apr 9, 2026
+              - link "View Results" [ref=e1094]:
+                - /url: /results/ae1e9637-14c8-4ff1-813c-a92bfd532ddf
+          - generic [ref=e1096] [cursor=pointer]:
+            - generic [ref=e1099]: movie
+            - generic [ref=e1100]:
+              - generic [ref=e1101]:
+                - generic [ref=e1102]:
+                  - heading "Stand-Up Comedy Open Mic Set" [level=4] [ref=e1103]
+                  - generic [ref=e1104]:
+                    - button "compare_arrows" [ref=e1105]:
+                      - generic [ref=e1106]: compare_arrows
+                    - button "more_vert" [ref=e1108]:
+                      - generic [ref=e1109]: more_vert
+                - generic [ref=e1110]:
+                  - generic [ref=e1111]: Complete
+                  - generic [ref=e1112]:
+                    - generic [ref=e1113]: videocam
+                    - generic [ref=e1114]: Video
+                  - button "public Public" [ref=e1116]:
+                    - generic [ref=e1117]: public
+                    - generic [ref=e1118]: Public
+                  - generic [ref=e1119]: · Comedy
+                - generic [ref=e1120]:
+                  - generic [ref=e1121]:
+                    - generic [ref=e1122]: calendar_today
+                    - text: Apr 9, 2026
+                  - generic [ref=e1123]:
+                    - generic [ref=e1124]: visibility
+                    - text: 521 views
+                  - generic [ref=e1125]:
+                    - generic [ref=e1126]: trophy
+                    - generic [ref=e1128]: "0.95"
+              - link "View Results" [ref=e1130]:
+                - /url: /results/043ff1d9-d9eb-4f55-9916-7648efca332e
+          - generic [ref=e1132] [cursor=pointer]:
+            - generic [ref=e1135]: movie
+            - generic [ref=e1136]:
+              - generic [ref=e1137]:
+                - generic [ref=e1138]:
+                  - heading "Pasta Making Tutorial - Italian Kitchen" [level=4] [ref=e1139]
+                  - generic [ref=e1140]:
+                    - button "compare_arrows" [ref=e1141]:
+                      - generic [ref=e1142]: compare_arrows
+                    - button "more_vert" [ref=e1144]:
+                      - generic [ref=e1145]: more_vert
+                - generic [ref=e1146]:
+                  - generic [ref=e1147]: Complete
+                  - generic [ref=e1148]:
+                    - generic [ref=e1149]: videocam
+                    - generic [ref=e1150]: Video
+                  - button "public Public" [ref=e1152]:
+                    - generic [ref=e1153]: public
+                    - generic [ref=e1154]: Public
+                  - generic [ref=e1155]: · Food
+                - generic [ref=e1156]:
+                  - generic [ref=e1157]:
+                    - generic [ref=e1158]: calendar_today
+                    - text: Apr 8, 2026
+                  - generic [ref=e1159]:
+                    - generic [ref=e1160]: visibility
+                    - text: 142 views
+                  - generic [ref=e1161]:
+                    - generic [ref=e1162]: trophy
+                    - generic [ref=e1164]: "0.82"
+              - link "View Results" [ref=e1166]:
+                - /url: /results/6ad8d7be-eea8-47b8-9c5d-367eaa5b953a
+          - generic [ref=e1168] [cursor=pointer]:
+            - generic [ref=e1171]: movie
+            - generic [ref=e1172]:
+              - generic [ref=e1173]:
+                - generic [ref=e1174]:
+                  - heading "Guitar Cover - Bohemian Rhapsody" [level=4] [ref=e1175]
+                  - generic [ref=e1176]:
+                    - button "compare_arrows" [ref=e1177]:
+                      - generic [ref=e1178]: compare_arrows
+                    - button "more_vert" [ref=e1180]:
+                      - generic [ref=e1181]: more_vert
+                - generic [ref=e1182]:
+                  - generic [ref=e1183]: Complete
+                  - generic [ref=e1184]:
+                    - generic [ref=e1185]: videocam
+                    - generic [ref=e1186]: Video
+                  - button "public Public" [ref=e1188]:
+                    - generic [ref=e1189]: public
+                    - generic [ref=e1190]: Public
+                  - generic [ref=e1191]: · Music
+                - generic [ref=e1192]:
+                  - generic [ref=e1193]:
+                    - generic [ref=e1194]: calendar_today
+                    - text: Apr 7, 2026
+                  - generic [ref=e1195]:
+                    - generic [ref=e1196]: visibility
+                    - text: 267 views
+                  - generic [ref=e1197]:
+                    - generic [ref=e1198]: trophy
+                    - generic [ref=e1200]: "0.87"
+              - link "View Results" [ref=e1202]:
+                - /url: /results/4f7ccf65-8f6c-4690-a2df-f25028cc35e3
+          - generic [ref=e1204] [cursor=pointer]:
+            - generic [ref=e1207]: movie
+            - generic [ref=e1208]:
+              - generic [ref=e1209]:
+                - generic [ref=e1210]:
+                  - heading "Morning HIIT Workout Routine" [level=4] [ref=e1211]
+                  - generic [ref=e1212]:
+                    - button "compare_arrows" [ref=e1213]:
+                      - generic [ref=e1214]: compare_arrows
+                    - button "more_vert" [ref=e1216]:
+                      - generic [ref=e1217]: more_vert
+                - generic [ref=e1218]:
+                  - generic [ref=e1219]: Complete
+                  - generic [ref=e1220]:
+                    - generic [ref=e1221]: videocam
+                    - generic [ref=e1222]: Video
+                  - button "public Public" [ref=e1224]:
+                    - generic [ref=e1225]: public
+                    - generic [ref=e1226]: Public
+                  - generic [ref=e1227]: · Fitness
+                - generic [ref=e1228]:
+                  - generic [ref=e1229]:
+                    - generic [ref=e1230]: calendar_today
+                    - text: Apr 6, 2026
+                  - generic [ref=e1231]:
+                    - generic [ref=e1232]: visibility
+                    - text: 330 views
+                  - generic [ref=e1233]:
+                    - generic [ref=e1234]: trophy
+                    - generic [ref=e1236]: "0.91"
+              - link "View Results" [ref=e1238]:
+                - /url: /results/7bd995ab-0664-43cf-80ce-6bf53962ce85
+          - generic [ref=e1240] [cursor=pointer]:
+            - generic [ref=e1243]: movie
+            - generic [ref=e1244]:
+              - generic [ref=e1245]:
+                - generic [ref=e1246]:
+                  - heading "ASMR Rain Sounds for Sleep" [level=4] [ref=e1247]
+                  - generic [ref=e1248]:
+                    - button "compare_arrows" [ref=e1249]:
+                      - generic [ref=e1250]: compare_arrows
+                    - button "more_vert" [ref=e1252]:
+                      - generic [ref=e1253]: more_vert
+                - generic [ref=e1254]:
+                  - generic [ref=e1255]: Complete
+                  - generic [ref=e1256]:
+                    - generic [ref=e1257]: videocam
+                    - generic [ref=e1258]: Video
+                  - button "public Public" [ref=e1260]:
+                    - generic [ref=e1261]: public
+                    - generic [ref=e1262]: Public
+                  - generic [ref=e1263]: · Asmr
+                - generic [ref=e1264]:
+                  - generic [ref=e1265]:
+                    - generic [ref=e1266]: calendar_today
+                    - text: Apr 5, 2026
+                  - generic [ref=e1267]:
+                    - generic [ref=e1268]: visibility
+                    - text: 445 views
+                  - generic [ref=e1269]:
+                    - generic [ref=e1270]: trophy
+                    - generic [ref=e1272]: "0.73"
+              - link "View Results" [ref=e1274]:
+                - /url: /results/7fde0151-4d61-4c09-ab87-935a11bff81c
+          - generic [ref=e1276] [cursor=pointer]:
+            - generic [ref=e1279]: movie
+            - generic [ref=e1280]:
+              - generic [ref=e1281]:
+                - generic [ref=e1282]:
+                  - heading "iPhone 17 Pro - Honest Review" [level=4] [ref=e1283]
+                  - generic [ref=e1284]:
+                    - button "compare_arrows" [ref=e1285]:
+                      - generic [ref=e1286]: compare_arrows
+                    - button "more_vert" [ref=e1288]:
+                      - generic [ref=e1289]: more_vert
+                - generic [ref=e1290]:
+                  - generic [ref=e1291]: Complete
+                  - generic [ref=e1292]:
+                    - generic [ref=e1293]: videocam
+                    - generic [ref=e1294]: Video
+                  - button "public Public" [ref=e1296]:
+                    - generic [ref=e1297]: public
+                    - generic [ref=e1298]: Public
+                  - generic [ref=e1299]: · Tech
+                - generic [ref=e1300]:
+                  - generic [ref=e1301]:
+                    - generic [ref=e1302]: calendar_today
+                    - text: Apr 4, 2026
+                  - generic [ref=e1303]:
+                    - generic [ref=e1304]: visibility
+                    - text: 215 views
+                  - generic [ref=e1305]:
+                    - generic [ref=e1306]: trophy
+                    - generic [ref=e1308]: "0.68"
+              - link "View Results" [ref=e1310]:
+                - /url: /results/5118b679-5167-4ace-a561-7a1afa7a1613
+          - generic [ref=e1312] [cursor=pointer]:
+            - generic [ref=e1315]: movie
+            - generic [ref=e1316]:
+              - generic [ref=e1317]:
+                - generic [ref=e1318]:
+                  - heading "How Black Holes Actually Work" [level=4] [ref=e1319]
+                  - generic [ref=e1320]:
+                    - button "compare_arrows" [ref=e1321]:
+                      - generic [ref=e1322]: compare_arrows
+                    - button "more_vert" [ref=e1324]:
+                      - generic [ref=e1325]: more_vert
+                - generic [ref=e1326]:
+                  - generic [ref=e1327]: Complete
+                  - generic [ref=e1328]:
+                    - generic [ref=e1329]: videocam
+                    - generic [ref=e1330]: Video
+                  - button "public Public" [ref=e1332]:
+                    - generic [ref=e1333]: public
+                    - generic [ref=e1334]: Public
+                  - generic [ref=e1335]: · Education
+                - generic [ref=e1336]:
+                  - generic [ref=e1337]:
+                    - generic [ref=e1338]: calendar_today
+                    - text: Apr 3, 2026
+                  - generic [ref=e1339]:
+                    - generic [ref=e1340]: visibility
+                    - text: 179 views
+                  - generic [ref=e1341]:
+                    - generic [ref=e1342]: trophy
+                    - generic [ref=e1344]: "0.88"
+              - link "View Results" [ref=e1346]:
+                - /url: /results/0dc4ce8b-ade6-427a-bd43-87f890781743
+          - link "add_circle Analyze New Content Upload video or drag and drop files" [ref=e1347] [cursor=pointer]:
+            - /url: /upload
+            - generic [ref=e1349]:
+              - generic [ref=e1351]: add_circle
+              - paragraph [ref=e1352]: Analyze New Content
+              - paragraph [ref=e1353]: Upload video or drag and drop files
+  - contentinfo [ref=e1354]:
+    - generic [ref=e1355]:
+      - generic [ref=e1356]:
+        - heading "BRAIN|RANK" [level=3] [ref=e1358]
+        - generic [ref=e1359]:
+          - heading "Legal" [level=4] [ref=e1360]
+          - list [ref=e1361]:
+            - listitem [ref=e1362]:
+              - link "Privacy Policy" [ref=e1363] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e1364]:
+              - link "Terms and Conditions" [ref=e1365] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e1366]:
+              - link "Disclaimer" [ref=e1367] [cursor=pointer]:
+                - /url: /disclaimer
+        - generic [ref=e1368]:
+          - heading "Resources" [level=4] [ref=e1369]
+          - list [ref=e1370]:
+            - listitem [ref=e1371]:
+              - link "How It Works" [ref=e1372] [cursor=pointer]:
+                - /url: /resources
+            - listitem [ref=e1373]:
+              - link "Understanding Scores" [ref=e1374] [cursor=pointer]:
+                - /url: /resources#scores
+            - listitem [ref=e1375]:
+              - link "Brain Regions" [ref=e1376] [cursor=pointer]:
+                - /url: /resources#regions
+            - listitem [ref=e1377]:
+              - link "Use Cases" [ref=e1378] [cursor=pointer]:
+                - /url: /use-cases
+        - generic [ref=e1379]:
+          - heading "Company" [level=4] [ref=e1380]
+          - list [ref=e1381]:
+            - listitem [ref=e1382]:
+              - link "Pricing" [ref=e1383] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=e1384]:
+              - link "About" [ref=e1385] [cursor=pointer]:
+                - /url: /about
+      - generic [ref=e1386]:
+        - paragraph [ref=e1387]:
+          - text: © 2026
+          - generic [ref=e1388]: BRAIN|RANK
+        - paragraph [ref=e1389]: Neural activation predictions are computational estimates, not medical measurements.
+  - button "Open Next.js Dev Tools" [ref=e1395] [cursor=pointer]:
+    - img [ref=e1396]
+  - alert [ref=e1399]
+  - generic [ref=e1400]:
+    - paragraph [ref=e1401]:
+      - text: We use cookies and analytics (PostHog) to understand how you use BrainRank and improve the experience. No data is sold to third parties.
+      - link "Privacy Policy" [ref=e1402] [cursor=pointer]:
+        - /url: /privacy
+    - generic [ref=e1403]:
+      - button "Accept" [ref=e1404]
+      - button "Decline" [ref=e1405]
