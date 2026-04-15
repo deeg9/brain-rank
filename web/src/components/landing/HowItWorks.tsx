@@ -23,15 +23,15 @@ const STEPS = [
 
 export function HowItWorks() {
   return (
-    <section className="py-32 px-6 md:px-8">
-      <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-background text-center mb-16">
+    <section className="py-16 md:py-32 px-6 md:px-8">
+      <h2 className="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-background text-center mb-16">
         How It Works
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-5xl mx-auto">
         {STEPS.map((step) => (
           <div key={step.number} className="flex flex-col items-center">
-            <span className="font-headline text-5xl font-black text-on-surface-variant/30">
+            <span className="font-headline text-4xl md:text-5xl font-black text-on-surface-variant/30">
               {step.number}
             </span>
             <span className="material-symbols-outlined text-4xl text-on-background">

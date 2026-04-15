@@ -81,11 +81,20 @@ function RotatingGroup({ children, reducedMotion }: { children: React.ReactNode;
 export function BrainHero() {
   const glRef = useRef<WebGLRenderingContext | WebGL2RenderingContext | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
@@ -104,7 +113,7 @@ export function BrainHero() {
     <div className="absolute inset-0" aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0, 190], fov: 45 }}
-        dpr={[1, 1.5]}
+        dpr={isMobile ? [1, 1] : [1, 1.5]}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
         onCreated={({ gl }) => { glRef.current = gl.getContext(); }}

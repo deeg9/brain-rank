@@ -9,7 +9,7 @@ export function FinalCTA() {
           Ready to See What Brains See?
         </h2>
         <Link href="/signup">
-          <Button variant="landing" size="lg" className="text-lg">
+          <Button variant="landing" size="lg" className="text-lg w-full md:w-auto">
             Get Started Free
           </Button>
         </Link>

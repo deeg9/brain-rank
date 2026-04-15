@@ -21,22 +21,22 @@ export function PreviewSection() {
             <div className="w-3 h-3 rounded-full bg-white/20" />
             <div className="w-3 h-3 rounded-full bg-white/20" />
             <div className="w-3 h-3 rounded-full bg-white/20" />
-            <div className="ml-4 bg-white/5 rounded px-3 py-1 text-xs text-white/30 font-mono">
+            <div className="ml-4 bg-white/5 rounded px-3 py-1 text-xs text-white/30 font-mono hidden md:block">
               brainrank.app/results/demo
             </div>
           </div>
 
           {/* Content area */}
-          <div className="bg-[#0a0a0a] p-8">
-            <div className="font-headline text-lg font-bold text-white mb-6">
+          <div className="bg-[#0a0a0a] p-4 md:p-8">
+            <div className="font-headline text-base md:text-lg font-bold text-white mb-6">
               Neural Analysis: Sample Video
             </div>
 
             {/* Stats row */}
-            <div className="flex flex-wrap gap-8 mb-8">
+            <div className="flex flex-wrap gap-4 md:gap-8 mb-8">
               <div>
                 <div className="text-xs text-white/40 mb-1">Overall Score</div>
-                <span className="text-3xl font-bold text-white">7.4</span>
+                <span className="text-2xl md:text-3xl font-bold text-white">7.4</span>
                 <span className="text-sm text-white/40">/10</span>
               </div>
               <div>
@@ -53,7 +53,7 @@ export function PreviewSection() {
             <div className="space-y-4">
               {regions.map((region) => (
                 <div key={region.label} className="flex items-center gap-4">
-                  <span className="text-sm text-white/60 w-20 shrink-0">
+                  <span className="text-sm text-white/60 w-16 md:w-20 shrink-0">
                     {region.label}
                   </span>
                   <div className="flex-1 bg-white/5 rounded-full h-3">

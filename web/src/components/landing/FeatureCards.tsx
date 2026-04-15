@@ -23,8 +23,8 @@ const FEATURES = [
 
 export function FeatureCards() {
   return (
-    <section className="py-32 px-6 md:px-8">
-      <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-background text-center mb-16">
+    <section className="py-16 md:py-32 px-6 md:px-8">
+      <h2 className="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-background text-center mb-16">
         What You Get
       </h2>
 
@@ -32,7 +32,7 @@ export function FeatureCards() {
         {FEATURES.map((feature) => (
           <div
             key={feature.title}
-            className="bg-[#111111] border border-white/10 p-8 rounded-lg"
+            className="bg-[#111111] border border-white/10 p-6 md:p-8 rounded-lg"
           >
             <div className="flex flex-col gap-4">
               <span className="material-symbols-outlined text-3xl text-white">
