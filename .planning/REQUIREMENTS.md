@@ -15,13 +15,13 @@ Requirements for BrainRank Landing Page milestone. Create a visually striking la
 
 ### How It Works
 
-- [ ] **HOW-01**: Visitor sees a 3-step visual walkthrough: Upload → Analyze → See Results
-- [ ] **HOW-02**: Each step has an icon/visual, title, and brief description
+- [x] **HOW-01**: Visitor sees a 3-step visual walkthrough: Upload → Analyze → See Results
+- [x] **HOW-02**: Each step has an icon/visual, title, and brief description
 
 ### Feature Highlights
 
-- [ ] **FEAT-01**: Visitor sees key platform capabilities presented as feature cards (multi-modal input, brain networks, discovery feed)
-- [ ] **FEAT-02**: Feature cards use icons or visuals consistent with the brutalist black/white/gray aesthetic
+- [x] **FEAT-01**: Visitor sees key platform capabilities presented as feature cards (multi-modal input, brain networks, discovery feed)
+- [x] **FEAT-02**: Feature cards use icons or visuals consistent with the brutalist black/white/gray aesthetic
 
 ### Visual Preview
 
@@ -107,10 +107,10 @@ Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 | HERO-01 | Phase 65 | Complete |
 | HERO-02 | Phase 65 | Complete |
 | HERO-03 | Phase 65 | Complete |
-| HOW-01 | Phase 66 | Pending |
-| HOW-02 | Phase 66 | Pending |
-| FEAT-01 | Phase 66 | Pending |
-| FEAT-02 | Phase 66 | Pending |
+| HOW-01 | Phase 66 | Complete |
+| HOW-02 | Phase 66 | Complete |
+| FEAT-01 | Phase 66 | Complete |
+| FEAT-02 | Phase 66 | Complete |
 | PREV-01 | Phase 66 | Pending |
 | CTA-01 | Phase 66 | Pending |
 | DES-01 | Phase 65 | Complete |

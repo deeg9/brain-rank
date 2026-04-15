@@ -67,9 +67,9 @@ Plans:
   2. Visitor sees feature cards highlighting key capabilities (multi-modal input, brain networks, discovery feed) in the brutalist black/white/gray aesthetic
   3. Visitor sees a demo preview showing what brain analysis output looks like
   4. Visitor sees a closing CTA section with headline and "Get Started" button at the bottom of the page
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 66-01-PLAN.md — HowItWorks 3-step walkthrough and FeatureCards ghost cards, wired into landing page
+- [x] 66-01-PLAN.md — HowItWorks 3-step walkthrough and FeatureCards ghost cards, wired into landing page
 - [ ] 66-02-PLAN.md — PreviewSection browser-framed results mockup and FinalCTA with signup button
 **UI hint**: yes
 
@@ -89,5 +89,5 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 65. Landing Page Foundation & Hero | v7.0 | 2/2 | Complete   | 2026-04-15 |
-| 66. Content Sections | v7.0 | 0/2 | Planned | - |
+| 66. Content Sections | v7.0 | 1/2 | In Progress|  |
 | 67. Polish & Responsiveness | v7.0 | 0/? | Not started | - |
