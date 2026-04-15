@@ -19,7 +19,7 @@ export async function PATCH(
     const isPublic = typeof body.is_public === 'boolean' ? body.is_public : undefined
     const category = typeof body.category === 'string' ? body.category : undefined
 
-    const updateFields: Record<string, unknown> = {}
+    const updateFields: { title?: string; is_public?: boolean; category?: string } = {}
     if (title !== null) updateFields.title = title
     if (isPublic !== undefined) updateFields.is_public = isPublic
     if (category !== undefined) updateFields.category = category

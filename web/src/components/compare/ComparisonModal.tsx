@@ -255,9 +255,9 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                       <p className="text-gray-900 font-bold truncate text-center mb-2">{titleFor(jobA)}</p>
                       <div className="flex items-center justify-center gap-2 mb-3">
                         <ContentTypeBadge inputType={jobA?.input_type} />
-                        {(jobA as Record<string, unknown>)?.category && (
+                        {jobA?.category && (
                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                            {categoryLabel((jobA as Record<string, unknown>).category as string)}
+                            {categoryLabel(jobA.category)}
                           </span>
                         )}
                       </div>
@@ -273,9 +273,9 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                       <p className="text-gray-900 font-bold truncate text-center mb-2">{titleFor(jobB)}</p>
                       <div className="flex items-center justify-center gap-2 mb-3">
                         <ContentTypeBadge inputType={jobB?.input_type} />
-                        {(jobB as Record<string, unknown>)?.category && (
+                        {jobB?.category && (
                           <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                            {categoryLabel((jobB as Record<string, unknown>).category as string)}
+                            {categoryLabel(jobB.category)}
                           </span>
                         )}
                       </div>

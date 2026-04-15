@@ -211,7 +211,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
                         </div>
                         <span className="inline-flex items-center gap-1">
                           <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
-                          <ScoreBadge value={overallScore} size="sm" />
+                          <ScoreBadge value={overallScore as number | null} size="sm" />
                         </span>
                       </div>
                     </div>

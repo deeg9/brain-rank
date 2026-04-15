@@ -27,7 +27,7 @@ export async function POST(
     }
 
     // Verify ownership -- return 404 to avoid leaking job existence
-    if ((job as Record<string, unknown>).user_id !== user.id) {
+    if ((job).user_id !== user.id) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
@@ -43,10 +43,10 @@ export async function POST(
       // Cancel the RunPod job if possible
       const apiKey = process.env.RUNPOD_API_KEY
       const endpointId = process.env.RUNPOD_ENDPOINT_ID
-      if (apiKey && endpointId && (job as Record<string, unknown>).runpod_id) {
+      if (apiKey && endpointId && (job).runpod_id) {
         try {
           await fetch(
-            `https://api.runpod.ai/v2/${endpointId}/cancel/${(job as Record<string, unknown>).runpod_id}`,
+            `https://api.runpod.ai/v2/${endpointId}/cancel/${(job).runpod_id}`,
             {
               method: 'POST',
               headers: { 'Authorization': `Bearer ${apiKey}` },
@@ -59,14 +59,14 @@ export async function POST(
 
       await supabase
         .from('jobs')
-        .update({ status: 'failed', error_message: 'Cancelled by user' } as Record<string, unknown>)
+        .update({ status: 'failed', error_message: 'Cancelled by user' })
         .eq('id', id)
 
       return NextResponse.json({ cancelled: true }, { status: 200 })
     }
 
     // Only allow retry on failed jobs
-    if ((job as Record<string, unknown>).status !== 'failed') {
+    if ((job).status !== 'failed') {
       return NextResponse.json({ error: 'Job is not in failed state' }, { status: 400 })
     }
 
@@ -78,7 +78,7 @@ export async function POST(
         error_message: null,
         runpod_id: null,
         results: null,
-      } as Record<string, unknown>)
+      })
       .eq('id', id)
 
     // Check server configuration
@@ -89,7 +89,7 @@ export async function POST(
     }
 
     // Re-dispatch to RunPod
-    const videoUrl = (job as Record<string, unknown>).video_url as string
+    const videoUrl = (job).video_url as string
     let runpodResponse: { id: string; status: string }
     try {
       const res = await fetch(`https://api.runpod.ai/v2/${endpointId}/run`, {
@@ -105,7 +105,7 @@ export async function POST(
         // RunPod call failed -- mark job as failed
         await supabase
           .from('jobs')
-          .update({ status: 'failed', error_message: 'Failed to start inference' } as Record<string, unknown>)
+          .update({ status: 'failed', error_message: 'Failed to start inference' })
           .eq('id', id)
 
         return NextResponse.json({ error: 'Failed to trigger inference' }, { status: 502 })
@@ -116,7 +116,7 @@ export async function POST(
       // Network error calling RunPod
       await supabase
         .from('jobs')
-        .update({ status: 'failed', error_message: 'Failed to start inference' } as Record<string, unknown>)
+        .update({ status: 'failed', error_message: 'Failed to start inference' })
         .eq('id', id)
 
       return NextResponse.json({ error: 'Failed to trigger inference' }, { status: 502 })
@@ -125,7 +125,7 @@ export async function POST(
     // Update job with RunPod ID and processing status
     const { data: updatedJob, error: updateError } = await supabase
       .from('jobs')
-      .update({ runpod_id: runpodResponse.id, status: 'processing' } as Record<string, unknown>)
+      .update({ runpod_id: runpodResponse.id, status: 'processing' })
       .eq('id', id)
       .select()
       .single()
@@ -133,7 +133,7 @@ export async function POST(
     if (updateError || !updatedJob) {
       // Update failed -- return what we know
       return NextResponse.json(
-        { ...(job as Record<string, unknown>), runpod_id: runpodResponse.id, status: 'processing' },
+        { ...(job), runpod_id: runpodResponse.id, status: 'processing' },
         { status: 200 }
       )
     }
