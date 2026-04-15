@@ -1,5 +1,18 @@
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { HeroOdyssey } from "@/components/hero/HeroOdyssey";
 
-export default function Home() {
-  redirect("/dashboard");
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) redirect("/dashboard");
+
+  return (
+    <div data-landing className="min-h-screen bg-background">
+      <HeroOdyssey />
+    </div>
+  );
 }
