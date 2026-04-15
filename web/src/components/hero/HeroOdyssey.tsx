@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { LightningShader } from "./LightningShader";
+import { BrainHero } from "./BrainHero";
 import { Button } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
@@ -33,11 +33,11 @@ export function HeroOdyssey() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      {/* Lightning shader background */}
-      <LightningShader className="z-0" />
+      {/* 3D brain background */}
+      <BrainHero />
 
       {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-transparent to-[rgba(14,14,16,0.4)]" />
+      <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-black/20 to-black/60" />
 
       {/* Content overlay */}
       <div className="relative z-10 flex min-h-screen flex-col px-6 md:px-8">
@@ -86,9 +86,9 @@ export function HeroOdyssey() {
           >
             <Link href={ctaHref}>
               <Button
-                variant="primary"
+                variant="landing"
                 size="lg"
-                className="text-lg shadow-[0_0_30px_-5px_rgba(186,158,255,0.5)]"
+                className="text-lg"
               >
                 <span className="material-symbols-outlined">upload</span>
                 Analyze Your Video
