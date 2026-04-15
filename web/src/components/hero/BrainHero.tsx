@@ -236,11 +236,11 @@ export function BrainHero() {
         <Suspense fallback={null}>
           <ambientLight intensity={0.8} color="#ffffff" />
           <pointLight position={[2, 3, 4]} intensity={0.7} color="#ffffff" />
-          <Center>
-            <SlowRotatingGroup>
+          <SlowRotatingGroup>
+            <Center>
               <DecorativeBrainMesh reducedMotion={reducedMotion} />
-            </SlowRotatingGroup>
-          </Center>
+            </Center>
+          </SlowRotatingGroup>
           <EffectComposer>
             <Bloom
               luminanceThreshold={0.9}
