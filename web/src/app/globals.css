@@ -162,6 +162,34 @@
   --scrollbar-thumb: #262528;
 }
 
+/* ─── Landing Page Overrides (brutalist grayscale) ─────────── */
+[data-landing] {
+  --color-surface: #000000;
+  --color-background: #000000;
+  --color-surface-container: #111111;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #0a0a0a;
+  --color-surface-container-high: #1a1a1a;
+  --color-surface-container-highest: #222222;
+  --color-surface-bright: #1a1a1a;
+  --color-surface-variant: #111111;
+  --color-surface-dim: #000000;
+  --color-surface-tint: #ffffff;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #999999;
+  --color-on-background: #ffffff;
+  --color-outline: #444444;
+  --color-outline-variant: rgba(255, 255, 255, 0.1);
+  --color-primary: #ffffff;
+  --color-primary-dim: #cccccc;
+  --color-on-primary: #000000;
+  --color-inverse-primary: #333333;
+  --glass-bg: rgba(17, 17, 17, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glow-color: rgba(255, 255, 255, 0.15);
+  --glow-color-lg: rgba(255, 255, 255, 0.1);
+}
+
 /* ─── Recharts focus outline fix ────────────────────────────── */
 .recharts-surface,
 .recharts-surface:focus,

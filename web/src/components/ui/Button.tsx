@@ -3,7 +3,7 @@
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "landing";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   children: React.ReactNode;
@@ -16,6 +16,8 @@ const variantStyles: Record<string, string> = {
     "bg-surface-container-highest text-on-surface font-semibold rounded-lg hover:bg-surface-bright transition-colors ghost-border",
   ghost:
     "text-on-surface-variant hover:text-on-surface transition-colors",
+  landing:
+    "border border-white text-white bg-transparent font-headline font-bold rounded-lg hover:bg-white hover:text-black active:scale-[0.98] active:bg-white/90 transition-all focus:outline-2 focus:outline-white focus:outline-offset-2",
 };
 
 const sizeStyles: Record<string, string> = {
