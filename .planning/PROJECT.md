@@ -21,17 +21,23 @@ All 8 phases complete. NeuroCut is now a public discovery platform:
 
 All 7 phases complete. NeuroCut now supports image and text analysis alongside video, with side-by-side comparison.
 
-## Current Milestone: v6.0 Stripe Payments
+## Paused: v6.0 Stripe Payments
 
 **Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
+**Status:** Paused — landing page (v7.0) prioritized.
+
+## Current Milestone: v7.0 BrainRank Landing Page
+
+**Goal:** Create a visually striking landing page that introduces BrainRank, explains how neural content scoring works, and drives signups — using the existing 3D brain viewer as the hero centerpiece.
 
 **Target features:**
-- Stripe Checkout for Creator tier subscriptions (monthly + annual billing)
-- Stripe webhook handler for subscription lifecycle events
-- Supabase subscription status tracking (tier, active/cancelled, renewal date)
-- Billing portal for self-service subscription management
-- Credit gating based on subscription tier (Free = 3/week, Creator = unlimited)
-- Pricing page and billing settings wired to real Stripe checkout
+- Hero section with interactive 3D brain model, headline, and CTA
+- "How It Works" section — 3-step flow (Upload → Analyze → See Results)
+- Feature highlights — key capabilities (multi-modal input, brain networks, discovery)
+- Visual demo/preview showing brain analysis output
+- Final CTA section to drive signups
+- 21st.dev components for polished animations and layout
+- Brutalist minimalist aesthetic: black/white/gray, Space Grotesk + Inter
 
 ## Requirements
 
@@ -108,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-13 after v6.0 milestone start*
+*Last updated: 2026-04-15 after v7.0 milestone start*
