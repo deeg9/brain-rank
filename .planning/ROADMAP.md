@@ -9,7 +9,7 @@
 - ✅ **v4.0 Social Discovery Platform** - Phases 44-51 (shipped 2026-04-12)
 - ✅ **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (shipped 2026-04-13)
 - ⏸️ **v6.0 Stripe Payments** - Phases 59-64 (paused)
-- 🚧 **v7.0 BrainRank Landing Page** - Phases 65-67 (in progress)
+- ✅ **v7.0 BrainRank Landing Page** - Phases 65-67 (shipped 2026-04-15)
 
 ## Phases
 
@@ -32,64 +32,11 @@ See MILESTONES.md for full history of shipped phases 1-58.
 
 </details>
 
-### v7.0 BrainRank Landing Page (In Progress)
+<details>
+<summary>✅ v7.0 BrainRank Landing Page (Phases 65-67) - SHIPPED 2026-04-15</summary>
 
-**Milestone Goal:** Create a visually striking landing page at `/` that introduces BrainRank, explains how neural content scoring works, and drives signups -- using the existing 3D brain viewer as the hero centerpiece. Brutalist minimalist aesthetic: black/white/gray, Space Grotesk + Inter.
+- [x] **Phase 65: Landing Page Foundation & Hero** (2/2 plans) — completed 2026-04-15
+- [x] **Phase 66: Content Sections** (2/2 plans) — completed 2026-04-15
+- [x] **Phase 67: Polish & Responsiveness** (1/1 plan) — completed 2026-04-15
 
-- [x] **Phase 65: Landing Page Foundation & Hero** - Route setup, brutalist design system, interactive 3D brain hero with headline and CTA (completed 2026-04-15)
-- [x] **Phase 66: Content Sections** - How It Works, Feature Highlights, Visual Preview, and Final CTA sections (completed 2026-04-15)
-- [ ] **Phase 67: Polish & Responsiveness** - 21st.dev component integration, responsive layout across all breakpoints
-
-## Phase Details
-
-### Phase 65: Landing Page Foundation & Hero
-**Goal**: Visitors land on a striking hero page at `/` with an interactive 3D brain model, bold headline, and clear signup CTA -- establishing the BrainRank brand identity
-**Depends on**: Nothing (existing app infrastructure, BrainViewer.tsx component already available)
-**Requirements**: HERO-01, HERO-02, HERO-03, DES-01, DES-02, DES-05
-**Success Criteria** (what must be TRUE):
-  1. Navigating to `/` renders the landing page instead of redirecting to dashboard
-  2. Visitor sees an interactive 3D brain model with auto-rotation and visual effects (shimmer/bloom) as the page centerpiece
-  3. Visitor sees a bold BrainRank headline with a one-line value proposition in Space Grotesk
-  4. Visitor can click a primary CTA button that navigates to the signup flow
-  5. The page uses a brutalist black/white/gray palette with Space Grotesk headlines and Inter body text
-**Plans:** 2/2 plans complete
-Plans:
-- [x] 65-01-PLAN.md — Brutalist design system ([data-landing] CSS tokens, landing button variant) and root route setup with auth redirect
-- [x] 65-02-PLAN.md — Decorative BrainHero 3D component and HeroOdyssey evolution (replace LightningShader, wire landing CTA)
-**UI hint**: yes
-
-### Phase 66: Content Sections
-**Goal**: Visitors can scroll through clear explanations of how BrainRank works, what it offers, and what results look like -- building understanding and desire before the final signup prompt
-**Depends on**: Phase 65 (page and design system must exist)
-**Requirements**: HOW-01, HOW-02, FEAT-01, FEAT-02, PREV-01, CTA-01
-**Success Criteria** (what must be TRUE):
-  1. Visitor sees a 3-step visual walkthrough (Upload, Analyze, See Results) with icons, titles, and descriptions for each step
-  2. Visitor sees feature cards highlighting key capabilities (multi-modal input, brain networks, discovery feed) in the brutalist black/white/gray aesthetic
-  3. Visitor sees a demo preview showing what brain analysis output looks like
-  4. Visitor sees a closing CTA section with headline and "Get Started" button at the bottom of the page
-**Plans:** 2/2 plans complete
-Plans:
-- [x] 66-01-PLAN.md — HowItWorks 3-step walkthrough and FeatureCards ghost cards, wired into landing page
-- [x] 66-02-PLAN.md — PreviewSection browser-framed results mockup and FinalCTA with signup button
-**UI hint**: yes
-
-### Phase 67: Polish & Responsiveness
-**Goal**: The landing page feels polished with smooth animations and works flawlessly across desktop, tablet, and mobile viewports
-**Depends on**: Phase 66 (all content sections must exist to polish)
-**Requirements**: DES-03, DES-04
-**Success Criteria** (what must be TRUE):
-  1. Page uses 21st.dev magic MCP components for animations and layout polish (scroll reveals, transitions, etc.)
-  2. All sections (hero, how it works, features, preview, CTA) render correctly on desktop (1440px+), tablet (768px), and mobile (375px)
-  3. Interactive elements (3D brain, CTA buttons) remain functional and properly sized on all breakpoints
-**Plans:** 1 plan
-Plans:
-- [ ] 67-01-PLAN.md — ScrollReveal animation wrapper (Framer Motion useInView) and responsive classes across all landing components
-**UI hint**: yes
-
-## Progress
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 65. Landing Page Foundation & Hero | v7.0 | 2/2 | Complete   | 2026-04-15 |
-| 66. Content Sections | v7.0 | 2/2 | Complete   | 2026-04-15 |
-| 67. Polish & Responsiveness | v7.0 | 0/1 | Not started | - |
+</details>

@@ -1,8 +1,8 @@
-# NeuroCut — Neural A/B Testing for Content Creators
+# BrainRank — Neural Content Scoring Platform
 
 ## What This Is
 
-A web app that lets content creators upload videos and get brain-activation-based engagement scores. The inference pipeline (TRIBE v2 on RunPod) is live. 15 production-ready UI screens have been designed via Google Stitch. This milestone implements the full frontend and backend to ship a working product.
+A web platform that lets content creators upload videos, images, or text and get brain-activation-based engagement scores. Features a public discovery feed, 3D brain viewer with per-vertex heatmaps, and a brutalist landing page with interactive 3D brain hero. The inference pipeline (TRIBE v2 on RunPod) is live, and the platform supports multi-modal input with side-by-side comparison.
 
 ## Core Value
 
@@ -26,18 +26,16 @@ All 7 phases complete. NeuroCut now supports image and text analysis alongside v
 **Goal:** Integrate Stripe to enable real payment processing for the Creator tier ($20/mo or $200/yr), replacing the mock billing UI.
 **Status:** Paused — landing page (v7.0) prioritized.
 
-## Current Milestone: v7.0 BrainRank Landing Page
+## Shipped: v7.0 BrainRank Landing Page (2026-04-15)
 
-**Goal:** Create a visually striking landing page that introduces BrainRank, explains how neural content scoring works, and drives signups — using the existing 3D brain viewer as the hero centerpiece.
-
-**Target features:**
-- Hero section with interactive 3D brain model, headline, and CTA
-- "How It Works" section — 3-step flow (Upload → Analyze → See Results)
-- Feature highlights — key capabilities (multi-modal input, brain networks, discovery)
-- Visual demo/preview showing brain analysis output
-- Final CTA section to drive signups
-- 21st.dev components for polished animations and layout
-- Brutalist minimalist aesthetic: black/white/gray, Space Grotesk + Inter
+All 3 phases complete. BrainRank now has a public landing page:
+- Interactive 3D brain hero with auto-rotation, shimmer, and bloom effects
+- "How It Works" 3-step walkthrough (Upload → Analyze → See Results)
+- Feature cards highlighting multi-modal input, 9 brain networks, discovery feed
+- Browser-framed preview mockup of analysis results
+- Closing CTA with "Get Started Free" driving signups
+- Scroll-triggered fade-in animations, fully responsive (desktop/tablet/mobile)
+- Brutalist minimalist aesthetic: pure black/white/gray, Space Grotesk + Inter
 
 ## Requirements
 
@@ -50,6 +48,8 @@ All 7 phases complete. NeuroCut now supports image and text analysis alongside v
 - UI screens consolidated and specced — v1.1
 - 15 production-ready Stitch screens received — v1.1
 - Design system documented (Neural Architect theme) — v1.1
+- BrainRank landing page with 3D brain hero, content sections, responsive layout — v7.0
+- Brutalist grayscale design system scoped via [data-landing] CSS attribute — v7.0
 
 ### Active
 
@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-15 after v7.0 milestone start*
+*Last updated: 2026-04-15 after v7.0 milestone complete*
