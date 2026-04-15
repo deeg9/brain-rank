@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { SegmentData, SegmentRegionScores } from "./SegmentTable";
+import { getRegionsAtTime } from "./brain-utils";
 import { MetricInfo } from "./MetricInfo";
 
 const REGIONS: {
@@ -22,18 +23,17 @@ const REGIONS: {
 
 interface RegionBarChartProps {
   segments: SegmentData[];
+  currentTime?: number;
 }
 
-export function RegionBarChart({ segments }: RegionBarChartProps) {
-  // Average scores across all segments
-  const avgScores: Record<string, number> = {};
+export function RegionBarChart({ segments, currentTime = 0 }: RegionBarChartProps) {
+  const currentRegions = getRegionsAtTime(segments, currentTime);
+
+  const scores: Record<string, number> = {};
   for (const region of REGIONS) {
-    const total = segments.reduce((sum, seg) => sum + (seg.regions[region.key] ?? 0), 0);
-    avgScores[region.key] = segments.length > 0 ? total / segments.length : 0;
+    scores[region.key] = currentRegions?.[region.key] ?? 0;
   }
 
-  // Sort by score descending so strongest activations appear first
-  const sorted = [...REGIONS].sort((a, b) => (avgScores[b.key] ?? 0) - (avgScores[a.key] ?? 0));
 
   return (
     <div className="rounded-xl p-5 glass-surface">
@@ -42,14 +42,18 @@ export function RegionBarChart({ segments }: RegionBarChartProps) {
         <h3 className="font-headline text-base font-bold">Brain Region Activation</h3>
         <MetricInfo
           title="Brain Region Activation"
-          description="Shows how strongly each brain network responded to your content. Higher bars indicate stronger neural activation in that region."
-          calculation="Averaged across all 2-second segments. For short clips (under 10s), this gives a clear snapshot of which brain regions your content triggers."
+          description="Shows how strongly each brain network is responding at the current moment. Higher bars indicate stronger neural activation in that region."
+          calculation="Displays the region scores for the current 2-second segment. Bars update in real-time as the video plays."
           interpretation="Strong attention (>60%) = your hook grabs focus. Strong reward (>60%) = content feels rewarding. Strong emotional (>60%) = emotionally engaging."
         />
+        <span className="flex items-center gap-1 text-[10px] text-on-surface-variant font-medium ml-auto">
+          <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" /><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" /></span>
+          Updates with playback
+        </span>
       </div>
       <div className="space-y-3">
-        {sorted.map((region, i) => {
-          const score = avgScores[region.key] ?? 0;
+        {REGIONS.map((region, i) => {
+          const score = scores[region.key] ?? 0;
           const pct = Math.round(score * 100);
 
           return (

@@ -81,15 +81,15 @@ class TestPostprocess:
         )
         assert result.raw_shape == [12, 20484]
 
-    def test_duration_from_original_segments(self, synthetic_predictions, synthetic_segments):
-        """duration_seconds = len(segments) * SEGMENT_DURATION_S."""
+    def test_duration_matches_last_segment_end(self, synthetic_predictions, synthetic_segments):
+        """duration_seconds = last output segment's end time."""
         result = postprocess(
             synthetic_predictions,
             synthetic_segments,
             "https://example.com/video.mp4",
             "test-job-5",
         )
-        assert result.duration_seconds == pytest.approx(12.0)
+        assert result.duration_seconds == pytest.approx(7.0)
 
     def test_summary_overall_equals_mean_of_activations(
         self, synthetic_predictions, synthetic_segments

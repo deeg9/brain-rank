@@ -196,7 +196,7 @@ def postprocess(
         peak_score=peak_score,
     )
 
-    duration_seconds = float(len(segments) * SEGMENT_DURATION_S)
+    duration_seconds = float(output_segments[-1].end) if output_segments else 0.0
 
     logger.info(
         "Job %s: postprocessing complete — %d windows, duration %.1fs",

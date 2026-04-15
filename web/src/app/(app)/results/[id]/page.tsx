@@ -457,7 +457,7 @@ export default function ResultsDetailPage({ params }: Props) {
 
       {/* Neural activation — bar chart for short videos, timeline for longer ones */}
       {results.duration_seconds < 10 ? (
-        <RegionBarChart segments={segments} />
+        <RegionBarChart segments={segments} currentTime={currentTime} />
       ) : (
         <NeuralTimeline
           segments={segments}
@@ -480,6 +480,10 @@ export default function ResultsDetailPage({ params }: Props) {
             <div className="flex items-center gap-2 mb-4">
               <span className="material-symbols-outlined text-on-surface-variant">monitoring</span>
               <h3 className="font-headline text-base font-bold">Insights Summary</h3>
+              <span className="flex items-center gap-1 text-[10px] text-on-surface-variant font-medium ml-auto">
+                <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" /><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" /></span>
+                Updates with playback
+              </span>
             </div>
             <div className="flex items-stretch gap-4">
               {/* Metrics — staggered grid */}
