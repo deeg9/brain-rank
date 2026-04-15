@@ -37,7 +37,7 @@ See MILESTONES.md for full history of shipped phases 1-58.
 **Milestone Goal:** Create a visually striking landing page at `/` that introduces BrainRank, explains how neural content scoring works, and drives signups -- using the existing 3D brain viewer as the hero centerpiece. Brutalist minimalist aesthetic: black/white/gray, Space Grotesk + Inter.
 
 - [x] **Phase 65: Landing Page Foundation & Hero** - Route setup, brutalist design system, interactive 3D brain hero with headline and CTA (completed 2026-04-15)
-- [ ] **Phase 66: Content Sections** - How It Works, Feature Highlights, Visual Preview, and Final CTA sections
+- [x] **Phase 66: Content Sections** - How It Works, Feature Highlights, Visual Preview, and Final CTA sections (completed 2026-04-15)
 - [ ] **Phase 67: Polish & Responsiveness** - 21st.dev component integration, responsive layout across all breakpoints
 
 ## Phase Details
@@ -67,10 +67,10 @@ Plans:
   2. Visitor sees feature cards highlighting key capabilities (multi-modal input, brain networks, discovery feed) in the brutalist black/white/gray aesthetic
   3. Visitor sees a demo preview showing what brain analysis output looks like
   4. Visitor sees a closing CTA section with headline and "Get Started" button at the bottom of the page
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 66-01-PLAN.md — HowItWorks 3-step walkthrough and FeatureCards ghost cards, wired into landing page
-- [ ] 66-02-PLAN.md — PreviewSection browser-framed results mockup and FinalCTA with signup button
+- [x] 66-02-PLAN.md — PreviewSection browser-framed results mockup and FinalCTA with signup button
 **UI hint**: yes
 
 ### Phase 67: Polish & Responsiveness
@@ -89,5 +89,5 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 65. Landing Page Foundation & Hero | v7.0 | 2/2 | Complete   | 2026-04-15 |
-| 66. Content Sections | v7.0 | 1/2 | In Progress|  |
+| 66. Content Sections | v7.0 | 2/2 | Complete   | 2026-04-15 |
 | 67. Polish & Responsiveness | v7.0 | 0/? | Not started | - |

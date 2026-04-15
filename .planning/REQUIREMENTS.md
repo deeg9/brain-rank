@@ -25,11 +25,11 @@ Requirements for BrainRank Landing Page milestone. Create a visually striking la
 
 ### Visual Preview
 
-- [ ] **PREV-01**: Visitor sees a demo preview showing what brain analysis output looks like
+- [x] **PREV-01**: Visitor sees a demo preview showing what brain analysis output looks like
 
 ### Final CTA
 
-- [ ] **CTA-01**: Visitor sees a closing CTA section with headline and "Get Started" button
+- [x] **CTA-01**: Visitor sees a closing CTA section with headline and "Get Started" button
 
 ### Design & Polish
 
@@ -111,8 +111,8 @@ Requirements for Stripe Payments milestone. Paused — will resume after v7.0.
 | HOW-02 | Phase 66 | Complete |
 | FEAT-01 | Phase 66 | Complete |
 | FEAT-02 | Phase 66 | Complete |
-| PREV-01 | Phase 66 | Pending |
-| CTA-01 | Phase 66 | Pending |
+| PREV-01 | Phase 66 | Complete |
+| CTA-01 | Phase 66 | Complete |
 | DES-01 | Phase 65 | Complete |
 | DES-02 | Phase 65 | Complete |
 | DES-03 | Phase 67 | Pending |
