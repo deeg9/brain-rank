@@ -67,7 +67,7 @@ export function HeroOdyssey() {
           </motion.h1>
 
           <motion.p
-            className="max-w-2xl text-center text-base text-on-surface-variant md:text-lg lg:text-xl"
+            className="max-w-2xl text-center text-base text-white font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-lg lg:text-xl"
             variants={fadeUp}
             initial="initial"
             animate="animate"
