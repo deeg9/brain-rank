@@ -11,6 +11,7 @@ import { CompareButton } from "./CompareButton";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
+import { MetricInfo } from "@/components/results/MetricInfo";
 import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
 
 const ComparisonModal = dynamic(
@@ -110,7 +111,14 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
                       )}
                       {job.status === 'complete' && (
                         <span className="inline-flex items-center gap-1">
-                          <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
+                          <MetricInfo
+                            title="Engagement Score"
+                            description="A composite score that weights a video's best moment, opening, and sustained engagement."
+                            calculation="0.40 × Peak + 0.30 × Hook + 0.30 × Retention. Retention here is the worst 10-second stretch of activation anywhere in the video."
+                            interpretation="Higher = content that opens strong, peaks hard, and avoids dead spots. Use this as the headline number when ranking your analyses."
+                          >
+                            <span className="material-symbols-outlined text-sm leading-none text-black cursor-help">trophy</span>
+                          </MetricInfo>
                           <ScoreBadge value={job.score} size="sm" />
                         </span>
                       )}

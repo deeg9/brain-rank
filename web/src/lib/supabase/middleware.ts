@@ -43,6 +43,13 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = publicRoutes.some(route =>
     pathname.startsWith(route)
   )
+  // Auth-entry pages: logged-in users should be bounced to /dashboard so they
+  // can't re-enter the signup/login flow. Content pages like /resources,
+  // /pricing, /about are public but viewable by authed users too.
+  const authEntryRoutes = ['/login', '/signup', '/forgot-password']
+  const isAuthEntryRoute = authEntryRoutes.some(route =>
+    pathname.startsWith(route)
+  )
   const isLandingPage = pathname === '/'
   const isPublicProfile = pathname.startsWith('/u/')
   const isPublicAnalysis = pathname.startsWith('/analysis/')
@@ -58,8 +65,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // Authenticated users on auth pages (login/signup) -> redirect to /dashboard
-  if (user && isPublicRoute) {
+  // Authenticated users on auth-entry pages -> redirect to /dashboard
+  if (user && isAuthEntryRoute) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/dashboard'
     return NextResponse.redirect(dashboardUrl)

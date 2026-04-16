@@ -8,6 +8,7 @@ import { StatTile } from "./StatTile";
 import { DashboardGrid } from "./DashboardGrid";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
 import { getCreditStatus } from "@/lib/credits";
+import { computeEngagement, computeRetention } from "@/lib/engagement";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -38,8 +39,31 @@ function extractFilename(videoUrl: string): string {
 
 function extractScore(results: Record<string, unknown> | null): number | null {
   if (!results) return null;
-  const score = results.overall_score;
-  if (typeof score === "number") return Math.round(score);
+  const summary = results.summary as
+    | { hook_score?: number; peak_score?: number; overall?: number }
+    | undefined;
+  const segments = results.segments as { activation_score: number }[] | undefined;
+
+  if (
+    summary &&
+    segments &&
+    segments.length > 0 &&
+    typeof summary.hook_score === "number" &&
+    typeof summary.peak_score === "number"
+  ) {
+    const retention = computeRetention(segments);
+    const engagement = computeEngagement({
+      peak: summary.peak_score,
+      hook: summary.hook_score,
+      retention,
+    });
+    return Math.round(engagement * 100);
+  }
+
+  // Fallback for legacy rows without full summary/segments
+  if (typeof summary?.overall === "number") return Math.round(summary.overall * 100);
+  const legacy = results.overall_score;
+  if (typeof legacy === "number") return Math.round(legacy);
   return null;
 }
 

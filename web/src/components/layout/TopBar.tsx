@@ -145,6 +145,13 @@ export function TopBar({
                 Profile
               </Link>
               <Link
+                href="/bookmarks"
+                className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">bookmark</span>
+                Bookmarks
+              </Link>
+              <Link
                 href="/settings/billing"
                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors"
               >

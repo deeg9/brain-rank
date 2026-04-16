@@ -80,7 +80,7 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle }: BookmarkB
       onClick={handleClick}
       className={`p-1.5 rounded-full transition-colors ${
         bookmarked
-          ? "text-primary-fixed"
+          ? "text-black"
           : "text-on-surface-variant hover:text-on-surface"
       }`}
       aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}

@@ -26,9 +26,11 @@ interface DiscoverCardProps {
   analysis: DiscoverAnalysis;
   isSelected?: boolean;
   onCompareSelect?: () => void;
+  initialBookmarked?: boolean;
+  onBookmarkToggle?: (bookmarked: boolean) => void;
 }
 
-export function DiscoverCard({ analysis, isSelected, onCompareSelect }: DiscoverCardProps) {
+export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBookmarked, onBookmarkToggle }: DiscoverCardProps) {
   const router = useRouter();
   const title = analysis.title || "Untitled";
   const date = new Date(analysis.created_at).toLocaleDateString("en-US", {
@@ -67,7 +69,11 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect }: Discover
                 </span>
               </button>
             )}
-            <BookmarkButton jobId={analysis.id} />
+            <BookmarkButton
+              jobId={analysis.id}
+              initialBookmarked={initialBookmarked}
+              onToggle={onBookmarkToggle}
+            />
           </div>
         </div>
 

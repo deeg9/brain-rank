@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useLayoutEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 interface MetricInfoProps {
@@ -8,13 +8,15 @@ interface MetricInfoProps {
   description: string;
   calculation: string;
   interpretation: string;
+  /** Optional custom trigger. When provided, replaces the default info icon. */
+  children?: ReactNode;
 }
 
 const POPOVER_WIDTH = 256;
 const POPOVER_OFFSET = 8;
 const VIEWPORT_PADDING = 8;
 
-export function MetricInfo({ title, description, calculation, interpretation }: MetricInfoProps) {
+export function MetricInfo({ title, description, calculation, interpretation, children }: MetricInfoProps) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -107,12 +109,14 @@ export function MetricInfo({ title, description, calculation, interpretation }: 
 
   return (
     <span className="relative inline-block" ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-      <span
-        className="ml-1 text-on-surface/70 hover:text-on-surface transition-colors align-middle cursor-help"
-        aria-label={`Info about ${title}`}
-      >
-        <span className="material-symbols-outlined" style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}>info</span>
-      </span>
+      {children ?? (
+        <span
+          className="ml-1 text-on-surface/70 hover:text-on-surface transition-colors align-middle cursor-help"
+          aria-label={`Info about ${title}`}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}>info</span>
+        </span>
+      )}
       {mounted && open && coords && createPortal(
         <div
           ref={popoverRef}

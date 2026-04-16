@@ -40,7 +40,7 @@ interface MetricItem {
 const METRICS: MetricItem[] = [
   {
     label: "Engagement Score",
-    key: "overall",
+    key: "engagement_score",
     description: "A composite score that weights a video's best moment, opening, and sustained engagement.",
     calculation: "0.40 × Peak + 0.30 × Hook + 0.30 × Retention. Retention here is the worst 10-second stretch in the video (see the Retention row).",
     interpretation: "Higher = content that opens strong, peaks hard, and avoids dead spots. Use this as the headline number when comparing two videos.",
@@ -85,7 +85,7 @@ function computedValue(key: string, summary: Record<string, number>, segments: S
   if (key === "retention_score") {
     return segments.length > 0 ? computeRetention(segments) : null;
   }
-  if (key === "overall") {
+  if (key === "engagement_score") {
     if (segments.length === 0) return null;
     const retention = computeRetention(segments);
     return computeEngagement({
@@ -232,27 +232,52 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
 
   const handleExport = useCallback(() => {
     const safeTitle = (t: string) => t.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40);
+
+    const slimSegments = (segments: SegmentData[]) =>
+      segments.map((s) => ({
+        start: s.start,
+        end: s.end,
+        activation_score: s.activation_score,
+        arousal: s.arousal,
+        valence: s.valence,
+        regions: s.regions,
+      }));
+
+    const buildAnalysisPayload = (
+      id: string,
+      job: Job | null,
+      summary: Record<string, number>,
+      segments: SegmentData[],
+      duration: number
+    ) => {
+      const retention = computeRetention(segments);
+      const engagement = computeEngagement({
+        peak: summary.peak_score ?? 0,
+        hook: summary.hook_score ?? 0,
+        retention,
+      });
+      return {
+        id,
+        title: titleFor(job),
+        input_type: job?.input_type ?? null,
+        category: job?.category ?? null,
+        duration_seconds: duration,
+        insights: {
+          engagement_score: engagement,
+          hook_score: summary.hook_score ?? null,
+          retention_score: retention,
+          peak_score: summary.peak_score ?? null,
+          peak_second: summary.peak_second ?? null,
+        },
+        segments: slimSegments(segments),
+      };
+    };
+
     const payload = {
       exported_at: new Date().toISOString(),
       cross_type: !!isCrossType,
-      analysis_a: {
-        id: jobIdA,
-        title: titleFor(jobA),
-        input_type: jobA?.input_type ?? null,
-        category: jobA?.category ?? null,
-        duration_seconds: durationA,
-        summary: summaryA,
-        segments: segmentsA,
-      },
-      analysis_b: {
-        id: jobIdB,
-        title: titleFor(jobB),
-        input_type: jobB?.input_type ?? null,
-        category: jobB?.category ?? null,
-        duration_seconds: durationB,
-        summary: summaryB,
-        segments: segmentsB,
-      },
+      analysis_a: buildAnalysisPayload(jobIdA, jobA, summaryA, segmentsA, durationA),
+      analysis_b: buildAnalysisPayload(jobIdB, jobB, summaryB, segmentsB, durationB),
       comparison: METRICS.reduce<Record<string, { a: number | null; b: number | null; delta: number | null }>>((acc, m) => {
         const a = computedValue(m.key, summaryA, segmentsA);
         const b = computedValue(m.key, summaryB, segmentsB);

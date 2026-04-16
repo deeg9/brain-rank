@@ -1,5 +1,4 @@
 import { TopBar } from "./TopBar";
-import { Footer } from "./Footer";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -19,7 +18,6 @@ export function AppShell({ children, topBarProps }: AppShellProps) {
       <main className="pt-16 min-h-screen bg-surface p-8">
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
-      <Footer />
     </>
   );
 }
