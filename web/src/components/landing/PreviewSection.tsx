@@ -8,19 +8,19 @@ export function PreviewSection() {
       </h2>
 
       <div className="max-w-4xl mx-auto">
-        <div className="rounded-lg border border-black/10 overflow-hidden shadow-xl">
+        <div className="rounded-lg border border-white/10 overflow-hidden">
           {/* Browser chrome bar */}
-          <div className="bg-[#e8e8e8] px-4 py-3 flex items-center gap-2 border-b border-black/10">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-            <div className="ml-4 bg-black/5 rounded px-3 py-1 text-xs text-black/40 font-mono hidden md:block">
+          <div className="bg-[#111111] px-4 py-3 flex items-center gap-2 border-b border-white/10">
+            <div className="w-3 h-3 rounded-full bg-white/20" />
+            <div className="w-3 h-3 rounded-full bg-white/20" />
+            <div className="w-3 h-3 rounded-full bg-white/20" />
+            <div className="ml-4 bg-white/5 rounded px-3 py-1 text-xs text-white/30 font-mono hidden md:block">
               brainrank.app/results/demo
             </div>
           </div>
 
           {/* Screenshot */}
-          <div className="bg-white">
+          <div className="bg-[#0a0a0a]">
             <Image
               src="/images/results-preview.png"
               alt="BrainRank neural analysis results showing video player, brain activation map, and region scores"
