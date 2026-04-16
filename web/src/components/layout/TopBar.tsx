@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -31,6 +31,12 @@ export function TopBar({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [creditLabel, setCreditLabel] = useState("5 credits");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  const handleSheetClose = () => {
+    setMobileNavOpen(false);
+    requestAnimationFrame(() => hamburgerRef.current?.focus());
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -188,6 +194,7 @@ export function TopBar({
           </div>
         </div>
         <button
+          ref={hamburgerRef}
           type="button"
           onClick={() => setMobileNavOpen(true)}
           aria-label="Open menu"
@@ -201,7 +208,7 @@ export function TopBar({
     </header>
     <MobileNavSheet
       open={mobileNavOpen}
-      onClose={() => setMobileNavOpen(false)}
+      onClose={handleSheetClose}
       displayName={displayName}
       avatarUrl={avatarUrl}
       creditLabel={creditLabel}
