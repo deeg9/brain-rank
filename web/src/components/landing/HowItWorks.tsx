@@ -1,5 +1,7 @@
 "use client";
 
+import { LinkPreview } from "@/components/ui/LinkPreview";
+
 const STEPS: { number: string; icon: string; title: string; description: string; link?: { label: string; href: string } }[] = [
   {
     number: "01",
@@ -45,14 +47,12 @@ export function HowItWorks() {
               {step.description}
             </p>
             {step.link && (
-              <a
-                href={step.link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+              <LinkPreview
+                url={step.link.href}
                 className="text-white/60 text-xs mt-3 underline underline-offset-2 hover:text-white transition-colors"
               >
                 {step.link.label} &rarr;
-              </a>
+              </LinkPreview>
             )}
           </div>
         ))}

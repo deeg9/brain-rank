@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { BrainHero } from "./BrainHero";
 import { Button } from "@/components/ui";
 import { MatrixText } from "@/components/ui/MatrixText";
+import { LinkPreview } from "@/components/ui/LinkPreview";
 import { createClient } from "@/lib/supabase/client";
 
 const FEATURE_PILLS = [
@@ -76,7 +77,12 @@ export function HeroOdyssey() {
             video, picture, or text to see a prediction of where
             viewers&apos; brains light up.
             <br />
-            <a href="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/" target="_blank" rel="noopener noreferrer" className="text-white/60 text-sm md:text-base underline underline-offset-2 hover:text-white transition-colors">Powered by Meta&apos;s TRIBE v2 model.</a>
+            <LinkPreview
+              url="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/"
+              className="text-white/60 text-sm md:text-base underline underline-offset-2 hover:text-white transition-colors"
+            >
+              Powered by Meta&apos;s TRIBE v2 model.
+            </LinkPreview>
           </motion.p>
 
           <motion.div
