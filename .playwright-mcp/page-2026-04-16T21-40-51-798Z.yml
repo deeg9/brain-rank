@@ -1,0 +1,151 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e10]:
+      - banner [ref=e11]:
+        - generic [ref=e13]: BRAIN|RANK
+        - link "Login" [ref=e14] [cursor=pointer]:
+          - /url: /login
+      - generic [ref=e15]:
+        - generic "See What Brains See" [ref=e16]:
+          - generic [ref=e17]:
+            - generic [ref=e18]: S
+            - generic [ref=e19]: e
+            - generic [ref=e20]: e
+            - generic [ref=e22]: W
+            - generic [ref=e23]: h
+            - generic [ref=e24]: a
+            - generic [ref=e25]: t
+            - generic [ref=e27]: B
+            - generic [ref=e28]: r
+            - generic [ref=e29]: a
+            - generic [ref=e30]: i
+            - generic [ref=e31]: "n"
+            - generic [ref=e32]: s
+            - generic [ref=e34]: S
+            - generic [ref=e35]: e
+            - generic [ref=e36]: e
+        - paragraph [ref=e37]:
+          - text: Neural A/B testing for marketers and content creators. Upload a video, picture, or text to see a prediction of where viewers' brains light up.
+          - link "Powered by Meta's TRIBE v2 model." [ref=e38] [cursor=pointer]:
+            - /url: https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/
+        - link "upload Analyze Your Video" [ref=e40] [cursor=pointer]:
+          - /url: /signup
+          - button "upload Analyze Your Video" [ref=e41]:
+            - generic [ref=e42]: upload
+            - text: Analyze Your Video
+        - generic [ref=e43]:
+          - generic [ref=e44]: Brain Mapping
+          - generic [ref=e45]: Neural Scoring
+          - generic [ref=e46]: Retention Analysis
+          - generic [ref=e47]: Hook Detection
+      - contentinfo [ref=e48]:
+        - generic [ref=e49]: v1.0.4-beta / secure_neural_layer
+        - generic [ref=e50]:
+          - generic [ref=e51]: lock
+          - generic [ref=e52]: verified_user
+    - generic [ref=e54]:
+      - heading "How It Works" [level=2] [ref=e55]
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - generic [ref=e58]: "01"
+          - generic [ref=e59]: upload
+          - heading "Upload Your Content" [level=3] [ref=e60]
+          - paragraph [ref=e61]: Drop in a video, image, or text. Multi-modal input accepted.
+        - generic [ref=e62]:
+          - generic [ref=e63]: "02"
+          - generic [ref=e64]: psychology
+          - heading "Neural Analysis" [level=3] [ref=e65]
+          - paragraph [ref=e66]: TRIBE v2 maps brain activation across 9 neural networks.
+          - link "Learn more about TRIBE v2→" [ref=e67] [cursor=pointer]:
+            - /url: https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/
+        - generic [ref=e68]:
+          - generic [ref=e69]: "03"
+          - generic [ref=e70]: insights
+          - heading "See Results" [level=3] [ref=e71]
+          - paragraph [ref=e72]: Per-segment scores reveal exactly where brains engage.
+    - generic [ref=e74]:
+      - heading "What You Get" [level=2] [ref=e75]
+      - generic [ref=e76]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: video_library
+          - heading "Multi-Modal Input" [level=3] [ref=e80]
+          - paragraph [ref=e81]: Analyze videos, images, and text. Upload any content format and get neural engagement scores.
+        - generic [ref=e83]:
+          - generic [ref=e84]: neurology
+          - heading "9 Brain Networks" [level=3] [ref=e85]
+          - paragraph [ref=e86]: Detailed activation mapping across visual, auditory, language, attention, and memory networks.
+        - generic [ref=e88]:
+          - generic [ref=e89]: explore
+          - heading "Discovery Feed" [level=3] [ref=e90]
+          - paragraph [ref=e91]: Explore public analyses. See what content lights up brains across the community.
+    - generic [ref=e93]:
+      - heading "What Your Results Look Like" [level=2] [ref=e94]
+      - img "BrainRank neural analysis results showing video player, brain activation map, and region scores" [ref=e102]
+    - generic [ref=e105]:
+      - heading "Ready?" [level=2] [ref=e106]
+      - link "Get Started Free" [ref=e107] [cursor=pointer]:
+        - /url: /signup
+        - button "Get Started Free" [ref=e108]
+      - paragraph [ref=e109]: No credit card required.
+    - contentinfo [ref=e110]:
+      - generic [ref=e111]:
+        - generic [ref=e112]:
+          - heading "BRAIN|RANK" [level=3] [ref=e114]
+          - generic [ref=e115]:
+            - heading "Legal" [level=4] [ref=e116]
+            - list [ref=e117]:
+              - listitem [ref=e118]:
+                - link "Privacy Policy" [ref=e119] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e120]:
+                - link "Terms and Conditions" [ref=e121] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e122]:
+                - link "Disclaimer" [ref=e123] [cursor=pointer]:
+                  - /url: /disclaimer
+          - generic [ref=e124]:
+            - heading "Resources" [level=4] [ref=e125]
+            - list [ref=e126]:
+              - listitem [ref=e127]:
+                - link "How It Works" [ref=e128] [cursor=pointer]:
+                  - /url: /resources
+              - listitem [ref=e129]:
+                - link "Understanding Scores" [ref=e130] [cursor=pointer]:
+                  - /url: /resources#scores
+              - listitem [ref=e131]:
+                - link "Brain Regions" [ref=e132] [cursor=pointer]:
+                  - /url: /resources#regions
+              - listitem [ref=e133]:
+                - link "Use Cases" [ref=e134] [cursor=pointer]:
+                  - /url: /use-cases
+              - listitem [ref=e135]:
+                - link "TRIBE v2" [ref=e136] [cursor=pointer]:
+                  - /url: https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/
+          - generic [ref=e137]:
+            - heading "Company" [level=4] [ref=e138]
+            - list [ref=e139]:
+              - listitem [ref=e140]:
+                - link "Pricing" [ref=e141] [cursor=pointer]:
+                  - /url: /pricing
+              - listitem [ref=e142]:
+                - link "About" [ref=e143] [cursor=pointer]:
+                  - /url: /about
+        - generic [ref=e144]:
+          - paragraph [ref=e145]:
+            - text: © 2026
+            - generic [ref=e146]: BRAIN|RANK
+          - paragraph [ref=e147]: Neural activation predictions are computational estimates, not medical measurements.
+  - generic [ref=e152] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e153]:
+      - img [ref=e154]
+    - generic [ref=e157]:
+      - button "Open issues overlay" [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e160]: "1"
+          - generic [ref=e161]: "2"
+        - generic [ref=e162]:
+          - text: Issue
+          - generic [ref=e163]: s
+      - button "Collapse issues badge" [ref=e164]:
+        - img [ref=e165]
+  - alert [ref=e167]
