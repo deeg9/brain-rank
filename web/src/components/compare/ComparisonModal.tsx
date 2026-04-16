@@ -9,6 +9,8 @@ import { CONTENT_CATEGORIES } from "@/lib/categories";
 import type { Job } from "@/lib/database.types";
 import type { SegmentData } from "@/components/results/SegmentTable";
 import { MetricInfo } from "@/components/results/MetricInfo";
+import { InsightsSummaryCard } from "@/components/results/InsightsSummaryCard";
+import { computeEngagement, computeRetention } from "@/lib/engagement";
 
 const BrainViewer = dynamic(
   () => import("@/components/results/BrainViewer").then((m) => m.BrainViewer),
@@ -37,31 +39,31 @@ interface MetricItem {
 
 const METRICS: MetricItem[] = [
   {
-    label: "Overall Score",
+    label: "Engagement Score",
     key: "overall",
-    description: "A composite score reflecting the overall neural engagement of your content.",
-    calculation: "Weighted average across all brain network activations predicted by BrainRank.",
-    interpretation: "Higher scores indicate stronger overall brain engagement. Compare across analyses to see which content resonates more.",
+    description: "A composite score that weights a video's best moment, opening, and sustained engagement.",
+    calculation: "0.40 × Peak + 0.30 × Hook + 0.30 × Retention. Retention here is the worst 10-second stretch in the video (see the Retention row).",
+    interpretation: "Higher = content that opens strong, peaks hard, and avoids dead spots. Use this as the headline number when comparing two videos.",
   },
   {
     label: "Hook Score",
     key: "hook_score",
     description: "How effectively the first few seconds capture the viewer's attention.",
-    calculation: "Based on attention and reward network activation during the opening segment of the content.",
+    calculation: "Average neural activation during the first 10 seconds of the content.",
     interpretation: "High hook scores (>70) mean strong opening engagement. Low scores suggest the intro may lose viewers.",
   },
   {
-    label: "Retention Score",
+    label: "Retention",
     key: "retention_score",
-    description: "How well the content maintains neural engagement over its full duration.",
-    calculation: "Measures consistency of activation across all segments, penalizing sharp drops in attention or reward.",
-    interpretation: "High retention (>70) means sustained engagement. Low scores indicate drop-off points where viewers may leave.",
+    description: "How well the content avoids dead spots across its full duration.",
+    calculation: "The lowest 10-second rolling average of activation anywhere in the video.",
+    interpretation: "A strong opening or ending can't mask a boring middle. Low scores mean there's a stretch where viewers are likely to scroll away.",
   },
   {
     label: "Peak Score",
     key: "peak_score",
     description: "The highest moment of neural activation in the content.",
-    calculation: "Maximum activation value across attention and reward networks in any single segment.",
+    calculation: "The 2-second segment with the maximum activation score in the video.",
     interpretation: "High peak scores (>80) indicate powerful climactic moments. Compare peaks to find which content has stronger highlight moments.",
   },
 ];
@@ -69,14 +71,44 @@ const METRICS: MetricItem[] = [
 function DeltaCell({ a, b, disabled }: { a: number | null; b: number | null; disabled: boolean }) {
   if (disabled) return <span className="text-gray-400 text-xs">N/A</span>;
   if (a == null || b == null) return <span className="text-gray-400">—</span>;
-  const delta = b - a;
-  if (Math.abs(delta) < 0.01) return <span className="text-gray-500">0</span>;
+  const delta = (b - a) * 100;
+  if (Math.abs(delta) < 0.5) return <span className="text-gray-500">0</span>;
   const isPositive = delta > 0;
   return (
     <span className={`font-bold text-sm px-2 py-0.5 rounded ${isPositive ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"}`}>
-      {isPositive ? "+" : ""}{delta.toFixed(1)}
+      {isPositive ? "+" : ""}{delta.toFixed(0)}
     </span>
   );
+}
+
+function computedValue(key: string, summary: Record<string, number>, segments: SegmentData[]): number | null {
+  if (key === "retention_score") {
+    return segments.length > 0 ? computeRetention(segments) : null;
+  }
+  if (key === "overall") {
+    if (segments.length === 0) return null;
+    const retention = computeRetention(segments);
+    return computeEngagement({
+      peak: summary.peak_score ?? 0,
+      hook: summary.hook_score ?? 0,
+      retention,
+    });
+  }
+  return summary[key] ?? null;
+}
+
+function getSegmentAtTime(segments: SegmentData[], time: number): SegmentData | null {
+  if (segments.length === 0) return null;
+  for (const seg of segments) {
+    if (time >= seg.start && time <= seg.end) return seg;
+  }
+  let closest = segments[0];
+  let minDist = Infinity;
+  for (const seg of segments) {
+    const dist = Math.min(Math.abs(seg.start - time), Math.abs(seg.end - time));
+    if (dist < minDist) { minDist = dist; closest = seg; }
+  }
+  return closest;
 }
 
 function categoryLabel(value: string | null | undefined): string | null {
@@ -198,6 +230,52 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
     setCurrentTimeB(t);
   }, []);
 
+  const handleExport = useCallback(() => {
+    const safeTitle = (t: string) => t.replace(/[^a-z0-9]+/gi, "-").toLowerCase().slice(0, 40);
+    const payload = {
+      exported_at: new Date().toISOString(),
+      cross_type: !!isCrossType,
+      analysis_a: {
+        id: jobIdA,
+        title: titleFor(jobA),
+        input_type: jobA?.input_type ?? null,
+        category: jobA?.category ?? null,
+        duration_seconds: durationA,
+        summary: summaryA,
+        segments: segmentsA,
+      },
+      analysis_b: {
+        id: jobIdB,
+        title: titleFor(jobB),
+        input_type: jobB?.input_type ?? null,
+        category: jobB?.category ?? null,
+        duration_seconds: durationB,
+        summary: summaryB,
+        segments: segmentsB,
+      },
+      comparison: METRICS.reduce<Record<string, { a: number | null; b: number | null; delta: number | null }>>((acc, m) => {
+        const a = computedValue(m.key, summaryA, segmentsA);
+        const b = computedValue(m.key, summaryB, segmentsB);
+        acc[m.key] = {
+          a,
+          b,
+          delta: a != null && b != null ? b - a : null,
+        };
+        return acc;
+      }, {}),
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `brainrank-compare-${safeTitle(titleFor(jobA))}-vs-${safeTitle(titleFor(jobB))}.json`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(url);
+  }, [jobIdA, jobIdB, jobA, jobB, summaryA, summaryB, segmentsA, segmentsB, durationA, durationB, isCrossType]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -312,8 +390,8 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                         </thead>
                         <tbody>
                           {METRICS.map((m) => {
-                            const valA = summaryA[m.key] ?? null;
-                            const valB = summaryB[m.key] ?? null;
+                            const valA = computedValue(m.key, summaryA, segmentsA);
+                            const valB = computedValue(m.key, summaryB, segmentsB);
                             return (
                               <tr key={m.key} className="border-t border-gray-100">
                                 <td className="px-5 py-3 text-gray-900 text-sm font-bold">
@@ -327,11 +405,11 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                                     />
                                   </span>
                                 </td>
-                                <td className="px-5 py-3 text-center text-gray-900 font-bold">{valA != null ? valA.toFixed(0) : "—"}</td>
+                                <td className="px-5 py-3 text-center text-gray-900 font-bold">{valA != null ? `${Math.round(valA * 100)}` : "—"}</td>
                                 <td className="px-5 py-3 text-center">
                                   <DeltaCell a={valA} b={valB} disabled={!!isCrossType} />
                                 </td>
-                                <td className="px-5 py-3 text-center text-gray-900 font-bold">{valB != null ? valB.toFixed(0) : "—"}</td>
+                                <td className="px-5 py-3 text-center text-gray-900 font-bold">{valB != null ? `${Math.round(valB * 100)}` : "—"}</td>
                               </tr>
                             );
                           })}
@@ -366,11 +444,43 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                     </div>
                   )}
 
+                  {/* Insights Summary — per-analysis, stacked layout */}
+                  {segmentsA.length > 0 && segmentsB.length > 0 && (
+                    <div className="grid grid-cols-2 gap-8">
+                      <InsightsSummaryCard
+                        summary={{
+                          hook_score: summaryA.hook_score ?? 0,
+                          retention_score: summaryA.retention_score ?? 0,
+                          peak_second: summaryA.peak_second ?? 0,
+                          peak_score: summaryA.peak_score ?? 0,
+                        }}
+                        segments={segmentsA}
+                        arousal={getSegmentAtTime(segmentsA, currentTimeA)?.arousal ?? 0}
+                        valence={getSegmentAtTime(segmentsA, currentTimeA)?.valence ?? 0}
+                        layout="stacked"
+                      />
+                      <InsightsSummaryCard
+                        summary={{
+                          hook_score: summaryB.hook_score ?? 0,
+                          retention_score: summaryB.retention_score ?? 0,
+                          peak_second: summaryB.peak_second ?? 0,
+                          peak_score: summaryB.peak_score ?? 0,
+                        }}
+                        segments={segmentsB}
+                        arousal={getSegmentAtTime(segmentsB, currentTimeB)?.arousal ?? 0}
+                        valence={getSegmentAtTime(segmentsB, currentTimeB)?.valence ?? 0}
+                        layout="stacked"
+                      />
+                    </div>
+                  )}
+
                   {/* Footer */}
                   <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
                     <button
-                      className="px-6 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors"
+                      onClick={handleExport}
+                      className="px-6 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-2"
                     >
+                      <span className="material-symbols-outlined text-base">download</span>
                       Export Comparison
                     </button>
                   </div>

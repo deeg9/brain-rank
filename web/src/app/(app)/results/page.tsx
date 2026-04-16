@@ -12,6 +12,7 @@ import {
 import { MetricCard } from "@/components/results/MetricCard";
 import { ActivationTimeline } from "@/components/results/ActivationTimeline";
 import { Skeleton } from "@/components/ui";
+import { computeEngagement, computeRetention } from "@/lib/engagement";
 
 export default function ResultsPage() {
   return (
@@ -184,6 +185,12 @@ function ResultsContent() {
   }
 
   const { summary } = results;
+  const retention = computeRetention(results.segments);
+  const engagement = computeEngagement({
+    peak: summary.peak_score,
+    hook: summary.hook_score,
+    retention,
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -207,13 +214,13 @@ function ResultsContent() {
         {/* Summary Metric Cards Stack */}
         <div className="col-span-4 flex flex-col gap-4">
           <MetricCard
-            label="Overall Score"
-            value={Math.round(summary.overall * 100)}
+            label="Engagement Score"
+            value={Math.round(engagement * 100)}
             icon="analytics"
             colorClass="text-on-surface"
             className="glass-surface glow-primary-lg"
             animate
-            numericValue={Math.round(summary.overall * 100)}
+            numericValue={Math.round(engagement * 100)}
           />
           <div className="grid grid-cols-2 gap-4">
             <MetricCard
@@ -226,11 +233,11 @@ function ResultsContent() {
             />
             <MetricCard
               label="Retention"
-              value={`${Math.round(summary.retention_score * 100)}%`}
+              value={`${Math.round(retention * 100)}%`}
               colorClass="text-tertiary-fixed-dim"
               className="p-5 glass-surface"
               animate
-              numericValue={Math.round(summary.retention_score * 100)}
+              numericValue={Math.round(retention * 100)}
               suffix="%"
             />
           </div>

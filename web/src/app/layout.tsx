@@ -21,6 +21,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "BrainRank",
   description: "Neural A/B testing for content creators",
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export default function RootLayout({
