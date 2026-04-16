@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]: BRAIN|RANK
+    - main [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - heading "Set up your profile" [level=1] [ref=e9]
+          - paragraph [ref=e10]: Claim your username to get your public profile.
+        - generic [ref=e11]:
+          - button "? photo_camera" [ref=e12]:
+            - generic [ref=e13]: "?"
+            - generic [ref=e15]: photo_camera
+          - paragraph [ref=e16]: Optional
+        - generic [ref=e17]:
+          - generic [ref=e18]: Username *
+          - generic [ref=e19]:
+            - generic [ref=e20]: "@"
+            - textbox "yourname" [ref=e21]
+        - generic [ref=e22]:
+          - text: Bio
+          - textbox "Tell us about yourself..." [ref=e23]
+          - paragraph [ref=e24]: 0/160
+        - button "Ready" [disabled] [ref=e25]
+  - button "Open Next.js Dev Tools" [ref=e31] [cursor=pointer]:
+    - img [ref=e32]
+  - alert [ref=e35]

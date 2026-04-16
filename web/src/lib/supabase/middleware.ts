@@ -46,21 +46,39 @@ export async function updateSession(request: NextRequest) {
   const isLandingPage = pathname === '/'
   const isPublicProfile = pathname.startsWith('/u/')
   const isPublicAnalysis = pathname.startsWith('/analysis/')
-  const isAuthCallback = pathname.startsWith('/auth/callback')
+  const isAuthCallback = pathname.startsWith('/auth/callback') || pathname.startsWith('/auth/confirm')
   const isWebhook = pathname.startsWith('/api/runpod/webhook')
+  const isOnboarding = pathname === '/onboarding'
+  const isApiRoute = pathname.startsWith('/api/')
 
   // AUTH-04: Unauthenticated users on protected routes -> redirect to /login
-  if (!user && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis && !isAuthCallback && !isWebhook) {
+  if (!user && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis && !isAuthCallback && !isWebhook && !isOnboarding) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)
   }
 
-  // Authenticated users on auth pages -> redirect to /dashboard
+  // Authenticated users on auth pages (login/signup) -> redirect to /dashboard
   if (user && isPublicRoute) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/dashboard'
     return NextResponse.redirect(dashboardUrl)
+  }
+
+  // Authenticated users without username -> redirect to /onboarding
+  if (user && !isOnboarding && !isApiRoute && !isAuthCallback && !isWebhook && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis) {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    // Only redirect if we successfully queried and the user has no username
+    if (!profileError && !profile?.username) {
+      const onboardingUrl = request.nextUrl.clone()
+      onboardingUrl.pathname = '/onboarding'
+      return NextResponse.redirect(onboardingUrl)
+    }
   }
 
   return supabaseResponse

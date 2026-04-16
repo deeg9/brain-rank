@@ -116,25 +116,6 @@ export default async function DashboardPage() {
         </Link>
       </section>
 
-      {/* Username Banner */}
-      {!profile?.username && (
-        <div className="p-4 rounded-xl glass-surface border border-black/5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-headline font-bold text-on-surface">
-              Claim your username
-            </p>
-            <p className="text-xs text-on-surface-variant">
-              Set a unique username to unlock your public profile.
-            </p>
-          </div>
-          <Link href="/settings">
-            <Button variant="primary" size="sm">
-              Set Username
-            </Button>
-          </Link>
-        </div>
-      )}
-
       {/* Quick Stats Row */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatTile
@@ -184,85 +165,33 @@ export default async function DashboardPage() {
         </section>
       ) : (
         /* Empty State */
-        <>
-          <section>
-            <div className="bg-surface-container p-16 rounded-3xl text-center relative overflow-hidden">
-              {/* Background decor */}
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl" />
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-24 h-24 bg-surface-container-highest rounded-2xl flex items-center justify-center mb-8 shadow-2xl">
-                  <span
-                    className="material-symbols-outlined text-5xl text-on-surface-variant"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    psychology
-                  </span>
-                </div>
-                <h2 className="font-headline text-4xl font-bold text-on-surface mb-4">
-                  No analyses yet
-                </h2>
-                <p className="text-on-surface-variant max-w-lg mx-auto text-lg leading-relaxed mb-10">
-                  Your neural engine is idling. Upload your first video to begin
-                  the synaptic optimization process and uncover high-retention
-                  edit points.
-                </p>
-                <Link href="/upload">
-                  <button className="neural-gradient px-10 py-4 rounded-xl font-bold text-lg text-on-surface shadow-[0_0_20px_rgba(186,158,255,0.3)] hover:scale-105 active:scale-95 transition-all">
-                    Upload Your First Video
-                  </button>
-                </Link>
+        <section>
+          <div className="bg-white p-16 rounded-3xl text-center relative overflow-hidden">
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center mb-8 text-on-surface-variant">
+                <span
+                  className="material-symbols-outlined text-2xl"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  psychology
+                </span>
               </div>
+              <h2 className="font-headline text-4xl font-bold text-on-surface mb-4">
+                No analyses yet
+              </h2>
+              <p className="text-on-surface-variant max-w-lg mx-auto text-lg leading-relaxed mb-10">
+                Your neural engine is idling. Upload your first video to begin
+                the synaptic optimization process and uncover high-retention
+                edit points.
+              </p>
+              <Link href="/upload">
+                <button className="px-10 py-4 rounded-xl font-bold text-lg text-white bg-black hover:bg-gray-800 hover:scale-105 active:scale-95 transition-all">
+                  Upload Your First Video
+                </button>
+              </Link>
             </div>
-          </section>
-
-          {/* How it works */}
-          <section>
-            <h3 className="font-headline text-xl font-semibold text-on-surface mb-8 tracking-tight">
-              How it works
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
-                  <span className="material-symbols-outlined">upload_file</span>
-                </div>
-                <h4 className="font-headline text-lg font-bold mb-3">
-                  1. Upload Media
-                </h4>
-                <p className="text-on-surface-variant text-sm leading-relaxed">
-                  Drop your raw footage or final cut. Our engine supports all
-                  major vertical and horizontal formats.
-                </p>
-              </div>
-              <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
-                  <span className="material-symbols-outlined">analytics</span>
-                </div>
-                <h4 className="font-headline text-lg font-bold mb-3">
-                  2. Neural Mapping
-                </h4>
-                <p className="text-on-surface-variant text-sm leading-relaxed">
-                  AI maps viewer attention across every frame, identifying
-                  emotional peaks and drop-off risks.
-                </p>
-              </div>
-              <div className="bg-surface-container-low p-8 rounded-2xl group hover:bg-surface-container-high transition-colors">
-                <div className="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center mb-6 text-on-surface-variant group-hover:bg-on-surface/10 transition-all">
-                  <span className="material-symbols-outlined">
-                    auto_fix_high
-                  </span>
-                </div>
-                <h4 className="font-headline text-lg font-bold mb-3">
-                  3. Generate Insights
-                </h4>
-                <p className="text-on-surface-variant text-sm leading-relaxed">
-                  Get an interactive heat-map and AI-suggested cuts designed to
-                  maximize engagement and retention.
-                </p>
-              </div>
-            </div>
-          </section>
-        </>
+          </div>
+        </section>
       )}
     </div>
     </PageTransition>
