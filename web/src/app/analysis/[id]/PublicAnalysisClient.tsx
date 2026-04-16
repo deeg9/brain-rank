@@ -128,8 +128,8 @@ export function PublicAnalysisClient({
 
   return (
     <div className="space-y-6 [&_.glass-surface]:bg-white [&_.glass-surface]:backdrop-filter-none [&_.glass-surface]:outline-gray-200 [&_.bg-surface-container]:bg-white">
-      {/* Video Player + Brain Viewer — side by side */}
-      <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
+      {/* Video Player + Brain Viewer — side by side on desktop, stacked on mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
         <VideoPlayer
           src={videoUrl}
           videoRef={videoRef}

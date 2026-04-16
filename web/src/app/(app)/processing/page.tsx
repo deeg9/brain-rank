@@ -247,8 +247,8 @@ function ProcessingContent() {
     <div className="w-full max-w-4xl mx-auto pt-6 space-y-8">
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-3">
-          <h1 className="text-4xl font-headline font-bold text-on-surface">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <h1 className="text-3xl md:text-4xl font-headline font-bold text-on-surface">
             Analyzing your video...
           </h1>
           <StatusBadge status="processing" label="In Progress" />
@@ -259,7 +259,7 @@ function ProcessingContent() {
       </div>
 
       {/* Processing Panel */}
-      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-8 space-y-8 relative overflow-visible glow-primary">
+      <div className="bg-surface-bright/60 backdrop-blur-[20px] rounded-xl p-5 md:p-8 space-y-6 md:space-y-8 relative overflow-visible glow-primary">
         {/* File info */}
         <div className="flex items-center gap-3 relative z-10">
           <div className="p-2 bg-gray-100 rounded-lg">
@@ -287,7 +287,7 @@ function ProcessingContent() {
         </div>
 
         {/* Stage Stepper */}
-        <div className="flex items-start justify-center pt-4 border-t border-outline-variant/10">
+        <div className="flex items-start justify-start md:justify-center pt-4 border-t border-outline-variant/10 overflow-x-auto">
           {STAGES.map((stage, i) => (
             <StageItem
               key={stage.key}

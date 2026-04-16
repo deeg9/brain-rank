@@ -308,7 +308,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-0 md:p-4"
         >
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
@@ -319,7 +319,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ type: "spring", duration: 0.3 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+            className="relative bg-white rounded-none md:rounded-2xl shadow-2xl w-full h-full md:h-auto md:max-w-6xl md:max-h-[90vh] overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between z-10">
@@ -335,7 +335,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
             {/* Scrollable content */}
             <div className="overflow-y-auto flex-1 [&_.glass-surface]:bg-white [&_.glass-surface]:backdrop-blur-none" style={{ scrollbarColor: '#d1d5db transparent', scrollbarWidth: 'thin' }}>
               {loading ? (
-                <div className="p-8 space-y-4">
+                <div className="p-5 md:p-8 space-y-4">
                   <Skeleton variant="card" className="h-48" />
                   <Skeleton variant="card" className="h-32" />
                 </div>
@@ -352,7 +352,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                   )}
 
                   {/* Side-by-side: video + brain maps */}
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
                       <p className="text-xs uppercase tracking-widest text-gray-500 font-bold text-center mb-1">Analysis A</p>
                       <p className="text-gray-900 font-bold truncate text-center mb-2">{titleFor(jobA)}</p>
@@ -446,7 +446,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                   {/* Neural Activation Timeline */}
                   {segmentsA.length > 0 && (
                     <div>
-                      <div className="grid grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
                           <NeuralTimeline
                             segments={segmentsA}
@@ -471,7 +471,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
 
                   {/* Insights Summary — per-analysis, stacked layout */}
                   {segmentsA.length > 0 && segmentsB.length > 0 && (
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                       <InsightsSummaryCard
                         summary={{
                           hook_score: summaryA.hook_score ?? 0,

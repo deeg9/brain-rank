@@ -86,11 +86,11 @@ function ResultsContent() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-8">
             <Skeleton variant="card" className="aspect-video" />
           </div>
-          <div className="col-span-4 flex flex-col gap-4">
+          <div className="md:col-span-4 flex flex-col gap-4">
             <Skeleton variant="card" />
             <div className="grid grid-cols-2 gap-4">
               <Skeleton variant="card" className="h-28" />
@@ -195,9 +195,9 @@ function ResultsContent() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Row 1: Player + Metrics */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Video Player Placeholder */}
-        <div className="col-span-8 bg-surface-container-lowest rounded-xl aspect-video flex items-center justify-center relative overflow-hidden">
+        <div className="md:col-span-8 bg-surface-container-lowest rounded-xl aspect-video flex items-center justify-center relative overflow-hidden">
           <button className="z-10 w-20 h-20 bg-surface-bright/80 backdrop-blur-md rounded-full flex items-center justify-center text-primary hover:scale-110 transition-transform">
             <span
               className="material-symbols-outlined text-4xl"
@@ -212,7 +212,7 @@ function ResultsContent() {
         </div>
 
         {/* Summary Metric Cards Stack */}
-        <div className="col-span-4 flex flex-col gap-4">
+        <div className="md:col-span-4 flex flex-col gap-4">
           <MetricCard
             label="Engagement Score"
             value={Math.round(engagement * 100)}

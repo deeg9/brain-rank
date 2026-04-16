@@ -189,7 +189,7 @@ export default function UploadPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <h2 className="text-4xl font-headline font-bold tracking-tight text-on-surface">
+        <h2 className="text-3xl md:text-4xl font-headline font-bold tracking-tight text-on-surface">
           Upload Media
         </h2>
         <p className="text-on-surface-variant font-body">
@@ -266,7 +266,7 @@ export default function UploadPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         >
-          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+          <GlassPanel className="px-6 py-5 md:px-8 md:py-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-4 md:gap-10 shadow-2xl border border-outline-variant/10 w-full max-w-xl md:max-w-none md:w-auto">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
                 <span className="material-symbols-outlined">token</span>
@@ -280,7 +280,7 @@ export default function UploadPage() {
                 </p>
               </div>
             </div>
-            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -291,7 +291,7 @@ export default function UploadPage() {
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>
-            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
             <Button
               variant="primary"
               size="lg"
@@ -345,7 +345,7 @@ export default function UploadPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
         >
-          <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+          <GlassPanel className="px-6 py-5 md:px-8 md:py-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-4 md:gap-10 shadow-2xl border border-outline-variant/10 w-full max-w-xl md:max-w-none md:w-auto">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
                 <span className="material-symbols-outlined">token</span>
@@ -359,7 +359,7 @@ export default function UploadPage() {
                 </p>
               </div>
             </div>
-            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -370,7 +370,7 @@ export default function UploadPage() {
                 <option key={c.value} value={c.value}>{c.label}</option>
               ))}
             </select>
-            <div className="h-10 w-[1px] bg-outline-variant/20" />
+            <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
             <Button
               variant="primary"
               size="lg"
@@ -404,7 +404,7 @@ export default function UploadPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
       >
-        <GlassPanel className="px-8 py-6 rounded-2xl flex items-center gap-10 shadow-2xl border border-outline-variant/10">
+        <GlassPanel className="px-6 py-5 md:px-8 md:py-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-4 md:gap-10 shadow-2xl border border-outline-variant/10 w-full max-w-xl md:max-w-none md:w-auto">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
               <span className="material-symbols-outlined">token</span>
@@ -420,7 +420,7 @@ export default function UploadPage() {
               </p>
             </div>
           </div>
-          <div className="h-10 w-[1px] bg-outline-variant/20" />
+          <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -431,7 +431,7 @@ export default function UploadPage() {
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
-          <div className="h-10 w-[1px] bg-outline-variant/20" />
+          <div className="hidden md:block h-10 w-[1px] bg-outline-variant/20" />
           <Button
             variant="primary"
             size="lg"

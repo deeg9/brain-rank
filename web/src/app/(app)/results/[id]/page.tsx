@@ -231,11 +231,11 @@ export default function ResultsDetailPage({ params }: Props) {
         <Skeleton variant="card" className="h-64" />
         <Skeleton variant="card" className="h-96" />
         <Skeleton variant="card" />
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-5">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div className="md:col-span-5">
             <Skeleton variant="card" className="h-72" />
           </div>
-          <div className="col-span-7">
+          <div className="md:col-span-7">
             <Skeleton variant="card" className="h-72" />
           </div>
         </div>

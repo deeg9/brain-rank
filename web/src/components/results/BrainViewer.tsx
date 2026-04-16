@@ -257,7 +257,7 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
       </div>
       <div
         ref={canvasContainerRef}
-        className="flex-1 min-h-[300px] rounded-lg overflow-hidden relative"
+        className="flex-1 min-h-[300px] rounded-lg overflow-hidden relative touch-none"
         onPointerLeave={handlePointerLeave}
       >
         <Canvas
