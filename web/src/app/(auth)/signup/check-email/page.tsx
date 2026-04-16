@@ -34,60 +34,44 @@ function CheckEmailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-6 relative">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
-        <img
-          src="/illustrations/logo-icon.png"
-          alt=""
-          className="w-[80vmin] h-[80vmin] object-contain opacity-[0.04]"
-        />
+    <div className="w-full max-w-md mx-auto bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
+      <div className="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mx-auto">
+        <span className="material-symbols-outlined text-3xl text-on-surface-variant">
+          mail
+        </span>
       </div>
-      <main className="relative z-10 w-full max-w-md flex flex-col items-center">
-        <div className="flex flex-col items-center mb-6">
-          <span className="font-headline font-black text-2xl tracking-widest uppercase text-on-surface">
-            BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK
-          </span>
-        </div>
-        <div className="w-full bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mx-auto">
-          <span className="material-symbols-outlined text-3xl text-on-surface-variant">
-            mail
-          </span>
-        </div>
 
-        <div className="space-y-2">
-          <h1 className="font-headline text-2xl font-bold text-on-surface">
-            Check your email
-          </h1>
-          <p className="text-sm text-on-surface-variant leading-relaxed">
-            We sent a confirmation link to{' '}
-            <strong className="text-on-surface">{email}</strong>.
-            Click the link to verify your account and get started.
-          </p>
-        </div>
+      <div className="space-y-2">
+        <h1 className="font-headline text-2xl font-bold text-on-surface">
+          Check your email
+        </h1>
+        <p className="text-sm text-on-surface-variant leading-relaxed">
+          We sent a confirmation link to{' '}
+          <strong className="text-on-surface">{email}</strong>.
+          Click the link to verify your account and get started.
+        </p>
+      </div>
 
-        <div className="pt-2 space-y-3">
-          <button
-            onClick={handleResend}
-            disabled={resending || resent}
-            className="w-full py-3 rounded-xl font-semibold text-sm border border-outline-variant/30 text-on-surface hover:bg-surface-container-lowest disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            {resending ? 'Sending...' : resent ? 'Email resent' : 'Resend confirmation email'}
-          </button>
+      <div className="pt-2 space-y-3">
+        <button
+          onClick={handleResend}
+          disabled={resending || resent}
+          className="w-full py-3 rounded-xl font-semibold text-sm border border-outline-variant/30 text-on-surface hover:bg-surface-container-lowest disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {resending ? 'Sending...' : resent ? 'Email resent' : 'Resend confirmation email'}
+        </button>
 
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
+        {error && (
+          <p className="text-xs text-red-500">{error}</p>
+        )}
 
-          <Link
-            href="/signup"
-            className="block text-sm text-on-surface-variant hover:text-on-surface transition-colors"
-          >
-            Use a different email
-          </Link>
-        </div>
-        </div>
-      </main>
+        <Link
+          href="/signup"
+          className="block text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+        >
+          Use a different email
+        </Link>
+      </div>
     </div>
   )
 }
