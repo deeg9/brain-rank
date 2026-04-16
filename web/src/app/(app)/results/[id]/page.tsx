@@ -457,7 +457,12 @@ export default function ResultsDetailPage({ params }: Props) {
 
       {/* Neural activation — bar chart for short videos, timeline for longer ones */}
       {results.duration_seconds < 10 ? (
-        <RegionBarChart segments={segments} currentTime={currentTime} />
+        <>
+          <p className="text-xs text-on-surface-variant mb-2">
+            Videos under 10 seconds don&apos;t generate enough data points for a full timeline. Region scores are shown as a snapshot instead.
+          </p>
+          <RegionBarChart segments={segments} currentTime={currentTime} />
+        </>
       ) : (
         <NeuralTimeline
           segments={segments}

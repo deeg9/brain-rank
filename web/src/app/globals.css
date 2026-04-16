@@ -147,6 +147,25 @@
   --glass-border: rgba(0, 0, 0, 0.06);
   --glow-color: rgba(108, 77, 196, 0.15);
   --glow-color-lg: rgba(108, 77, 196, 0.1);
+
+  /* Chart theming (visx AreaChart) */
+  --chart-background: #ffffff;
+  --chart-foreground: #1c1b1e;
+  --chart-foreground-muted: #605d62;
+  --chart-label: #7a767d;
+  --chart-line-primary: #6c4dc4;
+  --chart-line-secondary: #00888a;
+  --chart-crosshair: rgba(0, 0, 0, 0.2);
+  --chart-grid: rgba(0, 0, 0, 0.06);
+  --chart-indicator-color: rgba(108, 77, 196, 0.3);
+  --chart-indicator-secondary-color: rgba(0, 136, 138, 0.3);
+  --chart-marker-background: #ffffff;
+  --chart-marker-border: #e3e1e6;
+  --chart-marker-foreground: #1c1b1e;
+  --chart-marker-badge-background: #f5f5f8;
+  --chart-marker-badge-foreground: #605d62;
+  --chart-segment-background: rgba(108, 77, 196, 0.08);
+  --chart-segment-line: rgba(108, 77, 196, 0.4);
   --dot-color: #cac5cd;
   --scrollbar-track: #f5f5f8;
   --scrollbar-thumb: #cac5cd;

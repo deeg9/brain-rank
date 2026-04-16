@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Button, StatusBadge, Skeleton, WaveLoader } from "@/components/ui";
+import { ShiningText } from "@/components/ui/ShiningText";
 import { cn } from "@/lib/utils";
 
 const ProcessingBrain = dynamic(
@@ -277,7 +278,12 @@ function ProcessingContent() {
         {/* 3D Brain Animation */}
         <div className="py-2">
           <ProcessingBrain />
-          <p className="text-center text-xs text-on-surface-variant mt-2">{stageMessage}</p>
+          <div className="flex justify-center mt-2">
+            <ShiningText text={stageMessage} className="text-xs font-medium" />
+          </div>
+          <p className="text-center text-[11px] text-on-surface-variant/60 mt-3 max-w-sm mx-auto leading-relaxed">
+            Analysis can take several minutes depending on video length. Feel free to close this page — we&apos;ll email you a link to your results when they&apos;re ready.
+          </p>
         </div>
 
         {/* Stage Stepper */}
