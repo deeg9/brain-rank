@@ -153,7 +153,7 @@ function SingleTrack({ data, config, duration, showTooltip, lookup, currentTime,
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-24 shrink-0 text-right flex items-center justify-end gap-1">
+      <div className="w-16 md:w-24 shrink-0 text-right flex items-center justify-end gap-1">
         <span className="font-headline text-[9px] uppercase tracking-widest text-on-surface font-bold">
           {config.label}
         </span>
@@ -227,16 +227,21 @@ function TimeAxis({ segments }: { segments: SegmentData[] }) {
     ticks.push((i / tickCount) * maxTime);
   }
 
+  // On mobile, show fewer ticks to avoid overlap — keep first, last, and every other
+  const mobileTickStride = tickCount >= 6 ? 2 : 1;
+
   return (
     <div className="flex items-center gap-2">
-      <div className="w-24 shrink-0" />
+      <div className="w-16 md:w-24 shrink-0" />
       <div className="flex-1 relative h-5">
-        {ticks.map((t) => {
+        {ticks.map((t, idx) => {
           const pct = (t / maxTime) * 100;
+          const hideOnMobile =
+            idx !== 0 && idx !== ticks.length - 1 && idx % mobileTickStride !== 0;
           return (
             <span
               key={t}
-              className="absolute font-mono text-[10px] text-on-surface-variant/60"
+              className={`absolute font-mono text-[10px] text-on-surface-variant/60 ${hideOnMobile ? "hidden md:inline" : ""}`}
               style={{ left: `${pct}%`, transform: 'translateX(-50%)' }}
             >
               {formatTimestamp(t)}

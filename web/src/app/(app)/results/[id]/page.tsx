@@ -322,8 +322,8 @@ export default function ResultsDetailPage({ params }: Props) {
   return (
     <div className="space-y-6 pt-6">
       {/* Top Bar */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-2">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="space-y-2 min-w-0 flex-1">
           {/* Back */}
           <Link
             href="/dashboard"
@@ -377,18 +377,18 @@ export default function ResultsDetailPage({ params }: Props) {
           </div>
 
           {/* Meta row */}
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-xs font-bold text-black">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="flex items-center gap-1 text-xs font-bold text-black whitespace-nowrap">
               <span className="material-symbols-outlined text-sm">calendar_today</span>
               {new Date(job.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
             </span>
             {(job as any).view_count > 0 && (
-              <span className="flex items-center gap-1 text-xs font-bold text-black">
+              <span className="flex items-center gap-1 text-xs font-bold text-black whitespace-nowrap">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
                 {(job as any).view_count} views
               </span>
             )}
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
               <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
               <ScoreBadge value={summary.overall} size="sm" />
             </span>
@@ -396,7 +396,7 @@ export default function ResultsDetailPage({ params }: Props) {
         </div>
 
         {/* Export button */}
-        <div className="flex-shrink-0 pt-8 flex items-center gap-2">
+        <div className="flex-shrink-0 md:pt-8 flex items-center gap-2">
           <ExportButton
             data={job.results as Record<string, unknown>}
             filename={`neurocut-${id}.json`}
@@ -410,8 +410,8 @@ export default function ResultsDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Media Preview + Brain Viewer — side by side */}
-      <div className="grid grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
+      {/* Media Preview + Brain Viewer — side by side on desktop, stacked on mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
         {(!job?.input_type || job.input_type === 'video') ? (
           <VideoPlayer
             src={results.video_url}

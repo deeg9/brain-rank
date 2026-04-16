@@ -43,8 +43,8 @@ export function InsightsSummaryCard({
   const metricsBlock = (
     <div className="flex-1 flex flex-col justify-center gap-4">
       {/* Row 1: Hook, Retention, Peak */}
-      <div className="grid grid-cols-6 gap-x-1">
-        <div className="col-span-2">
+      <div className="grid grid-cols-3 gap-3 md:gap-x-1 md:grid-cols-6">
+        <div className="md:col-span-2 min-w-0">
           <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
             Hook Strength
             <MetricInfo
@@ -54,12 +54,12 @@ export function InsightsSummaryCard({
               interpretation="Higher = stronger opening. Above 50% means your intro triggers both focus and reward circuits. Below 30% suggests a weak hook that may lose viewers."
             />
           </div>
-          <p className="font-headline text-3xl font-bold text-on-surface">
+          <p className="font-headline text-2xl md:text-3xl font-bold text-on-surface">
             <SlidingNumber value={Math.round(summary.hook_score * 100)} suffix="%" />
           </p>
           <p className="text-on-surface-variant text-[10px] mt-0.5">First 10s</p>
         </div>
-        <div className="col-span-2">
+        <div className="md:col-span-2 min-w-0">
           <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
             Retention
             <MetricInfo
@@ -69,12 +69,12 @@ export function InsightsSummaryCard({
               interpretation="A strong opening or ending can't mask a boring middle. Low scores mean there's a stretch where viewers are likely to scroll away — find it on the timeline and tighten the pacing there."
             />
           </div>
-          <p className="font-headline text-3xl font-bold text-on-surface">
+          <p className="font-headline text-2xl md:text-3xl font-bold text-on-surface">
             <SlidingNumber value={Math.round(retention * 100)} suffix="%" />
           </p>
-          <p className="text-on-surface-variant text-[10px] mt-0.5">Sustained engagement</p>
+          <p className="text-on-surface-variant text-[10px] mt-0.5">Sustained</p>
         </div>
-        <div className="col-span-2">
+        <div className="md:col-span-2 min-w-0">
           <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
             Peak Moment
             <MetricInfo
@@ -84,7 +84,7 @@ export function InsightsSummaryCard({
               interpretation="This is your video's most neurally engaging moment. Use it as a thumbnail frame, clip highlight, or to understand what content type drives the strongest brain response."
             />
           </div>
-          <p className="font-headline text-3xl font-bold text-on-surface">
+          <p className="font-headline text-2xl md:text-3xl font-bold text-on-surface">
             <SlidingNumber value={summary.peak_second} suffix="s" />
           </p>
           <p className="text-on-surface-variant text-[10px] mt-0.5">
@@ -92,9 +92,9 @@ export function InsightsSummaryCard({
           </p>
         </div>
       </div>
-      {/* Row 2: Arousal, Valence - staggered between top row */}
-      <div className="grid grid-cols-6 gap-x-1">
-        <div className="col-span-2 col-start-2">
+      {/* Row 2: Arousal, Valence */}
+      <div className="grid grid-cols-2 gap-3 md:gap-x-1 md:grid-cols-6">
+        <div className="md:col-span-2 md:col-start-2 min-w-0">
           <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
             Arousal
             <MetricInfo
@@ -104,12 +104,12 @@ export function InsightsSummaryCard({
               interpretation="High arousal (>60%) = exciting, intense, or surprising content. Low arousal (<30%) = calming or boring. Best content often oscillates between high and moderate arousal."
             />
           </div>
-          <p className="font-headline text-3xl font-bold text-on-surface">
+          <p className="font-headline text-2xl md:text-3xl font-bold text-on-surface">
             <SlidingNumber value={Math.round(arousal * 100)} suffix="%" />
           </p>
-          <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological activation</p>
+          <p className="text-on-surface-variant text-[10px] mt-0.5">Physiological</p>
         </div>
-        <div className="col-span-2 col-start-4">
+        <div className="md:col-span-2 md:col-start-4 min-w-0">
           <div className="font-headline text-[10px] uppercase tracking-widest text-on-surface font-bold mb-1">
             Valence
             <MetricInfo
@@ -119,10 +119,10 @@ export function InsightsSummaryCard({
               interpretation="High valence (>60%) = positive emotions (joy, excitement, satisfaction). Low valence (<30%) = negative emotions (fear, sadness, disgust). Combined with arousal, it places the emotional state on the circumplex chart."
             />
           </div>
-          <p className="font-headline text-3xl font-bold text-on-surface">
+          <p className="font-headline text-2xl md:text-3xl font-bold text-on-surface">
             <SlidingNumber value={Math.round(valence * 100)} suffix="%" />
           </p>
-          <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional positivity</p>
+          <p className="text-on-surface-variant text-[10px] mt-0.5">Emotional</p>
         </div>
       </div>
     </div>
@@ -171,9 +171,10 @@ export function InsightsSummaryCard({
           {circumplexBlock}
         </div>
       ) : (
-        <div className="flex items-stretch gap-4">
+        <div className="flex flex-col md:flex-row md:items-stretch gap-4">
           {metricsBlock}
-          <div className="w-px self-stretch bg-outline-variant/20" />
+          <div className="hidden md:block w-px self-stretch bg-outline-variant/20" />
+          <div className="md:hidden h-px w-full bg-outline-variant/20" />
           {circumplexBlock}
         </div>
       )}
