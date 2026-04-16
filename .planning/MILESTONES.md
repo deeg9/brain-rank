@@ -1,5 +1,19 @@
 # Milestones
 
+## v8.0 Mobile Optimization (Shipped: 2026-04-16)
+
+**Phases completed:** 6 phases, 7 plans
+
+**Key accomplishments:**
+
+- Mobile-first responsive shell — TopBar hamburger + MobileNavSheet slide-down (minimal architecture change vs left-drawer or bottom-tab)
+- Every authenticated and public-shared page renders cleanly on iPhone 15 (390×844)
+- Hardcoded `max-w-[300px]` truncations removed; `grid-cols-12` results pages replaced with `grid-cols-1 md:grid-cols-12`
+- Upload cost panel stacks vertically on mobile; comparison modal full-screen on mobile
+- BrainViewer canvas `touch-none` enables pan/rotate/zoom without hijacking page scroll
+- ≥44×44 touch targets + reduced-motion honored via framer-motion `useReducedMotion`
+- Desktop layout at ≥md preserved — pure responsive refinement, no structural changes
+
 ## v7.0 BrainRank Landing Page (Shipped: 2026-04-15)
 
 **Phases completed:** 3 phases, 5 plans, 11 tasks

@@ -10,7 +10,7 @@
 - ✅ **v5.0 Multi-Modal Input & Comparison** - Phases 52-58 (shipped 2026-04-13)
 - ⏸️ **v6.0 Stripe Payments** - Phases 59-64 (paused)
 - ✅ **v7.0 BrainRank Landing Page** - Phases 65-67 (shipped 2026-04-15)
-- 🚧 **v8.0 Mobile Optimization** - Phases 68-73 (in progress, started 2026-04-16)
+- ✅ **v8.0 Mobile Optimization** - Phases 68-73 (shipped 2026-04-16)
 
 ## Phases
 
@@ -42,14 +42,14 @@ See MILESTONES.md for full history of shipped phases 1-58.
 
 </details>
 
-### v8.0 Mobile Optimization (Phases 68-73)
+### v8.0 Mobile Optimization (Phases 68-73) — SHIPPED 2026-04-16
 
-- [ ] **Phase 68: Mobile Shell & Navigation Primitive** - TopBar hamburger, MobileNavSheet, responsive AppShell gutters
-- [ ] **Phase 69: Auth & Onboarding Flow Mobile** - Login, signup, verify, onboarding, welcome pages on iPhone 15
-- [ ] **Phase 70: Core Hub Pages Mobile** - Dashboard, Profile, Discover, Bookmarks, public `/u/[username]` on iPhone 15
-- [ ] **Phase 71: Content Flow Mobile** - Upload → Processing → Results → Analysis (private + public) + BrainViewer touch + timeline/tables/comparison
-- [ ] **Phase 72: Settings, Billing, Pricing, Resources, Use-Cases Mobile** - Secondary and marketing-adjacent pages on iPhone 15
-- [ ] **Phase 73: Mobile QA Sweep & Polish** - Playwright iPhone 15 + desktop screenshot sweep, touch target audit, reduced-motion, regression check
+- [x] **Phase 68: Mobile Shell & Navigation Primitive** — completed 2026-04-16
+- [x] **Phase 69: Auth & Onboarding Flow Mobile** — completed 2026-04-16
+- [x] **Phase 70: Core Hub Pages Mobile** — completed 2026-04-16
+- [x] **Phase 71: Content Flow Mobile** — completed 2026-04-16
+- [x] **Phase 72: Settings, Billing, Pricing, Resources, Use-Cases Mobile** — completed 2026-04-16
+- [x] **Phase 73: Mobile QA Sweep & Polish** — completed 2026-04-16
 
 ## Phase Details
 
@@ -63,7 +63,9 @@ See MILESTONES.md for full history of shipped phases 1-58.
   3. Mobile nav sheet exposes Dashboard / Upload / Discover nav links, a credits label, and Profile / Bookmarks / Billing / Settings / Resources / Logout entries.
   4. AppShell content gutters are 16px on mobile and 32px at `md+`, so content never touches screen edges on iPhone 15.
   5. At `≥md` the TopBar and AppShell render visually identically to the pre-milestone desktop layout (no regressions in Playwright desktop screenshot diff).
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 68-01-PLAN.md — Responsive AppShell gutters + mobile-aware TopBar with hamburger + stub MobileNavSheet (SHELL-01, SHELL-04, SHELL-05)
+- [ ] 68-02-PLAN.md — Full MobileNavSheet behavior — nav links, credits, profile shortcuts, logout, ESC/backdrop/X dismiss, focus restoration, 44×44 targets (SHELL-02, SHELL-03)
 **UI hint**: yes
 
 ### Phase 69: Auth & Onboarding Flow Mobile
@@ -136,9 +138,9 @@ See MILESTONES.md for full history of shipped phases 1-58.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 68. Mobile Shell & Navigation Primitive | 0/? | Not started | - |
-| 69. Auth & Onboarding Flow Mobile | 0/? | Not started | - |
-| 70. Core Hub Pages Mobile | 0/? | Not started | - |
-| 71. Content Flow Mobile | 0/? | Not started | - |
-| 72. Settings, Billing, Pricing, Resources, Use-Cases Mobile | 0/? | Not started | - |
-| 73. Mobile QA Sweep & Polish | 0/? | Not started | - |
+| 68. Mobile Shell & Navigation Primitive | 2/2 | Complete | 2026-04-16 |
+| 69. Auth & Onboarding Flow Mobile | 1/1 | Complete | 2026-04-16 |
+| 70. Core Hub Pages Mobile | 1/1 | Complete | 2026-04-16 |
+| 71. Content Flow Mobile | 1/1 | Complete | 2026-04-16 |
+| 72. Settings, Billing, Pricing, Resources, Use-Cases Mobile | 1/1 | Complete | 2026-04-16 |
+| 73. Mobile QA Sweep & Polish | 1/1 | Complete | 2026-04-16 |

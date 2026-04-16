@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Mobile Optimization
-status: ready-to-plan
-stopped_at: Roadmap created — Phase 68 next up
-last_updated: "2026-04-16T00:00:00.000Z"
+status: shipped
+stopped_at: v8.0 complete — all 6 phases shipped
+last_updated: "2026-04-16T21:45:00.000Z"
 last_activity: 2026-04-16
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 6
+  total_plans: 7
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State

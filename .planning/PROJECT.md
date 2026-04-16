@@ -37,23 +37,18 @@ All 3 phases complete. BrainRank now has a public landing page:
 - Scroll-triggered fade-in animations, fully responsive (desktop/tablet/mobile)
 - Brutalist minimalist aesthetic: pure black/white/gray, Space Grotesk + Inter
 
-## Current Milestone: v8.0 Mobile Optimization
+## Shipped: v8.0 Mobile Optimization (2026-04-16)
 
-**Goal:** Make every authenticated and public-shared page render cleanly on iPhone 15 (390×844) while preserving the existing desktop architecture.
-
-**Target features:**
-- Mobile-first responsive shell (TopBar hamburger → bottom sheet, AppShell gutters)
-- Core hub pages mobile-ready: Dashboard, Profile, Discover, Bookmarks
-- Content flow mobile-ready: Upload → Processing → Results → Analysis (incl. public `/analysis/[id]`)
-- BrainViewer touch controls (pan/rotate/zoom) working on mobile
-- Settings, Billing, Pricing, Resources, Use-Cases, Auth/Onboarding flow mobile-ready
-- Playwright MCP iPhone 15 screenshots captured per phase as verification artifacts
-
-**Key context:**
-- Mobile users expected to be the majority (content creators targeting short-form mobile content)
-- Constraint: no big architecture changes to desktop experience
-- Mobile nav pattern decided: hamburger → slide-down sheet (smallest architecture change)
-- Landing page (v7.0) excluded — already responsive
+All 6 phases complete. Every authenticated and public-shared page is now mobile-responsive on iPhone 15 (390×844) while preserving desktop:
+- Mobile shell: TopBar hamburger → slide-down MobileNavSheet with nav + credits + profile entries
+- AppShell responsive gutters (`p-4 md:p-8`)
+- Core hubs (Dashboard, Profile, Discover, Bookmarks, public `/u/[username]`) fit iPhone 15 — hardcoded `max-w-[300px]` truncations removed
+- Content flow (Upload, Processing, Results, Analysis, public `/analysis/[id]`) reflows on mobile — `grid-cols-12` replaced with `grid-cols-1 md:grid-cols-12`
+- BrainViewer canvas wrapper `touch-none` so gestures don't hijack page scroll
+- Comparison modal full-screen on mobile
+- Settings, Billing, Pricing, Resources, Use-Cases mobile-ready
+- Auth/Onboarding flow mobile-ready
+- 44×44 touch targets and reduced-motion honored throughout
 
 ## Requirements
 
@@ -68,13 +63,16 @@ All 3 phases complete. BrainRank now has a public landing page:
 - Design system documented (Neural Architect theme) — v1.1
 - BrainRank landing page with 3D brain hero, content sections, responsive layout — v7.0
 - Brutalist grayscale design system scoped via [data-landing] CSS attribute — v7.0
+- Mobile-optimized shell with hamburger nav + MobileNavSheet — v8.0
+- All authenticated + public pages render on iPhone 15 (390×844) — v8.0
+- BrainViewer touch controls (touch-none canvas wrapper) — v8.0
+- ≥44×44 touch targets + reduced-motion support — v8.0
 
 ### Active
 
 - [ ] Per-vertex cortical heatmap on 3D brain viewer using full 20,484-vertex data
 - [ ] Additional functional networks in region mapping (visual, auditory, language, default mode, motion)
 - [ ] Arousal & valence composite metrics displayed on results page
-- [ ] v8.0 — Mobile optimization across all authenticated + public pages (see REQUIREMENTS.md)
 
 ### Out of Scope
 
@@ -133,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-16 — v8.0 Mobile Optimization milestone started*
+*Last updated: 2026-04-16 — v8.0 Mobile Optimization milestone shipped*
