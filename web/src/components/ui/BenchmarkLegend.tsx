@@ -33,7 +33,7 @@ export function BenchmarkLegend({ compact = false }: BenchmarkLegendProps) {
       <h4 className="font-headline font-bold text-xs uppercase tracking-widest text-black">
         Score Benchmark
       </h4>
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
         {NEURAL_TIERS.map((tier) => (
           <div
             key={tier.label}
