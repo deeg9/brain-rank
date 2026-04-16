@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { MobileNavSheet } from "./MobileNavSheet";
 
 interface TopBarProps {
   title?: string;
@@ -29,6 +30,7 @@ export function TopBar({
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [creditLabel, setCreditLabel] = useState("5 credits");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -72,7 +74,8 @@ export function TopBar({
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-surface-container-low flex justify-between items-center px-8 z-50 border-b border-outline-variant/10">
+    <>
+    <header className="fixed top-0 left-0 right-0 h-16 bg-surface-container-low flex justify-between items-center px-4 md:px-8 z-50 border-b border-outline-variant/10">
       {/* Left Side — Brand */}
       <div className="flex items-center gap-4">
         {showBackArrow && (
@@ -90,7 +93,8 @@ export function TopBar({
 
       {/* Right Side — Nav Icons + User */}
       {rightActions || (
-        <div className="flex items-center gap-2">
+        <>
+        <div className="hidden md:flex items-center gap-2">
           {/* Nav Icons */}
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -183,7 +187,26 @@ export function TopBar({
             </div>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={mobileNavOpen}
+          className="md:hidden w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+        </>
       )}
     </header>
+    <MobileNavSheet
+      open={mobileNavOpen}
+      onClose={() => setMobileNavOpen(false)}
+      displayName={displayName}
+      avatarUrl={avatarUrl}
+      creditLabel={creditLabel}
+      onLogout={handleLogout}
+    />
+    </>
   );
 }
