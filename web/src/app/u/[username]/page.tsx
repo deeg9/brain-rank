@@ -93,13 +93,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
   return (
     <>
       <TopBar />
-      <main className="pt-16 min-h-screen bg-surface p-8">
+      <main className="pt-16 min-h-screen bg-surface p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8 pt-6">
       {/* Hero Profile Card */}
-      <section className="bg-white rounded-xl p-10 flex flex-col md:flex-row items-center shadow-sm">
+      <section className="bg-white rounded-xl p-6 md:p-10 flex flex-col md:flex-row items-center shadow-sm">
         <div className="flex flex-col md:flex-row items-center text-center md:text-left">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 flex items-center justify-center">
               {profile.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -112,7 +112,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
             </div>
           </div>
           <div className="md:ml-8 mt-4 md:mt-0">
-            <h2 className="text-3xl font-headline font-bold text-black">
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-black break-all">
               @{profile.username}
             </h2>
             {profile.bio && (
@@ -127,28 +127,28 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Public Analyses
           </span>
-          <span className="text-5xl font-headline font-black text-black">
+          <span className="text-4xl md:text-5xl font-headline font-black text-black">
             {totalPublicAnalyses.toLocaleString()}
           </span>
         </div>
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Average Attention Score
           </span>
-          <span className={`text-5xl font-headline font-black ${avgTier?.color ?? "text-black"}`}>
+          <span className={`text-4xl md:text-5xl font-headline font-black ${avgTier?.color ?? "text-black"}`}>
             {averageScore}
           </span>
           {avgTier && <span className={`text-xs font-bold mt-1 ${avgTier.color}`}>{avgTier.label}</span>}
         </div>
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Best Attention Score
           </span>
-          <span className={`text-5xl font-headline font-black ${bestTier?.color ?? "text-black"}`}>
+          <span className={`text-4xl md:text-5xl font-headline font-black ${bestTier?.color ?? "text-black"}`}>
             {bestScore}
           </span>
           {bestTier && <span className={`text-xs font-bold mt-1 ${bestTier.color}`}>{bestTier.label}</span>}
@@ -199,17 +199,17 @@ export default async function PublicProfilePage({ params }: PageProps) {
                     <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 relative">
                       <VideoThumb src={job.video_url} alt={title} />
                     </div>
-                    <div className="ml-4 flex-1">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm font-bold text-black truncate max-w-[300px]">
+                    <div className="ml-4 flex-1 min-w-0">
+                      <div className="flex justify-between items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-black truncate">
                             {title}
                           </p>
                           <p className="text-[10px] text-black font-bold font-headline tracking-widest uppercase mt-0.5">
                             {date}
                           </p>
                         </div>
-                        <span className="inline-flex items-center gap-1">
+                        <span className="inline-flex items-center gap-1 flex-shrink-0">
                           <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
                           <ScoreBadge value={overallScore as number | null} size="sm" />
                         </span>

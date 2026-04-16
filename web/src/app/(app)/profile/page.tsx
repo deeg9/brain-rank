@@ -83,10 +83,10 @@ export default async function ProfilePage() {
     <PageTransition>
     <div className="max-w-6xl mx-auto space-y-8 pt-6">
       {/* Hero Profile Card */}
-      <section className="bg-white rounded-xl p-10 flex flex-col md:flex-row items-center justify-between shadow-sm">
+      <section className="bg-white rounded-xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between shadow-sm gap-6 md:gap-0">
         <div className="flex flex-col md:flex-row items-center text-center md:text-left">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 flex items-center justify-center">
               {profile?.avatar_url ? (
                 <img
                   src={profile.avatar_url}
@@ -99,7 +99,7 @@ export default async function ProfilePage() {
             </div>
           </div>
           <div className="md:ml-8 mt-4 md:mt-0">
-            <h2 className="text-3xl font-headline font-bold text-black">
+            <h2 className="text-2xl md:text-3xl font-headline font-bold text-black break-all">
               @{profile?.username || "username"}
             </h2>
             {profile?.bio && (
@@ -122,28 +122,28 @@ export default async function ProfilePage() {
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Total Analyses
           </span>
-          <span className="text-5xl font-headline font-black text-black">
+          <span className="text-4xl md:text-5xl font-headline font-black text-black">
             {totalAnalyses.toLocaleString()}
           </span>
         </div>
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Average Attention Score
           </span>
-          <span className={`text-5xl font-headline font-black ${avgTier?.color ?? "text-black"}`}>
+          <span className={`text-4xl md:text-5xl font-headline font-black ${avgTier?.color ?? "text-black"}`}>
             {averageScore}
           </span>
           {avgTier && <span className={`text-xs font-bold mt-1 ${avgTier.color}`}>{avgTier.label}</span>}
         </div>
-        <div className="bg-white rounded-xl p-8 flex flex-col shadow-sm">
+        <div className="bg-white rounded-xl p-6 md:p-8 flex flex-col shadow-sm">
           <span className="text-black font-headline font-bold uppercase tracking-widest text-[10px] mb-2">
             Best Attention Score
           </span>
-          <span className={`text-5xl font-headline font-black ${bestTier?.color ?? "text-black"}`}>
+          <span className={`text-4xl md:text-5xl font-headline font-black ${bestTier?.color ?? "text-black"}`}>
             {bestScore}
           </span>
           {bestTier && <span className={`text-xs font-bold mt-1 ${bestTier.color}`}>{bestTier.label}</span>}
@@ -152,7 +152,7 @@ export default async function ProfilePage() {
 
       {/* Recent Activity */}
       <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-        <div className="px-8 py-6 flex items-center justify-between border-b border-gray-100">
+        <div className="px-6 md:px-8 py-5 md:py-6 flex items-center justify-between border-b border-gray-100">
           <h3 className="font-headline font-bold text-lg uppercase tracking-wider text-black">
             Recent Activity
           </h3>
@@ -184,10 +184,10 @@ export default async function ProfilePage() {
                     <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 relative">
                       <VideoThumb src={job.video_url} alt={filename} />
                     </div>
-                    <div className="ml-4 flex-1">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-sm font-bold text-black truncate max-w-[300px]">
+                    <div className="ml-4 flex-1 min-w-0">
+                      <div className="flex justify-between items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-black truncate">
                             {filename}
                           </p>
                           <p className="text-[10px] text-black font-bold font-headline tracking-widest uppercase mt-0.5">

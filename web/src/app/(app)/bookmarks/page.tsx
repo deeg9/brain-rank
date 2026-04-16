@@ -37,7 +37,7 @@ export default function BookmarksPage() {
 
   return (
     <PageTransition>
-    <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 py-6 md:py-12 space-y-6 md:space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-headline font-bold text-on-surface">

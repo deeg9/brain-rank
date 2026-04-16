@@ -35,7 +35,7 @@ export function StatTile({ icon, label, value, suffix, accentColor }: StatTilePr
       className={`group relative rounded-xl overflow-hidden p-[1px] bg-gradient-to-br from-outline-variant/20 via-transparent to-outline-variant/10 hover:shadow-xl ${accent.glow} transition-all duration-500`}
     >
       {/* Inner card */}
-      <div className="relative w-full h-full rounded-xl p-8 overflow-hidden glass-surface">
+      <div className="relative w-full h-full rounded-xl p-6 md:p-8 overflow-hidden glass-surface">
         {/* Orbiting halo */}
         <motion.div
           className={`absolute w-20 h-20 rounded-full ${accent.halo} blur-2xl pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
@@ -53,7 +53,7 @@ export function StatTile({ icon, label, value, suffix, accentColor }: StatTilePr
               {label}
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-5xl font-headline font-extrabold text-on-surface">
+              <span className="text-4xl md:text-5xl font-headline font-extrabold text-on-surface">
                 {value}
               </span>
               {suffix && (

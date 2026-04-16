@@ -127,13 +127,13 @@ export default async function DashboardPage() {
     <PageTransition>
     <div className="pt-6 space-y-10">
       {/* Welcome Header */}
-      <section className="flex justify-between items-end">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-on-surface tracking-tight">
+      <section className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+        <h1 className="font-headline text-3xl md:text-5xl font-bold text-on-surface tracking-tight break-words">
           Welcome back, {(profile as any)?.username || firstName}
         </h1>
         <Link
           href="/upload"
-          className="group relative inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white bg-black hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300"
+          className="group relative inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white bg-black hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 self-start md:self-auto"
         >
           <span className="material-symbols-outlined text-lg text-white">add</span>
           New Analysis
@@ -165,11 +165,11 @@ export default async function DashboardPage() {
       {hasJobs ? (
         /* Analysis History with Search */
         <section className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="font-headline text-xl font-bold">Analysis History</h3>
             <div className="flex items-center gap-4">
               <AnalysisSearch />
-              <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest font-bold">
+              <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest font-bold whitespace-nowrap">
                 {jobList.length} Total
               </span>
             </div>
@@ -190,7 +190,7 @@ export default async function DashboardPage() {
       ) : (
         /* Empty State */
         <section>
-          <div className="bg-white p-16 rounded-3xl text-center relative overflow-hidden">
+          <div className="bg-white p-8 md:p-16 rounded-3xl text-center relative overflow-hidden">
             <div className="relative z-10 flex flex-col items-center">
               <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center mb-8 text-on-surface-variant">
                 <span
@@ -200,7 +200,7 @@ export default async function DashboardPage() {
                   psychology
                 </span>
               </div>
-              <h2 className="font-headline text-4xl font-bold text-on-surface mb-4">
+              <h2 className="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-4">
                 No analyses yet
               </h2>
               <p className="text-on-surface-variant max-w-lg mx-auto text-lg leading-relaxed mb-10">

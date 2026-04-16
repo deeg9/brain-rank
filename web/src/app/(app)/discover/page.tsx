@@ -198,7 +198,7 @@ export default function DiscoverPage() {
 
   return (
     <PageTransition>
-    <div className="max-w-6xl mx-auto px-4 py-12 space-y-8">
+    <div className="max-w-6xl mx-auto px-4 py-6 md:py-12 space-y-6 md:space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-headline font-bold text-on-surface">
@@ -210,9 +210,9 @@ export default function DiscoverPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col md:flex-row gap-3">
         {/* Search input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 md:min-w-0">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
           <input
             type="text"
@@ -223,41 +223,44 @@ export default function DiscoverPage() {
           />
         </div>
 
-        {/* Sort dropdown */}
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
-        >
-          <option value="score">Highest Score</option>
-          <option value="views">Most Views</option>
-          <option value="newest">Newest</option>
-          <option value="oldest">Oldest</option>
-        </select>
+        {/* Filter dropdown group — wraps on narrow viewports */}
+        <div className="flex flex-wrap gap-3">
+          {/* Sort dropdown */}
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
+          >
+            <option value="score">Highest Score</option>
+            <option value="views">Most Views</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
 
-        {/* Score filter dropdown */}
-        <select
-          value={scoreFilter}
-          onChange={(e) => setScoreFilter(e.target.value)}
-          className="px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
-        >
-          <option value="all">All Scores</option>
-          <option value="90">90+</option>
-          <option value="80">80+</option>
-          <option value="70">70+</option>
-        </select>
+          {/* Score filter dropdown */}
+          <select
+            value={scoreFilter}
+            onChange={(e) => setScoreFilter(e.target.value)}
+            className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
+          >
+            <option value="all">All Scores</option>
+            <option value="90">90+</option>
+            <option value="80">80+</option>
+            <option value="70">70+</option>
+          </select>
 
-        {/* Category filter dropdown */}
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
-        >
-          <option value="all">All Categories</option>
-          {CONTENT_CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
+          {/* Category filter dropdown */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
+          >
+            <option value="all">All Categories</option>
+            {CONTENT_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Active filter indicator */}
