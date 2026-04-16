@@ -17,21 +17,36 @@ export default async function Home() {
   if (user) redirect("/dashboard");
 
   return (
-    <div data-landing className="bg-background">
-      <HeroOdyssey />
-      <ScrollReveal>
-        <HowItWorks />
-      </ScrollReveal>
-      <ScrollReveal delay={0.1}>
-        <FeatureCards />
-      </ScrollReveal>
-      <ScrollReveal delay={0.1}>
-        <PreviewSection />
-      </ScrollReveal>
-      <ScrollReveal delay={0.1}>
-        <FinalCTA />
-      </ScrollReveal>
-      <Footer />
+    <div data-landing className="relative bg-background">
+      {/* Subtle grid lines — landing page only */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: "40px 40px, 40px 40px",
+        }}
+      />
+
+      {/* Foreground content */}
+      <div className="relative z-10">
+        <HeroOdyssey />
+        <ScrollReveal>
+          <HowItWorks />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <FeatureCards />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <PreviewSection />
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <FinalCTA />
+        </ScrollReveal>
+        <Footer />
+      </div>
     </div>
   );
 }

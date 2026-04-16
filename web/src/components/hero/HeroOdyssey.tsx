@@ -33,7 +33,7 @@ export function HeroOdyssey() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background">
+    <div className="relative min-h-screen overflow-hidden">
       {/* 3D brain background */}
       <BrainHero />
 
