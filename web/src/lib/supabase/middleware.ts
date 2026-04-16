@@ -65,19 +65,27 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(dashboardUrl)
   }
 
-  // Authenticated users without username -> redirect to /onboarding
-  if (user && !isOnboarding && !isApiRoute && !isAuthCallback && !isWebhook && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis) {
+  // Gate onboarding on username presence
+  if (user && !isApiRoute && !isAuthCallback && !isWebhook && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis) {
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('username')
       .eq('id', user.id)
       .maybeSingle()
 
-    // Only redirect if we successfully queried and the user has no username
-    if (!profileError && !profile?.username) {
-      const onboardingUrl = request.nextUrl.clone()
-      onboardingUrl.pathname = '/onboarding'
-      return NextResponse.redirect(onboardingUrl)
+    if (!profileError) {
+      // No username → force onboarding (unless already there)
+      if (!profile?.username && !isOnboarding) {
+        const onboardingUrl = request.nextUrl.clone()
+        onboardingUrl.pathname = '/onboarding'
+        return NextResponse.redirect(onboardingUrl)
+      }
+      // Has username but still on /onboarding → send to dashboard
+      if (profile?.username && isOnboarding) {
+        const dashboardUrl = request.nextUrl.clone()
+        dashboardUrl.pathname = '/dashboard'
+        return NextResponse.redirect(dashboardUrl)
+      }
     }
   }
 

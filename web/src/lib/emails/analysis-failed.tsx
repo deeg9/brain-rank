@@ -53,9 +53,11 @@ export function AnalysisFailedEmail({ videoFilename, uploadUrl, errorMessage }: 
       {/* Footer */}
       <div style={{ textAlign: 'center', marginTop: '32px' }}>
         <p style={{ fontSize: '11px', color: '#999', margin: 0, lineHeight: '1.6' }}>
+          Neural activation predictions are computational estimates, not medical measurements.
+          <br />
           If this keeps happening, reach out to us and we&apos;ll help.
           <br />
-          © {new Date().getFullYear()} BrainRank. All rights reserved.
+          © {new Date().getFullYear()} BRAIN<span style={{ color: '#bbb', margin: '0 2px' }}>|</span>RANK. All rights reserved.
         </p>
       </div>
     </div>

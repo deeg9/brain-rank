@@ -42,8 +42,13 @@ function CheckEmailContent() {
           className="w-[80vmin] h-[80vmin] object-contain opacity-[0.04]"
         />
       </div>
-      <main className="relative z-10 w-full max-w-md">
-        <div className="bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
+      <main className="relative z-10 w-full max-w-md flex flex-col items-center">
+        <div className="flex flex-col items-center mb-6">
+          <span className="font-headline font-black text-2xl tracking-widest uppercase text-on-surface">
+            BRAIN<span className="text-on-surface-variant/40 mx-0.5">|</span>RANK
+          </span>
+        </div>
+        <div className="w-full bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mx-auto">
           <span className="material-symbols-outlined text-3xl text-on-surface-variant">
             mail

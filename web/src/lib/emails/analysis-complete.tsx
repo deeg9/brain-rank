@@ -54,7 +54,7 @@ export function AnalysisCompleteEmail({ videoFilename, resultsUrl }: AnalysisCom
         <p style={{ fontSize: '11px', color: '#999', margin: 0, lineHeight: '1.6' }}>
           Neural activation predictions are computational estimates, not medical measurements.
           <br />
-          © {new Date().getFullYear()} BrainRank. All rights reserved.
+          © {new Date().getFullYear()} BRAIN<span style={{ color: '#bbb', margin: '0 2px' }}>|</span>RANK. All rights reserved.
         </p>
       </div>
     </div>
