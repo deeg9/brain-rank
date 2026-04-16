@@ -46,9 +46,10 @@ export async function updateSession(request: NextRequest) {
   const isLandingPage = pathname === '/'
   const isPublicProfile = pathname.startsWith('/u/')
   const isPublicAnalysis = pathname.startsWith('/analysis/')
+  const isAuthCallback = pathname.startsWith('/auth/callback')
 
   // AUTH-04: Unauthenticated users on protected routes -> redirect to /login
-  if (!user && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis) {
+  if (!user && !isPublicRoute && !isLandingPage && !isPublicProfile && !isPublicAnalysis && !isAuthCallback) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     return NextResponse.redirect(loginUrl)

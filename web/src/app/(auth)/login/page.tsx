@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { Button, Input } from '@/components/ui'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { login } from './actions'
 
 export default function LoginPage() {
@@ -24,6 +25,15 @@ export default function LoginPage() {
           Sign in to your account to continue
         </p>
       </header>
+
+      {/* Google OAuth */}
+      <GoogleSignInButton />
+
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-outline-variant/20" />
+        <span className="text-xs text-on-surface-variant uppercase tracking-widest">or</span>
+        <div className="flex-1 h-px bg-outline-variant/20" />
+      </div>
 
       {/* Form */}
       <form action={formAction} className="space-y-6">

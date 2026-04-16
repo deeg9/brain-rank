@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { Button, Input } from '@/components/ui'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { signup } from './actions'
 
 function getPasswordStrength(password: string) {
@@ -59,6 +60,15 @@ export default function SignupPage() {
         <p className="text-on-surface-variant text-sm">
           Join the next generation of neural content editors.
         </p>
+      </div>
+
+      {/* Google OAuth */}
+      <GoogleSignInButton />
+
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-outline-variant/20" />
+        <span className="text-xs text-on-surface-variant uppercase tracking-widest">or</span>
+        <div className="flex-1 h-px bg-outline-variant/20" />
       </div>
 
       <form action={formAction} className="space-y-8">

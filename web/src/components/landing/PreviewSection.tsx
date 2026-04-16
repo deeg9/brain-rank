@@ -1,11 +1,4 @@
-"use client";
-
-const regions = [
-  { label: "Visual", width: "82%", opacity: "bg-white" },
-  { label: "Auditory", width: "65%", opacity: "bg-white/70" },
-  { label: "Language", width: "48%", opacity: "bg-white/50" },
-  { label: "Attention", width: "73%", opacity: "bg-white/80" },
-];
+import Image from "next/image";
 
 export function PreviewSection() {
   return (
@@ -15,59 +8,27 @@ export function PreviewSection() {
       </h2>
 
       <div className="max-w-4xl mx-auto">
-        <div className="rounded-lg border border-white/10 overflow-hidden">
+        <div className="rounded-lg border border-black/10 overflow-hidden shadow-xl">
           {/* Browser chrome bar */}
-          <div className="bg-[#111111] px-4 py-3 flex items-center gap-2 border-b border-white/10">
-            <div className="w-3 h-3 rounded-full bg-white/20" />
-            <div className="w-3 h-3 rounded-full bg-white/20" />
-            <div className="w-3 h-3 rounded-full bg-white/20" />
-            <div className="ml-4 bg-white/5 rounded px-3 py-1 text-xs text-white/30 font-mono hidden md:block">
+          <div className="bg-[#e8e8e8] px-4 py-3 flex items-center gap-2 border-b border-black/10">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+            <div className="ml-4 bg-black/5 rounded px-3 py-1 text-xs text-black/40 font-mono hidden md:block">
               brainrank.app/results/demo
             </div>
           </div>
 
-          {/* Content area */}
-          <div className="bg-[#0a0a0a] p-4 md:p-8">
-            <div className="font-headline text-base md:text-lg font-bold text-white mb-6">
-              Neural Analysis: Sample Video
-            </div>
-
-            {/* Stats row */}
-            <div className="flex flex-wrap gap-4 md:gap-8 mb-8">
-              <div>
-                <div className="text-xs text-white/40 mb-1">Overall Score</div>
-                <span className="text-2xl md:text-3xl font-bold text-white">7.4</span>
-                <span className="text-sm text-white/40">/10</span>
-              </div>
-              <div>
-                <div className="text-xs text-white/40 mb-1">Peak Region</div>
-                <span className="text-lg font-bold text-white">Visual Cortex</span>
-              </div>
-              <div>
-                <div className="text-xs text-white/40 mb-1">Duration</div>
-                <span className="text-lg font-bold text-white">0:42</span>
-              </div>
-            </div>
-
-            {/* Brain region bars */}
-            <div className="space-y-4">
-              {regions.map((region) => (
-                <div key={region.label} className="flex items-center gap-4">
-                  <span className="text-sm text-white/60 w-16 md:w-20 shrink-0">
-                    {region.label}
-                  </span>
-                  <div className="flex-1 bg-white/5 rounded-full h-3">
-                    <div
-                      className={`h-3 rounded-full ${region.opacity}`}
-                      style={{ width: region.width }}
-                    />
-                  </div>
-                  <span className="text-sm text-white/60 w-10 text-right">
-                    {region.width}
-                  </span>
-                </div>
-              ))}
-            </div>
+          {/* Screenshot */}
+          <div className="bg-white">
+            <Image
+              src="/images/results-preview.png"
+              alt="BrainRank neural analysis results showing video player, brain activation map, and region scores"
+              width={1920}
+              height={1080}
+              className="w-full h-auto"
+              priority
+            />
           </div>
         </div>
       </div>
