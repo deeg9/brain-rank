@@ -247,7 +247,7 @@ export default function BillingPage() {
 
   return (
     <PageTransition>
-    <div className="relative flex flex-col items-center justify-center max-w-5xl py-12 mx-auto">
+    <div className="relative flex flex-col items-center justify-center max-w-5xl py-6 md:py-12 mx-auto px-4">
       {/* Header */}
       <div className="flex flex-col items-center justify-center max-w-2xl mx-auto">
         <div className="flex flex-col items-center text-center max-w-2xl mx-auto">

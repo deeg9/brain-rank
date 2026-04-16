@@ -9,10 +9,10 @@ export const metadata = {
 export default function UseCasesPage() {
   return (
     <PageTransition>
-    <div className="max-w-4xl mx-auto space-y-12 pt-6 pb-16">
+    <div className="max-w-4xl mx-auto space-y-10 md:space-y-12 pt-6 pb-16 px-4 md:px-0">
       {/* Header */}
       <div>
-        <h1 className="font-headline text-4xl font-bold text-black tracking-tight">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold text-black tracking-tight">
           Use Cases
         </h1>
         <p className="text-gray-500 text-sm mt-2">
@@ -21,7 +21,7 @@ export default function UseCasesPage() {
       </div>
 
       {/* Why Neural Data Matters */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-4">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-4">
         <h2 className="font-headline text-2xl font-bold text-black">Why Neural Data Matters</h2>
         <p className="text-gray-700 leading-relaxed">
           Traditional content analytics tell you <strong>what</strong> happened — views, clicks, watch time.
@@ -37,7 +37,7 @@ export default function UseCasesPage() {
       </section>
 
       {/* Content Creators */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-2xl text-gray-700">movie</span>
           <h2 className="font-headline text-2xl font-bold text-black">For Content Creators</h2>
@@ -71,7 +71,7 @@ export default function UseCasesPage() {
       </section>
 
       {/* Marketers & Brands */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-2xl text-gray-700">analytics</span>
           <h2 className="font-headline text-2xl font-bold text-black">For Marketers & Brands</h2>
@@ -105,7 +105,7 @@ export default function UseCasesPage() {
       </section>
 
       {/* Studios & Media */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-2xl text-gray-700">videocam</span>
           <h2 className="font-headline text-2xl font-bold text-black">For Studios & Media Companies</h2>
@@ -131,7 +131,7 @@ export default function UseCasesPage() {
       </section>
 
       {/* Data & Research */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <div className="flex items-center gap-3">
           <span className="material-symbols-outlined text-2xl text-gray-700">biotech</span>
           <h2 className="font-headline text-2xl font-bold text-black">The Data Platform</h2>
@@ -178,7 +178,7 @@ export default function UseCasesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-black rounded-xl p-8 text-center">
+      <section className="bg-black rounded-xl p-5 md:p-8 text-center">
         <h2 className="font-headline text-2xl font-bold text-white">Ready to see how brains react to your content?</h2>
         <p className="text-gray-400 text-sm mt-2">Upload your first video and get a full neural activation report.</p>
         <Link

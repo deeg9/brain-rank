@@ -15,7 +15,7 @@ export function PricingPage() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center max-w-5xl py-12 mx-auto">
+    <div className="relative flex flex-col items-center justify-center max-w-5xl py-6 md:py-12 mx-auto px-4">
       {/* Header */}
       <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-black">

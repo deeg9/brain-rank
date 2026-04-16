@@ -11,10 +11,10 @@ export const metadata = {
 export default function ResourcesPage() {
   return (
     <PageTransition>
-    <div className="max-w-4xl mx-auto space-y-12 pt-6 pb-16">
+    <div className="max-w-4xl mx-auto space-y-10 md:space-y-12 pt-6 pb-16 px-4 md:px-0">
       {/* Header */}
       <div>
-        <h1 className="font-headline text-4xl font-bold text-black tracking-tight">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold text-black tracking-tight">
           Resources
         </h1>
         <p className="text-gray-500 text-sm mt-2">
@@ -23,7 +23,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* How It Works */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">How BrainRank Works</h2>
         <p className="text-gray-700 leading-relaxed">
           BrainRank uses <strong>TRIBE v2</strong>, a brain-predictive foundation model developed by
@@ -91,7 +91,7 @@ export default function ResourcesPage() {
       </section>
 
       {/* Understanding Scores */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">Understanding Your Scores</h2>
         <p className="text-gray-700 leading-relaxed">
           BrainRank scores are <strong>not percentages</strong>. They represent normalized neural
@@ -177,7 +177,7 @@ export default function ResourcesPage() {
       </section>
 
       {/* Brain Regions */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">Brain Regions Explained</h2>
         <p className="text-gray-700 leading-relaxed">
           BrainRank tracks 9 functional brain networks. Each represents a different aspect of how
@@ -255,7 +255,7 @@ export default function ResourcesPage() {
       </section>
 
       {/* Key Metrics */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">Key Metrics</h2>
 
         <div className="space-y-4">
@@ -317,7 +317,7 @@ export default function ResourcesPage() {
       </section>
 
       {/* About the Science */}
-      <section className="bg-white rounded-xl p-8 shadow-sm space-y-6">
+      <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">About the Science</h2>
         <p className="text-gray-700 leading-relaxed">
           TRIBE v2 (Temporally Resolved Inter-subject Brain Encoding) is a foundation model for

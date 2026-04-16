@@ -29,8 +29,8 @@ export default async function SettingsPage() {
   return (
     <PageTransition>
     <div className="space-y-10 pt-6">
-      <header className="mb-12">
-        <h1 className="text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">
+      <header className="mb-8 md:mb-12">
+        <h1 className="text-3xl md:text-4xl font-headline font-bold text-on-surface tracking-tight mb-2">
           Settings
         </h1>
         <p className="text-on-surface-variant">

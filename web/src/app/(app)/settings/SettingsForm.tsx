@@ -264,7 +264,7 @@ export function SettingsForm({
   return (
     <div className="space-y-8">
       {/* Section: Profile Information */}
-      <section className="p-8 rounded-xl glass-surface relative overflow-hidden">
+      <section className="p-5 md:p-8 rounded-xl glass-surface relative overflow-hidden">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/3">
             <h3 className="text-xl font-headline font-bold text-black mb-2">
@@ -467,7 +467,7 @@ export function SettingsForm({
       </section>
 
       {/* Section: Security */}
-      <section className="p-8 rounded-xl glass-surface">
+      <section className="p-5 md:p-8 rounded-xl glass-surface">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="w-full md:w-1/3">
             <h3 className="text-xl font-headline font-bold text-black mb-2">
@@ -499,7 +499,7 @@ export function SettingsForm({
       </section>
 
       {/* Section: Notifications */}
-      <section className="p-8 rounded-xl glass-surface">
+      <section className="p-5 md:p-8 rounded-xl glass-surface">
         <div className="flex flex-col md:flex-row gap-8 mb-8">
           <div className="w-full md:w-1/3">
             <h3 className="text-xl font-headline font-bold text-black mb-2">
