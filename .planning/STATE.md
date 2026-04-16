@@ -1,36 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v7.0
-milestone_name: BrainRank Landing Page
-status: verifying
-stopped_at: Completed 67-01-PLAN.md (Tasks 1-2, Task 3 pending human-verify)
-last_updated: "2026-04-15T19:59:38.380Z"
-last_activity: 2026-04-15
+milestone: v8.0
+milestone_name: Mobile Optimization
+status: defining-requirements
+stopped_at: Milestone started — defining requirements
+last_updated: "2026-04-16T00:00:00.000Z"
+last_activity: 2026-04-16
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-15)
+See: .planning/PROJECT.md (updated 2026-04-16)
 
 **Core value:** Content creators upload content and get per-segment neural engagement scores showing where brains light up and where they tune out
-**Current focus:** v7.0 BrainRank Landing Page — Phase 65 ready to plan
+**Current focus:** v8.0 Mobile Optimization — authenticated + public pages rendered cleanly on iPhone 15
 
 ## Current Position
 
-Phase: 67 of 67 (Polish & Responsiveness)
-Plan: 01 (Tasks 1-2 complete, Task 3 pending human-verify)
-Status: Awaiting checkpoint verification
-Last activity: 2026-04-15
-
-Progress: [░░░░░░░░░░] 0% (v7.0: 0/3 phases)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-16 — Milestone v8.0 started
 
 ## Performance Metrics
 

@@ -37,6 +37,24 @@ All 3 phases complete. BrainRank now has a public landing page:
 - Scroll-triggered fade-in animations, fully responsive (desktop/tablet/mobile)
 - Brutalist minimalist aesthetic: pure black/white/gray, Space Grotesk + Inter
 
+## Current Milestone: v8.0 Mobile Optimization
+
+**Goal:** Make every authenticated and public-shared page render cleanly on iPhone 15 (390×844) while preserving the existing desktop architecture.
+
+**Target features:**
+- Mobile-first responsive shell (TopBar hamburger → bottom sheet, AppShell gutters)
+- Core hub pages mobile-ready: Dashboard, Profile, Discover, Bookmarks
+- Content flow mobile-ready: Upload → Processing → Results → Analysis (incl. public `/analysis/[id]`)
+- BrainViewer touch controls (pan/rotate/zoom) working on mobile
+- Settings, Billing, Pricing, Resources, Use-Cases, Auth/Onboarding flow mobile-ready
+- Playwright MCP iPhone 15 screenshots captured per phase as verification artifacts
+
+**Key context:**
+- Mobile users expected to be the majority (content creators targeting short-form mobile content)
+- Constraint: no big architecture changes to desktop experience
+- Mobile nav pattern decided: hamburger → slide-down sheet (smallest architecture change)
+- Landing page (v7.0) excluded — already responsive
+
 ## Requirements
 
 ### Validated
@@ -56,6 +74,7 @@ All 3 phases complete. BrainRank now has a public landing page:
 - [ ] Per-vertex cortical heatmap on 3D brain viewer using full 20,484-vertex data
 - [ ] Additional functional networks in region mapping (visual, auditory, language, default mode, motion)
 - [ ] Arousal & valence composite metrics displayed on results page
+- [ ] v8.0 — Mobile optimization across all authenticated + public pages (see REQUIREMENTS.md)
 
 ### Out of Scope
 
@@ -114,4 +133,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-15 after v7.0 milestone complete*
+*Last updated: 2026-04-16 — v8.0 Mobile Optimization milestone started*
