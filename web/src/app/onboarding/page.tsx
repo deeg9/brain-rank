@@ -142,7 +142,7 @@ export default function OnboardingPage() {
     (availability === null || availability.available);
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center p-6 relative">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4 md:p-6 relative">
       {/* Background logo watermark */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
         <img
@@ -162,7 +162,7 @@ export default function OnboardingPage() {
 
         {/* Onboarding card */}
         <main className="w-full max-w-md">
-          <div className="bg-white rounded-2xl p-8 shadow-sm space-y-8">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm space-y-8">
             <div className="text-center space-y-2">
               <h1 className="font-headline text-2xl font-bold text-on-surface">
                 Set up your profile
