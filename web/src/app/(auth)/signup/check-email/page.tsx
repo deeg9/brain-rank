@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { createClient } from '@/lib/supabase/client'
 
-export default function CheckEmailPage() {
+function CheckEmailContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email') ?? ''
   const [resending, setResending] = useState(false)
@@ -76,5 +76,13 @@ export default function CheckEmailPage() {
         </div>
       </div>
     </AuthLayout>
+  )
+}
+
+export default function CheckEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <CheckEmailContent />
+    </Suspense>
   )
 }
