@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <div className="bg-surface-container-high rounded-xl p-8 ghost-border ambient-glow flex flex-col gap-8">
       {/* Header */}
-      <header className="space-y-2">
+      <header className="space-y-2 text-center">
         <h1 className="font-headline font-bold text-4xl text-on-surface tracking-tight">
           Welcome back
         </h1>
@@ -60,7 +60,7 @@ export default function LoginPage() {
           <div className="flex justify-end mt-1">
             <Link
               href="/forgot-password"
-              className="text-xs font-semibold text-primary hover:text-primary-dim transition-colors"
+              className="text-xs font-semibold text-on-surface hover:text-on-surface/70 underline transition-colors"
             >
               Forgot password?
             </Link>
@@ -83,7 +83,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link
             href="/signup"
-            className="text-primary font-bold hover:underline transition-all"
+            className="text-on-surface font-bold underline hover:text-on-surface/70 transition-all"
           >
             Sign up
           </Link>

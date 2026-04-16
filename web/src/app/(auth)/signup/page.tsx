@@ -53,7 +53,7 @@ export default function SignupPage() {
 
   return (
     <div className="bg-surface-container-high rounded-xl p-10 ambient-glow">
-      <div className="mb-8">
+      <div className="mb-8 text-center">
         <h1 className="font-headline text-2xl font-bold text-on-surface tracking-tight mb-2">
           Create your account
         </h1>
@@ -151,11 +151,11 @@ export default function SignupPage() {
           </div>
           <span className="text-sm text-on-surface-variant leading-snug">
             I agree to the{' '}
-            <Link href="/terms" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+            <Link href="/terms" className="text-on-surface font-semibold hover:text-on-surface/70 transition-colors underline">
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/privacy" className="text-primary font-semibold hover:text-primary-fixed transition-colors">
+            <Link href="/privacy" className="text-on-surface font-semibold hover:text-on-surface/70 transition-colors underline">
               Privacy Policy
             </Link>
           </span>
@@ -178,7 +178,7 @@ export default function SignupPage() {
           Already have an account?{' '}
           <Link
             href="/login"
-            className="text-primary font-semibold hover:text-primary-fixed transition-colors ml-1"
+            className="text-on-surface font-semibold hover:text-on-surface/70 transition-colors underline ml-1"
           >
             Sign in
           </Link>

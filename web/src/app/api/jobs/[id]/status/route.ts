@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { JobStatusResponse, JobStage } from '@/lib/jobs'
+import { resend, FROM_EMAIL } from '@/lib/resend'
+import { AnalysisCompleteEmail } from '@/lib/emails/analysis-complete'
+import { AnalysisFailedEmail } from '@/lib/emails/analysis-failed'
 
 function mapToStage(dbStatus: string, runpodStatus: string | null): JobStage {
   if (dbStatus === 'completed') return 'complete'
@@ -48,8 +51,39 @@ export async function GET(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
-    // If already terminal, return immediately
+    // If already terminal, send email if needed and return
     if (job.status === 'completed' || job.status === 'failed') {
+      if (!job.email_sent && user.email) {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'
+        try {
+          if (job.status === 'completed') {
+            await resend.emails.send({
+              from: FROM_EMAIL,
+              to: user.email,
+              subject: 'Your BrainRank analysis is ready',
+              react: AnalysisCompleteEmail({
+                videoFilename: extractFilename(job.video_url),
+                resultsUrl: `${baseUrl}/results/${id}`,
+              }),
+            })
+          } else {
+            await resend.emails.send({
+              from: FROM_EMAIL,
+              to: user.email,
+              subject: "Your BrainRank analysis couldn't be completed",
+              react: AnalysisFailedEmail({
+                videoFilename: extractFilename(job.video_url),
+                uploadUrl: `${baseUrl}/upload`,
+                errorMessage: job.error_message ?? undefined,
+              }),
+            })
+          }
+          await supabase.from('jobs').update({ email_sent: true }).eq('id', id)
+        } catch (e) {
+          console.error('Failed to send email:', e)
+        }
+      }
+
       const stage = mapToStage(job.status, null)
       const response: JobStatusResponse = {
         id: job.id,
@@ -84,6 +118,25 @@ export async function GET(
                 .update({ status: 'completed', results: runpodData.output })
                 .eq('id', id)
 
+              // Send completion email (once)
+              if (!job.email_sent && user.email) {
+                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'
+                try {
+                  await resend.emails.send({
+                    from: FROM_EMAIL,
+                    to: user.email,
+                    subject: 'Your BrainRank analysis is ready',
+                    react: AnalysisCompleteEmail({
+                      videoFilename: extractFilename(job.video_url),
+                      resultsUrl: `${baseUrl}/results/${id}`,
+                    }),
+                  })
+                  await supabase.from('jobs').update({ email_sent: true }).eq('id', id)
+                } catch (e) {
+                  console.error('Failed to send email:', e)
+                }
+              }
+
               const response: JobStatusResponse = {
                 id: job.id,
                 status: 'completed',
@@ -102,6 +155,26 @@ export async function GET(
                 .from('jobs')
                 .update({ status: 'failed', error_message: errorMsg })
                 .eq('id', id)
+
+              // Send failure email (once)
+              if (!job.email_sent && user.email) {
+                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'
+                try {
+                  await resend.emails.send({
+                    from: FROM_EMAIL,
+                    to: user.email,
+                    subject: 'Your BrainRank analysis couldn\'t be completed',
+                    react: AnalysisFailedEmail({
+                      videoFilename: extractFilename(job.video_url),
+                      uploadUrl: `${baseUrl}/upload`,
+                      errorMessage: errorMsg,
+                    }),
+                  })
+                  await supabase.from('jobs').update({ email_sent: true }).eq('id', id)
+                } catch (e) {
+                  console.error('Failed to send email:', e)
+                }
+              }
 
               const response: JobStatusResponse = {
                 id: job.id,

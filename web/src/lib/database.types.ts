@@ -17,6 +17,7 @@ export type Job = {
   runpod_id: string | null
   results: Record<string, unknown> | null
   error_message: string | null
+  email_sent: boolean
   created_at: string
   updated_at: string
 }
@@ -90,7 +91,7 @@ export type Database = {
     Tables: {
       jobs: {
         Row: Job
-        Insert: Omit<Job, 'id' | 'title' | 'is_public' | 'view_count' | 'input_type' | 'text_content' | 'text_style' | 'category' | 'runpod_id' | 'results' | 'error_message' | 'created_at' | 'updated_at'> & {
+        Insert: Omit<Job, 'id' | 'title' | 'is_public' | 'view_count' | 'input_type' | 'text_content' | 'text_style' | 'category' | 'runpod_id' | 'results' | 'error_message' | 'email_sent' | 'created_at' | 'updated_at'> & {
           id?: string
           title?: string | null
           is_public?: boolean
@@ -102,6 +103,7 @@ export type Database = {
           runpod_id?: string | null
           results?: Record<string, unknown> | null
           error_message?: string | null
+          email_sent?: boolean
           created_at?: string
           updated_at?: string
         }
