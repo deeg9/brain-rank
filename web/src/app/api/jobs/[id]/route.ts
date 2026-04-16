@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { resend, FROM_EMAIL } from '@/lib/resend'
+import { extractFilename } from '@/lib/jobs'
+import { AnalysisCompleteEmail } from '@/lib/emails/analysis-complete'
+import { AnalysisFailedEmail } from '@/lib/emails/analysis-failed'
 
 export async function PATCH(
   request: NextRequest,
@@ -87,8 +91,50 @@ export async function GET(
       }
     }
 
-    // If job is in a terminal state, return as-is
+    // If job is in a terminal state, send email if needed and return
     if (job.status === 'completed' || job.status === 'failed') {
+      if (!job.email_sent) {
+        const { data: { user: owner } } = await supabase.auth.getUser()
+        if (owner?.email) {
+          const { data: claimed } = await supabase
+            .from('jobs')
+            .update({ email_sent: true })
+            .eq('id', id)
+            .eq('email_sent', false)
+            .select('id')
+            .single()
+
+          if (claimed) {
+            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'
+            try {
+              if (job.status === 'completed') {
+                await resend.emails.send({
+                  from: FROM_EMAIL,
+                  to: owner.email,
+                  subject: 'Your BrainRank analysis is ready',
+                  react: AnalysisCompleteEmail({
+                    videoFilename: extractFilename(job.video_url),
+                    resultsUrl: `${baseUrl}/results/${id}`,
+                  }),
+                })
+              } else {
+                await resend.emails.send({
+                  from: FROM_EMAIL,
+                  to: owner.email,
+                  subject: "Your BrainRank analysis couldn't be completed",
+                  react: AnalysisFailedEmail({
+                    videoFilename: extractFilename(job.video_url),
+                    uploadUrl: `${baseUrl}/upload`,
+                    errorMessage: job.error_message ?? undefined,
+                  }),
+                })
+              }
+            } catch (e) {
+              console.error('Failed to send email:', e)
+            }
+          }
+        }
+      }
       return NextResponse.json(job)
     }
 
