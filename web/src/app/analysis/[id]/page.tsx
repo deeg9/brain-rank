@@ -138,7 +138,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
 
   // Format analysis date
   const analysisDate = new Date(job.created_at).toLocaleDateString("en-US", {
-    month: "long",
+    month: "short",
     day: "numeric",
     year: "numeric",
   });
@@ -148,12 +148,12 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
   return (
     <>
       <TopBar />
-      <main className="pt-16 min-h-screen bg-white p-8">
+      <main className="pt-16 min-h-screen bg-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6 pt-6">
 
       {/* Top Bar */}
-      <div className="flex items-start justify-between gap-4">
-      <div className="space-y-2">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+      <div className="space-y-2 min-w-0 flex-1">
         {/* Back */}
         <Link
           href="/discover"
@@ -195,18 +195,18 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
         </div>
 
         {/* Meta row */}
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-xs font-bold text-black">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="flex items-center gap-1 text-xs font-bold text-black whitespace-nowrap">
             <span className="material-symbols-outlined text-sm">calendar_today</span>
             {analysisDate}
           </span>
           {(job as any).view_count > 0 && (
-            <span className="flex items-center gap-1 text-xs font-bold text-black">
+            <span className="flex items-center gap-1 text-xs font-bold text-black whitespace-nowrap">
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
               {(job as any).view_count} views
             </span>
           )}
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
             <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
             <ScoreBadge value={summary.overall} size="sm" />
           </span>
@@ -214,7 +214,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
       </div>
 
       {/* Bookmark + Export */}
-      <div className="flex-shrink-0 pt-8 flex items-center gap-3">
+      <div className="flex-shrink-0 md:pt-8 flex items-center gap-3">
         <BookmarkButton jobId={id} />
         <ExportButton
           data={job.results as Record<string, unknown>}
