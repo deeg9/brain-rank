@@ -32,7 +32,7 @@ export function HowItWorks() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 max-w-5xl mx-auto">
         {STEPS.map((step) => (
           <div key={step.number} className="flex flex-col items-center">
-            <span className="font-headline text-4xl md:text-5xl font-black text-white/40">
+            <span className="font-headline text-4xl md:text-5xl font-black text-white">
               {step.number}
             </span>
             <span className="material-symbols-outlined text-4xl text-on-background">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { BrainHero } from "./BrainHero";
 import { Button } from "@/components/ui";
+import { MatrixText } from "@/components/ui/MatrixText";
 import { createClient } from "@/lib/supabase/client";
 
 const FEATURE_PILLS = [
@@ -56,15 +57,13 @@ export function HeroOdyssey() {
 
         {/* Center content */}
         <div className="flex flex-grow flex-col items-center justify-center gap-8">
-          <motion.h1
+          <MatrixText
+            text="See What Brains See"
             className="font-headline text-4xl font-bold tracking-tight text-on-background md:text-5xl lg:text-7xl"
-            variants={fadeUp}
-            initial="initial"
-            animate="animate"
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            See What Brains See
-          </motion.h1>
+            initialDelay={300}
+            letterAnimationDuration={400}
+            letterInterval={80}
+          />
 
           <motion.p
             className="max-w-2xl text-center text-base text-white font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] md:text-lg lg:text-xl"

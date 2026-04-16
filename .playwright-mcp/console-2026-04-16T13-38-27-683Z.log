@@ -1,3 +1,193 @@
 [     171ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
 [     198ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
 [     307ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  817474ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  817820ms] [LOG] [Fast Refresh] done in 454ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  871392ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  871416ms] [LOG] [Fast Refresh] done in 72ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  877047ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  877089ms] [LOG] THREE.WebGLRenderer: Context Lost. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  877090ms] [LOG] [Fast Refresh] done in 48ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  877137ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  877591ms] [WARNING] THREE.WebGLRenderer: WEBGL_lose_context extension not supported. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  889068ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  889394ms] [LOG] [Fast Refresh] done in 345ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  889539ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  889709ms] [LOG] [Fast Refresh] done in 272ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  899416ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  899680ms] [LOG] [Fast Refresh] done in 365ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  976275ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  976568ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[  976669ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  976824ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[  976826ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=wnywt:0
+[  976886ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[  976933ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/?_rsc=wnywt:0
+[  976991ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  977000ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:3272
+[  977102ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[  977158ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_react-dom_0bruynb._.js:15305
+[  977196ms] Error: ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (Error: ./src/components/hero/HeroOdyssey.tsx:8:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at Object.getCompilationErrors (file:///Users/deeg/Downloads/b_PtJ6SJaZFpQ-1773178607401/NeuroCut/web/node_modules/next/dist/server/dev/hot-reloader-turbopack.js:1186:59)
+    at DevBundlerService.getCompilationError (file:///Users/deeg/Downloads/b_PtJ6SJaZFpQ-1773178607401/NeuroCut/web/node_modules/next/dist/server/lib/dev-bundler-service.js:44:55)
+    at DevServer.getCompilationError (file:///Users/deeg/Downloads/b_PtJ6SJaZFpQ-1773178607401/NeuroCut/web/node_modules/next/dist/server/dev/next-dev-server.js:719:42)
+    at DevServer.findPageComponents (file:///Users/deeg/Downloads/b_PtJ6SJaZFpQ-1773178607401/NeuroCut/web/node_modules/next/dist/server/dev/next-dev-server.js:689:43)
+    at async DevServer.renderErrorToResponseImpl (file:///Users/deeg/Downloads/b_PtJ6SJaZFpQ-1773178607401/NeuroCut/web/node_modules/next/dist/server/base-server.js:1745:26)
+[  977200ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[  977209ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[  977215ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1945
+[  977230ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1945
+[  977270ms] [ERROR] ./src/components/hero/HeroOdyssey.tsx:8:1
+Module not found: Can't resolve '@/components/ui/MatrixText'
+   6 | import { BrainHero } from "./BrainHero";
+   7 | import { Button } from "@/components/ui";
+>  8 | import { MatrixText } from "@/components/ui/MatrixText";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   9 | import { createClient } from "@/lib/supabase/client";
+  10 |
+  11 | const FEATURE_PILLS = [
+
+Import map: aliased to relative './src/components/ui/MatrixText' inside of [project]/
+
+Import trace:
+  Server Component:
+    ./src/components/hero/HeroOdyssey.tsx
+    ./src/app/page.tsx
+
+https://nextjs.org/docs/messages/module-not-found @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1945
+[  977332ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[ 1034149ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[ 1034223ms] [LOG] [Fast Refresh] done in 143ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_0u_w_5s._.js:1226
+[ 1034649ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1034662ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1034809ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1103798ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1103822ms] [LOG] [Fast Refresh] done in 66ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1224980ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1224998ms] [LOG] [Fast Refresh] done in 96ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1249469ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[ 1249470ms] [LOG] [Fast Refresh] done in 102ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
