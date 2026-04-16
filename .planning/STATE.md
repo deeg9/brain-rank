@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Mobile Optimization
-status: defining-requirements
-stopped_at: Milestone started — defining requirements
+status: ready-to-plan
+stopped_at: Roadmap created — Phase 68 next up
 last_updated: "2026-04-16T00:00:00.000Z"
 last_activity: 2026-04-16
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-16)
 
 **Core value:** Content creators upload content and get per-segment neural engagement scores showing where brains light up and where they tune out
-**Current focus:** v8.0 Mobile Optimization — authenticated + public pages rendered cleanly on iPhone 15
+**Current focus:** v8.0 Mobile Optimization — every authenticated and public-shared BrainRank page renders cleanly on iPhone 15 (390×844) while preserving the existing desktop architecture
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: Phase 68 — Mobile Shell & Navigation Primitive (next up)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-16 — Milestone v8.0 started
+Status: Ready to plan Phase 68
+Last activity: 2026-04-16 — v8.0 roadmap created, 34 requirements mapped across 6 phases (68–73)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 83+ (v1.0 through v5.0)
+- Total plans completed: 83+ (v1.0 through v5.0) + 5 plans (v7.0)
 - Average duration: varies
-- Total execution time: ~6 days (2026-04-07 to 2026-04-13)
+- Total execution time: ~7 days (2026-04-07 to 2026-04-15)
 
 **By Phase:**
 
@@ -48,6 +48,8 @@ Last activity: 2026-04-16 — Milestone v8.0 started
 | v3.0 (38-43) | 9 | ~0.5 days | - |
 | v4.0 (44-51) | 10 | ~1 day | - |
 | v5.0 (52-58) | 11 | ~1 day | - |
+| v7.0 (65-67) | 5 | ~1 day | - |
+| v8.0 (68-73) | 0/? | — | - |
 
 *Updated after each plan completion*
 | Phase 65 P01 | 43s | 2 tasks | 3 files |
@@ -71,6 +73,12 @@ Last activity: 2026-04-16 — Milestone v8.0 started
 - [Phase 66]: CSS mockup over static screenshot for preview section — more maintainable and matches brutalist aesthetic
 - [Phase 67]: ScrollReveal uses Framer Motion useInView with once:true and -100px margin for subtle fade-up on first scroll
 - [Phase 67]: Mobile DPR capped at [1,1] via matchMedia to prevent GPU overload on low-end devices
+- [v8.0]: 6 phases derived from 34 requirements across 6 categories (SHELL, AUTH, HUB, FLOW, SEC, QA)
+- [v8.0]: Phase 68 (shell) must land first — every downstream phase inherits MobileNavSheet and responsive AppShell gutters
+- [v8.0]: QA requirements (QA-01 through QA-06) consolidated into Phase 73 sweep phase rather than distributed per phase
+- [v8.0]: Mobile nav pattern = hamburger → slide-down sheet (minimal architecture change vs left-drawer or bottom-tab)
+- [v8.0]: Tailwind `md:` (768px) = desktop/mobile split; mobile = default, desktop = `md:` overrides
+- [v8.0]: Reuse-first — no new design system, just responsive refinement of existing components (DiscoverCard, MetricCard, StatTile, BrainViewer, ActivationTimeline)
 
 ### Pending Todos
 
@@ -82,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-15T19:51:00Z
-Stopped at: Completed 67-01-PLAN.md (Tasks 1-2, Task 3 pending human-verify)
+Last session: 2026-04-16T00:00:00Z
+Stopped at: ROADMAP.md created for v8.0; Phase 68 ready to plan via `/gsd-plan-phase 68`
 Resume file: None

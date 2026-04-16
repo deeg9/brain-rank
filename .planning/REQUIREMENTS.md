@@ -91,4 +91,39 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| _(filled by roadmapper)_ | | |
+| SHELL-01 | Phase 68 | Pending |
+| SHELL-02 | Phase 68 | Pending |
+| SHELL-03 | Phase 68 | Pending |
+| SHELL-04 | Phase 68 | Pending |
+| SHELL-05 | Phase 68 | Pending |
+| AUTH-01 | Phase 69 | Pending |
+| AUTH-02 | Phase 69 | Pending |
+| AUTH-03 | Phase 69 | Pending |
+| AUTH-04 | Phase 69 | Pending |
+| HUB-01 | Phase 70 | Pending |
+| HUB-02 | Phase 70 | Pending |
+| HUB-03 | Phase 70 | Pending |
+| HUB-04 | Phase 70 | Pending |
+| HUB-05 | Phase 70 | Pending |
+| FLOW-01 | Phase 71 | Pending |
+| FLOW-02 | Phase 71 | Pending |
+| FLOW-03 | Phase 71 | Pending |
+| FLOW-04 | Phase 71 | Pending |
+| FLOW-05 | Phase 71 | Pending |
+| FLOW-06 | Phase 71 | Pending |
+| FLOW-07 | Phase 71 | Pending |
+| FLOW-08 | Phase 71 | Pending |
+| FLOW-09 | Phase 71 | Pending |
+| SEC-01 | Phase 72 | Pending |
+| SEC-02 | Phase 72 | Pending |
+| SEC-03 | Phase 72 | Pending |
+| SEC-04 | Phase 72 | Pending |
+| SEC-05 | Phase 72 | Pending |
+| QA-01 | Phase 73 | Pending |
+| QA-02 | Phase 73 | Pending |
+| QA-03 | Phase 73 | Pending |
+| QA-04 | Phase 73 | Pending |
+| QA-05 | Phase 73 | Pending |
+| QA-06 | Phase 73 | Pending |
+
+**Coverage:** 34/34 requirements mapped (100%) across 6 phases.
