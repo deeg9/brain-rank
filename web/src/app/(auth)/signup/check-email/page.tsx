@@ -3,7 +3,6 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { AuthLayout } from '@/components/layout/AuthLayout'
 import { createClient } from '@/lib/supabase/client'
 
 function CheckEmailContent() {
@@ -35,8 +34,16 @@ function CheckEmailContent() {
   }
 
   return (
-    <AuthLayout maxWidth="max-w-md">
-      <div className="bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-6 relative">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
+        <img
+          src="/illustrations/logo-icon.png"
+          alt=""
+          className="w-[80vmin] h-[80vmin] object-contain opacity-[0.04]"
+        />
+      </div>
+      <main className="relative z-10 w-full max-w-md">
+        <div className="bg-white rounded-2xl p-8 shadow-sm text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mx-auto">
           <span className="material-symbols-outlined text-3xl text-on-surface-variant">
             mail
@@ -74,8 +81,9 @@ function CheckEmailContent() {
             Use a different email
           </Link>
         </div>
-      </div>
-    </AuthLayout>
+        </div>
+      </main>
+    </div>
   )
 }
 
