@@ -1,0 +1,72 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e5]: BRAIN|RANK
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: "@User"
+        - paragraph [ref=e16]: 5 credits
+      - button "person" [ref=e18]:
+        - generic [ref=e19]: person
+  - main [ref=e20]
+  - contentinfo [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - heading "BRAIN|RANK" [level=3] [ref=e36]
+        - generic [ref=e37]:
+          - heading "Legal" [level=4] [ref=e38]
+          - list [ref=e39]:
+            - listitem [ref=e40]:
+              - link "Privacy Policy" [ref=e41] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e42]:
+              - link "Terms and Conditions" [ref=e43] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e44]:
+              - link "Disclaimer" [ref=e45] [cursor=pointer]:
+                - /url: /disclaimer
+        - generic [ref=e46]:
+          - heading "Resources" [level=4] [ref=e47]
+          - list [ref=e48]:
+            - listitem [ref=e49]:
+              - link "How It Works" [ref=e50] [cursor=pointer]:
+                - /url: /resources
+            - listitem [ref=e51]:
+              - link "Understanding Scores" [ref=e52] [cursor=pointer]:
+                - /url: /resources#scores
+            - listitem [ref=e53]:
+              - link "Brain Regions" [ref=e54] [cursor=pointer]:
+                - /url: /resources#regions
+            - listitem [ref=e55]:
+              - link "Use Cases" [ref=e56] [cursor=pointer]:
+                - /url: /use-cases
+            - listitem [ref=e57]:
+              - link "TRIBE v2" [ref=e58] [cursor=pointer]:
+                - /url: https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/
+        - generic [ref=e59]:
+          - heading "Company" [level=4] [ref=e60]
+          - list [ref=e61]:
+            - listitem [ref=e62]:
+              - link "Pricing" [ref=e63] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=e64]:
+              - link "About" [ref=e65] [cursor=pointer]:
+                - /url: /about
+      - generic [ref=e66]:
+        - paragraph [ref=e67]:
+          - text: © 2026
+          - generic [ref=e68]: BRAIN|RANK
+        - paragraph [ref=e69]: Neural activation predictions are computational estimates, not medical measurements.
+  - button "Open Next.js Dev Tools" [ref=e75] [cursor=pointer]:
+    - img [ref=e76]
+  - alert [ref=e79]

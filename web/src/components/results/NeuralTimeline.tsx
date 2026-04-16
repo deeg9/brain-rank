@@ -108,14 +108,13 @@ interface SingleTrackProps {
   data: ChartPoint[];
   config: (typeof TRACK_CONFIG)[number];
   duration: number;
-  isLast: boolean;
   showTooltip: boolean;
   lookup: Map<number, { label: string; color: string; value: number }[]>;
   currentTime?: number;
   onSeek?: (time: number) => void;
 }
 
-function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, currentTime, onSeek }: SingleTrackProps) {
+function SingleTrack({ data, config, duration, showTooltip, lookup, currentTime, onSeek }: SingleTrackProps) {
   const tooltipRows = useCallback(
     (point: Record<string, unknown>): TooltipRow[] => {
       const t = point.t as number;
@@ -166,11 +165,11 @@ function SingleTrack({ data, config, duration, isLast, showTooltip, lookup, curr
         />
       </div>
 
-      <div className="flex-1" style={{ height: isLast ? 100 : 80 }}>
+      <div className="flex-1" style={{ height: 80 }}>
         <AreaChart
           data={data as unknown as Record<string, unknown>[]}
           xDataKey="date"
-          margin={{ top: 4, right: 8, bottom: isLast ? 24 : 4, left: 0 }}
+          margin={{ top: 4, right: 8, bottom: 4, left: 0 }}
           animationDuration={800}
           aspectRatio="auto"
           className="h-full"
@@ -215,6 +214,38 @@ export interface ZoneMarker {
 export interface IconMarker {
   time: number;
   type: 'share' | 'warning';
+}
+
+function TimeAxis({ segments }: { segments: SegmentData[] }) {
+  // Use the actual data extent to match the chart's auto-scaled x-axis
+  const maxTime = segments.length > 0
+    ? Math.max(...segments.map(s => s.start))
+    : 0;
+  const tickCount = maxTime <= 30 ? 6 : maxTime <= 120 ? 8 : 10;
+  const ticks: number[] = [];
+  for (let i = 0; i <= tickCount; i++) {
+    ticks.push((i / tickCount) * maxTime);
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-24 shrink-0" />
+      <div className="flex-1 relative h-5">
+        {ticks.map((t) => {
+          const pct = (t / maxTime) * 100;
+          return (
+            <span
+              key={t}
+              className="absolute font-mono text-[10px] text-on-surface-variant/60"
+              style={{ left: `${pct}%`, transform: 'translateX(-50%)' }}
+            >
+              {formatTimestamp(t)}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 interface NeuralTimelineProps {
@@ -269,9 +300,12 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
     window.addEventListener('mouseup', handleMouseUp);
   }, [onSeek, getTimeFromMouseEvent]);
 
+  // Filter out segments beyond the actual video duration
+  const filteredSegments = segments.filter(s => s.start < duration);
+
   const trackData = TRACK_CONFIG.map(config => ({
     ...config,
-    data: toChartData(segments, config.key),
+    data: toChartData(filteredSegments, config.key),
   }));
 
   const lookup = buildLookup(
@@ -325,13 +359,12 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
         style={{ cursor: onSeek ? 'crosshair' : undefined }}
         onMouseDown={handleMouseDown}
       >
-        {(expanded ? trackData : trackData.slice(0, DEFAULT_VISIBLE_COUNT)).map((track, index, arr) => (
+        {(expanded ? trackData : trackData.slice(0, DEFAULT_VISIBLE_COUNT)).map((track) => (
           <SingleTrack
             key={track.key}
             data={track.data}
             config={track}
             duration={duration}
-            isLast={index === arr.length - 1}
             showTooltip
             lookup={lookup}
             currentTime={currentTime}
@@ -339,6 +372,8 @@ export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones,
           />
         ))}
       </div>
+
+      <TimeAxis segments={filteredSegments} />
 
       {TRACK_CONFIG.length > DEFAULT_VISIBLE_COUNT && (
         <button

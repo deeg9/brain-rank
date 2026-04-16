@@ -163,8 +163,12 @@ export default function ResultsDetailPage({ params }: Props) {
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) {
       setCurrentTime(videoRef.current.currentTime);
+      // Also capture duration in case loadedmetadata fired before handler was attached
+      if (videoRef.current.duration && videoDuration === 0) {
+        setVideoDuration(videoRef.current.duration);
+      }
     }
-  }, []);
+  }, [videoDuration]);
 
   const handleSeek = useCallback((time: number) => {
     if (videoRef.current) {
@@ -466,7 +470,7 @@ export default function ResultsDetailPage({ params }: Props) {
       ) : (
         <NeuralTimeline
           segments={segments}
-          duration={results.duration_seconds}
+          duration={videoDuration || results.duration_seconds}
           currentTime={currentTime}
           onSeek={handleSeek}
           zones={zones}

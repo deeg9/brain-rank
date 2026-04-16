@@ -90,6 +90,11 @@ export async function POST(
 
     // Re-dispatch to RunPod
     const videoUrl = (job).video_url as string
+    const webhookSecret = process.env.RUNPOD_WEBHOOK_SECRET
+    const webhookUrl = webhookSecret
+      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'}/api/runpod/webhook?secret=${encodeURIComponent(webhookSecret)}`
+      : undefined
+
     let runpodResponse: { id: string; status: string }
     try {
       const res = await fetch(`https://api.runpod.ai/v2/${endpointId}/run`, {
@@ -98,7 +103,10 @@ export async function POST(
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ input: { video_url: videoUrl } }),
+        body: JSON.stringify({
+          input: { video_url: videoUrl },
+          ...(webhookUrl ? { webhook: webhookUrl } : {}),
+        }),
       })
 
       if (!res.ok) {

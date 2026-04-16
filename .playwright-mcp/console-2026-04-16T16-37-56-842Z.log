@@ -1,0 +1,54 @@
+[     572ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[     588ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[    2113ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   64581ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   64609ms] [LOG] [Fast Refresh] done in 60ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   64682ms] [LOG] THREE.WebGLRenderer: Context Lost. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[   64743ms] TypeError: Cannot read properties of null (reading 'alpha')
+    at EffectComposer.setRenderer (http://localhost:3000/_next/static/chunks/node_modules_postprocessing_build_index_0j26pce.js:1158:71)
+    at new EffectComposer (http://localhost:3000/_next/static/chunks/node_modules_postprocessing_build_index_0j26pce.js:1106:14)
+    at http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:3762:19
+    at ec (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:9675:25)
+    at Object.useMemo (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:13343:32)
+    at exports.useMemo (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:1742:36)
+    at http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:3761:493
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:13199:32)
+    at It (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:9068:25)
+    at hf (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:10068:35)
+    at tt (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:10565:32)
+    at B (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:7885:105)
+    at Ph (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12411:50)
+    at wh (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12328:36)
+    at Ff (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12319:21)
+    at Lf (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12090:75)
+    at Tu (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:8282:129)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:361:64)
+[   64750ms] [ERROR] %o
+
+%s TypeError: Cannot read properties of null (reading 'alpha')
+    at EffectComposer.setRenderer (http://localhost:3000/_next/static/chunks/node_modules_postprocessing_build_index_0j26pce.js:1158:71)
+    at new EffectComposer (http://localhost:3000/_next/static/chunks/node_modules_postprocessing_build_index_0j26pce.js:1106:14)
+    at http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:3762:19
+    at ec (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:9675:25)
+    at Object.useMemo (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:13343:32)
+    at exports.useMemo (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_0rpq4pf._.js:1742:36)
+    at http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:3761:493
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:13199:32)
+    at It (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:9068:25)
+    at hf (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:10068:35)
+    at tt (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:10565:32)
+    at B (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:7885:105)
+    at Ph (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12411:50)
+    at wh (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12328:36)
+    at Ff (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12319:21)
+    at Lf (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:12090:75)
+    at Tu (http://localhost:3000/_next/static/chunks/node_modules_%40react-three_fiber_dist_0cm6msm._.js:8282:129)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_0s9e9y3._.js:361:64) The above error occurred in the <CanvasImpl> component. It was handled by the <ErrorBoundaryHandler> error boundary. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_0fhqo1d._.js:1998
+[   65186ms] [WARNING] THREE.WebGLRenderer: WEBGL_lose_context extension not supported. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  108665ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  108693ms] [LOG] [Fast Refresh] done in 74ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  111060ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  118138ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  118148ms] [LOG] THREE.WebGLRenderer: Context Lost. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  118158ms] [LOG] [Fast Refresh] done in 45ms @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431
+[  119682ms] [WARNING] THREE.THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_115brz8._.js:2431

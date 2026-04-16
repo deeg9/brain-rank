@@ -32,6 +32,14 @@ export function VideoPlayer({
   const [isMuted, setIsMuted] = useState(false);
   const [showControls, setShowControls] = useState(true);
 
+  // If video metadata already loaded before React attached the handler (cached video)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && video.readyState >= 1 && video.duration) {
+      onLoadedMetadata();
+    }
+  }, [videoRef, onLoadedMetadata]);
+
   const togglePlay = useCallback(() => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {

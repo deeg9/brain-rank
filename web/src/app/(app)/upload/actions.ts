@@ -38,6 +38,11 @@ export async function createJob(
   const apiKey = process.env.RUNPOD_API_KEY
   const endpointId = process.env.RUNPOD_ENDPOINT_ID
   if (apiKey && apiKey !== 'placeholder' && endpointId && endpointId !== 'placeholder') {
+    const webhookSecret = process.env.RUNPOD_WEBHOOK_SECRET
+    const webhookUrl = webhookSecret
+      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'}/api/runpod/webhook?secret=${encodeURIComponent(webhookSecret)}`
+      : undefined
+
     try {
       const runpodRes = await fetch(
         `https://api.runpod.ai/v2/${endpointId}/run`,
@@ -56,6 +61,7 @@ export async function createJob(
               ...(textStyle ? { text_style: textStyle } : {}),
               ...(inputType === 'image' && imageDuration ? { image_duration: imageDuration } : {}),
             },
+            ...(webhookUrl ? { webhook: webhookUrl } : {}),
           }),
         }
       )

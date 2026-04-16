@@ -21,6 +21,16 @@ export function getStageIndex(stage: JobStage): number {
   return idx === -1 ? STAGES.length : idx
 }
 
+export function extractFilename(videoUrl: string): string {
+  try {
+    const url = new URL(videoUrl)
+    const segments = url.pathname.split('/')
+    return segments[segments.length - 1] || 'video.mp4'
+  } catch {
+    return 'video.mp4'
+  }
+}
+
 export async function fetchJobStatus(jobId: string): Promise<JobStatusResponse> {
   const res = await fetch(`/api/jobs/${jobId}/status`)
   if (!res.ok) {
