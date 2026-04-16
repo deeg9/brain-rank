@@ -25,9 +25,9 @@ function getPasswordStrength(password: string) {
   const textColors = [
     '',
     'text-error',
-    'text-[#f59e0b]',
-    'text-[#eab308]',
-    'text-tertiary-container',
+    'text-[#b45309]',
+    'text-[#a16207]',
+    'text-[#15803d]',
   ] as const
 
   return { score, label: labels[score], color: colors[score], textColor: textColors[score] }
@@ -131,10 +131,10 @@ export default function SignupPage() {
               onChange={(e) => setTermsAccepted(e.target.checked)}
               className="peer sr-only"
             />
-            <div className="h-5 w-5 rounded bg-surface-container-lowest peer-checked:bg-primary transition-colors duration-200 flex items-center justify-center">
+            <div className="h-5 w-5 rounded bg-surface-container-lowest peer-checked:bg-black transition-colors duration-200 flex items-center justify-center">
               {termsAccepted && (
                 <svg
-                  className="h-3.5 w-3.5 text-on-primary"
+                  className="h-3.5 w-3.5 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

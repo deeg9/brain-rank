@@ -59,27 +59,12 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    // If username is being set (not null/undefined), use upsert to handle first-time creation
-    // Otherwise use update for bio/avatar changes
-    let data, error
-    if (body.username !== undefined && body.username !== null) {
-      const result = await supabase
-        .from('profiles')
-        .upsert({ id: user.id, ...updateObj } as { id: string } & ProfileUpdate)
-        .select()
-        .single()
-      data = result.data
-      error = result.error
-    } else {
-      const result = await supabase
-        .from('profiles')
-        .update(updateObj as ProfileUpdate)
-        .eq('id', user.id)
-        .select()
-        .single()
-      data = result.data
-      error = result.error
-    }
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updateObj as ProfileUpdate)
+      .eq('id', user.id)
+      .select()
+      .single()
 
     if (error) {
       if (error.code === '23505') {
