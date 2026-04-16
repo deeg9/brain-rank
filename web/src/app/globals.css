@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* ─── Autofill detection for floating labels ──────────────────── */
+@keyframes onAutoFillStart { from {} }
+@keyframes onAutoFillCancel { from {} }
+input:-webkit-autofill { animation-name: onAutoFillStart; }
+input:not(:-webkit-autofill) { animation-name: onAutoFillCancel; }
+
 /* ─── Light Mode Tokens (default) ───────────────────────────────
  * Tailwind 4 @theme compiles these at build time as class defaults.
  * These ARE the light mode values.

@@ -49,12 +49,15 @@ export default function LoginPage() {
           required
         />
 
-        {/* Password with Forgot Password link */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label className="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant ml-1">
-              Password
-            </label>
+        <div>
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+          <div className="flex justify-end mt-1">
             <Link
               href="/forgot-password"
               className="text-xs font-semibold text-primary hover:text-primary-dim transition-colors"
@@ -62,12 +65,6 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <Input
-            type="password"
-            name="password"
-            placeholder="••••••••"
-            required
-          />
         </div>
 
         <div className="pt-2">
