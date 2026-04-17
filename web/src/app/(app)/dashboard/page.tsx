@@ -157,6 +157,7 @@ export default async function DashboardPage() {
               status: mapStatus(job.status),
               is_public: job.is_public,
               input_type: (job as any).input_type ?? null,
+              text_content: (job as any).text_content ?? null,
               category: (job as any).category ?? null,
               view_count: (job as any).view_count ?? 0,
               score: scoreInfo?.score ?? null,

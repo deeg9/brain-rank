@@ -191,7 +191,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
                     className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <div className="w-16 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 relative">
-                      <VideoThumb src={job.video_url} alt={title} />
+                      <VideoThumb
+                        src={job.video_url}
+                        alt={title}
+                        inputType={(job as any).input_type ?? null}
+                        textContent={(job as any).text_content ?? null}
+                      />
                     </div>
                     <div className="ml-4 flex-1 min-w-0">
                       <div className="flex justify-between items-center gap-2">

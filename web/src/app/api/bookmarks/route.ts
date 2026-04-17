@@ -32,7 +32,7 @@ export async function GET() {
 
     const { data: jobs, error: jobsError } = await supabase
       .from('jobs')
-      .select('id, title, video_url, results, created_at, user_id, view_count')
+      .select('id, title, video_url, results, created_at, user_id, view_count, input_type, text_content')
       .in('id', jobIds)
       .eq('is_public', true)
       .eq('status', 'completed')
@@ -50,6 +50,8 @@ export async function GET() {
       created_at: string
       user_id: string
       view_count: number
+      input_type: string | null
+      text_content: string | null
     }
 
     const typedJobs = jobs as unknown as JobRow[]
@@ -80,6 +82,8 @@ export async function GET() {
         view_count: job.view_count,
         creator_username: profile?.username ?? null,
         creator_avatar_url: profile?.avatar_url ?? null,
+        input_type: job.input_type ?? null,
+        text_content: job.text_content ?? null,
       }
     })
 

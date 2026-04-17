@@ -68,7 +68,7 @@ export default function DiscoverPage() {
     // Fetch all public completed jobs
     const { data: jobs, error: jobsError } = await supabase
       .from("jobs")
-      .select("id, title, video_url, results, created_at, user_id, view_count, category, input_type")
+      .select("id, title, video_url, results, created_at, user_id, view_count, category, input_type, text_content")
       .eq("is_public", true)
       .eq("status", "completed");
 
@@ -90,6 +90,7 @@ export default function DiscoverPage() {
       view_count: number;
       category: string | null;
       input_type: string | null;
+      text_content: string | null;
     };
     type ProfileRow = {
       id: string;
@@ -130,6 +131,7 @@ export default function DiscoverPage() {
         creator_avatar_url: profile?.avatar_url ?? null,
         category: job.category ?? null,
         input_type: (job.input_type as any) ?? null,
+        text_content: job.text_content ?? null,
       };
     });
 

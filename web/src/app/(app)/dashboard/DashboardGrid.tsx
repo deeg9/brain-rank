@@ -27,6 +27,7 @@ interface SerializedJob {
   status: "queued" | "processing" | "complete" | "failed";
   is_public: boolean;
   input_type: string | null;
+  text_content: string | null;
   category: string | null;
   view_count: number;
   score: number | null;
@@ -72,7 +73,12 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
             <Card key={job.id} hover className={`overflow-visible group relative hover:z-30 ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-48 h-48 md:h-auto relative overflow-hidden bg-white">
-                  <VideoThumb src={job.video_url} alt={job.title} />
+                  <VideoThumb
+                    src={job.video_url}
+                    alt={job.title}
+                    inputType={job.input_type}
+                    textContent={job.text_content}
+                  />
                 </div>
                 <div className="flex-1 p-6 flex flex-col justify-between">
                   <div>

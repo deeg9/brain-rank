@@ -22,6 +22,7 @@ export interface DiscoverAnalysis {
   creator_avatar_url: string | null;
   category?: string | null;
   input_type?: InputType | null;
+  text_content?: string | null;
 }
 
 interface DiscoverCardProps {
@@ -50,7 +51,12 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
       <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all group hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
         {/* Thumbnail */}
         <div className="relative aspect-video bg-gray-100 rounded-t-xl overflow-hidden">
-          <VideoThumb src={analysis.video_url} alt={title} />
+          <VideoThumb
+            src={analysis.video_url}
+            alt={title}
+            inputType={analysis.input_type}
+            textContent={analysis.text_content}
+          />
           <div className="absolute top-2 right-2 z-10 flex gap-1.5">
             {onCompareSelect && (
               <button
