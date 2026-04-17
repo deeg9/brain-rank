@@ -54,7 +54,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicProfile = pathname.startsWith('/u/')
   const isPublicAnalysis = pathname.startsWith('/analysis/')
   const isAuthCallback = pathname.startsWith('/auth/callback') || pathname.startsWith('/auth/confirm')
-  const isWebhook = pathname.startsWith('/api/runpod/webhook')
+  const isWebhook = pathname.startsWith('/api/runpod/webhook') || pathname.startsWith('/api/stripe/webhook')
   const isOnboarding = pathname === '/onboarding'
   const isApiRoute = pathname.startsWith('/api/')
 
