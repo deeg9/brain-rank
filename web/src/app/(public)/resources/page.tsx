@@ -11,7 +11,7 @@ export const metadata = {
 export default function ResourcesPage() {
   return (
     <PageTransition>
-    <div className="max-w-4xl mx-auto space-y-10 md:space-y-12 pt-6 pb-16 px-4 md:px-0">
+    <div className="max-w-4xl mx-auto space-y-10 md:space-y-12 pt-10 md:pt-16 pb-16 px-4 md:px-0">
       {/* Header */}
       <div>
         <h1 className="font-headline text-3xl md:text-4xl font-bold text-black tracking-tight">
