@@ -45,9 +45,9 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
 
   return (
     <Link href={`/analysis/${analysis.id}`}>
-      <div className={`bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all group hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
+      <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all group hover:-translate-y-0.5 ${isSelected ? 'ring-2 ring-black ring-offset-2' : ''}`}>
         {/* Thumbnail */}
-        <div className="relative aspect-video bg-gray-100">
+        <div className="relative aspect-video bg-gray-100 rounded-t-xl overflow-hidden">
           <VideoThumb src={analysis.video_url} alt={title} />
           <div className="absolute top-2 right-2 z-10 flex gap-1.5">
             {onCompareSelect && (

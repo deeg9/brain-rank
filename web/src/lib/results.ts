@@ -1,3 +1,5 @@
+import { computeEngagement, computeRetention } from './engagement'
+
 export interface RegionScores {
   attention: number
   reward: number
@@ -43,13 +45,40 @@ export function getEngagementLevel(score: number): 'high' | 'medium' | 'low' {
 }
 
 /**
- * Extract a 0-100 overall score from a job's results JSON.
- * Prefers summary.overall (0-1, scaled to 100). Falls back to legacy overall_score.
+ * Extract the canonical 0-100 engagement score from a job's results JSON.
+ *
+ * Prefers the engagement composite (40% peak + 30% hook + 30% retention) when
+ * the full summary + segments are available — this matches what the dashboard
+ * shows so every surface (dashboard, discover, profile, /u/[username],
+ * bookmarks) displays the same number for the same analysis.
+ *
+ * Falls back to summary.overall * 100, then to the legacy overall_score field.
  * Returns null when no usable score is present.
  */
 export function extractOverallScore(results: Record<string, unknown> | null | undefined): number | null {
   if (!results) return null
-  const summary = results.summary as { overall?: unknown } | undefined
+
+  const summary = results.summary as
+    | { hook_score?: number; peak_score?: number; overall?: number }
+    | undefined
+  const segments = results.segments as { activation_score: number }[] | undefined
+
+  if (
+    summary &&
+    segments &&
+    segments.length > 0 &&
+    typeof summary.hook_score === 'number' &&
+    typeof summary.peak_score === 'number'
+  ) {
+    const retention = computeRetention(segments)
+    const engagement = computeEngagement({
+      peak: summary.peak_score,
+      hook: summary.hook_score,
+      retention,
+    })
+    return Math.round(engagement * 100)
+  }
+
   if (typeof summary?.overall === 'number') return Math.round(summary.overall * 100)
   const legacy = (results as { overall_score?: unknown }).overall_score
   if (typeof legacy === 'number') return Math.round(legacy)
