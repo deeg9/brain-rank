@@ -67,8 +67,8 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
                 }}
                 className={`p-1.5 rounded-full transition-colors ${
                   isSelected
-                    ? 'text-black'
-                    : 'text-on-surface-variant hover:text-on-surface'
+                    ? 'bg-white text-black hover:bg-white/90'
+                    : 'bg-black/50 backdrop-blur-sm text-white hover:bg-black/70'
                 }`}
                 title={isSelected ? "Remove from comparison" : "Add to comparison"}
               >
@@ -81,6 +81,7 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
               jobId={analysis.id}
               initialBookmarked={initialBookmarked}
               onToggle={onBookmarkToggle}
+              variant="overlay"
             />
           </div>
         </div>

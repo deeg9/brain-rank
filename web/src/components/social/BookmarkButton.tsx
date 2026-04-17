@@ -6,9 +6,11 @@ interface BookmarkButtonProps {
   jobId: string;
   initialBookmarked?: boolean;
   onToggle?: (bookmarked: boolean) => void;
+  /** "inline" (default): plain icon for inline page use. "overlay": translucent dark pill for thumbnail overlays. */
+  variant?: "inline" | "overlay";
 }
 
-export function BookmarkButton({ jobId, initialBookmarked, onToggle }: BookmarkButtonProps) {
+export function BookmarkButton({ jobId, initialBookmarked, onToggle, variant = "inline" }: BookmarkButtonProps) {
   const [bookmarked, setBookmarked] = useState(initialBookmarked ?? false);
   const [loaded, setLoaded] = useState(initialBookmarked !== undefined);
 
@@ -63,10 +65,16 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle }: BookmarkB
     [bookmarked, jobId]
   );
 
+  const isOverlay = variant === "overlay";
+
   if (!loaded) {
     return (
       <button
-        className="p-1.5 rounded-full text-on-surface-variant/50"
+        className={
+          isOverlay
+            ? "p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/50"
+            : "p-1.5 rounded-full text-on-surface-variant/50"
+        }
         disabled
         aria-label="Loading bookmark status"
       >
@@ -75,14 +83,17 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle }: BookmarkB
     );
   }
 
+  const overlayClass = bookmarked
+    ? "bg-white text-black hover:bg-white/90"
+    : "bg-black/50 backdrop-blur-sm text-white hover:bg-black/70";
+  const inlineClass = bookmarked
+    ? "text-black"
+    : "text-on-surface-variant hover:text-on-surface";
+
   return (
     <button
       onClick={handleClick}
-      className={`p-1.5 rounded-full transition-colors ${
-        bookmarked
-          ? "text-black"
-          : "text-on-surface-variant hover:text-on-surface"
-      }`}
+      className={`p-1.5 rounded-full transition-colors ${isOverlay ? overlayClass : inlineClass}`}
       aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
     >
       <span
