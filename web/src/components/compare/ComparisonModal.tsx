@@ -399,7 +399,7 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                       <MetricInfo
                         title="Comparison Table"
                         description="Side-by-side comparison of key neural engagement metrics between two analyses."
-                        calculation="Each metric is independently computed by BrainRank for both analyses. The Delta column shows the difference (B minus A)."
+                        calculation="Each metric is independently computed by TRIBE v2 for both analyses. The Delta column shows the difference (B minus A)."
                         interpretation="Positive deltas (green) mean Analysis B scored higher. Negative deltas (red) mean Analysis A scored higher. Use this to identify which content performs better across each dimension."
                       />
                     </p>
