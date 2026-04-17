@@ -13,6 +13,7 @@ import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
 import { MetricInfo } from "@/components/results/MetricInfo";
 import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
+import type { ScoreBreakdown } from "@/lib/results";
 
 const ComparisonModal = dynamic(
   () => import("@/components/compare/ComparisonModal").then(m => m.ComparisonModal),
@@ -29,6 +30,7 @@ interface SerializedJob {
   category: string | null;
   view_count: number;
   score: number | null;
+  breakdown?: ScoreBreakdown;
   created_at: string;
 }
 
@@ -119,7 +121,7 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
                           >
                             <span className="material-symbols-outlined text-sm leading-none text-black cursor-help">trophy</span>
                           </MetricInfo>
-                          <ScoreBadge value={job.score} size="sm" />
+                          <ScoreBadge value={job.score} breakdown={job.breakdown} size="sm" />
                         </span>
                       )}
                     </div>

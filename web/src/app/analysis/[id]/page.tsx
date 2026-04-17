@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ResultsData } from "@/lib/results";
+import { extractScoreInfo } from "@/lib/results";
 import type { SegmentData } from "@/components/results/SegmentTable";
 import type { Job } from "@/lib/database.types";
 import { analyzeBenchmark } from "@/lib/benchmark";
@@ -207,8 +208,17 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
             </span>
           )}
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
-            <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
-            <ScoreBadge value={summary.overall} size="sm" />
+            {(() => {
+              const info = extractScoreInfo(job.results as Record<string, unknown> | null);
+              return (
+                <ScoreBadge
+                  value={info?.score ?? null}
+                  breakdown={info?.breakdown}
+                  size="sm"
+                  icon={<span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>}
+                />
+              );
+            })()}
           </span>
         </div>
       </div>

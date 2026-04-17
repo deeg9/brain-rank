@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { extractOverallScore } from '@/lib/results'
+import { extractScoreInfo } from '@/lib/results'
 
 export async function GET() {
   try {
@@ -68,12 +68,14 @@ export async function GET() {
     // Map to DiscoverAnalysis-compatible objects with view_count
     const result = typedJobs.map((job) => {
       const profile = profileMap.get(job.user_id)
+      const scoreInfo = extractScoreInfo(job.results as Record<string, unknown> | null)
 
       return {
         id: job.id,
         title: job.title,
         video_url: job.video_url,
-        overall_score: extractOverallScore(job.results as Record<string, unknown> | null),
+        overall_score: scoreInfo?.score ?? null,
+        breakdown: scoreInfo?.breakdown,
         created_at: job.created_at,
         view_count: job.view_count,
         creator_username: profile?.username ?? null,

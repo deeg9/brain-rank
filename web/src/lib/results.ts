@@ -44,18 +44,27 @@ export function getEngagementLevel(score: number): 'high' | 'medium' | 'low' {
   return 'low'
 }
 
+export interface ScoreBreakdown {
+  hook: number       // 0-1
+  peak: number       // 0-1
+  retention: number  // 0-1
+}
+
+export interface ScoreInfo {
+  score: number              // 0-100 engagement (canonical)
+  breakdown?: ScoreBreakdown // present only when full summary + segments available
+}
+
 /**
- * Extract the canonical 0-100 engagement score from a job's results JSON.
+ * Extract the canonical engagement score and (when available) its
+ * peak/hook/retention sub-components from a job's results JSON.
  *
- * Prefers the engagement composite (40% peak + 30% hook + 30% retention) when
- * the full summary + segments are available — this matches what the dashboard
- * shows so every surface (dashboard, discover, profile, /u/[username],
- * bookmarks) displays the same number for the same analysis.
- *
- * Falls back to summary.overall * 100, then to the legacy overall_score field.
- * Returns null when no usable score is present.
+ * Prefers the engagement composite (40% peak + 30% hook + 30% retention)
+ * when summary + segments are present. Falls back to summary.overall * 100,
+ * then to the legacy overall_score field. Returns null when nothing usable
+ * is present.
  */
-export function extractOverallScore(results: Record<string, unknown> | null | undefined): number | null {
+export function extractScoreInfo(results: Record<string, unknown> | null | undefined): ScoreInfo | null {
   if (!results) return null
 
   const summary = results.summary as
@@ -76,13 +85,25 @@ export function extractOverallScore(results: Record<string, unknown> | null | un
       hook: summary.hook_score,
       retention,
     })
-    return Math.round(engagement * 100)
+    return {
+      score: Math.round(engagement * 100),
+      breakdown: {
+        hook: summary.hook_score,
+        peak: summary.peak_score,
+        retention,
+      },
+    }
   }
 
-  if (typeof summary?.overall === 'number') return Math.round(summary.overall * 100)
+  if (typeof summary?.overall === 'number') return { score: Math.round(summary.overall * 100) }
   const legacy = (results as { overall_score?: unknown }).overall_score
-  if (typeof legacy === 'number') return Math.round(legacy)
+  if (typeof legacy === 'number') return { score: Math.round(legacy) }
   return null
+}
+
+/** Backward-compatible thin wrapper — returns just the engagement score. */
+export function extractOverallScore(results: Record<string, unknown> | null | undefined): number | null {
+  return extractScoreInfo(results)?.score ?? null
 }
 
 export function parseJobResults(results: Record<string, unknown> | null): ResultsData | null {

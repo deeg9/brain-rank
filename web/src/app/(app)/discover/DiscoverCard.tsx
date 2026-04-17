@@ -8,12 +8,14 @@ import { BookmarkButton } from "@/components/social/BookmarkButton";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import type { InputType } from "@/lib/database.types";
+import type { ScoreBreakdown } from "@/lib/results";
 
 export interface DiscoverAnalysis {
   id: string;
   title: string | null;
   video_url: string;
   overall_score: number | null;
+  breakdown?: ScoreBreakdown;
   created_at: string;
   view_count?: number;
   creator_username: string | null;
@@ -141,6 +143,7 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
             )}
             <ScoreBadge
               value={analysis.overall_score}
+              breakdown={analysis.breakdown}
               size="sm"
               icon={<span className="material-symbols-outlined text-[14px] leading-none text-black">trophy</span>}
             />

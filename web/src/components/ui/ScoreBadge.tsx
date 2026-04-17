@@ -2,6 +2,12 @@
 
 import { getTier, formatScore, normalizeScore, NEURAL_TIERS } from "@/lib/neural-tiers";
 
+interface ScoreBreakdown {
+  hook: number;       // 0-1
+  peak: number;       // 0-1
+  retention: number;  // 0-1
+}
+
 interface ScoreBadgeProps {
   /** Score value — accepts 0-1 (decimal) or 0-100 (auto-normalized) */
   value: number | null;
@@ -11,9 +17,24 @@ interface ScoreBadgeProps {
   size?: "sm" | "md" | "lg";
   /** Optional icon rendered inside the hover area, before the score number */
   icon?: React.ReactNode;
+  /** Optional sub-component breakdown — when provided, popup shows what's driving the score */
+  breakdown?: ScoreBreakdown;
 }
 
-export function ScoreBadge({ value, showLabel = false, size = "md", icon }: ScoreBadgeProps) {
+function BreakdownRow({ label, value }: { label: string; value: number }) {
+  const pct = Math.round(value * 100);
+  return (
+    <div className="flex items-center gap-2 text-[11px]">
+      <span className="font-bold text-black w-16">{label}</span>
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-full bg-black rounded-full" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="font-bold text-black tabular-nums w-9 text-right">{value.toFixed(2)}</span>
+    </div>
+  );
+}
+
+export function ScoreBadge({ value, showLabel = false, size = "md", icon, breakdown }: ScoreBadgeProps) {
   if (value === null || value === undefined) {
     return (
       <span className="inline-flex items-center gap-1">
@@ -77,6 +98,19 @@ export function ScoreBadge({ value, showLabel = false, size = "md", icon }: Scor
         <p className="text-[9px] text-gray-400 mt-3 leading-tight">
           Scores are neural activation intensity (0-1), not percentages. 0.50 is strong engagement.
         </p>
+
+        {breakdown && (
+          <div className="hidden md:block mt-3 pt-3 border-t border-gray-100">
+            <p className="font-headline font-bold text-[10px] uppercase tracking-widest text-black mb-2">
+              What&apos;s driving it
+            </p>
+            <div className="space-y-1.5">
+              <BreakdownRow label="Hook" value={breakdown.hook} />
+              <BreakdownRow label="Peak" value={breakdown.peak} />
+              <BreakdownRow label="Retention" value={breakdown.retention} />
+            </div>
+          </div>
+        )}
       </div>
     </span>
   );

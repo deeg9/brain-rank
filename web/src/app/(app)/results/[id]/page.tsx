@@ -10,7 +10,7 @@ import type { SegmentData } from "@/components/results/SegmentTable";
 import { ExportButton } from "@/components/results/ExportButton";
 import { useVideoTime } from "@/hooks/useVideoTime";
 
-import { formatTimestamp } from "@/lib/results";
+import { formatTimestamp, extractScoreInfo } from "@/lib/results";
 import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import { findPeaks } from "@/lib/peak-detection";
@@ -389,8 +389,17 @@ export default function ResultsDetailPage({ params }: Props) {
               </span>
             )}
             <span className="inline-flex items-center gap-1 whitespace-nowrap">
-              <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
-              <ScoreBadge value={summary.overall} size="sm" />
+              {(() => {
+                const info = extractScoreInfo(job.results as Record<string, unknown> | null);
+                return (
+                  <ScoreBadge
+                    value={info?.score ?? null}
+                    breakdown={info?.breakdown}
+                    size="sm"
+                    icon={<span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>}
+                  />
+                );
+              })()}
             </span>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { VideoThumb } from "@/app/(app)/dashboard/VideoThumb";
 import Link from "next/link";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
-import { extractOverallScore } from "@/lib/results";
+import { extractOverallScore, extractScoreInfo } from "@/lib/results";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -179,9 +179,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
                     year: "numeric",
                   }
                 );
-                const overallScore = extractOverallScore(
+                const scoreInfo = extractScoreInfo(
                   job.results as Record<string, unknown> | null
                 );
+                const overallScore = scoreInfo?.score ?? null;
 
                 return (
                   <Link
@@ -203,8 +204,12 @@ export default async function PublicProfilePage({ params }: PageProps) {
                           </p>
                         </div>
                         <span className="inline-flex items-center gap-1 flex-shrink-0">
-                          <span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>
-                          <ScoreBadge value={overallScore as number | null} size="sm" />
+                          <ScoreBadge
+                            value={overallScore}
+                            breakdown={scoreInfo?.breakdown}
+                            size="sm"
+                            icon={<span className="material-symbols-outlined text-sm leading-none text-black">trophy</span>}
+                          />
                         </span>
                       </div>
                     </div>

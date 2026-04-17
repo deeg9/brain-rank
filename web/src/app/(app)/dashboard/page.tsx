@@ -8,7 +8,7 @@ import { StatTile } from "./StatTile";
 import { DashboardGrid } from "./DashboardGrid";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
 import { getCreditStatus } from "@/lib/credits";
-import { extractOverallScore } from "@/lib/results";
+import { extractScoreInfo } from "@/lib/results";
 import type { Job, JobStatus } from "@/lib/database.types";
 
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
@@ -37,7 +37,9 @@ function extractFilename(videoUrl: string): string {
   }
 }
 
-const extractScore = extractOverallScore;
+function extractScore(results: Record<string, unknown> | null): number | null {
+  return extractScoreInfo(results)?.score ?? null;
+}
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
@@ -146,18 +148,22 @@ export default async function DashboardPage() {
               </span>
             </div>
           </div>
-          <DashboardGrid jobs={jobList.map((job: Job) => ({
-            id: job.id,
-            title: job.title || extractFilename(job.video_url),
-            video_url: job.video_url,
-            status: mapStatus(job.status),
-            is_public: job.is_public,
-            input_type: (job as any).input_type ?? null,
-            category: (job as any).category ?? null,
-            view_count: (job as any).view_count ?? 0,
-            score: extractScore(job.results),
-            created_at: job.created_at,
-          }))} />
+          <DashboardGrid jobs={jobList.map((job: Job) => {
+            const scoreInfo = extractScoreInfo(job.results);
+            return {
+              id: job.id,
+              title: job.title || extractFilename(job.video_url),
+              video_url: job.video_url,
+              status: mapStatus(job.status),
+              is_public: job.is_public,
+              input_type: (job as any).input_type ?? null,
+              category: (job as any).category ?? null,
+              view_count: (job as any).view_count ?? 0,
+              score: scoreInfo?.score ?? null,
+              breakdown: scoreInfo?.breakdown,
+              created_at: job.created_at,
+            };
+          })} />
         </section>
       ) : (
         /* Empty State */
