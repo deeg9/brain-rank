@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { checkJobCreateLimits } from '@/lib/ratelimit'
 import { type InputType } from '@/lib/database.types'
 
 export async function createJob(
@@ -15,6 +16,9 @@ export async function createJob(
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) throw new Error('Not authenticated')
+
+  const limitError = await checkJobCreateLimits(supabase, user.id)
+  if (limitError) throw new Error(limitError.message)
 
   const { data, error } = await supabase
     .from('jobs')

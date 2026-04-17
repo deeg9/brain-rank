@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkJobCreateLimits } from '@/lib/ratelimit'
 
 export async function POST(
   _request: NextRequest,
@@ -68,6 +69,20 @@ export async function POST(
     // Only allow retry on failed jobs
     if ((job).status !== 'failed') {
       return NextResponse.json({ error: 'Job is not in failed state' }, { status: 400 })
+    }
+
+    // Rate limit + concurrent cap — retries count like fresh submissions
+    const limitError = await checkJobCreateLimits(supabase, user.id)
+    if (limitError) {
+      const headers: Record<string, string> =
+        limitError.kind === 'rate_limit'
+          ? {
+              'X-RateLimit-Limit': String(limitError.limit),
+              'X-RateLimit-Remaining': String(limitError.remaining),
+              'X-RateLimit-Reset': String(limitError.reset),
+            }
+          : {}
+      return NextResponse.json(limitError, { status: 429, headers })
     }
 
     // Reset job to pending
