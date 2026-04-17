@@ -88,6 +88,12 @@ None yet.
 
 None yet.
 
+## Quick Tasks Completed
+
+| ID | Slug | Date | Summary |
+|----|------|------|---------|
+| 260416-nsw | rate-limits-on-post-jobs | 2026-04-17 | Burst rate limit (10 req/60s) + concurrent-job cap (3 in-flight) on POST /api/jobs via @upstash/ratelimit |
+
 ## Session Continuity
 
 Last session: 2026-04-16T00:00:00Z
