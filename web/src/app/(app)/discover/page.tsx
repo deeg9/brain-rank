@@ -23,6 +23,7 @@ export default function DiscoverPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [scoreFilter, setScoreFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [inputTypeFilter, setInputTypeFilter] = useState("all");
 
   // Comparison state
   const [compareA, setCompareA] = useState<DiscoverAnalysis | null>(null);
@@ -59,7 +60,7 @@ export default function DiscoverPage() {
   // Reset visibleCount when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [sortOption, debouncedSearch, scoreFilter, categoryFilter]);
+  }, [sortOption, debouncedSearch, scoreFilter, categoryFilter, inputTypeFilter]);
 
   const fetchAnalyses = useCallback(async () => {
     setLoading(true);
@@ -163,6 +164,15 @@ export default function DiscoverPage() {
       result = result.filter((a) => a.category === categoryFilter);
     }
 
+    // Input-type filter ("text" matches both text_spoken and text_visual)
+    if (inputTypeFilter !== "all") {
+      if (inputTypeFilter === "text") {
+        result = result.filter((a) => a.input_type === "text_spoken" || a.input_type === "text_visual");
+      } else {
+        result = result.filter((a) => a.input_type === inputTypeFilter);
+      }
+    }
+
     // Score filter
     if (scoreFilter !== "all") {
       const minScore = parseInt(scoreFilter);
@@ -190,12 +200,12 @@ export default function DiscoverPage() {
     });
 
     return result;
-  }, [analyses, sortOption, debouncedSearch, scoreFilter]);
+  }, [analyses, sortOption, debouncedSearch, scoreFilter, categoryFilter, inputTypeFilter]);
 
   const visibleAnalyses = filteredAnalyses.slice(0, visibleCount);
   const hasMore = visibleCount < filteredAnalyses.length;
 
-  const isFiltering = searchQuery !== "" || scoreFilter !== "all" || categoryFilter !== "all";
+  const isFiltering = searchQuery !== "" || scoreFilter !== "all" || categoryFilter !== "all" || inputTypeFilter !== "all";
 
   return (
     <PageTransition>
@@ -260,6 +270,18 @@ export default function DiscoverPage() {
             {CONTENT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
+          </select>
+
+          {/* Input-type filter dropdown */}
+          <select
+            value={inputTypeFilter}
+            onChange={(e) => setInputTypeFilter(e.target.value)}
+            className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
+          >
+            <option value="all">All Types</option>
+            <option value="video">Video</option>
+            <option value="image">Image</option>
+            <option value="text">Text</option>
           </select>
         </div>
       </div>
