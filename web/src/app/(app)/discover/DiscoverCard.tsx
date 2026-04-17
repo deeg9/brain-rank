@@ -65,14 +65,14 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
                   e.stopPropagation();
                   onCompareSelect();
                 }}
-                className={`p-1.5 rounded-full transition-colors ${
+                className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
                   isSelected
                     ? 'bg-white text-black hover:bg-white/90'
                     : 'bg-black/50 backdrop-blur-sm text-white hover:bg-black/70'
                 }`}
                 title={isSelected ? "Remove from comparison" : "Add to comparison"}
               >
-                <span className="material-symbols-outlined text-xl">
+                <span className="material-symbols-outlined text-[18px] leading-none">
                   {isSelected ? 'check' : 'compare_arrows'}
                 </span>
               </button>

@@ -67,18 +67,23 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle, variant = "
 
   const isOverlay = variant === "overlay";
 
+  const sizingClass = isOverlay
+    ? "w-8 h-8 flex items-center justify-center rounded-full"
+    : "p-1.5 rounded-full";
+  const iconSize = isOverlay ? "text-[18px] leading-none" : "text-xl";
+
   if (!loaded) {
     return (
       <button
         className={
           isOverlay
-            ? "p-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/50"
-            : "p-1.5 rounded-full text-on-surface-variant/50"
+            ? `${sizingClass} bg-black/50 backdrop-blur-sm text-white/50`
+            : `${sizingClass} text-on-surface-variant/50`
         }
         disabled
         aria-label="Loading bookmark status"
       >
-        <span className="material-symbols-outlined text-xl">bookmark</span>
+        <span className={`material-symbols-outlined ${iconSize}`}>bookmark</span>
       </button>
     );
   }
@@ -93,11 +98,11 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle, variant = "
   return (
     <button
       onClick={handleClick}
-      className={`p-1.5 rounded-full transition-colors ${isOverlay ? overlayClass : inlineClass}`}
+      className={`${sizingClass} transition-colors ${isOverlay ? overlayClass : inlineClass}`}
       aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
     >
       <span
-        className="material-symbols-outlined text-xl"
+        className={`material-symbols-outlined ${iconSize}`}
         style={bookmarked ? { fontVariationSettings: "'FILL' 1" } : undefined}
       >
         bookmark
