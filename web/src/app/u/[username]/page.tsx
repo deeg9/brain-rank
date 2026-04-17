@@ -7,6 +7,7 @@ import { VideoThumb } from "@/app/(app)/dashboard/VideoThumb";
 import Link from "next/link";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
+import { extractOverallScore } from "@/lib/results";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -67,11 +68,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const totalPublicAnalyses = publicJobs.length;
 
   const scores = publicJobs
-    .map((j) => {
-      const overall = (j.results as Record<string, unknown> | null)
-        ?.overall_score;
-      return typeof overall === "number" ? overall : null;
-    })
+    .map((j) => extractOverallScore(j.results as Record<string, unknown> | null))
     .filter((s): s is number => s !== null);
 
   const avgRaw = scores.length > 0
@@ -182,13 +179,9 @@ export default async function PublicProfilePage({ params }: PageProps) {
                     year: "numeric",
                   }
                 );
-                const overallScore = (
+                const overallScore = extractOverallScore(
                   job.results as Record<string, unknown> | null
-                )?.overall_score;
-                const scoreDisplay =
-                  typeof overallScore === "number"
-                    ? overallScore.toFixed(1)
-                    : "N/A";
+                );
 
                 return (
                   <Link

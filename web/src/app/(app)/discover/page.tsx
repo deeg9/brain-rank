@@ -7,6 +7,7 @@ import { DiscoverCard, type DiscoverAnalysis } from "./DiscoverCard";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
 import { ComparisonModal } from "@/components/compare/ComparisonModal";
+import { extractOverallScore } from "@/lib/results";
 
 const PAGE_SIZE = 20;
 
@@ -115,16 +116,12 @@ export default function DiscoverPage() {
     // Map jobs to DiscoverAnalysis (no sorting here -- handled by useMemo)
     const mapped: DiscoverAnalysis[] = typedJobs.map((job) => {
       const profile = profileMap.get(job.user_id);
-      const overallScore = (
-        job.results as Record<string, unknown> | null
-      )?.overall_score;
 
       return {
         id: job.id,
         title: job.title,
         video_url: job.video_url,
-        overall_score:
-          typeof overallScore === "number" ? overallScore : null,
+        overall_score: extractOverallScore(job.results),
         created_at: job.created_at,
         view_count: job.view_count ?? 0,
         creator_username: profile?.username ?? null,

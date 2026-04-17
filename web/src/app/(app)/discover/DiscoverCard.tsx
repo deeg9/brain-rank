@@ -139,10 +139,11 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
                 {analysis.view_count} views
               </span>
             )}
-            <span className="inline-flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px] leading-none text-black">trophy</span>
-              <ScoreBadge value={analysis.overall_score} size="sm" />
-            </span>
+            <ScoreBadge
+              value={analysis.overall_score}
+              size="sm"
+              icon={<span className="material-symbols-outlined text-[14px] leading-none text-black">trophy</span>}
+            />
           </div>
         </div>
       </div>

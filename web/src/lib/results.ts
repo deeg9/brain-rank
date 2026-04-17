@@ -42,6 +42,20 @@ export function getEngagementLevel(score: number): 'high' | 'medium' | 'low' {
   return 'low'
 }
 
+/**
+ * Extract a 0-100 overall score from a job's results JSON.
+ * Prefers summary.overall (0-1, scaled to 100). Falls back to legacy overall_score.
+ * Returns null when no usable score is present.
+ */
+export function extractOverallScore(results: Record<string, unknown> | null | undefined): number | null {
+  if (!results) return null
+  const summary = results.summary as { overall?: unknown } | undefined
+  if (typeof summary?.overall === 'number') return Math.round(summary.overall * 100)
+  const legacy = (results as { overall_score?: unknown }).overall_score
+  if (typeof legacy === 'number') return Math.round(legacy)
+  return null
+}
+
 export function parseJobResults(results: Record<string, unknown> | null): ResultsData | null {
   if (!results) return null
 

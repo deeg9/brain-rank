@@ -9,12 +9,17 @@ interface ScoreBadgeProps {
   showLabel?: boolean;
   /** Size variant */
   size?: "sm" | "md" | "lg";
+  /** Optional icon rendered inside the hover area, before the score number */
+  icon?: React.ReactNode;
 }
 
-export function ScoreBadge({ value, showLabel = false, size = "md" }: ScoreBadgeProps) {
+export function ScoreBadge({ value, showLabel = false, size = "md", icon }: ScoreBadgeProps) {
   if (value === null || value === undefined) {
     return (
-      <span className="text-gray-400 font-headline font-bold text-sm">N/A</span>
+      <span className="inline-flex items-center gap-1">
+        {icon}
+        <span className="text-gray-400 font-headline font-bold text-sm">N/A</span>
+      </span>
     );
   }
 
@@ -36,6 +41,7 @@ export function ScoreBadge({ value, showLabel = false, size = "md" }: ScoreBadge
 
   return (
     <span className="relative inline-flex items-center gap-1.5 group/score cursor-default">
+      {icon}
       <span className={`font-headline font-bold ${sizeClasses[size]} ${tier.color}`}>
         {display}
       </span>

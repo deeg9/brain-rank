@@ -6,6 +6,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import { VideoThumb } from "../dashboard/VideoThumb";
 import type { Job, JobStatus } from "@/lib/database.types";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
+import { extractOverallScore } from "@/lib/results";
 
 const statusMap: Record<JobStatus, "queued" | "processing" | "complete" | "failed"> = {
   pending: "queued",
@@ -59,11 +60,7 @@ export default async function ProfilePage() {
 
   // Compute scores from completed jobs
   const scores = completedJobs
-    .map((j) => {
-      const overall = (j.results as Record<string, unknown> | null)
-        ?.overall_score;
-      return typeof overall === "number" ? overall : null;
-    })
+    .map((j) => extractOverallScore(j.results as Record<string, unknown> | null))
     .filter((s): s is number => s !== null);
 
   const avgRaw = scores.length > 0
