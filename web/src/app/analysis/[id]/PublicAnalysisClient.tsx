@@ -8,6 +8,7 @@ import { useVideoTime } from "@/hooks/useVideoTime";
 import type { SegmentData } from "@/components/results/SegmentTable";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import type { PeakMarker } from "@/lib/peak-detection";
+import type { InputType } from "@/lib/database.types";
 
 const VideoPlayer = dynamic(
   () => import("@/components/results/VideoPlayer").then(m => m.VideoPlayer),
@@ -28,6 +29,14 @@ const NeuralTimeline = dynamic(
   { ssr: false, loading: () => <Skeleton variant="card" className="h-96" /> }
 );
 
+const RegionBarChart = dynamic(
+  () =>
+    import("@/components/results/RegionBarChart").then(
+      (m) => m.RegionBarChart
+    ),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-96" /> }
+);
+
 interface PublicAnalysisClientProps {
   jobId: string;
   videoUrl: string;
@@ -44,6 +53,7 @@ interface PublicAnalysisClientProps {
   zones: ZoneMarker[];
   iconMarkers: IconMarker[];
   peakMarkers: PeakMarker[];
+  inputType: InputType | null;
 }
 
 function getSegmentAtTime(
@@ -80,7 +90,9 @@ export function PublicAnalysisClient({
   zones,
   iconMarkers,
   peakMarkers,
+  inputType,
 }: PublicAnalysisClientProps) {
+  const isImage = inputType === "image";
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const currentTimeRef = useRef(0);
@@ -128,19 +140,30 @@ export function PublicAnalysisClient({
 
   return (
     <div className="space-y-6 [&_.glass-surface]:bg-white [&_.glass-surface]:backdrop-filter-none [&_.glass-surface]:outline-gray-200 [&_.bg-surface-container]:bg-white">
-      {/* Video Player + Brain Viewer — side by side on desktop, stacked on mobile */}
+      {/* Media (image or video) + Brain Viewer — side by side on desktop, stacked on mobile */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 [&>*]:h-[45vh] [&>*]:min-h-[320px] [&>*]:max-h-[420px]">
-        <VideoPlayer
-          src={videoUrl}
-          videoRef={videoRef}
-          currentTime={currentTime}
-          duration={videoDuration}
-          isPlaying={isPlaying}
-          onTimeUpdate={handleTimeUpdate}
-          onPlayStateChange={setIsPlaying}
-          onSeek={handleSeek}
-          onLoadedMetadata={handleLoadedMetadata}
-        />
+        {isImage ? (
+          <div className="rounded-xl overflow-hidden flex items-center justify-center bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={videoUrl}
+              alt="Analyzed image"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        ) : (
+          <VideoPlayer
+            src={videoUrl}
+            videoRef={videoRef}
+            currentTime={currentTime}
+            duration={videoDuration}
+            isPlaying={isPlaying}
+            onTimeUpdate={handleTimeUpdate}
+            onPlayStateChange={setIsPlaying}
+            onSeek={handleSeek}
+            onLoadedMetadata={handleLoadedMetadata}
+          />
+        )}
         <BrainViewer
           segments={segments}
           currentTimeRef={currentTimeRef}
@@ -148,16 +171,20 @@ export function PublicAnalysisClient({
         />
       </div>
 
-      {/* Neural Activation Timeline */}
-      <NeuralTimeline
-        segments={segments}
-        duration={duration}
-        currentTime={currentTime}
-        onSeek={handleSeek}
-        zones={zones}
-        peakMarkers={peakMarkers}
-        iconMarkers={iconMarkers}
-      />
+      {/* Brain Region Activation (image) or Neural Activation Timeline (video) */}
+      {isImage ? (
+        <RegionBarChart segments={segments} currentTime={currentTime} />
+      ) : (
+        <NeuralTimeline
+          segments={segments}
+          duration={duration}
+          currentTime={currentTime}
+          onSeek={handleSeek}
+          zones={zones}
+          peakMarkers={peakMarkers}
+          iconMarkers={iconMarkers}
+        />
+      )}
 
       {/* Insights Summary */}
       <InsightsSummaryCard

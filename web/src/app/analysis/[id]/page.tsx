@@ -149,7 +149,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
   return (
     <>
       <TopBar />
-      <main className="pt-16 min-h-screen bg-white p-4 md:p-8">
+      <main className="pt-20 md:pt-24 min-h-screen bg-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6 pt-6">
 
       {/* Top Bar */}
@@ -244,6 +244,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
         zones={zones}
         iconMarkers={iconMarkers}
         peakMarkers={peakMarkers}
+        inputType={job.input_type}
       />
     </div>
     </main>

@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
 
       <h3 className="font-headline">1.5 Usage Data</h3>
       <p>
-        We track credit consumption for free-tier users to enforce weekly usage limits. This includes records of when
+        We track credit consumption for free-tier users to enforce daily usage limits. This includes records of when
         analyses were initiated and which job they correspond to. We also store subscription status information
         (active, canceled, etc.) synced from Stripe via webhooks.
       </p>

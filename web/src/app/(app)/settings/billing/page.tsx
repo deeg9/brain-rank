@@ -36,7 +36,7 @@ const PLANS: Plan[] = [
     annuallyPrice: 0,
     buttonText: "Get Started Free",
     features: [
-      "5 credits per week",
+      "3 credits per day",
       "Video, image & text analysis",
       "9 brain network scores",
       "3D brain activation maps",

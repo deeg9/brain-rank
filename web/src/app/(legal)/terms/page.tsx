@@ -10,7 +10,7 @@ export default function TermsPage() {
     <article className="prose prose-gray max-w-none">
       <h1 className="font-headline text-3xl font-bold tracking-tight">Terms and Conditions</h1>
       <p className="text-sm text-gray-500">Effective Date: April 15, 2026</p>
-      <p className="text-sm text-gray-500 mb-8">Last Updated: April 15, 2026</p>
+      <p className="text-sm text-gray-500 mb-8">Last Updated: April 17, 2026</p>
 
       <p>
         These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of the BrainRank website,
@@ -70,8 +70,8 @@ export default function TermsPage() {
 
       <h3 className="font-headline">5.1 Free Tier</h3>
       <p>
-        Free accounts are entitled to five (5) content analyses per week. The weekly cycle resets every Monday at
-        00:00 UTC. Unused credits do not roll over to subsequent weeks.
+        Free accounts are entitled to three (3) content analyses per day. The daily cycle resets at 00:00 UTC.
+        Unused credits do not roll over to subsequent days.
       </p>
 
       <h3 className="font-headline">5.2 Creator Tier</h3>
@@ -97,6 +97,21 @@ export default function TermsPage() {
       <p>
         All fees are non-refundable except as required by applicable law. No refunds or credits will be issued for
         partial billing periods, downgrades, or unused analyses.
+      </p>
+
+      <h3 className="font-headline">5.5 Changes to Pricing, Plans, and Rate Limits</h3>
+      <p>
+        We may change the pricing of any subscription plan at any time. Pricing changes will not affect your current
+        billing period; existing paid subscribers will be notified by email or in-app notice before any change takes
+        effect at the next renewal. If you do not agree to the new pricing, you may cancel your subscription before
+        the renewal date.
+      </p>
+      <p>
+        Plan features, credit allowances, daily and monthly quotas, rate limits, and other usage parameters are
+        subject to change at any time without prior notice in order to maintain Service availability, manage
+        infrastructure costs, prevent abuse, or improve the Service. Material changes to the Free Tier or to any
+        feature you actively rely on will be reflected on our pricing page with an updated effective date. Your
+        continued use of the Service after such changes constitutes acceptance of the modified terms.
       </p>
 
       {/* 6. Your Content */}

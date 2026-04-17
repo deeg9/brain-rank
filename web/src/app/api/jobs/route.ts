@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     if (!credits.canAnalyze) {
       return NextResponse.json(
         {
-          error: 'Weekly credit limit reached',
+          error: 'Daily credit limit reached',
           credits: { used: credits.used, limit: credits.limit, remaining: 0 },
           upgrade_url: '/pricing',
         },

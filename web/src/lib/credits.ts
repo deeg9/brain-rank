@@ -2,31 +2,26 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
 import { getUserSubscription, hasActiveAccess } from '@/lib/subscription'
 
-const FREE_WEEKLY_LIMIT = 5
+const FREE_DAILY_LIMIT = 3
 
 /**
- * Get the number of credits used this week (Monday-Sunday reset).
+ * Get the number of credits used today (00:00 UTC reset).
  */
-export async function getWeeklyUsage(
+export async function getDailyUsage(
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<number> {
-  // Get start of current week (Monday 00:00 UTC)
-  const now = new Date()
-  const day = now.getUTCDay()
-  const diff = day === 0 ? 6 : day - 1 // Monday = 0
-  const weekStart = new Date(now)
-  weekStart.setUTCDate(now.getUTCDate() - diff)
-  weekStart.setUTCHours(0, 0, 0, 0)
+  const dayStart = new Date()
+  dayStart.setUTCHours(0, 0, 0, 0)
 
   const { count, error } = await supabase
     .from('credit_usage')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
-    .gte('created_at', weekStart.toISOString())
+    .gte('created_at', dayStart.toISOString())
 
   if (error) {
-    console.error('Failed to count weekly usage:', error)
+    console.error('Failed to count daily usage:', error)
     return 0
   }
 
@@ -43,7 +38,7 @@ export interface CreditStatus {
 
 /**
  * Check if a user can start a new analysis.
- * Creator tier = unlimited. Free tier = 5/week.
+ * Creator tier = unlimited. Free tier = 3/day.
  */
 export async function getCreditStatus(
   supabase: SupabaseClient<Database>,
@@ -62,14 +57,14 @@ export async function getCreditStatus(
     }
   }
 
-  const used = await getWeeklyUsage(supabase, userId)
-  const remaining = Math.max(0, FREE_WEEKLY_LIMIT - used)
+  const used = await getDailyUsage(supabase, userId)
+  const remaining = Math.max(0, FREE_DAILY_LIMIT - used)
 
   return {
     canAnalyze: remaining > 0,
     isCreator: false,
     used,
-    limit: FREE_WEEKLY_LIMIT,
+    limit: FREE_DAILY_LIMIT,
     remaining,
   }
 }

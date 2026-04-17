@@ -17,10 +17,6 @@ import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
 
-// Hold time for image-as-video. Locked at 6s — TRIBE v2 needs ≥6s to align
-// to its 2-second windows; longer than this risks viewer-boredom artifacts.
-const IMAGE_DURATION_SECONDS = 6;
-
 interface CreditInfo {
   canAnalyze: boolean;
   isCreator: boolean;
@@ -112,7 +108,7 @@ export default function UploadPage() {
         updateFileProgress(item.id, 100);
         updateFileStatus(item.id, "complete");
 
-        const jobId = await createJob(videoUrl, 'video', null, null, undefined, category || null);
+        const jobId = await createJob(videoUrl, 'video', null, null, category || null);
         lastJobId = jobId;
       } catch (err) {
         updateFileStatus(
@@ -138,7 +134,7 @@ export default function UploadPage() {
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const jobId = await createJob(imageUrl, 'image', null, null, IMAGE_DURATION_SECONDS, category || null);
+      const jobId = await createJob(imageUrl, 'image', null, null, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -153,7 +149,7 @@ export default function UploadPage() {
 
     try {
       const textUrl = await uploadText(textContent);
-      const jobId = await createJob(textUrl, 'text_spoken', textContent, null, undefined, category || null);
+      const jobId = await createJob(textUrl, 'text_spoken', textContent, null, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');

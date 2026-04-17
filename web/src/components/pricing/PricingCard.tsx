@@ -60,16 +60,9 @@ export function PricingCard({ tier, billPlan }: PricingCardProps) {
 
       {/* Header */}
       <div className="p-6 md:p-8 flex flex-col items-start w-full">
-        <div className="flex items-center gap-2">
-          <h2 className="font-headline font-bold text-xl text-black">
-            {tier.name}
-          </h2>
-          {tier.popular && (
-            <span className="px-2 py-0.5 bg-black text-white text-[9px] font-headline font-bold uppercase tracking-widest rounded-full">
-              Best Value
-            </span>
-          )}
-        </div>
+        <h2 className="font-headline font-bold text-xl text-black">
+          {tier.name}
+        </h2>
         <div className="mt-4">
           <span className="text-4xl md:text-5xl font-headline font-bold text-black">
             <NumberFlow
@@ -91,40 +84,9 @@ export function PricingCard({ tier, billPlan }: PricingCardProps) {
           {tier.desc}
         </p>
         <p className="text-xs font-bold text-black mt-2">
-          {tier.credits === -1 ? "Unlimited analyses per month" : `${tier.credits} credits per week`}
+          {tier.credits === -1 ? "Unlimited analyses per month" : `${tier.credits} credits per day`}
         </p>
       </div>
-
-      {/* Annual upsell nudge — shown on Creator card when monthly selected */}
-      {tier.id === "creator" && billPlan === "monthly" && (
-        <div className="mx-6 md:mx-8 mb-3 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-2.5 flex items-center justify-between">
-          <span className="text-xs text-emerald-800 font-bold">
-            Save $40/yr with annual billing
-          </span>
-          <button
-            onClick={() => {
-              const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
-              if (!priceId) return;
-              setLoading(true);
-              fetch("/api/stripe/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ priceId }),
-              })
-                .then((r) => r.json())
-                .then((data) => {
-                  if (data.url) window.location.href = data.url;
-                  else setLoading(false);
-                })
-                .catch(() => setLoading(false));
-            }}
-            disabled={loading}
-            className="text-xs font-bold text-emerald-700 underline underline-offset-2 hover:no-underline"
-          >
-            Switch to annual
-          </button>
-        </div>
-      )}
 
       {/* CTA + Billing note */}
       <div className="flex flex-col items-start w-full px-6 md:px-8 pb-2">
