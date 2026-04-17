@@ -22,6 +22,11 @@ const NeuralTimeline = dynamic(
   { ssr: false, loading: () => <Skeleton variant="card" className="h-32" /> }
 );
 
+const RegionBarChart = dynamic(
+  () => import("@/components/results/RegionBarChart").then((m) => m.RegionBarChart),
+  { ssr: false, loading: () => <Skeleton variant="card" className="h-32" /> }
+);
+
 interface ComparisonModalProps {
   jobIdA: string;
   jobIdB: string;
@@ -443,29 +448,42 @@ export function ComparisonModal({ jobIdA, jobIdB, open, onClose }: ComparisonMod
                     </div>
                   </div>
 
-                  {/* Neural Activation Timeline */}
-                  {segmentsA.length > 0 && (
+                  {/* Neural Activation Timeline (or Region Bars when too short for a timeline) */}
+                  {(segmentsA.length > 0 || segmentsB.length > 0) && (
                     <div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div>
-                          <NeuralTimeline
-                            segments={segmentsA}
-                            duration={durationA}
-                            currentTime={currentTimeA}
-                            onSeek={handleSeekA}
-                            syncId="compare-timeline-a"
-                          />
+                          {durationA < 10 ? (
+                            <RegionBarChart segments={segmentsA} currentTime={currentTimeA} />
+                          ) : (
+                            <NeuralTimeline
+                              segments={segmentsA}
+                              duration={durationA}
+                              currentTime={currentTimeA}
+                              onSeek={handleSeekA}
+                              syncId="compare-timeline-a"
+                            />
+                          )}
                         </div>
                         <div>
-                          <NeuralTimeline
-                            segments={segmentsB}
-                            duration={durationB}
-                            currentTime={currentTimeB}
-                            onSeek={handleSeekB}
-                            syncId="compare-timeline-b"
-                          />
+                          {durationB < 10 ? (
+                            <RegionBarChart segments={segmentsB} currentTime={currentTimeB} />
+                          ) : (
+                            <NeuralTimeline
+                              segments={segmentsB}
+                              duration={durationB}
+                              currentTime={currentTimeB}
+                              onSeek={handleSeekB}
+                              syncId="compare-timeline-b"
+                            />
+                          )}
                         </div>
                       </div>
+                      {(durationA < 10 || durationB < 10) && (
+                        <p className="text-xs text-gray-500 mt-3">
+                          Inputs under 10 seconds don&apos;t generate enough data points for a full timeline. Region scores are shown as a snapshot instead.
+                        </p>
+                      )}
                     </div>
                   )}
 

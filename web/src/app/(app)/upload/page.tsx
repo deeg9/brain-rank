@@ -15,8 +15,11 @@ import { uploadVideo, uploadImage, uploadText } from "@/lib/upload";
 import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
-import { DurationSlider } from "./DurationSlider";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
+
+// Hold time for image-as-video. Locked at 6s — TRIBE v2 needs ≥6s to align
+// to its 2-second windows; longer than this risks viewer-boredom artifacts.
+const IMAGE_DURATION_SECONDS = 6;
 
 interface CreditInfo {
   canAnalyze: boolean;
@@ -34,7 +37,6 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [inputType, setInputType] = useState<TabType>('video');
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageDuration, setImageDuration] = useState(6);
   const [textContent, setTextContent] = useState('');
   const [category, setCategory] = useState("");
   const [credits, setCredits] = useState<CreditInfo | null>(null);
@@ -136,7 +138,7 @@ export default function UploadPage() {
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const jobId = await createJob(imageUrl, 'image', null, null, imageDuration, category || null);
+      const jobId = await createJob(imageUrl, 'image', null, null, IMAGE_DURATION_SECONDS, category || null);
       router.push(`/processing?jobId=${jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -247,13 +249,6 @@ export default function UploadPage() {
               onFileSelect={setImageFile}
               disabled={uploading}
             />
-            {imageFile && (
-              <DurationSlider
-                value={imageDuration}
-                onChange={setImageDuration}
-                disabled={uploading}
-              />
-            )}
           </div>
         </motion.section>
       )}
