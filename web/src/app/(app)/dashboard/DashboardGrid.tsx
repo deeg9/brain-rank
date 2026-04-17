@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Card, StatusBadge } from "@/components/ui";
@@ -12,6 +12,7 @@ import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
 import { MetricInfo } from "@/components/results/MetricInfo";
+import { CONTENT_CATEGORIES } from "@/lib/categories";
 import type { DiscoverAnalysis } from "@/app/(app)/discover/DiscoverCard";
 import type { ScoreBreakdown } from "@/lib/results";
 
@@ -55,6 +56,20 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
   const [compareB, setCompareB] = useState<CompareItem | null>(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Filter / sort state — same shape as discover
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [scoreFilter, setScoreFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [inputTypeFilter, setInputTypeFilter] = useState("all");
+
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
   const handleCompareSelect = useCallback((item: CompareItem) => {
     if (compareA?.id === item.id) { setCompareA(null); return; }
     if (compareB?.id === item.id) { setCompareB(null); return; }
@@ -63,10 +78,108 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
     else { setCompareB(item); }
   }, [compareA, compareB]);
 
+  const filteredJobs = useMemo(() => {
+    let result = [...jobs];
+
+    if (debouncedSearch) {
+      const term = debouncedSearch.toLowerCase();
+      result = result.filter((j) => j.title.toLowerCase().includes(term));
+    }
+
+    if (categoryFilter !== "all") {
+      result = result.filter((j) => j.category === categoryFilter);
+    }
+
+    if (inputTypeFilter !== "all") {
+      if (inputTypeFilter === "text") {
+        result = result.filter((j) => j.input_type === "text_spoken" || j.input_type === "text_visual");
+      } else {
+        result = result.filter((j) => j.input_type === inputTypeFilter);
+      }
+    }
+
+    if (scoreFilter !== "all") {
+      const minScore = parseInt(scoreFilter);
+      result = result.filter((j) => j.score !== null && j.score >= minScore);
+    }
+
+    result.sort((a, b) => {
+      if (sortOption === "score") {
+        if (a.score === null && b.score === null) return 0;
+        if (a.score === null) return 1;
+        if (b.score === null) return -1;
+        return b.score - a.score;
+      }
+      if (sortOption === "views") {
+        return (b.view_count ?? 0) - (a.view_count ?? 0);
+      }
+      if (sortOption === "newest") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      // oldest
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+
+    return result;
+  }, [jobs, debouncedSearch, sortOption, scoreFilter, categoryFilter, inputTypeFilter]);
+
+  const isFiltering = searchQuery !== "" || sortOption !== "newest" || scoreFilter !== "all" || categoryFilter !== "all" || inputTypeFilter !== "all";
+
   return (
     <>
+      {/* Toolbar */}
+      <div className="flex flex-col md:flex-row gap-3 mb-6">
+        <div className="relative flex-1 md:min-w-0">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+          <input
+            type="text"
+            placeholder="Search analyses..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white text-gray-900 text-sm rounded-lg border border-gray-200 focus:border-primary-fixed focus:outline-none placeholder:text-gray-400"
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="score">Highest Score</option>
+          </select>
+          <select value={scoreFilter} onChange={(e) => setScoreFilter(e.target.value)} className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline">
+            <option value="all">All Scores</option>
+            <option value="90">90+</option>
+            <option value="80">80+</option>
+            <option value="70">70+</option>
+          </select>
+          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline">
+            <option value="all">All Categories</option>
+            {CONTENT_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+          <select value={inputTypeFilter} onChange={(e) => setInputTypeFilter(e.target.value)} className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline">
+            <option value="all">All Types</option>
+            <option value="video">Video</option>
+            <option value="image">Image</option>
+            <option value="text">Text</option>
+          </select>
+        </div>
+      </div>
+
+      {isFiltering && (
+        <p className="text-xs text-on-surface-variant mb-4">
+          Showing {filteredJobs.length} of {jobs.length} analyses
+        </p>
+      )}
+
+      {filteredJobs.length === 0 && jobs.length > 0 ? (
+        <div className="py-20 text-center text-on-surface-variant">
+          No analyses match your filters. Try adjusting your search or filters.
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {jobs.map((job) => {
+        {filteredJobs.map((job) => {
           const isSelected = compareA?.id === job.id || compareB?.id === job.id;
 
           return (
@@ -158,6 +271,7 @@ export function DashboardGrid({ jobs }: { jobs: SerializedJob[] }) {
           </div>
         </Link>
       </div>
+      )}
 
       {(compareA || compareB) && <div className="h-20" />}
 

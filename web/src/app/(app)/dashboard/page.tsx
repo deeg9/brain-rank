@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { AnalysisSearch } from "./AnalysisSearch";
 import { StatTile } from "./StatTile";
 import { DashboardGrid } from "./DashboardGrid";
 import { normalizeScore, formatScore, getTier } from "@/lib/neural-tiers";
@@ -139,14 +138,11 @@ export default async function DashboardPage() {
       {hasJobs ? (
         /* Analysis History with Search */
         <section className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <h3 className="font-headline text-xl font-bold">Analysis History</h3>
-            <div className="flex items-center gap-4">
-              <AnalysisSearch />
-              <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest font-bold whitespace-nowrap">
-                {jobList.length} Total
-              </span>
-            </div>
+            <span className="text-xs text-on-surface-variant font-headline uppercase tracking-widest font-bold whitespace-nowrap">
+              {jobList.length} Total
+            </span>
           </div>
           <DashboardGrid jobs={jobList.map((job: Job) => {
             const scoreInfo = extractScoreInfo(job.results);
