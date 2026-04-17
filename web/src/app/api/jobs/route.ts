@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
+import { jobCreateLimiter } from '@/lib/ratelimit'
 import type { Job } from '@/lib/database.types'
+
+const MAX_CONCURRENT_JOBS = 3
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,6 +47,45 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Burst rate limit — 10 req / 60s per user
+    const rl = await jobCreateLimiter.limit(user.id)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded',
+          message: 'Too many requests. Try again shortly.',
+          reset_at: rl.reset,
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(rl.limit),
+            'X-RateLimit-Remaining': String(rl.remaining),
+            'X-RateLimit-Reset': String(rl.reset),
+          },
+        }
+      )
+    }
+
+    // Concurrent-job cap — protect RunPod spend from a runaway user
+    const { count: inFlightCount } = await supabase
+      .from('jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .in('status', ['pending', 'processing'])
+
+    if ((inFlightCount ?? 0) >= MAX_CONCURRENT_JOBS) {
+      return NextResponse.json(
+        {
+          error: 'Too many analyses in progress',
+          message: `You have ${inFlightCount} running. Wait for one to finish (max ${MAX_CONCURRENT_JOBS} concurrent).`,
+          limit: MAX_CONCURRENT_JOBS,
+          in_flight: inFlightCount,
+        },
+        { status: 429 }
+      )
     }
 
     // Credit gating — check before allowing job creation
