@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
     <article className="prose prose-gray max-w-none">
       <h1 className="font-headline text-3xl font-bold tracking-tight">Privacy Policy</h1>
       <p className="text-sm text-gray-500">Effective Date: April 15, 2026</p>
-      <p className="text-sm text-gray-500 mb-8">Last Updated: April 15, 2026</p>
+      <p className="text-sm text-gray-500 mb-8">Last Updated: April 17, 2026</p>
 
       <p>
         This Privacy Policy describes how BrainRank (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) collects, uses,
@@ -60,6 +60,19 @@ export default function PrivacyPolicyPage() {
         analyses were initiated and which job they correspond to. We also store subscription status information
         (active, canceled, etc.) synced from Stripe via webhooks.
       </p>
+      <p>
+        To prevent abuse, we apply rate limits on content-submission endpoints using <strong>Upstash</strong>, a
+        managed Redis service. Upstash stores a short-lived record of your user identifier and request timestamp
+        solely to enforce per-user request limits. These records expire automatically and are not used for any other
+        purpose.
+      </p>
+      <p>
+        When an analysis you submitted completes or fails, we send you a transactional email (for example,
+        &quot;Your analysis is ready&quot;) via <strong>Resend</strong>, our email delivery provider. To send these
+        emails, we share your email address, the analysis filename, and a link to the result page with Resend. We do
+        not use Resend for marketing emails, and we do not send promotional communications without your separate
+        consent.
+      </p>
 
       <h3 className="font-headline">1.6 Automatically Collected Information</h3>
       <p>
@@ -67,19 +80,36 @@ export default function PrivacyPolicyPage() {
         strictly functional cookies required for the Service to operate.
       </p>
       <p>
+        We use <strong>Vercel Analytics</strong>, a first-party, privacy-friendly analytics service provided by our
+        hosting provider Vercel, Inc., to measure aggregate traffic and performance. Vercel Analytics:
+      </p>
+      <ul>
+        <li>Does <strong>not</strong> set cookies or use browser local storage for tracking.</li>
+        <li>Does <strong>not</strong> collect personally identifiable information.</li>
+        <li>Does <strong>not</strong> track you across other websites.</li>
+        <li>Collects aggregated page view counts, referrer information, device/browser type, and approximate country-level location derived from IP address. IP addresses are hashed and not stored.</li>
+      </ul>
+      <p>
+        Because Vercel Analytics is cookieless and does not collect personal data, it operates without requiring your
+        consent. You may still opt out by enabling &quot;Do Not Track&quot; in your browser, which Vercel Analytics
+        honors.
+      </p>
+      <p>
         If you consent to analytics cookies, we use <strong>PostHog</strong>, a product analytics platform, to collect
         usage data including:
       </p>
       <ul>
         <li>Pages viewed and navigation patterns</li>
-        <li>Feature usage and interaction events (clicks, form submissions)</li>
+        <li>Feature usage and interaction events (clicks, form submissions, feature usage, subscription events)</li>
         <li>Device type, browser type, and operating system</li>
         <li>Approximate location derived from IP address (country/region level only)</li>
         <li>Session duration and frequency</li>
+        <li>A persistent identifier linking events to your account after you log in</li>
       </ul>
       <p>
-        This data is collected only after you provide consent via our cookie banner. You may decline analytics
-        cookies, and the Service will function normally without them.
+        PostHog data is collected only after you provide consent via our cookie banner. You may decline analytics
+        cookies, and the Service will function normally without them. You may withdraw your consent at any time by
+        clearing your browser&apos;s local storage for this site, which will cause the banner to reappear.
       </p>
       <p>
         <strong>We do not use:</strong>
@@ -165,6 +195,24 @@ export default function PrivacyPolicyPage() {
             <td>Page views, feature usage, device info, approximate location</td>
             <td><a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a></td>
           </tr>
+          <tr>
+            <td><strong>Vercel</strong></td>
+            <td>Web hosting and first-party, cookieless analytics</td>
+            <td>Request metadata (URL, referrer, user agent), hashed IP address</td>
+            <td><a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">vercel.com/legal/privacy-policy</a></td>
+          </tr>
+          <tr>
+            <td><strong>Resend</strong></td>
+            <td>Transactional email delivery (analysis-complete and analysis-failed notifications)</td>
+            <td>Email address, analysis filename, result URL</td>
+            <td><a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">resend.com/legal/privacy-policy</a></td>
+          </tr>
+          <tr>
+            <td><strong>Upstash</strong></td>
+            <td>Redis-backed rate limiting on content-submission endpoints</td>
+            <td>Hashed user identifier and timestamp (short-lived, for abuse prevention)</td>
+            <td><a href="https://upstash.com/trust/privacy.pdf" target="_blank" rel="noopener noreferrer">upstash.com/trust/privacy</a></td>
+          </tr>
         </tbody>
       </table>
       <p>
@@ -193,11 +241,20 @@ export default function PrivacyPolicyPage() {
         behavior or collect analytics data.
       </p>
 
+      <h3 className="font-headline">First-Party Analytics (No Cookies)</h3>
+      <p>
+        We use Vercel Analytics, which measures aggregate traffic without setting cookies, without using browser local
+        storage for tracking, and without collecting personally identifiable information. Because it does not rely on
+        cookies or personal data, it does not require consent. You may opt out by enabling your browser&apos;s
+        &quot;Do Not Track&quot; setting.
+      </p>
+
       <h3 className="font-headline">Analytics Cookies (Consent Required)</h3>
       <p>
-        With your consent, we use PostHog to set analytics cookies that help us understand how you use the Service.
-        These cookies track page views, feature interactions, and session data. Analytics cookies are only set after
-        you click &quot;Accept&quot; on our cookie consent banner.
+        With your consent, we use PostHog to set analytics cookies (and local storage entries) that help us understand
+        how you use the Service. These track page views, feature interactions, and session data, and are tied to your
+        account identifier once you log in. Analytics cookies are only set after you click &quot;Accept&quot; on our
+        cookie consent banner.
       </p>
       <p>You can manage your cookie preferences at any time:</p>
       <ul>
