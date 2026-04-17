@@ -13,6 +13,7 @@ import type { Job, JobStatus } from "@/lib/database.types";
 function mapStatus(status: JobStatus): "queued" | "processing" | "complete" | "failed" {
   switch (status) {
     case "pending":
+    case "queued":
       return "queued";
     case "processing":
       return "processing";

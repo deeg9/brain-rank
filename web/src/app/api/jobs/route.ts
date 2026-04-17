@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
 import { checkJobCreateLimits } from '@/lib/ratelimit'
+import { dispatchJob } from '@/lib/runpod'
 import type { Job } from '@/lib/database.types'
 
 export async function GET(request: NextRequest) {
@@ -47,19 +48,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Rate limit + concurrent cap
+    // Rate limit (abuse prevention) → reject. Concurrent cap → queue.
     const limitError = await checkJobCreateLimits(supabase, user.id)
-    if (limitError) {
-      const headers: Record<string, string> =
-        limitError.kind === 'rate_limit'
-          ? {
-              'X-RateLimit-Limit': String(limitError.limit),
-              'X-RateLimit-Remaining': String(limitError.remaining),
-              'X-RateLimit-Reset': String(limitError.reset),
-            }
-          : {}
-      return NextResponse.json(limitError, { status: 429, headers })
+    if (limitError && limitError.kind === 'rate_limit') {
+      return NextResponse.json(limitError, {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': String(limitError.limit),
+          'X-RateLimit-Remaining': String(limitError.remaining),
+          'X-RateLimit-Reset': String(limitError.reset),
+        },
+      })
     }
+    const shouldQueue = !!limitError && limitError.kind === 'concurrent_cap'
 
     // Credit gating — check before allowing job creation
     const credits = await getCreditStatus(supabase, user.id)
@@ -86,20 +87,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid video URL' }, { status: 400 })
     }
 
-    // Check server configuration
-    const apiKey = process.env.RUNPOD_API_KEY
-    const endpointId = process.env.RUNPOD_ENDPOINT_ID
-    if (!apiKey || !endpointId) {
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-    }
-
-    // Insert job into Supabase
+    // Insert job (pending → dispatchJob will flip to processing; queued stays queued).
     const { data: job, error: insertError } = await supabase
       .from('jobs')
       .insert({
         user_id: user.id,
         video_url,
-        status: 'pending' as const,
+        status: shouldQueue ? 'queued' : 'pending',
         runpod_id: null,
         results: null,
         error_message: null,
@@ -116,65 +110,28 @@ export async function POST(request: NextRequest) {
       await recordCreditUsage(supabase, user.id, (job as { id: string }).id)
     }
 
-    // Call RunPod /run endpoint
-    const webhookSecret = process.env.RUNPOD_WEBHOOK_SECRET
-    const webhookUrl = webhookSecret
-      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'}/api/runpod/webhook?secret=${encodeURIComponent(webhookSecret)}`
-      : undefined
-
-    let runpodResponse: { id: string; status: string }
-    try {
-      const res = await fetch(`https://api.runpod.ai/v2/${endpointId}/run`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          input: { video_url },
-          ...(webhookUrl ? { webhook: webhookUrl } : {}),
-        }),
-      })
-
-      if (!res.ok) {
-        // RunPod call failed -- mark job as failed
-        await supabase
-          .from('jobs')
-          .update({ status: 'failed', error_message: 'Failed to start inference' })
-          .eq('id', job.id)
-
-        return NextResponse.json({ error: 'Failed to trigger inference' }, { status: 502 })
-      }
-
-      runpodResponse = await res.json()
-    } catch {
-      // Network error calling RunPod
-      await supabase
-        .from('jobs')
-        .update({ status: 'failed', error_message: 'Failed to start inference' })
-        .eq('id', job.id)
-
-      return NextResponse.json({ error: 'Failed to trigger inference' }, { status: 502 })
+    if (shouldQueue) {
+      return NextResponse.json({ ...job, status: 'queued' }, { status: 201 })
     }
 
-    // Update job with RunPod ID and processing status
-    const { data: updatedJob, error: updateError } = await supabase
-      .from('jobs')
-      .update({ runpod_id: runpodResponse.id, status: 'processing' as const })
-      .eq('id', job.id)
-      .select()
-      .single()
-
-    if (updateError || !updatedJob) {
-      // Job was created and RunPod was triggered, but update failed
-      // Return the job with what we know
+    const outcome = await dispatchJob(supabase, job.id)
+    if (!outcome.ok) {
+      const status = outcome.reason === 'no_capacity' ? 503 : 502
       return NextResponse.json(
-        { ...job, runpod_id: runpodResponse.id, status: 'processing' },
-        { status: 201 }
+        {
+          error:
+            outcome.reason === 'no_capacity'
+              ? 'GPU briefly unavailable. Your credit was refunded — please retry.'
+              : 'Failed to trigger inference',
+        },
+        { status }
       )
     }
 
-    return NextResponse.json(updatedJob, { status: 201 })
+    return NextResponse.json(
+      { ...job, runpod_id: outcome.runpodId, status: 'processing' },
+      { status: 201 }
+    )
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

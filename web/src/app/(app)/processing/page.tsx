@@ -170,11 +170,22 @@ function ProcessingContent() {
   const currentStageIndex = isFailed ? -1 : getStageIndex(currentStage);
   const filename = status?.video_filename ?? "Loading...";
 
-  const stageMessage = currentStage === "queued"
-    ? "Waiting for available GPU..."
-    : currentStage === "processing"
-      ? "Running brain activation model..."
-      : "Initializing...";
+  const isAppQueued = status?.status === "queued";
+  const queuePosition = status?.queue_position;
+  const etaSeconds = status?.eta_seconds;
+  const etaLabel = etaSeconds
+    ? etaSeconds < 60
+      ? `~${etaSeconds}s`
+      : `~${Math.round(etaSeconds / 60)} min`
+    : null;
+
+  const stageMessage = isAppQueued && queuePosition
+    ? `In your batch queue · #${queuePosition}${etaLabel ? ` · ${etaLabel}` : ""}`
+    : currentStage === "queued"
+      ? "Waiting for available GPU..."
+      : currentStage === "processing"
+        ? "Running brain activation model..."
+        : "Initializing...";
 
   /* --- Error / Failed state --- */
   if (isFailed || (error && !status)) {

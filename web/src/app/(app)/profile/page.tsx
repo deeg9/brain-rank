@@ -10,6 +10,7 @@ import { extractOverallScore } from "@/lib/results";
 
 const statusMap: Record<JobStatus, "queued" | "processing" | "complete" | "failed"> = {
   pending: "queued",
+  queued: "queued",
   processing: "processing",
   completed: "complete",
   failed: "failed",

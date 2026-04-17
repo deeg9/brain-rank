@@ -85,3 +85,24 @@ export async function recordCreditUsage(
     console.error('Failed to record credit usage:', error)
   }
 }
+
+/**
+ * Refund a credit usage when a job fails before inference actually ran
+ * (e.g., GPU unavailable, RunPod dispatch error). Idempotent — safe to
+ * call even if no credit_usage row exists (subscribers skip recording).
+ */
+export async function refundCreditUsage(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  jobId: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('credit_usage')
+    .delete()
+    .eq('user_id', userId)
+    .eq('job_id', jobId)
+
+  if (error) {
+    console.error('Failed to refund credit usage:', error)
+  }
+}

@@ -3,12 +3,25 @@
 import { createClient } from '@/lib/supabase/server'
 import { checkJobCreateLimits } from '@/lib/ratelimit'
 import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
+import { dispatchJob } from '@/lib/runpod'
 import { trackServer } from '@/lib/analytics.server'
 import { type InputType } from '@/lib/database.types'
 
-// Hold time for image-as-video. Locked at 6s — TRIBE v2 needs ≥6s to align
-// to its 2-second windows; longer than this risks viewer-boredom artifacts.
-const IMAGE_DURATION_SECONDS = 6
+export const MAX_BATCH_SIZE = 20
+
+export type BatchItem = {
+  videoUrl: string
+  inputType?: InputType
+  textContent?: string | null
+  textStyle?: string | null
+  category?: string | null
+}
+
+export type CreateJobResult = {
+  jobId: string
+  status: 'processing' | 'queued' | 'failed'
+  message?: string
+}
 
 export async function createJob(
   videoUrl: string,
@@ -16,14 +29,18 @@ export async function createJob(
   textContent?: string | null,
   textStyle?: string | null,
   category?: string | null
-): Promise<string> {
+): Promise<CreateJobResult> {
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) throw new Error('Not authenticated')
 
   const limitError = await checkJobCreateLimits(supabase, user.id)
-  if (limitError) throw new Error(limitError.message)
+  // Rate-limit abuse → still reject (429-equivalent). Concurrent-cap → queue instead.
+  if (limitError && limitError.kind === 'rate_limit') {
+    throw new Error(limitError.message)
+  }
+  const shouldQueue = !!limitError && limitError.kind === 'concurrent_cap'
 
   const credits = await getCreditStatus(supabase, user.id)
   if (!credits.canAnalyze) {
@@ -36,12 +53,14 @@ export async function createJob(
     )
   }
 
+  const initialStatus = shouldQueue ? 'queued' : 'pending'
+
   const { data, error } = await supabase
     .from('jobs')
     .insert({
       user_id: user.id,
       video_url: videoUrl,
-      status: 'pending' as const,
+      status: initialStatus,
       input_type: inputType,
       text_content: textContent ?? null,
       text_style: textStyle ?? null,
@@ -59,6 +78,22 @@ export async function createJob(
     await recordCreditUsage(supabase, user.id, data.id)
   }
 
+  if (shouldQueue) {
+    return { jobId: data.id, status: 'queued' }
+  }
+
+  const outcome = await dispatchJob(supabase, data.id)
+  if (!outcome.ok) {
+    return {
+      jobId: data.id,
+      status: 'failed',
+      message:
+        outcome.reason === 'no_capacity'
+          ? 'GPU briefly unavailable. Your credit was refunded — please retry.'
+          : outcome.message,
+    }
+  }
+
   await trackServer('analysis_started', user.id, {
     job_id: data.id,
     input_type: inputType,
@@ -68,49 +103,49 @@ export async function createJob(
     credits_remaining: credits.remaining === Infinity ? -1 : credits.remaining,
   })
 
-  // Dispatch to RunPod
-  const apiKey = process.env.RUNPOD_API_KEY
-  const endpointId = process.env.RUNPOD_ENDPOINT_ID
-  if (apiKey && apiKey !== 'placeholder' && endpointId && endpointId !== 'placeholder') {
-    const webhookSecret = process.env.RUNPOD_WEBHOOK_SECRET
-    const webhookUrl = webhookSecret
-      ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://trybrainrank.com'}/api/runpod/webhook?secret=${encodeURIComponent(webhookSecret)}`
-      : undefined
+  return { jobId: data.id, status: 'processing' }
+}
 
+export async function createBatchJobs(
+  items: BatchItem[]
+): Promise<{ jobs: CreateJobResult[]; error?: string }> {
+  if (items.length === 0) {
+    return { jobs: [], error: 'No items to analyze' }
+  }
+  if (items.length > MAX_BATCH_SIZE) {
+    return { jobs: [], error: `Batch size capped at ${MAX_BATCH_SIZE}` }
+  }
+
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { jobs: [], error: 'Not authenticated' }
+  }
+
+  const credits = await getCreditStatus(supabase, user.id)
+  if (!credits.isCreator) {
+    return { jobs: [], error: 'Batch upload is available on the Creator plan.' }
+  }
+
+  const results: CreateJobResult[] = []
+  for (const item of items) {
     try {
-      const runpodRes = await fetch(
-        `https://api.runpod.ai/v2/${endpointId}/run`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            input: {
-              video_url: videoUrl,
-              input_type: inputType,
-              job_id: data.id,
-              ...(textContent ? { text_content: textContent } : {}),
-              ...(textStyle ? { text_style: textStyle } : {}),
-              ...(inputType === 'image' ? { image_duration: IMAGE_DURATION_SECONDS } : {}),
-            },
-            ...(webhookUrl ? { webhook: webhookUrl } : {}),
-          }),
-        }
+      const result = await createJob(
+        item.videoUrl,
+        item.inputType ?? 'video',
+        item.textContent,
+        item.textStyle,
+        item.category
       )
-
-      if (runpodRes.ok) {
-        const runpodData = await runpodRes.json()
-        await supabase
-          .from('jobs')
-          .update({ runpod_id: runpodData.id, status: 'processing' as const })
-          .eq('id', data.id)
-      }
-    } catch {
-      // RunPod dispatch failed — job stays pending, can be retried
+      results.push(result)
+    } catch (err) {
+      results.push({
+        jobId: '',
+        status: 'failed',
+        message: err instanceof Error ? err.message : 'Unknown error',
+      })
     }
   }
 
-  return data.id
+  return { jobs: results }
 }

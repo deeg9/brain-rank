@@ -6,6 +6,10 @@ export interface JobStatusResponse {
   stage: JobStage
   error_message: string | null
   video_filename: string
+  /** Position in this user's own queue (1-indexed). Present only for status='queued'. */
+  queue_position?: number
+  /** Rough ETA in seconds for this queued job to start processing. */
+  eta_seconds?: number
 }
 
 export type JobStage = 'queued' | 'processing' | 'complete' | 'failed'

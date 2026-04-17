@@ -16,6 +16,13 @@ import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
 import { CONTENT_CATEGORIES } from "@/lib/categories";
+import {
+  validateVideoFile,
+  validateImageFile,
+  validateTextContent,
+  maxFilesForTier,
+  BATCH_LIMITS,
+} from "@/lib/upload-validation";
 
 interface CreditInfo {
   canAnalyze: boolean;
@@ -44,15 +51,48 @@ export default function UploadPage() {
       .catch(() => {});
   }, []);
 
-  const handleFilesAdd = useCallback((incoming: File[]) => {
-    const newItems: FileItem[] = incoming.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      progress: 0,
-      status: "pending" as const,
-    }));
-    setFiles((prev) => [...prev, ...newItems]);
-  }, []);
+  const handleFilesAdd = useCallback(
+    async (incoming: File[]) => {
+      const cap = maxFilesForTier(credits?.isCreator ?? false);
+      const slotsAvailable = Math.max(0, cap - files.length);
+      if (slotsAvailable === 0) {
+        setError(
+          credits?.isCreator
+            ? `Batch limit reached — max ${cap} files at once.`
+            : `Batch upload is a Creator feature. Upgrade to analyze up to ${BATCH_LIMITS.PAID_MAX_FILES} at a time.`
+        );
+        return;
+      }
+      const accepted = incoming.slice(0, slotsAvailable);
+      const skippedCount = incoming.length - accepted.length;
+
+      const validated = await Promise.all(
+        accepted.map(async (file) => {
+          const result = await validateVideoFile(file);
+          return { file, result };
+        })
+      );
+
+      const newItems: FileItem[] = validated.map(({ file, result }) => ({
+        id: crypto.randomUUID(),
+        file,
+        progress: 0,
+        status: result.ok ? ("pending" as const) : ("error" as const),
+        error: result.ok ? undefined : result.reason,
+      }));
+
+      setFiles((prev) => [...prev, ...newItems]);
+
+      if (skippedCount > 0) {
+        setError(`${skippedCount} file(s) skipped — batch cap is ${cap}.`);
+      } else {
+        const firstBad = validated.find((v) => !v.result.ok);
+        if (firstBad && !firstBad.result.ok) setError(firstBad.result.reason);
+        else setError(null);
+      }
+    },
+    [credits, files.length]
+  );
 
   const handleFileRemove = useCallback((id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
@@ -86,13 +126,14 @@ export default function UploadPage() {
   }
 
   async function handleAnalyze() {
-    if (files.length === 0) return;
+    const submittable = files.filter((f) => f.status !== "error");
+    if (submittable.length === 0) return;
     setUploading(true);
     setError(null);
 
-    let lastJobId: string | null = null;
+    const jobIds: string[] = [];
 
-    for (const item of files) {
+    for (const item of submittable) {
       try {
         updateFileStatus(item.id, "uploading");
 
@@ -108,8 +149,8 @@ export default function UploadPage() {
         updateFileProgress(item.id, 100);
         updateFileStatus(item.id, "complete");
 
-        const jobId = await createJob(videoUrl, 'video', null, null, category || null);
-        lastJobId = jobId;
+        const result = await createJob(videoUrl, 'video', null, null, category || null);
+        jobIds.push(result.jobId);
       } catch (err) {
         updateFileStatus(
           item.id,
@@ -122,20 +163,27 @@ export default function UploadPage() {
       }
     }
 
-    if (lastJobId) {
-      router.push(`/processing?jobId=${lastJobId}`);
+    if (jobIds.length === 1) {
+      router.push(`/processing?jobId=${jobIds[0]}`);
+    } else if (jobIds.length > 1) {
+      router.push(`/dashboard?batch=${jobIds.length}`);
     }
   }
 
   async function handleAnalyzeImage() {
     if (!imageFile) return;
+    const v = validateImageFile(imageFile);
+    if (!v.ok) {
+      setError(v.reason);
+      return;
+    }
     setUploading(true);
     setError(null);
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const jobId = await createJob(imageUrl, 'image', null, null, category || null);
-      router.push(`/processing?jobId=${jobId}`);
+      const result = await createJob(imageUrl, 'image', null, null, category || null);
+      router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
       setUploading(false);
@@ -144,13 +192,18 @@ export default function UploadPage() {
 
   async function handleAnalyzeText() {
     if (!textContent.trim()) return;
+    const v = validateTextContent(textContent);
+    if (!v.ok) {
+      setError(v.reason);
+      return;
+    }
     setUploading(true);
     setError(null);
 
     try {
       const textUrl = await uploadText(textContent);
-      const jobId = await createJob(textUrl, 'text_spoken', textContent, null, category || null);
-      router.push(`/processing?jobId=${jobId}`);
+      const result = await createJob(textUrl, 'text_spoken', textContent, null, category || null);
+      router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
       setUploading(false);
@@ -226,7 +279,7 @@ export default function UploadPage() {
           onFileRemove={handleFileRemove}
           onThumbnailGenerated={handleThumbnailGenerated}
           disabled={uploading}
-          maxFiles={credits?.isCreator ? undefined : 1}
+          maxFiles={maxFilesForTier(credits?.isCreator ?? false)}
         />
       </motion.section>)}
 

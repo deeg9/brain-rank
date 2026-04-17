@@ -219,6 +219,23 @@ export async function GET(
       error_message: job.error_message,
       video_filename: extractFilename(job.video_url),
     }
+
+    // For app-level queued jobs (waiting behind this user's other in-flight jobs),
+    // compute position + rough ETA so the UI can show something honest.
+    if (job.status === 'queued') {
+      const { count: aheadOfThis } = await supabase
+        .from('jobs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'queued')
+        .lt('created_at', job.created_at)
+
+      const position = (aheadOfThis ?? 0) + 1
+      response.queue_position = position
+      // Rough estimate: ~45s per slot ahead (30s warm inference + slack).
+      response.eta_seconds = position * 45
+    }
+
     return NextResponse.json(response)
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

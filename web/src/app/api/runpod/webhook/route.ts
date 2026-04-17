@@ -5,6 +5,7 @@ import { extractFilename } from '@/lib/jobs'
 import { AnalysisCompleteEmail } from '@/lib/emails/analysis-complete'
 import { AnalysisFailedEmail } from '@/lib/emails/analysis-failed'
 import { trackServer } from '@/lib/analytics.server'
+import { dispatchJob } from '@/lib/runpod'
 import type { InputType } from '@/lib/analytics'
 
 interface RunPodWebhookPayload {
@@ -123,6 +124,34 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.error('Webhook: failed to send email:', e)
     }
+  }
+
+  // Queue promoter: a slot just freed up for this user — dispatch their oldest queued job.
+  try {
+    const { data: nextQueued } = await supabaseAdmin
+      .from('jobs')
+      .select('id')
+      .eq('user_id', job.user_id)
+      .eq('status', 'queued')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle()
+
+    if (nextQueued) {
+      const outcome = await dispatchJob(supabaseAdmin, nextQueued.id)
+      if (outcome.ok) {
+        await trackServer('analysis_started', job.user_id, {
+          job_id: nextQueued.id,
+          input_type: inputType,
+          category: null,
+          has_text: false,
+          is_creator: true,
+          credits_remaining: -1,
+        })
+      }
+    }
+  } catch (e) {
+    console.error('Queue promoter failed:', e)
   }
 
   return NextResponse.json({ received: true })
