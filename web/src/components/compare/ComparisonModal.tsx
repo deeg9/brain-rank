@@ -127,7 +127,7 @@ const VideoPlayer = React.forwardRef<
   { url: string; inputType?: string; textContent?: string | null; onTimeUpdate?: (t: number) => void }
 >(function VideoPlayer({ url, inputType, textContent, onTimeUpdate }, ref) {
   if (inputType === "image") {
-    return <img src={url} alt="" className="w-full h-full object-cover" />;
+    return <img src={url} alt="" className="w-full h-full object-contain bg-gray-50" />;
   }
 
   if (inputType === "text_spoken" || inputType === "text_visual") {
