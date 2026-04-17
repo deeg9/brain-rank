@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { track } from "@/lib/analytics";
 
 interface BookmarkButtonProps {
   jobId: string;
@@ -55,6 +56,7 @@ export function BookmarkButton({ jobId, initialBookmarked, onToggle, variant = "
           // Revert on error
           setBookmarked(!newState);
         } else {
+          track('bookmark_toggled', { job_id: jobId, action: newState ? 'add' : 'remove' });
           onToggle?.(newState);
         }
       } catch {

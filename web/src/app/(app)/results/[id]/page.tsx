@@ -21,6 +21,7 @@ import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { VisibilityToggle } from "@/app/(app)/dashboard/VisibilityToggle";
 import { CardMenu } from "@/app/(app)/dashboard/CardMenu";
 import { createClient } from "@/lib/supabase/client";
+import { track, type InputType } from "@/lib/analytics";
 
 const NeuralTimeline = dynamic(
   () => import("@/components/results/NeuralTimeline").then(m => m.NeuralTimeline),
@@ -193,6 +194,14 @@ export default function ResultsDetailPage({ params }: Props) {
         }
         const data = await res.json();
         setJob(data);
+        if (data?.status === 'completed' && data?.results) {
+          const overall = (data.results as { summary?: { overall?: number } })?.summary?.overall;
+          track('results_viewed', {
+            job_id: id,
+            input_type: ((data.input_type ?? 'video') as InputType),
+            score: typeof overall === 'number' ? overall : null,
+          });
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
       } finally {

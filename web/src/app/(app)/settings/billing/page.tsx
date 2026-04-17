@@ -5,6 +5,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 import NumberFlow from "@number-flow/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { track } from "@/lib/analytics";
 
 type BillPlan = "monthly" | "annually";
 
@@ -90,6 +91,8 @@ function PlanCard({ plan, billPlan, isCurrentPlan }: { plan: Plan; billPlan: Bil
           billPlan === "monthly"
             ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
             : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
+
+        track("checkout_started", { plan: billPlan === "monthly" ? "monthly" : "annual" });
 
         const res = await fetch("/api/stripe/checkout", {
           method: "POST",

@@ -6,6 +6,7 @@ import NumberFlow from "@number-flow/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import type { PricingTier } from "./pricing-data";
+import { track } from "@/lib/analytics";
 
 type BillPlan = "monthly" | "annually";
 
@@ -26,6 +27,8 @@ export function PricingCard({ tier, billPlan }: PricingCardProps) {
         billPlan === "monthly"
           ? process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_MONTHLY
           : process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL;
+
+      track("checkout_started", { plan: billPlan === "monthly" ? "monthly" : "annual" });
 
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",

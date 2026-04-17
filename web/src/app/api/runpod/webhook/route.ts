@@ -4,6 +4,8 @@ import { resend, FROM_EMAIL } from '@/lib/resend'
 import { extractFilename } from '@/lib/jobs'
 import { AnalysisCompleteEmail } from '@/lib/emails/analysis-complete'
 import { AnalysisFailedEmail } from '@/lib/emails/analysis-failed'
+import { trackServer } from '@/lib/analytics.server'
+import type { InputType } from '@/lib/analytics'
 
 interface RunPodWebhookPayload {
   id: string
@@ -50,17 +52,30 @@ export async function POST(request: NextRequest) {
   const isCompleted = payload.status === 'COMPLETED'
   const isFailed = payload.status === 'FAILED' || payload.status === 'CANCELLED' || payload.status === 'TIMED_OUT'
 
+  const createdAt = job.created_at ? new Date(job.created_at).getTime() : Date.now()
+  const durationMs = Date.now() - createdAt
+  const inputType = (job.input_type ?? 'video') as InputType
+
   if (isCompleted && payload.output) {
     await supabaseAdmin
       .from('jobs')
       .update({ status: 'completed', results: payload.output })
       .eq('id', job.id)
+    await trackServer('analysis_completed', job.user_id, {
+      job_id: job.id,
+      input_type: inputType,
+      duration_ms: durationMs,
+    })
   } else if (isFailed) {
     const errorMsg = payload.error || `Inference ${payload.status.toLowerCase()}`
     await supabaseAdmin
       .from('jobs')
       .update({ status: 'failed', error_message: errorMsg })
       .eq('id', job.id)
+    await trackServer('analysis_failed', job.user_id, {
+      job_id: job.id,
+      error_message: errorMsg,
+    })
   } else {
     // Unrecognized status — acknowledge but don't update
     return NextResponse.json({ received: true, status: payload.status })

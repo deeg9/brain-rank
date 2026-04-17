@@ -8,6 +8,7 @@ import { CONTENT_CATEGORIES } from "@/lib/categories";
 import { ComparisonTray } from "@/components/compare/ComparisonTray";
 import { ComparisonModal } from "@/components/compare/ComparisonModal";
 import { extractScoreInfo } from "@/lib/results";
+import { track, type FilterType } from "@/lib/analytics";
 
 const PAGE_SIZE = 20;
 
@@ -56,6 +57,12 @@ export default function DiscoverPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Track debounced search
+  useEffect(() => {
+    if (!debouncedSearch) return;
+    track('discover_filter_changed', { filter_type: 'search' as FilterType, value: debouncedSearch });
+  }, [debouncedSearch]);
 
   // Reset visibleCount when filters change
   useEffect(() => {
@@ -239,7 +246,10 @@ export default function DiscoverPage() {
           {/* Sort dropdown */}
           <select
             value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            onChange={(e) => {
+              setSortOption(e.target.value);
+              track('discover_filter_changed', { filter_type: 'sort' as FilterType, value: e.target.value });
+            }}
             className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
           >
             <option value="score">Highest Score</option>
@@ -251,7 +261,10 @@ export default function DiscoverPage() {
           {/* Score filter dropdown */}
           <select
             value={scoreFilter}
-            onChange={(e) => setScoreFilter(e.target.value)}
+            onChange={(e) => {
+              setScoreFilter(e.target.value);
+              track('discover_filter_changed', { filter_type: 'score' as FilterType, value: e.target.value });
+            }}
             className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
           >
             <option value="all">All Scores</option>
@@ -263,7 +276,10 @@ export default function DiscoverPage() {
           {/* Category filter dropdown */}
           <select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => {
+              setCategoryFilter(e.target.value);
+              track('discover_filter_changed', { filter_type: 'category' as FilterType, value: e.target.value });
+            }}
             className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
           >
             <option value="all">All Categories</option>
@@ -275,7 +291,10 @@ export default function DiscoverPage() {
           {/* Input-type filter dropdown */}
           <select
             value={inputTypeFilter}
-            onChange={(e) => setInputTypeFilter(e.target.value)}
+            onChange={(e) => {
+              setInputTypeFilter(e.target.value);
+              track('discover_filter_changed', { filter_type: 'type' as FilterType, value: e.target.value });
+            }}
             className="flex-1 md:flex-none min-w-0 px-4 py-2.5 bg-black text-white text-sm rounded-lg focus:outline-none appearance-none cursor-pointer font-headline"
           >
             <option value="all">All Types</option>

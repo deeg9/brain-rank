@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { PostHogPageView } from "@/components/PostHogPageView";
 import { CookieConsent } from "@/components/CookieConsent";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -47,6 +48,7 @@ export default function RootLayout({
             <CookieConsent />
           </ThemeProvider>
         </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   );

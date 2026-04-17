@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { createClient } from "@/lib/supabase/client";
+import { track } from "@/lib/analytics";
 import { MobileNavSheet } from "./MobileNavSheet";
 
 interface TopBarProps {
@@ -75,7 +77,9 @@ export function TopBar({
 
   async function handleLogout() {
     const supabase = createClient();
+    track("user_signed_out", {});
     await supabase.auth.signOut();
+    if (posthog.__loaded) posthog.reset();
     router.push("/login");
   }
 

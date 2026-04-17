@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { checkJobCreateLimits } from '@/lib/ratelimit'
 import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
+import { trackServer } from '@/lib/analytics.server'
 import { type InputType } from '@/lib/database.types'
 
 // Hold time for image-as-video. Locked at 6s — TRIBE v2 needs ≥6s to align
@@ -26,6 +27,10 @@ export async function createJob(
 
   const credits = await getCreditStatus(supabase, user.id)
   if (!credits.canAnalyze) {
+    await trackServer('credit_limit_hit', user.id, {
+      credits_used: credits.used,
+      credits_limit: credits.limit === Infinity ? -1 : credits.limit,
+    })
     throw new Error(
       `Daily credit limit reached (${credits.used}/${credits.limit}). Resets at 00:00 UTC, or upgrade for unlimited analyses.`
     )
@@ -53,6 +58,15 @@ export async function createJob(
   if (!credits.isCreator) {
     await recordCreditUsage(supabase, user.id, data.id)
   }
+
+  await trackServer('analysis_started', user.id, {
+    job_id: data.id,
+    input_type: inputType,
+    category: category ?? null,
+    has_text: !!textContent,
+    is_creator: credits.isCreator,
+    credits_remaining: credits.remaining === Infinity ? -1 : credits.remaining,
+  })
 
   // Dispatch to RunPod
   const apiKey = process.env.RUNPOD_API_KEY

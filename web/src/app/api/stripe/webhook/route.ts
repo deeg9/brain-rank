@@ -3,6 +3,15 @@ import Stripe from 'stripe'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import type { SubscriptionStatus } from '@/lib/database.types'
+import { trackServer, identifyServer } from '@/lib/analytics.server'
+import type { SubscriptionPlan } from '@/lib/analytics'
+
+function resolvePlan(priceId: string | null | undefined): SubscriptionPlan {
+  if (priceId && priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_CREATOR_ANNUAL) {
+    return 'annual'
+  }
+  return 'monthly'
+}
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -59,6 +68,14 @@ export async function POST(req: Request) {
             session.subscription as string
           )
           await upsertSubscription(subscription, userId)
+
+          const plan = resolvePlan(subscription.items.data[0]?.price.id)
+          await trackServer('subscription_activated', userId, {
+            plan,
+            amount: session.amount_total ?? 0,
+            customer_id: stripeCustomerId,
+          })
+          await identifyServer(userId, { is_creator: true, plan })
         }
         break
       }
@@ -86,6 +103,12 @@ export async function POST(req: Request) {
         }
 
         await upsertSubscription(subscription, userId)
+
+        if (event.type === 'customer.subscription.deleted') {
+          const plan = resolvePlan(subscription.items.data[0]?.price.id)
+          await trackServer('subscription_cancelled', userId, { plan })
+          await identifyServer(userId, { is_creator: false })
+        }
         break
       }
 

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { trackServer, identifyServer } from '@/lib/analytics.server'
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
@@ -12,7 +13,7 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -22,6 +23,11 @@ export async function signup(formData: FormData) {
 
   if (error) {
     return { error: error.message }
+  }
+
+  if (data.user) {
+    await identifyServer(data.user.id, { email })
+    await trackServer('user_signed_up', data.user.id, { method: 'email' })
   }
 
   redirect(`/signup/check-email?email=${encodeURIComponent(email)}`)
