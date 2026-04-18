@@ -5,23 +5,9 @@ import { checkJobCreateLimits } from '@/lib/ratelimit'
 import { getCreditStatus, recordCreditUsage } from '@/lib/credits'
 import { dispatchJob } from '@/lib/runpod'
 import { trackServer } from '@/lib/analytics.server'
+import { BATCH_LIMITS } from '@/lib/upload-validation'
 import { type InputType } from '@/lib/database.types'
-
-export const MAX_BATCH_SIZE = 20
-
-export type BatchItem = {
-  videoUrl: string
-  inputType?: InputType
-  textContent?: string | null
-  textStyle?: string | null
-  category?: string | null
-}
-
-export type CreateJobResult = {
-  jobId: string
-  status: 'processing' | 'queued' | 'failed'
-  message?: string
-}
+import type { BatchItem, CreateJobResult } from './types'
 
 export async function createJob(
   videoUrl: string,
@@ -112,8 +98,8 @@ export async function createBatchJobs(
   if (items.length === 0) {
     return { jobs: [], error: 'No items to analyze' }
   }
-  if (items.length > MAX_BATCH_SIZE) {
-    return { jobs: [], error: `Batch size capped at ${MAX_BATCH_SIZE}` }
+  if (items.length > BATCH_LIMITS.PAID_MAX_FILES) {
+    return { jobs: [], error: `Batch size capped at ${BATCH_LIMITS.PAID_MAX_FILES}` }
   }
 
   const supabase = await createClient()
