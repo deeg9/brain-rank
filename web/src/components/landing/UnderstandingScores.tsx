@@ -16,12 +16,9 @@ const NETWORKS: { name: string; color: string; role: string }[] = [
 
 export function UnderstandingScores() {
   return (
-    <section className="py-16 md:py-32 px-6 md:px-8">
+    <section className="py-10 md:py-32 px-6 md:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col items-center gap-4 text-center mb-12">
-          <span className="inline-flex items-center rounded-full border border-white/15 px-3 py-1 text-xs font-mono uppercase tracking-wider text-on-background/70">
-            Understanding Scores
-          </span>
+        <div className="flex flex-col items-center gap-4 text-center mb-8 md:mb-12">
           <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold text-on-background max-w-2xl">
             How BrainRank scores your content
           </h2>

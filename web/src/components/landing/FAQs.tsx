@@ -42,7 +42,7 @@ const FAQS: { question: string; answer: string }[] = [
 
 export function FAQs() {
   return (
-    <section className="scroll-py-16 py-16 md:scroll-py-32 md:py-32 px-6 md:px-8">
+    <section className="scroll-py-10 py-10 md:scroll-py-32 md:py-32 px-6 md:px-8">
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="font-headline mb-4 text-3xl md:text-4xl font-bold text-on-background">
           Frequently Asked Questions

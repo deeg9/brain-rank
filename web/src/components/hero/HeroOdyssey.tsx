@@ -122,7 +122,7 @@ export function HeroOdyssey() {
 
           {/* Feature pills */}
           <motion.div
-            className="flex flex-wrap justify-center gap-3"
+            className="flex flex-wrap justify-center gap-2 md:gap-3"
             variants={fadeUp}
             initial="initial"
             animate="animate"

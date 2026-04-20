@@ -27,8 +27,8 @@ const STEPS: { number: string; icon: string; title: string; description: string;
 
 export function HowItWorks() {
   return (
-    <section className="py-16 md:py-32 px-6 md:px-8">
-      <h2 className="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-background text-center mb-16">
+    <section className="py-10 md:py-32 px-6 md:px-8">
+      <h2 className="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-background text-center mb-10 md:mb-16">
         How It Works
       </h2>
 
@@ -59,17 +59,35 @@ export function HowItWorks() {
         ))}
       </div>
 
-      <ContainerScroll titleComponent={null}>
-        <video
-          src="/videos/brainrank-demo.mp4"
-          poster="/images/results-preview.png"
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="h-full w-full rounded-2xl object-cover"
-        />
-      </ContainerScroll>
+      {/* Desktop: scrolly Mac-mockup with tilt */}
+      <div className="hidden md:block">
+        <ContainerScroll titleComponent={null}>
+          <video
+            src="/videos/brainrank-demo.mp4"
+            poster="/images/results-preview.png"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full rounded-2xl object-cover"
+          />
+        </ContainerScroll>
+      </div>
+
+      {/* Mobile: plain inline 16:9 video, no tilt, no mockup */}
+      <div className="md:hidden mt-10 max-w-xl mx-auto">
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+          <video
+            src="/videos/brainrank-demo.mp4"
+            poster="/images/results-preview.png"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 h-full w-full object-contain"
+          />
+        </div>
+      </div>
     </section>
   );
 }

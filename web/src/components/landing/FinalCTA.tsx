@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 
 export function FinalCTA() {
   return (
-    <section className="py-32 px-6 md:px-8">
+    <section className="py-16 md:py-32 px-6 md:px-8">
       <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
         <h2 className="font-headline text-3xl md:text-5xl font-bold text-on-background mb-6">
           Ready?

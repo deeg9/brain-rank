@@ -227,7 +227,7 @@ export function BrainHero() {
   return (
     <div className="absolute inset-0 z-[1]" aria-hidden="true">
       <Canvas
-        camera={{ position: [0, 0, 220], fov: 45 }}
+        camera={{ position: [0, 0, isMobile ? 300 : 220], fov: 45 }}
         dpr={isMobile ? [1, 1] : [1, 1.5]}
         style={{ background: 'transparent' }}
         gl={{ alpha: true, antialias: true }}
