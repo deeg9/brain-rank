@@ -20,6 +20,7 @@ import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { VisibilityToggle } from "@/app/(app)/dashboard/VisibilityToggle";
 import { CardMenu } from "@/app/(app)/dashboard/CardMenu";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { createClient } from "@/lib/supabase/client";
 import { track, type InputType } from "@/lib/analytics";
 
@@ -344,18 +345,38 @@ export default function ResultsDetailPage({ params }: Props) {
 
           {/* Title (editable) */}
           {isEditingTitle ? (
-            <input
-              ref={titleInputRef}
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              onBlur={handleTitleSave}
-              onKeyDown={handleTitleKeyDown}
-              className="bg-transparent text-on-surface font-black text-2xl tracking-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-[200px]"
-              maxLength={200}
-            />
+            <div className="flex items-center gap-2 min-w-0">
+              <input
+                ref={titleInputRef}
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={handleTitleKeyDown}
+                className="bg-transparent text-on-surface font-black text-2xl tracking-tight leading-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-0 flex-1 max-w-md"
+                maxLength={200}
+              />
+              <button
+                type="button"
+                onClick={handleTitleSave}
+                aria-label="Save title"
+                className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-primary text-on-primary hover:opacity-80 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-base">check</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditingTitle(false)}
+                aria-label="Cancel edit"
+                className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full border border-on-surface-variant/30 text-on-surface-variant hover:bg-surface-container transition-colors"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
           ) : (
-            <button onClick={handleTitleEdit} className="flex items-center gap-2 group">
-              <h1 className="text-on-surface font-black text-2xl tracking-tight">
+            <button
+              onClick={handleTitleEdit}
+              className="flex items-center gap-2 group border-b-2 border-transparent py-0.5"
+            >
+              <h1 className="text-on-surface font-black text-2xl tracking-tight leading-tight">
                 {displayTitle}
               </h1>
               <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity text-base">
@@ -471,7 +492,7 @@ export default function ResultsDetailPage({ params }: Props) {
         <BrainViewer segments={segments} currentTimeRef={currentTimeRef} currentTime={currentTime} />
       </div>
 
-      {/* Neural activation — bar chart for short videos, timeline for longer ones */}
+      {/* Neural activation — bar chart for short videos; stacked desktop / tabbed mobile for longer ones */}
       {results.duration_seconds < 10 ? (
         <>
           <p className="text-xs text-on-surface-variant mb-2">
@@ -480,15 +501,51 @@ export default function ResultsDetailPage({ params }: Props) {
           <RegionBarChart segments={segments} currentTime={currentTime} />
         </>
       ) : (
-        <NeuralTimeline
-          segments={segments}
-          duration={videoDuration || results.duration_seconds}
-          currentTime={currentTime}
-          onSeek={handleSeek}
-          zones={zones}
-          peakMarkers={peakMarkers}
-          iconMarkers={iconMarkers}
-        />
+        <>
+          {/* Desktop: stacked — both visible, both update with playback */}
+          <div className="hidden md:flex md:flex-col md:gap-6">
+            <NeuralTimeline
+              segments={segments}
+              duration={videoDuration || results.duration_seconds}
+              currentTime={currentTime}
+              onSeek={handleSeek}
+              zones={zones}
+              peakMarkers={peakMarkers}
+              iconMarkers={iconMarkers}
+            />
+            <RegionBarChart segments={segments} currentTime={currentTime} />
+          </div>
+
+          {/* Mobile: tab switch */}
+          <div className="md:hidden">
+            <Tabs defaultValue="timeline" className="w-full">
+              <TabsList className="w-full mb-4">
+                <TabsTrigger value="timeline" className="flex-1">
+                  <span className="material-symbols-outlined text-base">timeline</span>
+                  Timeline
+                </TabsTrigger>
+                <TabsTrigger value="regions" className="flex-1">
+                  <span className="material-symbols-outlined text-base">bar_chart</span>
+                  Regions
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="timeline">
+                <NeuralTimeline
+                  segments={segments}
+                  duration={videoDuration || results.duration_seconds}
+                  currentTime={currentTime}
+                  onSeek={handleSeek}
+                  zones={zones}
+                  peakMarkers={peakMarkers}
+                  iconMarkers={iconMarkers}
+                />
+              </TabsContent>
+              <TabsContent value="regions">
+                <RegionBarChart segments={segments} currentTime={currentTime} />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </>
       )}
 
       {/* Insights Summary — metrics + emotional state strip */}

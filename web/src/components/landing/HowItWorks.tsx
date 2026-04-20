@@ -1,6 +1,7 @@
 "use client";
 
 import { LinkPreview } from "@/components/ui/LinkPreview";
+import { ContainerScroll } from "@/components/ui/ContainerScroll";
 
 const STEPS: { number: string; icon: string; title: string; description: string; link?: { label: string; href: string } }[] = [
   {
@@ -57,6 +58,18 @@ export function HowItWorks() {
           </div>
         ))}
       </div>
+
+      <ContainerScroll titleComponent={null}>
+        <video
+          src="/videos/brainrank-demo.mp4"
+          poster="/images/results-preview.png"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="h-full w-full rounded-2xl object-cover"
+        />
+      </ContainerScroll>
     </section>
   );
 }

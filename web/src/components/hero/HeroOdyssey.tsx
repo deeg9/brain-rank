@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BrainHero } from "./BrainHero";
+import { CanvasRevealEffect } from "./CanvasRevealEffect";
 import { Button } from "@/components/ui";
 import { MatrixText } from "@/components/ui/MatrixText";
 import { LinkPreview } from "@/components/ui/LinkPreview";
@@ -35,11 +36,27 @@ export function HeroOdyssey() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
+      {/* Sparkly dot field — behind brain */}
+      <div className="absolute inset-0 z-0">
+        <CanvasRevealEffect
+          animationSpeed={3}
+          containerClassName="bg-transparent"
+          colors={[
+            [255, 255, 255],
+            [255, 255, 255],
+          ]}
+          dotSize={6}
+        />
+      </div>
+
       {/* 3D brain background */}
       <BrainHero />
 
       {/* Gradient overlay for text readability */}
       <div className="absolute inset-0 z-[5] bg-gradient-to-b from-transparent via-black/20 to-black/60" />
+
+      {/* Bottom fade — blends dots/brain into the page grid background */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[6] h-48 bg-gradient-to-b from-transparent to-background" />
 
       {/* Content overlay */}
       <div className="relative z-10 flex min-h-screen flex-col px-6 md:px-8">

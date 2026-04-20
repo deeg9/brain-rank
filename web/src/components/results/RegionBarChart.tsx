@@ -9,16 +9,129 @@ const REGIONS: {
   key: keyof SegmentRegionScores;
   label: string;
   color: string;
+  info: {
+    description: string;
+    calculation: string;
+    interpretation: string;
+  };
 }[] = [
-  { key: "attention", label: "Attention", color: "#60a5fa" },
-  { key: "reward", label: "Reward", color: "#a78bfa" },
-  { key: "emotional_processing", label: "Emotional Processing", color: "#f472b6" },
-  { key: "social_cognition", label: "Social Cognition", color: "#fbbf24" },
-  { key: "visual_processing", label: "Visual Processing", color: "#4ade80" },
-  { key: "auditory_processing", label: "Auditory Processing", color: "#fb923c" },
-  { key: "language_narrative", label: "Language / Narrative", color: "#22d3ee" },
-  { key: "default_mode", label: "Default Mode", color: "#fb7185" },
-  { key: "motion_processing", label: "Motion Processing", color: "#a3e635" },
+  {
+    key: "attention",
+    label: "Attention",
+    color: "#60a5fa",
+    info: {
+      description:
+        "Predicted activation in the brain's attention network — primarily frontal and parietal regions — which governs focused concentration on a stimulus.",
+      calculation:
+        "TRIBE v2 predicts fMRI signal in the attention network for each 2-second segment, trained on real brain recordings of people watching video.",
+      interpretation:
+        "High values mean the viewer is locked in; dips indicate attention drift or cognitive disengagement.",
+    },
+  },
+  {
+    key: "reward",
+    label: "Reward",
+    color: "#a78bfa",
+    info: {
+      description:
+        "Predicted activation in reward circuits — nucleus accumbens, ventral striatum, and dopaminergic midbrain — that signal how intrinsically rewarding content feels.",
+      calculation:
+        "TRIBE v2 projects segment features onto the reward-network voxels learned from its fMRI training set.",
+      interpretation:
+        "High reward activation is one of the strongest predictors of retention and repeat viewing.",
+    },
+  },
+  {
+    key: "emotional_processing",
+    label: "Emotional Processing",
+    color: "#f472b6",
+    info: {
+      description:
+        "Predicted activation in affective regions — amygdala, insula, and anterior cingulate — that process emotional salience and valence.",
+      calculation:
+        "TRIBE v2 outputs a predicted response in the limbic/affective network for each segment.",
+      interpretation:
+        "Peaks mark emotionally charged moments; flat curves suggest emotionally neutral or forgettable content.",
+    },
+  },
+  {
+    key: "social_cognition",
+    label: "Social Cognition",
+    color: "#fbbf24",
+    info: {
+      description:
+        "Predicted activation in the theory-of-mind network — temporoparietal junction and medial prefrontal cortex — engaged when viewers think about other people's intentions and mental states.",
+      calculation:
+        "TRIBE v2 predicts activation in the canonical mentalizing network regions.",
+      interpretation:
+        "High values appear when viewers are reading faces, interpreting motives, or emotionally relating to characters.",
+    },
+  },
+  {
+    key: "visual_processing",
+    label: "Visual Processing",
+    color: "#4ade80",
+    info: {
+      description:
+        "Predicted activation in the occipital visual cortex (V1–V4) — the primary regions that decode color, edges, shapes, and scene complexity.",
+      calculation:
+        "TRIBE v2's V-JEPA2 video features are projected onto visual cortex voxels learned from fMRI.",
+      interpretation:
+        "Peaks correspond to visually rich, high-contrast, or novel frames. Sustained high values indicate strong visual salience.",
+    },
+  },
+  {
+    key: "auditory_processing",
+    label: "Auditory Processing",
+    color: "#fb923c",
+    info: {
+      description:
+        "Predicted activation in the superior temporal gyrus and primary auditory cortex — the brain's core sound-processing regions.",
+      calculation:
+        "TRIBE v2 uses Wav2Vec-BERT audio features mapped onto auditory cortex voxels.",
+      interpretation:
+        "Peaks mark salient sounds, music hits, or dynamic speech. Silent passages flatten the curve.",
+    },
+  },
+  {
+    key: "language_narrative",
+    label: "Language / Narrative",
+    color: "#22d3ee",
+    info: {
+      description:
+        "Predicted activation in the language network — Broca's area, Wernicke's area, and the superior temporal sulcus — which handles speech comprehension and narrative structure.",
+      calculation:
+        "TRIBE v2 uses LLaMA 3.2 text features from transcribed speech projected onto language-network voxels.",
+      interpretation:
+        "High values during clear, compelling dialogue or voiceover. Drops signal unclear speech, jargon, or weak narrative flow.",
+    },
+  },
+  {
+    key: "default_mode",
+    label: "Default Mode",
+    color: "#fb7185",
+    info: {
+      description:
+        "Predicted activation in the default mode network — medial prefrontal cortex, posterior cingulate, and angular gyrus — active during self-referential thought, imagination, and personal relevance.",
+      calculation:
+        "TRIBE v2 maps segment features onto canonical DMN voxels from its fMRI training set.",
+      interpretation:
+        "Sustained DMN activation predicts narrative immersion and personal connection — the 'this is about me' feeling.",
+    },
+  },
+  {
+    key: "motion_processing",
+    label: "Motion Processing",
+    color: "#a3e635",
+    info: {
+      description:
+        "Predicted activation in motion-selective visual areas (MT/V5) — the regions that track movement, camera motion, and action.",
+      calculation:
+        "TRIBE v2 projects V-JEPA2 motion features onto MT/V5 voxels learned from fMRI.",
+      interpretation:
+        "Peaks align with action, fast cuts, camera pans, and kinetic scenes. Flat values indicate static shots.",
+    },
+  },
 ];
 
 interface RegionBarChartProps {
@@ -59,7 +172,7 @@ export function RegionBarChart({ segments, currentTime = 0 }: RegionBarChartProp
           return (
             <motion.div
               key={region.key}
-              className="flex items-center gap-3"
+              className="flex items-center gap-2"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
@@ -67,6 +180,12 @@ export function RegionBarChart({ segments, currentTime = 0 }: RegionBarChartProp
               <span className="text-xs font-headline font-bold text-gray-500 w-[140px] text-right shrink-0 truncate">
                 {region.label}
               </span>
+              <MetricInfo
+                title={region.label}
+                description={region.info.description}
+                calculation={region.info.calculation}
+                interpretation={region.info.interpretation}
+              />
               <div className="flex-1 h-7 bg-gray-100 rounded-md overflow-hidden relative">
                 <motion.div
                   className="h-full rounded-md"

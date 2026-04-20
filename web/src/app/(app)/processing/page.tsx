@@ -238,7 +238,7 @@ function ProcessingContent() {
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-4xl font-headline font-bold text-on-surface">
-              Analyzing your video...
+              Analyzing...
             </h1>
             <StatusBadge status="processing" label="In Progress" />
           </div>
@@ -260,7 +260,7 @@ function ProcessingContent() {
       <div className="space-y-1">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
           <h1 className="text-3xl md:text-4xl font-headline font-bold text-on-surface">
-            Analyzing your video...
+            Analyzing...
           </h1>
           <StatusBadge status="processing" label="In Progress" />
         </div>
