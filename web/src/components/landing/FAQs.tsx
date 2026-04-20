@@ -9,9 +9,9 @@ import {
 
 const FAQS: { question: string; answer: string }[] = [
   {
-    question: "What is BrainRank?",
+    question: "What is BRAIN | RANK?",
     answer:
-      "BrainRank is neural A/B testing for content creators. Upload a video, image, or script and we predict where viewers' brains light up — so you can spot hooks, weak segments, and audience engagement before you publish.",
+      "BRAIN | RANK is neural A/B testing for content creators. Upload a video, image, or script and we predict where viewers' brains light up — so you can spot hooks, weak segments, and audience engagement before you publish.",
   },
   {
     question: "How does the prediction work?",
@@ -48,7 +48,7 @@ export function FAQs() {
           Frequently Asked Questions
         </h2>
         <p className="text-on-background/70 mb-12">
-          Short answers about how BrainRank works, what to upload, and what you
+          Short answers about how BRAIN | RANK works, what to upload, and what you
           get back.
         </p>
 

@@ -20,7 +20,7 @@ export function UnderstandingScores() {
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col items-center gap-4 text-center mb-8 md:mb-12">
           <h2 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold text-on-background max-w-2xl">
-            How BrainRank scores your content
+            How BRAIN | RANK scores your content
           </h2>
           <p className="text-on-background/70 max-w-2xl">
             Every upload is scored on two custom engagement metrics and nine raw
