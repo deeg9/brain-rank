@@ -228,7 +228,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
         <BookmarkButton jobId={id} />
         <ExportButton
           data={job.results as Record<string, unknown>}
-          filename={`neurocut-${id}.json`}
+          filename={`brainrank-${id}.json`}
         />
       </div>
       </div>

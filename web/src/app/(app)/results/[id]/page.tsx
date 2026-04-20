@@ -438,7 +438,7 @@ export default function ResultsDetailPage({ params }: Props) {
         <div className="flex-shrink-0 md:pt-8 flex items-center gap-2">
           <ExportButton
             data={job.results as Record<string, unknown>}
-            filename={`neurocut-${id}.json`}
+            filename={`brainrank-${id}.json`}
           />
           <CardMenu
             jobId={job.id}

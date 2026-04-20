@@ -5,12 +5,28 @@ interface ExportButtonProps {
   filename?: string;
 }
 
+function stripHeavyFields(data: Record<string, unknown>): Record<string, unknown> {
+  const { raw_shape: _raw_shape, segments, ...rest } = data as {
+    raw_shape?: unknown;
+    segments?: Array<Record<string, unknown>>;
+    [key: string]: unknown;
+  };
+  const cleaned: Record<string, unknown> = { ...rest };
+  if (Array.isArray(segments)) {
+    cleaned.segments = segments.map((seg) => {
+      const { vertex_data: _vertex_data, ...segRest } = seg;
+      return segRest;
+    });
+  }
+  return cleaned;
+}
+
 export function ExportButton({
   data,
-  filename = "neurocut-results.json",
+  filename = "brainrank-results.json",
 }: ExportButtonProps) {
   function handleExport() {
-    const json = JSON.stringify(data, null, 2);
+    const json = JSON.stringify(stripHeavyFields(data), null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
