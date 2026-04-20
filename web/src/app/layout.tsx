@@ -20,8 +20,19 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "BrainRank",
+  title: "BRAIN | RANK",
   description: "Neural A/B testing for content creators",
+  openGraph: {
+    title: "BRAIN | RANK",
+    description: "Neural A/B testing for content creators",
+    siteName: "BRAIN | RANK",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BRAIN | RANK",
+    description: "Neural A/B testing for content creators",
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },

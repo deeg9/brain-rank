@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const overall = results?.summary?.overall ?? 0;
 
   return {
-    title: `${title} | BrainRank`,
+    title: `${title} · BRAIN | RANK`,
     description: `Neural analysis with ${Math.round(overall * 100)}% overall activation score`,
   };
 }
