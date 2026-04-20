@@ -250,14 +250,14 @@ export function BrainViewer({ segments, currentTime }: BrainViewerProps) {
           calculation="BrainRank maps predicted brain activation onto the fsaverage5 cortical surface (10,242 vertices per hemisphere). Each vertex is colored based on the dominant neural network's activation score at the current timestamp."
           interpretation="Rotate the brain to see activation from different angles. Hover over colored regions to see which network is active and its intensity. Use the view buttons (front, top, side) for quick orientation."
         />
-        <span className="flex items-center gap-1 text-[10px] text-on-surface-variant font-medium ml-auto">
+        <span className="hidden md:flex items-center gap-1 text-[10px] text-on-surface-variant font-medium ml-auto">
           <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" /><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500" /></span>
           Updates with playback
         </span>
       </div>
       <div
         ref={canvasContainerRef}
-        className="flex-1 min-h-[300px] rounded-lg overflow-hidden relative touch-none"
+        className="flex-1 min-h-0 md:min-h-[300px] rounded-lg overflow-hidden relative touch-none"
         onPointerLeave={handlePointerLeave}
       >
         <Canvas
