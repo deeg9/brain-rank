@@ -4,7 +4,7 @@ import { PageTransition } from "@/components/ui/PageTransition";
 export const metadata = {
   title: "What is BrainRank? | BrainRank",
   description:
-    "BrainRank is an open, non-commercial research beta predicting how the brain responds to storytelling — powered by Meta's TRIBE v2 under CC BY-NC 4.0.",
+    "BrainRank is a non-commercial research beta predicting how the brain responds to content — powered by Meta's TRIBE v2 under CC BY-NC 4.0.",
 };
 
 export default function UseCasesPage() {
@@ -21,8 +21,8 @@ export default function UseCasesPage() {
             What is BrainRank?
           </h1>
           <p className="text-gray-500 text-sm mt-2">
-            An open, non-commercial research project for understanding how the brain
-            responds to storytelling.
+            A non-commercial research beta for understanding how the brain responds
+            to content.
           </p>
         </div>
 
@@ -30,8 +30,8 @@ export default function UseCasesPage() {
         <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-4">
           <h2 className="font-headline text-2xl font-bold text-black">The project</h2>
           <p className="text-gray-700 leading-relaxed">
-            BrainRank is the <strong>Open Storytelling Research Project</strong>. It
-            runs every uploaded video, image, or script through Meta&apos;s{" "}
+            BrainRank is a <strong>non-commercial research beta</strong> powered by
+            Meta&apos;s{" "}
             <a
               href="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/"
               target="_blank"

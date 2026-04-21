@@ -351,14 +351,14 @@ export default function ResultsDetailPage({ params }: Props) {
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 onKeyDown={handleTitleKeyDown}
-                className="bg-transparent text-on-surface font-black text-2xl tracking-tight leading-tight border-b-2 border-primary outline-none px-0 py-0.5 min-w-0 flex-1 max-w-md"
+                className="bg-transparent text-on-surface font-black text-2xl tracking-tight leading-tight border-b-2 border-black outline-none px-0 py-0.5 min-w-0 flex-1 max-w-md"
                 maxLength={200}
               />
               <button
                 type="button"
                 onClick={handleTitleSave}
                 aria-label="Save title"
-                className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-primary text-on-primary hover:opacity-80 transition-opacity"
+                className="flex items-center justify-center w-8 h-8 shrink-0 rounded-full bg-black text-white hover:opacity-80 transition-opacity"
               >
                 <span className="material-symbols-outlined text-base">check</span>
               </button>

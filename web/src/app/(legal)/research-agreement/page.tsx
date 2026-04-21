@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Contribution Agreement - BrainRank",
   description:
-    "Terms under which you contribute media to the Open Storytelling Research Project operated by BrainRank.",
+    "Terms under which you contribute media to the BrainRank non-commercial research beta.",
 };
 
 export default function ResearchAgreementPage() {
@@ -18,10 +18,9 @@ export default function ResearchAgreementPage() {
 
       <p>
         This Contribution Agreement (&quot;Agreement&quot;) governs your voluntary contribution of
-        media to the Open Storytelling Research Project operated by BrainRank (&quot;we,&quot;
-        &quot;us,&quot; or &quot;our&quot;). By checking the consent box before uploading media
-        to BrainRank, you agree to the terms set out below. If you do not agree, do not upload
-        content.
+        media to the BrainRank non-commercial research beta (&quot;we,&quot; &quot;us,&quot; or
+        &quot;our&quot;). By checking the consent box before uploading media to BrainRank, you
+        agree to the terms set out below. If you do not agree, do not upload content.
       </p>
 
       {/* 1. Purpose */}
@@ -156,7 +155,7 @@ export default function ResearchAgreementPage() {
       {/* 10. Contact */}
       <h2 className="font-headline">10. Contact</h2>
       <p>
-        Questions about this Agreement or the Open Storytelling Research Project can be sent to:
+        Questions about this Agreement or the BrainRank research beta can be sent to:
       </p>
       <p>
         <strong>Email:</strong> team@trybrainrank.com

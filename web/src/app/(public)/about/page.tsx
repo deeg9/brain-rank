@@ -21,7 +21,7 @@ export default function AboutPage() {
             About BrainRank
           </h1>
           <p className="text-gray-500 text-sm mt-2">
-            The Open Storytelling Research Project — a non-commercial research beta.
+            A non-commercial research beta powered by Meta&apos;s TRIBE v2.
           </p>
         </div>
 

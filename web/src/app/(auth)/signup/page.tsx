@@ -56,7 +56,7 @@ export default function SignupPage() {
       <div className="mb-6 flex items-center gap-2 px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest">
         <span className="material-symbols-outlined text-[16px] text-on-surface-variant shrink-0">science</span>
         <p className="text-[11px] text-on-surface-variant leading-snug">
-          You&apos;re joining the <span className="text-on-surface font-semibold">Open Storytelling Research Project</span> — a non-commercial research beta powered by Meta&apos;s TRIBE v2. Free access. No payment info collected.
+          You&apos;re joining a <span className="text-on-surface font-semibold">non-commercial research beta</span> powered by Meta&apos;s TRIBE v2. Free access. No payment info collected.
         </p>
       </div>
       <div className="mb-8 text-center">

@@ -143,9 +143,9 @@ export default function TermsPage() {
         license (Creative Commons Attribution-NonCommercial 4.0). By uploading content during the
         research beta, you additionally agree to our{" "}
         <a href="/research-agreement">Contribution Agreement</a>, which governs how your uploaded
-        media and the resulting neural-activation predictions contribute to the Open Storytelling
-        Research Project. In the event of a conflict between these Terms and the Contribution
-        Agreement as applied to uploaded media, the Contribution Agreement controls.
+        media and the resulting neural-activation predictions are used. In the event of a conflict
+        between these Terms and the Contribution Agreement as applied to uploaded media, the
+        Contribution Agreement controls.
       </p>
 
       {/* 6. Your Content */}

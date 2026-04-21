@@ -43,7 +43,7 @@ function ConsentCheckbox({
           onChange={(e) => onChange(e.target.checked)}
           disabled={disabled}
           className="peer sr-only"
-          aria-label="I agree to contribute my media to the Open Storytelling Research Project"
+          aria-label="I agree to the Contribution Agreement for this non-commercial research beta"
         />
         <div className="h-5 w-5 rounded bg-surface-container-lowest border border-outline-variant/30 peer-checked:bg-black peer-checked:border-black transition-colors duration-200 flex items-center justify-center">
           {checked && (
@@ -64,7 +64,7 @@ function ConsentCheckbox({
         </div>
       </div>
       <span className="text-xs text-on-surface-variant leading-snug">
-        I agree to contribute my media to the Open Storytelling Research Project
+        I agree to contribute my media to this non-commercial research beta
         under the terms of the{" "}
         <Link
           href="/research-agreement"
