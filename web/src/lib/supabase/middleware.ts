@@ -39,7 +39,7 @@ export async function updateSession(request: NextRequest) {
 
   // Define route sets for redirect logic
   const pathname = request.nextUrl.pathname
-  const publicRoutes = ['/login', '/signup', '/welcome', '/privacy', '/terms', '/disclaimer', '/resources', '/use-cases', '/about', '/pricing', '/forgot-password']
+  const publicRoutes = ['/login', '/signup', '/welcome', '/privacy', '/terms', '/disclaimer', '/research-agreement', '/resources', '/use-cases', '/about', '/pricing', '/forgot-password']
   const isPublicRoute = publicRoutes.some(route =>
     pathname.startsWith(route)
   )

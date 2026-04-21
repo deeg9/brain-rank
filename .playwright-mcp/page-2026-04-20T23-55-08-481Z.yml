@@ -1,0 +1,193 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - link "arrow_back Back to app" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: arrow_back
+        - text: Back to app
+    - main [ref=e7]:
+      - article [ref=e8]:
+        - heading "Terms and Conditions" [level=1] [ref=e9]
+        - paragraph [ref=e10]: "Effective Date: April 15, 2026"
+        - paragraph [ref=e11]: "Last Updated: April 20, 2026"
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Research Beta Notice
+          - paragraph [ref=e14]:
+            - text: BrainRank is currently operating as a non-commercial research beta. No fees are collected, the Creator tier is paused, and uploads are additionally governed by our
+            - link "Contribution Agreement" [ref=e15] [cursor=pointer]:
+              - /url: /research-agreement
+            - text: .
+        - paragraph [ref=e16]: These Terms and Conditions ("Terms") govern your access to and use of the BrainRank website, applications, and related services (collectively, the "Service") operated by BrainRank ("we," "us," or "our"). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Service.
+        - heading "1. Acceptance of Terms" [level=2] [ref=e17]
+        - paragraph [ref=e18]:
+          - text: By creating an account, accessing, or using the Service, you acknowledge that you have read, understood, and agree to be bound by these Terms and our
+          - link "Privacy Policy" [ref=e19] [cursor=pointer]:
+            - /url: /privacy
+          - text: ", which is incorporated herein by reference. We reserve the right to modify these Terms at any time. Material changes will be posted on this page with an updated effective date. Your continued use of the Service after such changes constitutes acceptance of the modified Terms."
+        - heading "2. Description of Service" [level=2] [ref=e20]
+        - paragraph [ref=e21]:
+          - text: BrainRank is an AI-powered content analysis platform that uses brain-predictive modeling to generate neural activation scores for user-submitted content. The Service processes uploaded videos, images, and text through Meta's TRIBE v2 foundation model and returns per-segment predictions of neural engagement. These predictions are computational estimates derived from machine learning models trained on functional magnetic resonance imaging (fMRI) data. They are
+          - strong [ref=e22]: not
+          - text: actual brain scans, medical measurements, or recordings of real viewer brain activity.
+        - heading "3. Eligibility" [level=2] [ref=e23]
+        - paragraph [ref=e24]: You must be at least 13 years of age to use the Service. If you are between 13 and 18 years of age (or the age of majority in your jurisdiction), you may only use the Service under the supervision of a parent or legal guardian who agrees to be bound by these Terms. By using the Service, you represent and warrant that you meet these eligibility requirements.
+        - heading "4. Account Registration" [level=2] [ref=e25]
+        - paragraph [ref=e26]: "To use certain features of the Service, you must create an account. You agree to:"
+        - list [ref=e27]:
+          - listitem [ref=e28]: Provide accurate, current, and complete information during registration.
+          - listitem [ref=e29]: Maintain the security and confidentiality of your login credentials.
+          - listitem [ref=e30]: Promptly notify us of any unauthorized use of your account.
+          - listitem [ref=e31]: Accept responsibility for all activities that occur under your account.
+        - paragraph [ref=e32]: You may not create more than one account per person. We reserve the right to suspend or terminate accounts that we reasonably believe are duplicates or have been created with false information.
+        - heading "5. Subscription Plans & Billing" [level=2] [ref=e33]
+        - heading "5.1 Free Tier" [level=3] [ref=e34]
+        - paragraph [ref=e35]:
+          - text: Free accounts are entitled to three (3) content analyses per day. The daily cycle resets at 00:00 UTC. Unused credits do not roll over to subsequent days.
+          - strong [ref=e36]: During the research beta, all accounts use the free tier; the Creator tier is paused.
+        - heading "5.2 Creator Tier" [level=3] [ref=e37]
+        - paragraph [ref=e38]:
+          - strong [ref=e39]: Paused during the research beta — the Creator tier is not available for new subscriptions at this time.
+        - paragraph [ref=e40]: When active, the Creator subscription ("Creator Tier") provides unlimited content analyses and additional features as described on our pricing page. The Creator Tier is priced at $20.00 USD per month or $200.00 USD per year (billed annually) when offered.
+        - heading "5.3 Billing & Renewal" [level=3] [ref=e41]
+        - paragraph [ref=e42]:
+          - strong [ref=e43]: No fees are collected during the research beta.
+          - text: When paid subscriptions are active, they automatically renew at the end of each billing period at the then-current price unless you cancel before the renewal date. You may cancel your subscription at any time. Cancellation takes effect at the end of the current billing period. All payments are processed by Stripe, Inc. and are subject to the
+          - link "Stripe Services Agreement" [ref=e44] [cursor=pointer]:
+            - /url: https://stripe.com/legal/end-users
+          - text: .
+        - heading "5.4 Refunds" [level=3] [ref=e45]
+        - paragraph [ref=e46]: All fees are non-refundable except as required by applicable law. No refunds or credits will be issued for partial billing periods, downgrades, or unused analyses.
+        - heading "5.5 Changes to Pricing, Plans, and Rate Limits" [level=3] [ref=e47]
+        - paragraph [ref=e48]: We may change the pricing of any subscription plan at any time. Pricing changes will not affect your current billing period; existing paid subscribers will be notified by email or in-app notice before any change takes effect at the next renewal. If you do not agree to the new pricing, you may cancel your subscription before the renewal date.
+        - paragraph [ref=e49]: Plan features, credit allowances, daily and monthly quotas, rate limits, and other usage parameters are subject to change at any time without prior notice in order to maintain Service availability, manage infrastructure costs, prevent abuse, or improve the Service. Material changes to the Free Tier or to any feature you actively rely on will be reflected on our pricing page with an updated effective date. Your continued use of the Service after such changes constitutes acceptance of the modified terms.
+        - heading "5.6 Research Beta & Contribution Agreement" [level=3] [ref=e50]
+        - paragraph [ref=e51]:
+          - text: While the Service is operated as a non-commercial research beta, the Service is provided free of charge to all users in accordance with the terms of Meta's TRIBE v2 model license (Creative Commons Attribution-NonCommercial 4.0). By uploading content during the research beta, you additionally agree to our
+          - link "Contribution Agreement" [ref=e52] [cursor=pointer]:
+            - /url: /research-agreement
+          - text: ", which governs how your uploaded media and the resulting neural-activation predictions contribute to the Open Storytelling Research Project. In the event of a conflict between these Terms and the Contribution Agreement as applied to uploaded media, the Contribution Agreement controls."
+        - heading "6. Your Content" [level=2] [ref=e53]
+        - heading "6.1 Ownership" [level=3] [ref=e54]
+        - paragraph [ref=e55]: You retain all ownership rights in the content you upload to the Service ("Your Content"). BrainRank does not claim ownership of Your Content.
+        - heading "6.2 License Grant" [level=3] [ref=e56]
+        - paragraph [ref=e57]: By uploading Your Content, you grant BrainRank a limited, non-exclusive, royalty-free, worldwide license to store, process, transmit, and display Your Content solely as necessary to provide, maintain, and improve the Service. This license includes the right to transmit Your Content to our third-party processing infrastructure for AI analysis. This license terminates when you delete Your Content or your account, except as required for backup, archival, or legal compliance purposes.
+        - heading "6.3 Representations" [level=3] [ref=e58]
+        - paragraph [ref=e59]: "You represent and warrant that:"
+        - list [ref=e60]:
+          - listitem [ref=e61]: You own or have the necessary rights, licenses, and permissions to upload and authorize the processing of Your Content.
+          - listitem [ref=e62]: Your Content does not infringe, misappropriate, or violate any third party's intellectual property rights, privacy rights, publicity rights, or any other legal rights.
+          - listitem [ref=e63]: Your Content complies with all applicable laws and regulations.
+        - heading "6.4 Public Content" [level=3] [ref=e64]
+        - paragraph [ref=e65]: If you choose to make an analysis public, it will be visible on the Discover page and your public profile. Other authenticated users may view and bookmark your public analyses. You may change the visibility of any analysis at any time.
+        - heading "7. AI-Generated Analysis Results" [level=2] [ref=e66]
+        - paragraph [ref=e67]: "You acknowledge and agree that:"
+        - list [ref=e68]:
+          - listitem [ref=e69]:
+            - text: Analysis results are
+            - strong [ref=e70]: computational estimates
+            - text: generated by artificial intelligence models. They are not measurements of actual brain activity, medical data, or scientific findings.
+          - listitem [ref=e71]: Results are probabilistic in nature and may be inaccurate, inconsistent, incomplete, or unreliable. We make no representations regarding the accuracy or reliability of any analysis results.
+          - listitem [ref=e72]: Similar or identical content submitted by different users may produce similar or identical results.
+          - listitem [ref=e73]: You are solely responsible for any decisions, actions, or strategies you undertake based on analysis results. BrainRank does not warrant that results will improve your content performance, engagement, revenue, or any other metric.
+          - listitem [ref=e74]:
+            - text: Analysis results do not constitute medical advice, scientific findings, professional recommendations, or any form of expert opinion. See our
+            - link "Disclaimer" [ref=e75] [cursor=pointer]:
+              - /url: /disclaimer
+            - text: for additional information.
+        - heading "8. Acceptable Use" [level=2] [ref=e76]
+        - paragraph [ref=e77]: "You agree not to use the Service to:"
+        - list [ref=e78]:
+          - listitem [ref=e79]: Upload, transmit, or distribute any content that is unlawful, defamatory, obscene, threatening, abusive, harassing, hateful, or otherwise objectionable.
+          - listitem [ref=e80]: Infringe upon or violate the intellectual property rights, privacy rights, or other rights of any third party.
+          - listitem [ref=e81]: Impersonate any person or entity, or falsely state or misrepresent your affiliation with any person or entity.
+          - listitem [ref=e82]: Interfere with or disrupt the Service, servers, or networks connected to the Service.
+          - listitem [ref=e83]: Attempt to gain unauthorized access to any portion of the Service, other accounts, computer systems, or networks connected to the Service.
+          - listitem [ref=e84]: Use any robot, spider, scraper, or other automated means to access the Service for any purpose without our express written permission.
+          - listitem [ref=e85]: Reverse engineer, decompile, disassemble, or otherwise attempt to derive the source code of the Service.
+          - listitem [ref=e86]: Use the Service to develop, train, or improve any competing product or service.
+          - listitem [ref=e87]: Use analysis results to make medical diagnoses, treatment decisions, or any health-related determinations.
+          - listitem [ref=e88]: Circumvent, disable, or otherwise interfere with any security features of the Service.
+        - paragraph [ref=e89]: We reserve the right to investigate and take appropriate action against anyone who, in our sole discretion, violates this provision, including removing content, suspending or terminating accounts, and reporting to law enforcement authorities.
+        - heading "9. Intellectual Property" [level=2] [ref=e90]
+        - paragraph [ref=e91]: The Service, including its design, features, functionality, text, graphics, logos, icons, and software, is owned by BrainRank and is protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, sell, or lease any part of the Service, nor may you reverse engineer or attempt to extract the source code of any software, unless permitted by applicable law.
+        - paragraph [ref=e92]: "\"BrainRank\" and the BrainRank logo are trademarks of BrainRank. You may not use our trademarks without our prior written consent."
+        - heading "10. Privacy" [level=2] [ref=e93]
+        - paragraph [ref=e94]:
+          - text: Your use of the Service is also governed by our
+          - link "Privacy Policy" [ref=e95] [cursor=pointer]:
+            - /url: /privacy
+          - text: ", which describes how we collect, use, and disclose your personal information. By using the Service, you consent to the data practices described in the Privacy Policy."
+        - heading "11. Disclaimer of Warranties" [level=2] [ref=e96]
+        - paragraph [ref=e97]: THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, BRAINRANK DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+        - paragraph [ref=e98]: "WITHOUT LIMITING THE FOREGOING, BRAINRANK DOES NOT WARRANT THAT: (A) THE SERVICE WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE; (B) THE RESULTS OBTAINED FROM THE SERVICE WILL BE ACCURATE, RELIABLE, OR COMPLETE; (C) THE QUALITY OF ANY ANALYSIS, INFORMATION, OR OTHER MATERIAL OBTAINED THROUGH THE SERVICE WILL MEET YOUR EXPECTATIONS; OR (D) ANY ERRORS IN THE SERVICE WILL BE CORRECTED."
+        - paragraph [ref=e99]: AI-GENERATED ANALYSIS RESULTS ARE COMPUTATIONAL ESTIMATES THAT MAY CONTAIN ERRORS, INACCURACIES, OR INCONSISTENCIES. YOU ACKNOWLEDGE THAT YOU USE THE SERVICE AND RELY ON ANALYSIS RESULTS ENTIRELY AT YOUR OWN RISK.
+        - heading "12. Limitation of Liability" [level=2] [ref=e100]
+        - paragraph [ref=e101]: "TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL BRAINRANK, ITS OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AFFILIATES, OR LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF PROFITS, REVENUE, DATA, GOODWILL, BUSINESS OPPORTUNITIES, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR IN CONNECTION WITH: (A) YOUR ACCESS TO OR USE OF (OR INABILITY TO ACCESS OR USE) THE SERVICE; (B) ANY CONTENT OR ANALYSIS RESULTS OBTAINED FROM THE SERVICE; (C) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON OR RELATED TO THE SERVICE; OR (D) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR CONTENT OR INFORMATION."
+        - paragraph [ref=e102]: "IN NO EVENT SHALL BRAINRANK'S TOTAL AGGREGATE LIABILITY TO YOU FOR ALL CLAIMS ARISING OUT OF OR RELATING TO THE SERVICE EXCEED THE GREATER OF: (A) THE AMOUNTS YOU HAVE PAID TO BRAINRANK IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM; OR (B) ONE HUNDRED DOLLARS ($100.00 USD)."
+        - paragraph [ref=e103]: Some jurisdictions do not allow the exclusion or limitation of certain damages. In such jurisdictions, our liability shall be limited to the maximum extent permitted by law.
+        - heading "13. Indemnification" [level=2] [ref=e104]
+        - paragraph [ref=e105]: "You agree to indemnify, defend, and hold harmless BrainRank and its officers, directors, employees, agents, and affiliates from and against any and all claims, damages, obligations, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from: (a) your access to or use of the Service; (b) Your Content; (c) your violation of these Terms; (d) your violation of any third-party right, including intellectual property, privacy, or publicity rights; or (e) any claim that Your Content caused damage to a third party."
+        - heading "14. Termination" [level=2] [ref=e106]
+        - paragraph [ref=e107]: "We may suspend or terminate your access to the Service at any time, with or without cause or notice, including if we reasonably believe you have violated these Terms. Upon termination: (a) your license to use the Service immediately ceases; (b) we may delete Your Content and account data from our active systems; and (c) you will not be entitled to any refund of fees paid."
+        - paragraph [ref=e108]: You may delete your account at any time. You are solely responsible for creating backup copies of Your Content before deletion.
+        - paragraph [ref=e109]: Sections 6.2, 7, 9, 11, 12, 13, 16, and 17 shall survive any termination of these Terms.
+        - heading "15. Copyright Infringement (DMCA)" [level=2] [ref=e110]
+        - paragraph [ref=e111]: "If you believe that content on the Service infringes your copyright, please send a notice to our designated copyright agent with the following information:"
+        - list [ref=e112]:
+          - listitem [ref=e113]: A physical or electronic signature of the person authorized to act on behalf of the copyright owner.
+          - listitem [ref=e114]: Identification of the copyrighted work claimed to have been infringed.
+          - listitem [ref=e115]: Identification of the material that is claimed to be infringing, with sufficient detail to locate the material.
+          - listitem [ref=e116]: Your contact information (address, telephone number, email address).
+          - listitem [ref=e117]: A statement that you have a good-faith belief that the use of the material is not authorized by the copyright owner, its agent, or the law.
+          - listitem [ref=e118]: A statement, under penalty of perjury, that the information in the notice is accurate and that you are authorized to act on behalf of the copyright owner.
+        - paragraph [ref=e119]:
+          - strong [ref=e120]: "Copyright Agent Email:"
+          - text: dmca@brainrank.app
+        - heading "16. Governing Law" [level=2] [ref=e121]
+        - paragraph [ref=e122]: These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict of law provisions. You agree to submit to the personal and exclusive jurisdiction of the courts located in the State of Delaware for the resolution of any disputes not subject to arbitration.
+        - heading "17. Dispute Resolution" [level=2] [ref=e123]
+        - heading "17.1 Informal Resolution" [level=3] [ref=e124]
+        - paragraph [ref=e125]: Before filing any formal proceedings, you agree to first attempt to resolve any dispute, claim, or controversy arising out of or relating to these Terms or the Service ("Dispute") informally by contacting us at legal@brainrank.app. We will attempt to resolve the Dispute informally for at least thirty (30) days before either party may initiate arbitration.
+        - heading "17.2 Binding Arbitration" [level=3] [ref=e126]
+        - paragraph [ref=e127]: If a Dispute cannot be resolved informally, you and BrainRank agree that the Dispute shall be resolved through binding individual arbitration administered by the American Arbitration Association ("AAA") under its Consumer Arbitration Rules. The arbitration shall be conducted by a single neutral arbitrator. The arbitration may be conducted in person, through the submission of documents, by phone, or online.
+        - heading "17.3 Class Action and Jury Trial Waiver" [level=3] [ref=e128]
+        - paragraph [ref=e129]: YOU AND BRAINRANK AGREE THAT EACH MAY BRING CLAIMS AGAINST THE OTHER ONLY IN YOUR OR ITS INDIVIDUAL CAPACITY, AND NOT AS A PLAINTIFF OR CLASS MEMBER IN ANY PURPORTED CLASS, CONSOLIDATED, OR REPRESENTATIVE PROCEEDING. UNLESS BOTH PARTIES AGREE OTHERWISE, THE ARBITRATOR MAY NOT CONSOLIDATE MORE THAN ONE PERSON'S CLAIMS. YOU AND BRAINRANK WAIVE ANY RIGHT TO A JURY TRIAL.
+        - heading "17.4 Opt-Out" [level=3] [ref=e130]
+        - paragraph [ref=e131]: You may opt out of this arbitration provision by sending written notice to legal@brainrank.app within thirty (30) days of first accepting these Terms. Your notice must include your name, email address, and a clear statement that you wish to opt out of binding arbitration.
+        - heading "17.5 Exceptions" [level=3] [ref=e132]
+        - paragraph [ref=e133]: Notwithstanding the foregoing, either party may seek injunctive or other equitable relief in any court of competent jurisdiction to prevent the actual or threatened infringement, misappropriation, or violation of a party's copyrights, trademarks, trade secrets, patents, or other intellectual property rights.
+        - heading "18. Severability" [level=2] [ref=e134]
+        - paragraph [ref=e135]: If any provision of these Terms is held to be invalid, illegal, or unenforceable, the remaining provisions shall continue in full force and effect. The invalid provision shall be modified to the minimum extent necessary to make it valid and enforceable while preserving its original intent.
+        - heading "19. Entire Agreement" [level=2] [ref=e136]
+        - paragraph [ref=e137]: These Terms, together with the Privacy Policy and Disclaimer, constitute the entire agreement between you and BrainRank regarding your use of the Service and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the Service.
+        - heading "20. Contact" [level=2] [ref=e138]
+        - paragraph [ref=e139]: "If you have any questions about these Terms, please contact us at:"
+        - paragraph [ref=e140]:
+          - strong [ref=e141]: "Email:"
+          - text: legal@brainrank.app
+    - contentinfo [ref=e142]:
+      - generic [ref=e143]:
+        - paragraph [ref=e144]:
+          - text: © 2026
+          - generic [ref=e145]: BRAIN|RANK
+        - generic [ref=e146]:
+          - link "Privacy" [ref=e147] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e148] [cursor=pointer]:
+            - /url: /terms
+          - link "Disclaimer" [ref=e149] [cursor=pointer]:
+            - /url: /disclaimer
+  - generic [ref=e154] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e155]:
+      - img [ref=e156]
+    - generic [ref=e159]:
+      - button "Open issues overlay" [ref=e160]:
+        - generic [ref=e161]:
+          - generic [ref=e162]: "0"
+          - generic [ref=e163]: "1"
+        - generic [ref=e164]: Issue
+      - button "Collapse issues badge" [ref=e165]:
+        - img [ref=e166]
+  - alert [ref=e168]

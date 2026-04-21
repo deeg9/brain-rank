@@ -202,7 +202,7 @@ export default function DisclaimerPage() {
         If you have any questions about this Disclaimer, please contact us at:
       </p>
       <p>
-        <strong>Email:</strong> legal@brainrank.app
+        <strong>Email:</strong> team@trybrainrank.com
       </p>
     </article>
   );

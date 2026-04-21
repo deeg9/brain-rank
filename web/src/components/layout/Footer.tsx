@@ -8,6 +8,15 @@ export function Footer() {
           {/* Brand */}
           <div>
             <h3 className="font-headline font-black text-lg tracking-widest uppercase text-white">BRAIN<span className="text-white/30 mx-0.5">|</span>RANK</h3>
+            <a
+              href="https://github.com/facebookresearch/tribev2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full border border-white/15 text-[10px] uppercase tracking-widest text-white/60 hover:text-white hover:border-white/30 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[12px]">science</span>
+              Powered by Meta TRIBE v2 · CC BY-NC 4.0
+            </a>
           </div>
 
           {/* Legal */}
@@ -16,6 +25,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li><Link href="/privacy" className="text-sm text-white/60 hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="text-sm text-white/60 hover:text-white transition-colors">Terms and Conditions</Link></li>
+              <li><Link href="/research-agreement" className="text-sm text-white/60 hover:text-white transition-colors">Contribution Agreement</Link></li>
               <li><Link href="/disclaimer" className="text-sm text-white/60 hover:text-white transition-colors">Disclaimer</Link></li>
             </ul>
           </div>
@@ -36,7 +46,6 @@ export function Footer() {
           <div>
             <h4 className="font-headline font-bold text-xs uppercase tracking-widest text-white mb-3">Company</h4>
             <ul className="space-y-2">
-              <li><Link href="/pricing" className="text-sm text-white/60 hover:text-white transition-colors">Pricing</Link></li>
               <li><Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors">About</Link></li>
             </ul>
           </div>
@@ -44,7 +53,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-xs text-white/40">
-            &copy; {new Date().getFullYear()} <span className="font-headline font-black tracking-widest uppercase">BRAIN<span className="text-white/20 mx-px">|</span>RANK</span>
+            &copy; {new Date().getFullYear()} <span className="font-headline font-black tracking-widest uppercase">BRAIN<span className="text-white/20 mx-px">|</span>RANK</span> · Non-commercial research beta
           </p>
           <p className="text-[10px] md:text-xs text-white/40 text-center">
             Neural activation predictions are computational estimates, not medical measurements.

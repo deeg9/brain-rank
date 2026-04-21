@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState, useRef, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/ui/PageTransition";
@@ -12,6 +13,7 @@ import {
   type FileItem,
 } from "@/components/upload/AnimatedFileUpload";
 import { uploadVideo, uploadImage, uploadText } from "@/lib/upload";
+import { CONSENT_VERSION } from "@/lib/consent";
 import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
@@ -21,8 +23,61 @@ import {
   validateImageFile,
   validateTextContent,
   maxFilesForTier,
-  BATCH_LIMITS,
 } from "@/lib/upload-validation";
+
+function ConsentCheckbox({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="flex items-start gap-3 cursor-pointer select-none">
+      <div className="relative mt-0.5 shrink-0">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          disabled={disabled}
+          className="peer sr-only"
+          aria-label="I agree to contribute my media to the Open Storytelling Research Project"
+        />
+        <div className="h-5 w-5 rounded bg-surface-container-lowest border border-outline-variant/30 peer-checked:bg-black peer-checked:border-black transition-colors duration-200 flex items-center justify-center">
+          {checked && (
+            <svg
+              className="h-3.5 w-3.5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </div>
+      </div>
+      <span className="text-xs text-on-surface-variant leading-snug">
+        I agree to contribute my media to the Open Storytelling Research Project
+        under the terms of the{" "}
+        <Link
+          href="/research-agreement"
+          target="_blank"
+          className="text-on-surface font-semibold underline hover:text-on-surface/70 transition-colors"
+        >
+          Contribution Agreement
+        </Link>
+        .
+      </span>
+    </label>
+  );
+}
 
 interface CreditInfo {
   canAnalyze: boolean;
@@ -43,6 +98,7 @@ export default function UploadPage() {
   const [textContent, setTextContent] = useState('');
   const [category, setCategory] = useState("");
   const [credits, setCredits] = useState<CreditInfo | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   useEffect(() => {
     fetch('/api/credits')
@@ -57,9 +113,7 @@ export default function UploadPage() {
       const slotsAvailable = Math.max(0, cap - files.length);
       if (slotsAvailable === 0) {
         setError(
-          credits?.isCreator
-            ? `Batch limit reached — max ${cap} files at once.`
-            : `Batch upload is a Creator feature. Upgrade to analyze up to ${BATCH_LIMITS.PAID_MAX_FILES} at a time.`
+          `Batch upload is limited during the research beta — max ${cap} file${cap === 1 ? '' : 's'} at once.`
         );
         return;
       }
@@ -149,7 +203,7 @@ export default function UploadPage() {
         updateFileProgress(item.id, 100);
         updateFileStatus(item.id, "complete");
 
-        const result = await createJob(videoUrl, 'video', null, null, category || null);
+        const result = await createJob(videoUrl, 'video', null, null, category || null, consentAccepted ? CONSENT_VERSION : null);
         jobIds.push(result.jobId);
       } catch (err) {
         updateFileStatus(
@@ -182,7 +236,7 @@ export default function UploadPage() {
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const result = await createJob(imageUrl, 'image', null, null, category || null);
+      const result = await createJob(imageUrl, 'image', null, null, category || null, consentAccepted ? CONSENT_VERSION : null);
       router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -202,7 +256,7 @@ export default function UploadPage() {
 
     try {
       const textUrl = await uploadText(textContent);
-      const result = await createJob(textUrl, 'text_spoken', textContent, null, category || null);
+      const result = await createJob(textUrl, 'text_spoken', textContent, null, category || null, consentAccepted ? CONSENT_VERSION : null);
       router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
@@ -340,7 +394,7 @@ export default function UploadPage() {
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!imageFile || uploading || !category}
+              disabled={!imageFile || uploading || !category || !consentAccepted}
               onClick={handleAnalyzeImage}
               className="!w-auto px-10 py-4"
             >
@@ -419,7 +473,7 @@ export default function UploadPage() {
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!textContent.trim() || uploading || !category}
+              disabled={!textContent.trim() || uploading || !category || !consentAccepted}
               onClick={handleAnalyzeText}
               className="!w-auto px-10 py-4"
             >
@@ -440,6 +494,22 @@ export default function UploadPage() {
           {error}
         </motion.p>
       )}
+
+      {/* Research Contribution Consent */}
+      <motion.section
+        className="flex justify-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+      >
+        <div className="w-full max-w-xl rounded-2xl border border-outline-variant/20 bg-white/[0.03] px-5 py-4">
+          <ConsentCheckbox
+            checked={consentAccepted}
+            onChange={setConsentAccepted}
+            disabled={uploading}
+          />
+        </div>
+      </motion.section>
 
       {/* Cost Estimate Glass Panel (video only) */}
       {inputType === 'video' && (<motion.section
@@ -480,7 +550,7 @@ export default function UploadPage() {
             variant="primary"
             size="lg"
             loading={uploading}
-            disabled={files.length === 0 || uploading || !category}
+            disabled={files.length === 0 || uploading || !category || !consentAccepted}
             onClick={handleAnalyze}
             className="!w-auto px-10 py-4"
           >

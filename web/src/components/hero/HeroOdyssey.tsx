@@ -11,10 +11,10 @@ import { LinkPreview } from "@/components/ui/LinkPreview";
 import { createClient } from "@/lib/supabase/client";
 
 const FEATURE_PILLS = [
+  "Research Beta",
   "Brain Mapping",
   "Neural Scoring",
-  "Retention Analysis",
-  "Hook Detection",
+  "Open Dataset",
 ];
 
 const fadeUp = {
@@ -90,15 +90,15 @@ export function HeroOdyssey() {
             animate="animate"
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            Neural A/B testing for marketers and content creators. Upload a
-            video, picture, or text to see a prediction of where
-            viewers&apos; brains light up.
+            Help advance open-source neuroscience. Upload a video, image, or
+            script and see how the brain is predicted to respond — your
+            contribution joins a growing research dataset.
             <br />
             <LinkPreview
               url="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/"
               className="text-white/60 text-sm md:text-base underline underline-offset-2 hover:text-white transition-colors"
             >
-              Powered by Meta&apos;s TRIBE v2 model.
+              Powered by Meta&apos;s TRIBE v2 · CC BY-NC 4.0.
             </LinkPreview>
           </motion.p>
 

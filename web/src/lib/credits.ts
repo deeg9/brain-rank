@@ -4,6 +4,12 @@ import { getUserSubscription, hasActiveAccess } from '@/lib/subscription'
 
 const FREE_DAILY_LIMIT = 3
 
+// Research-beta flag: while true, every account (including grandfathered
+// Creator subs) is treated as free-tier with a 3/day cap. This prevents
+// burning unlimited GPU while we can't charge. Flip back to false when we
+// have a commercial license for TRIBE v2 and resume paid plans.
+const RESEARCH_BETA_FORCE_FREE_TIER = true
+
 /**
  * Get the number of credits used today (00:00 UTC reset).
  */
@@ -45,7 +51,7 @@ export async function getCreditStatus(
   userId: string
 ): Promise<CreditStatus> {
   const subscription = await getUserSubscription(supabase, userId)
-  const isCreator = hasActiveAccess(subscription)
+  const isCreator = !RESEARCH_BETA_FORCE_FREE_TIER && hasActiveAccess(subscription)
 
   if (isCreator) {
     return {

@@ -1,0 +1,305 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - link "arrow_back Back to app" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e6]: arrow_back
+        - text: Back to app
+    - main [ref=e7]:
+      - article [ref=e8]:
+        - heading "Privacy Policy" [level=1] [ref=e9]
+        - paragraph [ref=e10]: "Effective Date: April 15, 2026"
+        - paragraph [ref=e11]: "Last Updated: April 20, 2026"
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Research Beta Notice
+          - paragraph [ref=e14]:
+            - text: BrainRank is currently operating as a non-commercial research beta. We use Meta's TRIBE v2 model under the
+            - link "CC BY-NC 4.0 license" [ref=e15] [cursor=pointer]:
+              - /url: https://creativecommons.org/licenses/by-nc/4.0/
+            - text: . No fees are collected during the beta, and uploads are additionally governed by our
+            - link "Contribution Agreement" [ref=e16] [cursor=pointer]:
+              - /url: /research-agreement
+            - text: .
+        - paragraph [ref=e17]: This Privacy Policy describes how BrainRank ("we," "us," or "our") collects, uses, discloses, and protects your personal information when you access or use our website, applications, and related services (collectively, the "Service"). By using the Service, you agree to the collection and use of information in accordance with this policy.
+        - heading "1. Information We Collect" [level=2] [ref=e18]
+        - heading "1.1 Account Information" [level=3] [ref=e19]
+        - paragraph [ref=e20]: When you create an account, we collect your email address and password. You may optionally provide additional profile information including a username, biography, and profile picture (avatar). Your username, biography, and avatar are publicly visible once set.
+        - heading "1.2 Content You Upload" [level=3] [ref=e21]
+        - paragraph [ref=e22]: When you use the Service to analyze content, we collect and store the media you upload, including video files, image files, and text submissions. This content is stored in our cloud infrastructure and is used solely to perform the analysis you request.
+        - heading "1.3 Analysis Results" [level=3] [ref=e23]
+        - paragraph [ref=e24]: When we process your content through our AI analysis pipeline, the resulting neural activation scores, segment data, brain region activations, and associated metadata are stored in our database and linked to your account.
+        - heading "1.4 Payment Information" [level=3] [ref=e25]
+        - paragraph [ref=e26]:
+          - strong [ref=e27]: Paid plans are paused during the research beta. The Stripe integration is retained for future use but is not currently collecting any payments.
+        - paragraph [ref=e28]:
+          - text: If you subscribe to a paid plan once paid tiers resume, your payment is processed by our third-party payment processor, Stripe, Inc. We transmit your email address to Stripe to create a customer record. We do not receive, store, or process your credit card number, CVV, or full billing details. Stripe's collection and use of your payment information is governed by the
+          - link "Stripe Privacy Policy" [ref=e29] [cursor=pointer]:
+            - /url: https://stripe.com/privacy
+          - text: .
+        - heading "1.5 Usage Data" [level=3] [ref=e30]
+        - paragraph [ref=e31]: We track credit consumption for free-tier users to enforce daily usage limits. This includes records of when analyses were initiated and which job they correspond to. We also store subscription status information (active, canceled, etc.) synced from Stripe via webhooks.
+        - paragraph [ref=e32]:
+          - text: To prevent abuse, we apply rate limits on content-submission endpoints using
+          - strong [ref=e33]: Upstash
+          - text: ", a managed Redis service. Upstash stores a short-lived record of your user identifier and request timestamp solely to enforce per-user request limits. These records expire automatically and are not used for any other purpose."
+        - paragraph [ref=e34]:
+          - text: When an analysis you submitted completes or fails, we send you a transactional email (for example, "Your analysis is ready") via
+          - strong [ref=e35]: Resend
+          - text: ", our email delivery provider. To send these emails, we share your email address, the analysis filename, and a link to the result page with Resend. We do not use Resend for marketing emails, and we do not send promotional communications without your separate consent."
+        - heading "1.6 Automatically Collected Information" [level=3] [ref=e36]
+        - paragraph [ref=e37]: We use essential authentication cookies provided by Supabase to maintain your login session. These are strictly functional cookies required for the Service to operate.
+        - paragraph [ref=e38]:
+          - text: We use
+          - strong [ref=e39]: Vercel Analytics
+          - text: ", a first-party, privacy-friendly analytics service provided by our hosting provider Vercel, Inc., to measure aggregate traffic and performance. Vercel Analytics:"
+        - list [ref=e40]:
+          - listitem [ref=e41]:
+            - text: Does
+            - strong [ref=e42]: not
+            - text: set cookies or use browser local storage for tracking.
+          - listitem [ref=e43]:
+            - text: Does
+            - strong [ref=e44]: not
+            - text: collect personally identifiable information.
+          - listitem [ref=e45]:
+            - text: Does
+            - strong [ref=e46]: not
+            - text: track you across other websites.
+          - listitem [ref=e47]: Collects aggregated page view counts, referrer information, device/browser type, and approximate country-level location derived from IP address. IP addresses are hashed and not stored.
+        - paragraph [ref=e48]: Because Vercel Analytics is cookieless and does not collect personal data, it operates without requiring your consent. You may still opt out by enabling "Do Not Track" in your browser, which Vercel Analytics honors.
+        - paragraph [ref=e49]:
+          - text: If you consent to analytics cookies, we use
+          - strong [ref=e50]: PostHog
+          - text: ", a product analytics platform, to collect usage data including:"
+        - list [ref=e51]:
+          - listitem [ref=e52]: Pages viewed and navigation patterns
+          - listitem [ref=e53]: Feature usage and interaction events (clicks, form submissions, feature usage, subscription events)
+          - listitem [ref=e54]: Device type, browser type, and operating system
+          - listitem [ref=e55]: Approximate location derived from IP address (country/region level only)
+          - listitem [ref=e56]: Session duration and frequency
+          - listitem [ref=e57]: A persistent identifier linking events to your account after you log in
+        - paragraph [ref=e58]: PostHog data is collected only after you provide consent via our cookie banner. You may decline analytics cookies, and the Service will function normally without them. You may withdraw your consent at any time by clearing your browser's local storage for this site, which will cause the banner to reappear.
+        - paragraph [ref=e59]:
+          - strong [ref=e60]: "We do not use:"
+        - list [ref=e61]:
+          - listitem [ref=e62]: Advertising cookies or pixels
+          - listitem [ref=e63]: Third-party advertising networks (e.g., Meta Pixel, Google Ads)
+          - listitem [ref=e64]: Device fingerprinting
+          - listitem [ref=e65]: Cross-site tracking
+        - heading "2. How We Use Your Information" [level=2] [ref=e66]
+        - paragraph [ref=e67]: "We use the information we collect to:"
+        - list [ref=e68]:
+          - listitem [ref=e69]: Provide, maintain, and improve the Service, including processing your content through our AI analysis pipeline
+          - listitem [ref=e70]: Process payments and manage your subscription
+          - listitem [ref=e71]: Track and enforce credit usage limits for free-tier accounts
+          - listitem [ref=e72]: Display your public profile and public analyses on the Discover page and your profile page (only when you choose to make content public)
+          - listitem [ref=e73]: Communicate with you about service-related matters, including account verification, billing, and policy changes
+          - listitem [ref=e74]: Detect, investigate, and prevent fraudulent transactions, unauthorized access, and other illegal activities
+          - listitem [ref=e75]: Comply with legal obligations
+        - heading "3. How We Process Your Content" [level=2] [ref=e76]
+        - paragraph [ref=e77]: "When you submit content for analysis, the following processing occurs:"
+        - list [ref=e78]:
+          - listitem [ref=e79]: Your uploaded media is stored securely in our cloud storage infrastructure (hosted by Supabase).
+          - listitem [ref=e80]: A URL referencing your uploaded content is transmitted to RunPod, a third-party GPU compute provider, where Meta's TRIBE v2 brain-predictive foundation model processes the content and generates neural activation predictions.
+          - listitem [ref=e81]: The resulting analysis data (scores, segments, brain region activations) is returned to our servers and stored in our database.
+        - paragraph [ref=e82]:
+          - strong [ref=e83]: "Important:"
+        - list [ref=e84]:
+          - listitem [ref=e85]:
+            - text: We do
+            - strong [ref=e86]: not
+            - text: use your content to train, fine-tune, or improve any AI or machine learning models.
+          - listitem [ref=e87]:
+            - text: We do
+            - strong [ref=e88]: not
+            - text: sell, license, or otherwise distribute your raw content to third parties for marketing or advertising.
+          - listitem [ref=e89]:
+            - text: Your raw content is processed solely to deliver the analysis you requested and to support the non-commercial research dataset described in our
+            - link "Contribution Agreement" [ref=e90] [cursor=pointer]:
+              - /url: /research-agreement
+            - text: .
+          - listitem [ref=e91]:
+            - text: During the research beta, the derived
+            - emphasis [ref=e92]: mathematical neural-activation predictions
+            - text: (not the raw media you uploaded) may be aggregated and shared with the AI research community in accordance with the Contribution Agreement.
+        - heading "4. Third-Party Service Providers" [level=2] [ref=e93]
+        - paragraph [ref=e94]: "We engage the following third-party service providers to operate the Service. Each provider's use of your data is governed by their own privacy policy:"
+        - table [ref=e95]:
+          - rowgroup [ref=e96]:
+            - row "Provider Purpose Data Shared Privacy Policy" [ref=e97]:
+              - columnheader "Provider" [ref=e98]
+              - columnheader "Purpose" [ref=e99]
+              - columnheader "Data Shared" [ref=e100]
+              - columnheader "Privacy Policy" [ref=e101]
+          - rowgroup [ref=e102]:
+            - row "Supabase Database, authentication, file storage Account data, uploaded content, analysis results supabase.com/privacy" [ref=e103]:
+              - cell "Supabase" [ref=e104]:
+                - strong [ref=e105]: Supabase
+              - cell "Database, authentication, file storage" [ref=e106]
+              - cell "Account data, uploaded content, analysis results" [ref=e107]
+              - cell "supabase.com/privacy" [ref=e108]:
+                - link "supabase.com/privacy" [ref=e109] [cursor=pointer]:
+                  - /url: https://supabase.com/privacy
+            - row "Stripe Payment processing, subscription management Email address, payment information (collected directly by Stripe) stripe.com/privacy" [ref=e110]:
+              - cell "Stripe" [ref=e111]:
+                - strong [ref=e112]: Stripe
+              - cell "Payment processing, subscription management" [ref=e113]
+              - cell "Email address, payment information (collected directly by Stripe)" [ref=e114]
+              - cell "stripe.com/privacy" [ref=e115]:
+                - link "stripe.com/privacy" [ref=e116] [cursor=pointer]:
+                  - /url: https://stripe.com/privacy
+            - row "RunPod GPU compute for AI model inference Content URLs for processing runpod.io/legal/privacy-policy" [ref=e117]:
+              - cell "RunPod" [ref=e118]:
+                - strong [ref=e119]: RunPod
+              - cell "GPU compute for AI model inference" [ref=e120]
+              - cell "Content URLs for processing" [ref=e121]
+              - cell "runpod.io/legal/privacy-policy" [ref=e122]:
+                - link "runpod.io/legal/privacy-policy" [ref=e123] [cursor=pointer]:
+                  - /url: https://www.runpod.io/legal/privacy-policy
+            - row "PostHog Product analytics (with consent) Page views, feature usage, device info, approximate location posthog.com/privacy" [ref=e124]:
+              - cell "PostHog" [ref=e125]:
+                - strong [ref=e126]: PostHog
+              - cell "Product analytics (with consent)" [ref=e127]
+              - cell "Page views, feature usage, device info, approximate location" [ref=e128]
+              - cell "posthog.com/privacy" [ref=e129]:
+                - link "posthog.com/privacy" [ref=e130] [cursor=pointer]:
+                  - /url: https://posthog.com/privacy
+            - row "Vercel Web hosting and first-party, cookieless analytics Request metadata (URL, referrer, user agent), hashed IP address vercel.com/legal/privacy-policy" [ref=e131]:
+              - cell "Vercel" [ref=e132]:
+                - strong [ref=e133]: Vercel
+              - cell "Web hosting and first-party, cookieless analytics" [ref=e134]
+              - cell "Request metadata (URL, referrer, user agent), hashed IP address" [ref=e135]
+              - cell "vercel.com/legal/privacy-policy" [ref=e136]:
+                - link "vercel.com/legal/privacy-policy" [ref=e137] [cursor=pointer]:
+                  - /url: https://vercel.com/legal/privacy-policy
+            - row "Resend Transactional email delivery (analysis-complete and analysis-failed notifications) Email address, analysis filename, result URL resend.com/legal/privacy-policy" [ref=e138]:
+              - cell "Resend" [ref=e139]:
+                - strong [ref=e140]: Resend
+              - cell "Transactional email delivery (analysis-complete and analysis-failed notifications)" [ref=e141]
+              - cell "Email address, analysis filename, result URL" [ref=e142]
+              - cell "resend.com/legal/privacy-policy" [ref=e143]:
+                - link "resend.com/legal/privacy-policy" [ref=e144] [cursor=pointer]:
+                  - /url: https://resend.com/legal/privacy-policy
+            - row "Upstash Redis-backed rate limiting on content-submission endpoints Hashed user identifier and timestamp (short-lived, for abuse prevention) upstash.com/trust/privacy" [ref=e145]:
+              - cell "Upstash" [ref=e146]:
+                - strong [ref=e147]: Upstash
+              - cell "Redis-backed rate limiting on content-submission endpoints" [ref=e148]
+              - cell "Hashed user identifier and timestamp (short-lived, for abuse prevention)" [ref=e149]
+              - cell "upstash.com/trust/privacy" [ref=e150]:
+                - link "upstash.com/trust/privacy" [ref=e151] [cursor=pointer]:
+                  - /url: https://upstash.com/trust/privacy.pdf
+        - paragraph [ref=e152]: We do not share your personal information with any other third parties for marketing, advertising, or data brokering purposes.
+        - heading "5. Public Content & Social Features" [level=2] [ref=e153]
+        - list [ref=e154]:
+          - listitem [ref=e155]:
+            - strong [ref=e156]: Private by default.
+            - text: All analyses are private when created. You must explicitly choose to make an analysis public.
+          - listitem [ref=e157]:
+            - strong [ref=e158]: Public analyses
+            - text: are visible on the Discover page and your public profile page. Other authenticated users may view and bookmark your public analyses.
+          - listitem [ref=e159]:
+            - strong [ref=e160]: Public profiles
+            - text: display your username, avatar, biography, and any analyses you have made public.
+          - listitem [ref=e161]:
+            - strong [ref=e162]: View counts
+            - text: on public analyses are tracked anonymously. We do not record the identity of individual viewers.
+          - listitem [ref=e163]: You may change an analysis from public to private (or vice versa) at any time.
+        - heading "6. Cookies & Tracking Technologies" [level=2] [ref=e164]
+        - paragraph [ref=e165]: "BrainRank uses the following categories of cookies:"
+        - heading "Essential Cookies (Always Active)" [level=3] [ref=e166]
+        - paragraph [ref=e167]: Authentication session cookies provided by Supabase are strictly necessary for the Service to function. These cookies maintain your login session and cannot be opted out of while using the Service. They do not track your behavior or collect analytics data.
+        - heading "First-Party Analytics (No Cookies)" [level=3] [ref=e168]
+        - paragraph [ref=e169]: We use Vercel Analytics, which measures aggregate traffic without setting cookies, without using browser local storage for tracking, and without collecting personally identifiable information. Because it does not rely on cookies or personal data, it does not require consent. You may opt out by enabling your browser's "Do Not Track" setting.
+        - heading "Analytics Cookies (Consent Required)" [level=3] [ref=e170]
+        - paragraph [ref=e171]: With your consent, we use PostHog to set analytics cookies (and local storage entries) that help us understand how you use the Service. These track page views, feature interactions, and session data, and are tied to your account identifier once you log in. Analytics cookies are only set after you click "Accept" on our cookie consent banner.
+        - paragraph [ref=e172]: "You can manage your cookie preferences at any time:"
+        - list [ref=e173]:
+          - listitem [ref=e174]:
+            - strong [ref=e175]: "On first visit:"
+            - text: A cookie consent banner will appear at the bottom of the page. You may accept or decline analytics cookies.
+          - listitem [ref=e176]:
+            - strong [ref=e177]: "To change your choice:"
+            - text: Clear your browser's local storage for this site, and the consent banner will reappear on your next visit.
+          - listitem [ref=e178]:
+            - strong [ref=e179]: "Browser settings:"
+            - text: You can block all cookies through your browser settings, though this may affect the functionality of the Service.
+        - paragraph [ref=e180]: We do not use advertising cookies, retargeting pixels, or cross-site tracking technologies.
+        - heading "7. Data Retention" [level=2] [ref=e181]
+        - list [ref=e182]:
+          - listitem [ref=e183]:
+            - strong [ref=e184]: Account data
+            - text: is retained for as long as your account is active.
+          - listitem [ref=e185]:
+            - strong [ref=e186]: Uploaded content and analysis results
+            - text: are retained until you delete them or delete your account.
+          - listitem [ref=e187]:
+            - strong [ref=e188]: Credit usage records
+            - text: are retained for billing audit and compliance purposes.
+          - listitem [ref=e189]:
+            - strong [ref=e190]: Payment and subscription records
+            - text: synced from Stripe are retained for financial reconciliation and legal compliance.
+          - listitem [ref=e191]:
+            - strong [ref=e192]: "Account deletion:"
+            - text: You may request deletion of your account and associated data by contacting us. Upon account deletion, we will remove your personal data from our active systems, subject to any legal retention requirements.
+        - heading "8. Data Security" [level=2] [ref=e193]
+        - paragraph [ref=e194]: "We implement reasonable technical and organizational measures to protect your personal information, including:"
+        - list [ref=e195]:
+          - listitem [ref=e196]: All data transmitted between your browser and our servers is encrypted via HTTPS/TLS.
+          - listitem [ref=e197]: Database access is controlled through row-level security policies, ensuring users can only access their own data.
+          - listitem [ref=e198]: Sensitive API keys and service credentials are stored server-side and never exposed to client applications.
+          - listitem [ref=e199]: Payment processing is handled entirely by Stripe, a PCI DSS Level 1 certified provider.
+        - paragraph [ref=e200]: While we strive to protect your personal information, no method of transmission over the Internet or method of electronic storage is 100% secure. We cannot guarantee absolute security. You use the Service at your own risk.
+        - heading "9. Children's Privacy" [level=2] [ref=e201]
+        - paragraph [ref=e202]: The Service is not intended for use by individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete such information promptly. If you believe that a child under 13 has provided us with personal information, please contact us at the address below.
+        - heading "10. Your Rights" [level=2] [ref=e203]
+        - paragraph [ref=e204]: "Depending on your location, you may have the following rights regarding your personal information:"
+        - heading "All Users" [level=3] [ref=e205]
+        - list [ref=e206]:
+          - listitem [ref=e207]: Access, correct, or update your account information through your Settings page.
+          - listitem [ref=e208]: Delete individual analyses and their associated uploaded content.
+          - listitem [ref=e209]: Toggle any analysis between public and private.
+          - listitem [ref=e210]: Cancel your subscription at any time through the Billing settings.
+          - listitem [ref=e211]: Request deletion of your account by contacting us.
+        - heading "California Residents (CCPA/CPRA)" [level=3] [ref=e212]
+        - paragraph [ref=e213]: "If you are a California resident, you have the right to:"
+        - list [ref=e214]:
+          - listitem [ref=e215]: Request disclosure of the categories and specific pieces of personal information we have collected about you.
+          - listitem [ref=e216]: Request deletion of your personal information.
+          - listitem [ref=e217]:
+            - text: Opt out of the sale or sharing of your personal information.
+            - strong [ref=e218]: We do not sell or share your personal information.
+          - listitem [ref=e219]: Not be discriminated against for exercising your privacy rights.
+        - heading "European Economic Area, United Kingdom & Switzerland (GDPR)" [level=3] [ref=e220]
+        - paragraph [ref=e221]: "If you are located in the EEA, UK, or Switzerland, you have the right to:"
+        - list [ref=e222]:
+          - listitem [ref=e223]: Access, rectify, or erase your personal data.
+          - listitem [ref=e224]: Restrict or object to processing of your personal data.
+          - listitem [ref=e225]: Data portability (receive your data in a structured, machine-readable format).
+          - listitem [ref=e226]: Withdraw consent at any time where processing is based on consent.
+          - listitem [ref=e227]: Lodge a complaint with your local Data Protection Authority.
+        - paragraph [ref=e228]: "Our legal bases for processing your personal data include: performance of a contract (providing the Service), legitimate interests (improving and securing the Service), compliance with legal obligations, and your consent where applicable."
+        - heading "11. International Data Transfers" [level=2] [ref=e229]
+        - paragraph [ref=e230]: Your information may be transferred to, stored, and processed in the United States and other countries where our service providers operate. These countries may have data protection laws that differ from the laws of your country. By using the Service, you consent to the transfer of your information to the United States and other jurisdictions. We take reasonable steps to ensure that your data is treated securely and in accordance with this Privacy Policy.
+        - heading "12. Changes to This Privacy Policy" [level=2] [ref=e231]
+        - paragraph [ref=e232]: We may update this Privacy Policy from time to time. If we make material changes, we will notify you by posting the updated policy on this page with a revised "Last Updated" date. Your continued use of the Service after any changes constitutes your acceptance of the updated policy. We encourage you to review this policy periodically.
+        - heading "13. Contact Us" [level=2] [ref=e233]
+        - paragraph [ref=e234]: "If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:"
+        - paragraph [ref=e235]:
+          - strong [ref=e236]: "Email:"
+          - text: privacy@brainrank.app
+    - contentinfo [ref=e237]:
+      - generic [ref=e238]:
+        - paragraph [ref=e239]:
+          - text: © 2026
+          - generic [ref=e240]: BRAIN|RANK
+        - generic [ref=e241]:
+          - link "Privacy" [ref=e242] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms" [ref=e243] [cursor=pointer]:
+            - /url: /terms
+          - link "Disclaimer" [ref=e244] [cursor=pointer]:
+            - /url: /disclaimer
+  - button "Open Next.js Dev Tools" [ref=e250] [cursor=pointer]:
+    - img [ref=e251]

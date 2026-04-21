@@ -23,7 +23,6 @@ const navItems = [
 const profileItems = [
   { icon: "account_circle", label: "Profile", href: "/profile" },
   { icon: "bookmark", label: "Bookmarks", href: "/bookmarks" },
-  { icon: "credit_card", label: "Billing", href: "/settings/billing" },
   { icon: "settings", label: "Settings", href: "/settings" },
   { icon: "science", label: "Resources", href: "/resources" },
 ];

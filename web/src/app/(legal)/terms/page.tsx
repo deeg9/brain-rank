@@ -10,7 +10,21 @@ export default function TermsPage() {
     <article className="prose prose-gray max-w-none">
       <h1 className="font-headline text-3xl font-bold tracking-tight">Terms and Conditions</h1>
       <p className="text-sm text-gray-500">Effective Date: April 15, 2026</p>
-      <p className="text-sm text-gray-500 mb-8">Last Updated: April 17, 2026</p>
+      <p className="text-sm text-gray-500 mb-8">Last Updated: April 20, 2026</p>
+
+      <div className="not-prose rounded-xl border border-black/10 bg-gray-50 p-5 mb-8">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+          Research Beta Notice
+        </p>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          BrainRank is currently operating as a non-commercial research beta. No fees are
+          collected, the Creator tier is paused, and uploads are additionally governed by our{" "}
+          <a href="/research-agreement" className="underline">
+            Contribution Agreement
+          </a>
+          .
+        </p>
+      </div>
 
       <p>
         These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of the BrainRank website,
@@ -71,22 +85,30 @@ export default function TermsPage() {
       <h3 className="font-headline">5.1 Free Tier</h3>
       <p>
         Free accounts are entitled to three (3) content analyses per day. The daily cycle resets at 00:00 UTC.
-        Unused credits do not roll over to subsequent days.
+        Unused credits do not roll over to subsequent days.{" "}
+        <strong>
+          During the research beta, all accounts use the free tier; the Creator tier is paused.
+        </strong>
       </p>
 
       <h3 className="font-headline">5.2 Creator Tier</h3>
       <p>
-        The Creator subscription (&quot;Creator Tier&quot;) provides unlimited content analyses and additional
-        features as described on our pricing page. The Creator Tier is available at $20.00 USD per month or $200.00
-        USD per year (billed annually).
+        <strong>Paused during the research beta — the Creator tier is not available for new
+        subscriptions at this time.</strong>
+      </p>
+      <p>
+        When active, the Creator subscription (&quot;Creator Tier&quot;) provides unlimited content
+        analyses and additional features as described on our pricing page. The Creator Tier is
+        priced at $20.00 USD per month or $200.00 USD per year (billed annually) when offered.
       </p>
 
       <h3 className="font-headline">5.3 Billing & Renewal</h3>
       <p>
-        Paid subscriptions automatically renew at the end of each billing period at the then-current price unless you
-        cancel before the renewal date. You may cancel your subscription at any time through your Billing settings.
-        Cancellation takes effect at the end of the current billing period. All payments are processed by Stripe, Inc.
-        and are subject to the{" "}
+        <strong>No fees are collected during the research beta.</strong> When paid subscriptions
+        are active, they automatically renew at the end of each billing period at the then-current
+        price unless you cancel before the renewal date. You may cancel your subscription at any
+        time. Cancellation takes effect at the end of the current billing period. All payments are
+        processed by Stripe, Inc. and are subject to the{" "}
         <a href="https://stripe.com/legal/end-users" target="_blank" rel="noopener noreferrer">
           Stripe Services Agreement
         </a>
@@ -112,6 +134,18 @@ export default function TermsPage() {
         infrastructure costs, prevent abuse, or improve the Service. Material changes to the Free Tier or to any
         feature you actively rely on will be reflected on our pricing page with an updated effective date. Your
         continued use of the Service after such changes constitutes acceptance of the modified terms.
+      </p>
+
+      <h3 className="font-headline">5.6 Research Beta & Contribution Agreement</h3>
+      <p>
+        While the Service is operated as a non-commercial research beta, the Service is provided
+        free of charge to all users in accordance with the terms of Meta&apos;s TRIBE v2 model
+        license (Creative Commons Attribution-NonCommercial 4.0). By uploading content during the
+        research beta, you additionally agree to our{" "}
+        <a href="/research-agreement">Contribution Agreement</a>, which governs how your uploaded
+        media and the resulting neural-activation predictions contribute to the Open Storytelling
+        Research Project. In the event of a conflict between these Terms and the Contribution
+        Agreement as applied to uploaded media, the Contribution Agreement controls.
       </p>
 
       {/* 6. Your Content */}
@@ -298,7 +332,7 @@ export default function TermsPage() {
         <li>A statement, under penalty of perjury, that the information in the notice is accurate and that you are authorized to act on behalf of the copyright owner.</li>
       </ol>
       <p>
-        <strong>Copyright Agent Email:</strong> dmca@brainrank.app
+        <strong>Copyright Agent Email:</strong> team@trybrainrank.com
       </p>
 
       {/* 16. Governing Law */}
@@ -317,7 +351,7 @@ export default function TermsPage() {
       <p>
         Before filing any formal proceedings, you agree to first attempt to resolve any dispute, claim, or controversy
         arising out of or relating to these Terms or the Service (&quot;Dispute&quot;) informally by contacting us at
-        legal@brainrank.app. We will attempt to resolve the Dispute informally for at least thirty (30) days before
+        team@trybrainrank.com. We will attempt to resolve the Dispute informally for at least thirty (30) days before
         either party may initiate arbitration.
       </p>
 
@@ -339,7 +373,7 @@ export default function TermsPage() {
 
       <h3 className="font-headline">17.4 Opt-Out</h3>
       <p>
-        You may opt out of this arbitration provision by sending written notice to legal@brainrank.app within thirty
+        You may opt out of this arbitration provision by sending written notice to team@trybrainrank.com within thirty
         (30) days of first accepting these Terms. Your notice must include your name, email address, and a clear
         statement that you wish to opt out of binding arbitration.
       </p>
@@ -373,7 +407,7 @@ export default function TermsPage() {
         If you have any questions about these Terms, please contact us at:
       </p>
       <p>
-        <strong>Email:</strong> legal@brainrank.app
+        <strong>Email:</strong> team@trybrainrank.com
       </p>
     </article>
   );

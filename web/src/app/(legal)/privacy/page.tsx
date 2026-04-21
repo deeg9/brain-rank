@@ -10,7 +10,30 @@ export default function PrivacyPolicyPage() {
     <article className="prose prose-gray max-w-none">
       <h1 className="font-headline text-3xl font-bold tracking-tight">Privacy Policy</h1>
       <p className="text-sm text-gray-500">Effective Date: April 15, 2026</p>
-      <p className="text-sm text-gray-500 mb-8">Last Updated: April 17, 2026</p>
+      <p className="text-sm text-gray-500 mb-8">Last Updated: April 20, 2026</p>
+
+      <div className="not-prose rounded-xl border border-black/10 bg-gray-50 p-5 mb-8">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2">
+          Research Beta Notice
+        </p>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          BrainRank is currently operating as a non-commercial research beta. We use Meta&apos;s
+          TRIBE v2 model under the{" "}
+          <a
+            href="https://creativecommons.org/licenses/by-nc/4.0/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            CC BY-NC 4.0 license
+          </a>
+          . No fees are collected during the beta, and uploads are additionally governed by our{" "}
+          <a href="/research-agreement" className="underline">
+            Contribution Agreement
+          </a>
+          .
+        </p>
+      </div>
 
       <p>
         This Privacy Policy describes how BrainRank (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) collects, uses,
@@ -44,10 +67,15 @@ export default function PrivacyPolicyPage() {
 
       <h3 className="font-headline">1.4 Payment Information</h3>
       <p>
-        If you subscribe to a paid plan, your payment is processed by our third-party payment processor, Stripe, Inc.
-        We transmit your email address to Stripe to create a customer record. We do not receive, store, or process
-        your credit card number, CVV, or full billing details. Stripe&apos;s collection and use of your payment
-        information is governed by the{" "}
+        <strong>Paid plans are paused during the research beta. The Stripe integration is retained
+        for future use but is not currently collecting any payments.</strong>
+      </p>
+      <p>
+        If you subscribe to a paid plan once paid tiers resume, your payment is processed by our
+        third-party payment processor, Stripe, Inc. We transmit your email address to Stripe to
+        create a customer record. We do not receive, store, or process your credit card number,
+        CVV, or full billing details. Stripe&apos;s collection and use of your payment information
+        is governed by the{" "}
         <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">
           Stripe Privacy Policy
         </a>
@@ -151,8 +179,13 @@ export default function PrivacyPolicyPage() {
       <p><strong>Important:</strong></p>
       <ul>
         <li>We do <strong>not</strong> use your content to train, fine-tune, or improve any AI or machine learning models.</li>
-        <li>We do <strong>not</strong> sell, license, or otherwise distribute your content to third parties.</li>
-        <li>Your content is processed solely to deliver the analysis you requested.</li>
+        <li>We do <strong>not</strong> sell, license, or otherwise distribute your raw content to third parties for marketing or advertising.</li>
+        <li>Your raw content is processed solely to deliver the analysis you requested and to support the non-commercial research dataset described in our <a href="/research-agreement">Contribution Agreement</a>.</li>
+        <li>
+          During the research beta, the derived <em>mathematical neural-activation predictions</em>{" "}
+          (not the raw media you uploaded) may be aggregated and shared with the AI research
+          community in accordance with the Contribution Agreement.
+        </li>
       </ul>
 
       {/* 4. Third-Party Service Providers */}
@@ -364,7 +397,7 @@ export default function PrivacyPolicyPage() {
         contact us at:
       </p>
       <p>
-        <strong>Email:</strong> privacy@brainrank.app
+        <strong>Email:</strong> team@trybrainrank.com
       </p>
     </article>
   );

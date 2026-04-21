@@ -1,0 +1,102 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - link "BRAIN|RANK" [ref=e4] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e5]: BRAIN|RANK
+    - generic [ref=e6]:
+      - link "dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e8]: dashboard
+      - link "cloud_upload" [ref=e9] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e10]: cloud_upload
+      - link "trophy" [ref=e11] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e12]: trophy
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: "@diego"
+        - paragraph [ref=e16]: Unlimited
+      - button "diego" [ref=e125]:
+        - img "diego" [ref=e126]
+  - main [ref=e32]:
+    - generic [ref=e35]:
+      - generic [ref=e36]:
+        - heading "Upload Media" [level=2] [ref=e37]
+        - paragraph [ref=e38]: Enter text for neural analysis. Max 500 characters.
+      - generic [ref=e40]:
+        - button "videocam Video" [ref=e41] [cursor=pointer]:
+          - generic [ref=e43]: videocam
+          - generic [ref=e44]: Video
+        - button "image Image" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: image
+          - generic [ref=e47]: Image
+        - button "text_fields Text" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: text_fields
+          - generic [ref=e50]: Text
+      - generic [ref=e129]:
+        - paragraph [ref=e130]: Your text will be rendered on screen and spoken aloud, then analyzed for both visual and auditory neural response.
+        - generic [ref=e131]:
+          - textbox "Enter your text here — e.g., ad copy, headline, voiceover script..." [ref=e132]: The brain predicts stories before we even know they are told.
+          - paragraph [ref=e133]: 61/500
+      - generic [ref=e135]:
+        - generic [ref=e136]:
+          - generic [ref=e138]: token
+          - generic [ref=e139]:
+            - paragraph [ref=e140]: Estimated Cost
+            - paragraph [ref=e141]: 1 Credit
+        - combobox [ref=e143] [cursor=pointer]:
+          - option "Select Category"
+          - option "Comedy / Entertainment"
+          - option "Education / How-To" [selected]
+          - option "Fitness / Sports"
+          - option "Music / Performance"
+          - option "Food / Cooking"
+          - option "Travel / Outdoors"
+          - option "Tech / Reviews"
+          - option "Beauty / Fashion"
+          - option "Gaming"
+          - option "News / Commentary"
+          - option "ASMR / Relaxation"
+          - option "Vlog / Lifestyle"
+          - option "Horror / Thriller"
+          - option "Other"
+        - button "Analyze Text bolt" [ref=e145]:
+          - text: Analyze Text
+          - generic [ref=e146]: bolt
+      - generic [ref=e62] [cursor=pointer]:
+        - generic [ref=e63]:
+          - checkbox "I agree to contribute my media to the Open Storytelling Research Project" [checked] [active] [ref=e64]
+          - img [ref=e147]
+        - generic [ref=e66]:
+          - text: I agree to contribute my media to the Open Storytelling Research Project under the terms of the
+          - link "Contribution Agreement" [ref=e67]:
+            - /url: /research-agreement
+          - text: .
+      - generic [ref=e81]:
+        - generic [ref=e83] [cursor=pointer]:
+          - generic [ref=e86]: psychology
+          - generic [ref=e87]:
+            - heading "Brain Predictive Model" [level=4] [ref=e88]
+            - paragraph [ref=e89]: Predicts real human neural activation patterns from video, audio, and text using brain predictive modeling.
+        - generic [ref=e91] [cursor=pointer]:
+          - generic [ref=e94]: hub
+          - generic [ref=e95]:
+            - heading "9 Brain Networks" [level=4] [ref=e96]
+            - paragraph [ref=e97]: Tracks attention, reward, emotion, social cognition, and 5 more neural networks across every 2-second segment of your content.
+        - generic [ref=e99] [cursor=pointer]:
+          - generic [ref=e102]: neurology
+          - generic [ref=e103]:
+            - heading "3D Brain Mapping" [level=4] [ref=e104]
+            - paragraph [ref=e105]: Visualize activation on an interactive 3D brain model with 20,000+ cortical vertices mapped to real neuroscience data.
+  - generic [ref=e110] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e111]:
+      - img [ref=e112]
+    - generic [ref=e115]:
+      - button "Open issues overlay" [ref=e116]:
+        - generic [ref=e117]:
+          - generic [ref=e118]: "0"
+          - generic [ref=e119]: "1"
+        - generic [ref=e120]: Issue
+      - button "Collapse issues badge" [ref=e121]:
+        - img [ref=e122]
+  - alert [ref=e124]

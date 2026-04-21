@@ -26,9 +26,10 @@ export default function ResourcesPage() {
       <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">How BrainRank Works</h2>
         <p className="text-gray-700 leading-relaxed">
-          BrainRank uses <strong>TRIBE v2</strong>, a brain-predictive foundation model developed by
-          Meta AI Research. TRIBE v2 was trained on thousands of hours of fMRI brain scan data —
-          recordings of real human brain activity while people watched videos.
+          BrainRank uses <strong>TRIBE v2</strong> (<em>TRansfomer for In-silico Brain Experiments</em>),
+          a brain-predictive foundation model developed by Meta AI Research and released in March 2026.
+          TRIBE v2 was trained on over 1,000 hours of fMRI recordings from more than 700 volunteers
+          watching, hearing, and reading naturalistic content.
         </p>
         <p className="text-gray-700 leading-relaxed">
           BrainRank accepts three kinds of input — <strong>video</strong>, <strong>image</strong>, and <strong>text</strong> —
@@ -320,11 +321,12 @@ export default function ResourcesPage() {
       <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">About the Science</h2>
         <p className="text-gray-700 leading-relaxed">
-          TRIBE v2 (Temporally Resolved Inter-subject Brain Encoding) is a foundation model for
-          predicting brain activity from multimedia content. It was developed by Meta AI Research
-          and published in 2025. The model was trained on multi-hour fMRI recordings of people
-          watching naturalistic video, which is why it generalizes across genres and formats rather
-          than being locked to a single content type.
+          TRIBE v2 (<em>TRansfomer for In-silico Brain Experiments</em>) is a foundation model for
+          predicting brain activity from multimodal content. It was developed by Meta AI Research
+          and released in March 2026 under a CC BY-NC 4.0 license. The model was trained on over
+          1,000 hours of fMRI recordings from more than 700 volunteers viewing naturalistic videos,
+          listening to podcasts, and reading text — which is why it generalizes across genres and
+          formats rather than being locked to a single content type.
         </p>
 
         <div className="space-y-2">
@@ -341,13 +343,16 @@ export default function ResourcesPage() {
         <div className="space-y-2">
           <h3 className="font-headline font-bold text-base text-black">Cortical parcellation</h3>
           <p className="text-gray-700 leading-relaxed">
-            BrainRank takes TRIBE v2&apos;s 20,484 per-vertex activation values and collapses them into
-            9 functional networks using the Destrieux atlas, which divides the cortical surface
-            into roughly 150 anatomically defined regions. Each network in BrainRank is a weighted
-            aggregation of the regions most associated with that function in the neuroscience
-            literature — for example, the Attention network combines dorsal and ventral attention
-            regions (intraparietal sulcus, frontal eye fields, superior parietal lobule) rather
-            than trusting a single anatomical area in isolation.
+            TRIBE v2 outputs activation at roughly 20,484 cortical vertices — the standard
+            fsaverage5 surface mesh (10,242 vertices per hemisphere). <strong>BrainRank</strong>{" "}
+            then aggregates those per-vertex values into 9 functional networks using the
+            Destrieux atlas, which divides the cortical surface into roughly 150 anatomically
+            defined regions. Each network is a weighted aggregation of the regions most
+            associated with that function in the neuroscience literature — for example, the
+            Attention network combines dorsal and ventral attention regions (intraparietal
+            sulcus, frontal eye fields, superior parietal lobule) rather than trusting a single
+            anatomical area in isolation. The 9-network aggregation is a BrainRank design
+            choice, not part of TRIBE v2 itself.
           </p>
         </div>
 
@@ -393,8 +398,10 @@ export default function ResourcesPage() {
           <p className="font-bold text-black text-sm">Key research references:</p>
           <ul className="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
             <li>
-              <strong>TRIBE v2: Brain-Predictive Foundation Model</strong> — Meta AI Research (2025).
-              The foundation model that powers every BrainRank prediction.
+              <strong>TRIBE v2: A Predictive Foundation Model Trained to Understand How the
+              Human Brain Processes Complex Stimuli</strong> — Meta AI Research (March 2026).
+              The foundation model that powers every BrainRank prediction. Released under
+              CC BY-NC 4.0.
             </li>
             <li>
               <strong>Russell Circumplex Model of Affect</strong> — James A. Russell (1980).

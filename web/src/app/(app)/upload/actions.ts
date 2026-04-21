@@ -7,6 +7,7 @@ import { dispatchJob } from '@/lib/runpod'
 import { trackServer } from '@/lib/analytics.server'
 import { BATCH_LIMITS } from '@/lib/upload-validation'
 import { type InputType } from '@/lib/database.types'
+import { CONSENT_VERSION } from '@/lib/consent'
 import type { BatchItem, CreateJobResult } from './types'
 
 export async function createJob(
@@ -14,8 +15,19 @@ export async function createJob(
   inputType: InputType = 'video',
   textContent?: string | null,
   textStyle?: string | null,
-  category?: string | null
+  category?: string | null,
+  consentVersion?: string | null
 ): Promise<CreateJobResult> {
+  // Research-beta: every upload must ship with an accepted consent version.
+  // The UI gates the Analyze button on the checkbox, but we reject here too
+  // so a malformed client can't bypass it.
+  const acceptedConsent = consentVersion ?? null
+  if (!acceptedConsent) {
+    throw new Error('Consent to the Contribution Agreement is required to analyze content.')
+  }
+  if (acceptedConsent !== CONSENT_VERSION) {
+    throw new Error('Contribution Agreement has been updated — please reload and re-accept.')
+  }
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -35,7 +47,7 @@ export async function createJob(
       credits_limit: credits.limit === Infinity ? -1 : credits.limit,
     })
     throw new Error(
-      `Daily credit limit reached (${credits.used}/${credits.limit}). Resets at 00:00 UTC, or upgrade for unlimited analyses.`
+      `Daily credit limit reached (${credits.used}/${credits.limit}). Resets at 00:00 UTC.`
     )
   }
 
@@ -54,7 +66,12 @@ export async function createJob(
       is_public: true,
       results: null,
       error_message: null,
-    })
+      // Research-beta consent provenance — nullable columns added in
+      // 20260420_add_consent_to_jobs.sql. Cast keeps TS happy until
+      // database.types.ts is regenerated.
+      consent_version: acceptedConsent,
+      consented_at: new Date().toISOString(),
+    } as never)
     .select('id')
     .single()
 
@@ -110,7 +127,7 @@ export async function createBatchJobs(
 
   const credits = await getCreditStatus(supabase, user.id)
   if (!credits.isCreator) {
-    return { jobs: [], error: 'Batch upload is available on the Creator plan.' }
+    return { jobs: [], error: 'Batch upload is limited during the research beta.' }
   }
 
   const results: CreateJobResult[] = []
@@ -121,7 +138,8 @@ export async function createBatchJobs(
         item.inputType ?? 'video',
         item.textContent,
         item.textStyle,
-        item.category
+        item.category,
+        CONSENT_VERSION
       )
       results.push(result)
     } catch (err) {

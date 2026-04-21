@@ -1,0 +1,45 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]: BRAIN|RANK
+    - main [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e9]: psychology_alt
+        - heading "404" [level=1]
+        - generic [ref=e10]:
+          - heading "Page not found" [level=2] [ref=e11]
+          - paragraph [ref=e12]: The page you are looking for does not exist. Our neural processors couldn't locate this coordinate in the editorial space.
+        - generic [ref=e13]:
+          - link "dashboard Back to Dashboard" [ref=e14] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e15]: dashboard
+            - text: Back to Dashboard
+          - link "arrow_back Go to Homepage" [ref=e16] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e17]: arrow_back
+            - text: Go to Homepage
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: Diagnostics
+            - generic [ref=e21]: NEURAL_VOID
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: "> [SYSTEM] Neural pathway not found at requested coordinate"
+            - paragraph [ref=e24]: "> [STATUS] No matching route in editorial space"
+            - paragraph [ref=e25]: "> [ERROR_ID] NC-0404-XR-VOID"
+    - contentinfo [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e30]: System Operational
+        - generic [ref=e31]: "|"
+        - generic [ref=e32]: "Error Code: 404_NOT_FOUND"
+  - generic [ref=e37] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e38]:
+      - img [ref=e39]
+    - generic [ref=e42]:
+      - button "Open issues overlay" [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: "0"
+          - generic [ref=e46]: "1"
+        - generic [ref=e47]: Issue
+      - button "Collapse issues badge" [ref=e48]:
+        - img [ref=e49]
+  - alert [ref=e51]

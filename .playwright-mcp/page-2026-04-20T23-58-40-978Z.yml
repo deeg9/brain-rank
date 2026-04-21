@@ -1,0 +1,121 @@
+- generic [ref=e1]:
+  - banner [ref=e103]:
+    - link "BRAIN|RANK" [ref=e105] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e106]: BRAIN|RANK
+    - generic [ref=e107]:
+      - link "dashboard" [ref=e108] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e109]: dashboard
+      - link "cloud_upload" [ref=e110] [cursor=pointer]:
+        - /url: /upload
+        - generic [ref=e111]: cloud_upload
+      - link "trophy" [ref=e112] [cursor=pointer]:
+        - /url: /discover
+        - generic [ref=e113]: trophy
+      - generic [ref=e115]:
+        - paragraph [ref=e116]: "@diego"
+        - paragraph [ref=e117]: Unlimited
+      - generic [ref=e118]:
+        - button "diego" [active] [ref=e119]:
+          - img "diego" [ref=e120]
+        - generic [ref=e205]:
+          - link "account_circle Profile" [ref=e206] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e207]: account_circle
+            - text: Profile
+          - link "bookmark Bookmarks" [ref=e208] [cursor=pointer]:
+            - /url: /bookmarks
+            - generic [ref=e209]: bookmark
+            - text: Bookmarks
+          - link "settings Settings" [ref=e210] [cursor=pointer]:
+            - /url: /settings
+            - generic [ref=e211]: settings
+            - text: Settings
+          - link "science Resources" [ref=e212] [cursor=pointer]:
+            - /url: /resources
+            - generic [ref=e213]: science
+            - text: Resources
+          - button "logout Log out" [ref=e215]:
+            - generic [ref=e216]: logout
+            - text: Log out
+  - main [ref=e121]:
+    - generic [ref=e124]:
+      - generic [ref=e125]:
+        - heading "Upload Media" [level=2] [ref=e126]
+        - paragraph [ref=e127]: "Supported formats: MP4, WebM, MOV. Max 2GB, 30 min runtime."
+      - generic [ref=e129]:
+        - button "videocam Video" [ref=e130] [cursor=pointer]:
+          - generic [ref=e132]: videocam
+          - generic [ref=e133]: Video
+        - button "image Image" [ref=e134] [cursor=pointer]:
+          - generic [ref=e135]: image
+          - generic [ref=e136]: Image
+        - button "text_fields Text" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: text_fields
+          - generic [ref=e139]: Text
+      - generic [ref=e143] [cursor=pointer]:
+        - generic [ref=e145]: cloud_upload
+        - heading "Drop videos here or click to browse" [level=3] [ref=e146]
+        - paragraph [ref=e147]: MP4, WebM, MOV. Max 2GB per file.
+        - button "Browse Files" [ref=e148]
+      - generic [ref=e151] [cursor=pointer]:
+        - checkbox "I agree to contribute my media to the Open Storytelling Research Project" [ref=e153]
+        - generic [ref=e155]:
+          - text: I agree to contribute my media to the Open Storytelling Research Project under the terms of the
+          - link "Contribution Agreement" [ref=e156]:
+            - /url: /research-agreement
+          - text: .
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - generic [ref=e161]: token
+          - generic [ref=e162]:
+            - paragraph [ref=e163]: Estimated Cost
+            - paragraph [ref=e164]: 1 Credit
+        - combobox [ref=e166] [cursor=pointer]:
+          - option "Select Category" [selected]
+          - option "Comedy / Entertainment"
+          - option "Education / How-To"
+          - option "Fitness / Sports"
+          - option "Music / Performance"
+          - option "Food / Cooking"
+          - option "Travel / Outdoors"
+          - option "Tech / Reviews"
+          - option "Beauty / Fashion"
+          - option "Gaming"
+          - option "News / Commentary"
+          - option "ASMR / Relaxation"
+          - option "Vlog / Lifestyle"
+          - option "Horror / Thriller"
+          - option "Other"
+        - button "Analyze Video bolt" [disabled] [ref=e168]:
+          - text: Analyze Video
+          - generic [ref=e169]: bolt
+      - generic [ref=e170]:
+        - generic [ref=e172] [cursor=pointer]:
+          - generic [ref=e175]: psychology
+          - generic [ref=e176]:
+            - heading "Brain Predictive Model" [level=4] [ref=e177]
+            - paragraph [ref=e178]: Predicts real human neural activation patterns from video, audio, and text using brain predictive modeling.
+        - generic [ref=e180] [cursor=pointer]:
+          - generic [ref=e183]: hub
+          - generic [ref=e184]:
+            - heading "9 Brain Networks" [level=4] [ref=e185]
+            - paragraph [ref=e186]: Tracks attention, reward, emotion, social cognition, and 5 more neural networks across every 2-second segment of your content.
+        - generic [ref=e188] [cursor=pointer]:
+          - generic [ref=e191]: neurology
+          - generic [ref=e192]:
+            - heading "3D Brain Mapping" [level=4] [ref=e193]
+            - paragraph [ref=e194]: Visualize activation on an interactive 3D brain model with 20,000+ cortical vertices mapped to real neuroscience data.
+  - generic [ref=e98] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e99]:
+      - img [ref=e100]
+    - generic [ref=e195]:
+      - button "Open issues overlay" [ref=e196]:
+        - generic [ref=e197]:
+          - generic [ref=e198]: "0"
+          - generic [ref=e199]: "1"
+        - generic [ref=e200]: Issue
+      - button "Collapse issues badge" [ref=e201]:
+        - img [ref=e202]
+  - alert [ref=e204]
