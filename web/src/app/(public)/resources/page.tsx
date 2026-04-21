@@ -1,11 +1,12 @@
 import { BenchmarkLegend } from "@/components/ui/BenchmarkLegend";
 import { MetricInfo } from "@/components/results/MetricInfo";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { Brand } from "@/components/ui/Brand";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Resources | BrainRank",
-  description: "Understanding neural activation scores, brain regions, and how to interpret your BrainRank results.",
+  title: "Resources | BRAIN | RANK",
+  description: "Understanding neural activation scores, brain regions, and how to interpret your BRAIN | RANK results.",
 };
 
 export default function ResourcesPage() {
@@ -24,15 +25,15 @@ export default function ResourcesPage() {
 
       {/* How It Works */}
       <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
-        <h2 className="font-headline text-2xl font-bold text-black">How BrainRank Works</h2>
+        <h2 className="font-headline text-2xl font-bold text-black">How <Brand /> Works</h2>
         <p className="text-gray-700 leading-relaxed">
-          BrainRank uses <strong>TRIBE v2</strong> (<em>TRansfomer for In-silico Brain Experiments</em>),
+          <Brand /> uses <strong>TRIBE v2</strong> (<em>TRansfomer for In-silico Brain Experiments</em>),
           a brain-predictive foundation model developed by Meta AI Research and released in March 2026.
           TRIBE v2 was trained on over 1,000 hours of fMRI recordings from more than 700 volunteers
           watching, hearing, and reading naturalistic content.
         </p>
         <p className="text-gray-700 leading-relaxed">
-          BrainRank accepts three kinds of input — <strong>video</strong>, <strong>image</strong>, and <strong>text</strong> —
+          <Brand /> accepts three kinds of input — <strong>video</strong>, <strong>image</strong>, and <strong>text</strong> —
           and routes each through three specialized neural encoders to predict per-segment cortical activation:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -86,7 +87,7 @@ export default function ResourcesPage() {
         </div>
         <p className="text-gray-700 leading-relaxed">
           These encoders feed into a prediction head that outputs <strong>per-vertex cortical activation</strong> across
-          20,484 points on the brain surface, every 2 seconds. BrainRank then maps these activations to
+          20,484 points on the brain surface, every 2 seconds. <Brand /> then maps these activations to
           functional brain networks you can understand.
         </p>
       </section>
@@ -95,7 +96,7 @@ export default function ResourcesPage() {
       <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">Understanding Your Scores</h2>
         <p className="text-gray-700 leading-relaxed">
-          BrainRank scores are <strong>not percentages</strong>. They represent normalized neural
+          <Brand /> scores are <strong>not percentages</strong>. They represent normalized neural
           activation intensity on a scale from 0.00 to 1.00. This is a measure of how strongly
           the predicted brain response fires — not a grade.
         </p>
@@ -181,7 +182,7 @@ export default function ResourcesPage() {
       <section className="bg-white rounded-xl p-5 md:p-8 shadow-sm space-y-6">
         <h2 className="font-headline text-2xl font-bold text-black">Brain Regions Explained</h2>
         <p className="text-gray-700 leading-relaxed">
-          BrainRank tracks 9 functional brain networks. Each represents a different aspect of how
+          <Brand /> tracks 9 functional brain networks. Each represents a different aspect of how
           viewers process your content. Understanding which networks activate helps you optimize
           for specific types of engagement.
         </p>
@@ -281,7 +282,7 @@ export default function ResourcesPage() {
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="font-bold text-black text-sm">Retention</p>
             <p className="text-xs text-gray-600 mt-1">
-              The weakest 10-second window across your content. BrainRank slides a 5-segment
+              The weakest 10-second window across your content. <Brand /> slides a 5-segment
               window over the full timeline and takes the minimum — so a low retention score
               means there&apos;s a stretch where the brain response drops off. Use this to find the
               single worst section of your edit and decide whether to tighten, cut, or replace it.
@@ -334,7 +335,7 @@ export default function ResourcesPage() {
           <p className="text-gray-700 leading-relaxed">
             TRIBE v2 predicts brain state in 2-second windows. That&apos;s the same temporal resolution
             the model was trained on (the repetition time, or TR, of the underlying fMRI scans),
-            and it&apos;s why every segment-level metric you see in BrainRank lands on an even-second
+            and it&apos;s why every segment-level metric you see in <Brand /> lands on an even-second
             boundary. Shorter-than-2s events — a single frame, a one-word utterance — contribute
             to the segment they fall in but can&apos;t be isolated below that window.
           </p>
@@ -344,14 +345,14 @@ export default function ResourcesPage() {
           <h3 className="font-headline font-bold text-base text-black">Cortical parcellation</h3>
           <p className="text-gray-700 leading-relaxed">
             TRIBE v2 outputs activation at roughly 20,484 cortical vertices — the standard
-            fsaverage5 surface mesh (10,242 vertices per hemisphere). <strong>BrainRank</strong>{" "}
+            fsaverage5 surface mesh (10,242 vertices per hemisphere). <Brand />{" "}
             then aggregates those per-vertex values into 9 functional networks using the
             Destrieux atlas, which divides the cortical surface into roughly 150 anatomically
             defined regions. Each network is a weighted aggregation of the regions most
             associated with that function in the neuroscience literature — for example, the
             Attention network combines dorsal and ventral attention regions (intraparietal
             sulcus, frontal eye fields, superior parietal lobule) rather than trusting a single
-            anatomical area in isolation. The 9-network aggregation is a BrainRank design
+            anatomical area in isolation. The 9-network aggregation is a <Brand /> design
             choice, not part of TRIBE v2 itself.
           </p>
         </div>
@@ -360,7 +361,7 @@ export default function ResourcesPage() {
           <h3 className="font-headline font-bold text-base text-black">Normalization</h3>
           <p className="text-gray-700 leading-relaxed">
             Raw activation values don&apos;t come with a fixed scale, so every score you see on
-            BrainRank is normalized using robust percentile scaling (clipped at the 1st and 99th
+            <Brand /> is normalized using robust percentile scaling (clipped at the 1st and 99th
             percentiles of the model&apos;s training distribution, then rescaled to 0–1). A 0.50
             means the response lands firmly above the population baseline — not that it&apos;s
             &quot;half of maximum.&quot; This is also why tier boundaries (baseline, moderate, strong,
@@ -372,7 +373,7 @@ export default function ResourcesPage() {
           <h3 className="font-headline font-bold text-base text-black">How multi-modal content is handled</h3>
           <p className="text-gray-700 leading-relaxed">
             TRIBE v2 is built to receive vision, audio, and text features simultaneously. When you
-            upload an image, BrainRank holds it as a static frame for the duration you set and
+            upload an image, <Brand /> holds it as a static frame for the duration you set and
             pipes silence into the audio encoder, so the prediction isolates the visual contribution.
             When you upload a text script in spoken mode, the script is synthesized into speech so
             the audio and language encoders both activate on the same narrative — the way a viewer
@@ -383,7 +384,7 @@ export default function ResourcesPage() {
         </div>
 
         <div className="space-y-2">
-          <h3 className="font-headline font-bold text-base text-black">What BrainRank is — and isn&apos;t</h3>
+          <h3 className="font-headline font-bold text-base text-black">What <Brand /> is — and isn&apos;t</h3>
           <p className="text-gray-700 leading-relaxed">
             These predictions are not scans of any individual viewer&apos;s brain, and they are not
             measurements of your own brain either. TRIBE v2 infers the group-average cortical
@@ -400,7 +401,7 @@ export default function ResourcesPage() {
             <li>
               <strong>TRIBE v2: A Predictive Foundation Model Trained to Understand How the
               Human Brain Processes Complex Stimuli</strong> — Meta AI Research (March 2026).
-              The foundation model that powers every BrainRank prediction. Released under
+              The foundation model that powers every <Brand /> prediction. Released under
               CC BY-NC 4.0.
             </li>
             <li>
@@ -425,7 +426,7 @@ export default function ResourcesPage() {
         </div>
 
         <p className="text-gray-500 text-xs mt-4">
-          Note: TRIBE v2 is licensed under CC BY-NC-4.0 (non-commercial use). BrainRank&apos;s predictions are
+          Note: TRIBE v2 is licensed under CC BY-NC-4.0 (non-commercial use). <Brand />&apos;s predictions are
           computational estimates of brain activity, not actual brain scans. Results should be interpreted
           as data-informed insights, not medical or scientific measurements.
         </p>
