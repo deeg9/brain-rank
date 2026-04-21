@@ -15,6 +15,7 @@ import { analyzeBenchmark } from "@/lib/benchmark";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import { findPeaks } from "@/lib/peak-detection";
 import { InsightsSummaryCard } from "@/components/results/InsightsSummaryCard";
+import { EngagementCard } from "@/components/results/EngagementCard";
 import type { Job } from "@/lib/database.types";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import { ScoreBadge } from "@/components/ui/ScoreBadge";
@@ -562,6 +563,26 @@ export default function ResultsDetailPage({ params }: Props) {
           />
         );
       })()}
+
+      {/* Real-world performance — owner only (this route is auth-gated + RLS-scoped) */}
+      <EngagementCard
+        jobId={id}
+        isOwner={true}
+        postedUrl={(job as unknown as { posted_url: string | null }).posted_url ?? null}
+        postedPlatform={
+          (job as unknown as { posted_platform: "youtube" | "tiktok" | "instagram" | "other" | null })
+            .posted_platform ?? null
+        }
+        postedAt={(job as unknown as { posted_at: string | null }).posted_at ?? null}
+        viewsCount={(job as unknown as { views_count: number | null }).views_count ?? null}
+        likesCount={(job as unknown as { likes_count: number | null }).likes_count ?? null}
+        commentsCount={(job as unknown as { comments_count: number | null }).comments_count ?? null}
+        sharesCount={(job as unknown as { shares_count: number | null }).shares_count ?? null}
+        bookmarksCount={(job as unknown as { bookmarks_count: number | null }).bookmarks_count ?? null}
+        engagementCapturedAt={
+          (job as unknown as { engagement_captured_at: string | null }).engagement_captured_at ?? null
+        }
+      />
     </div>
   );
 }

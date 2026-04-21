@@ -64,6 +64,7 @@ interface PublicAnalysisClientProps {
   likesCount: number | null;
   commentsCount: number | null;
   sharesCount: number | null;
+  bookmarksCount: number | null;
   engagementCapturedAt: string | null;
 }
 
@@ -110,6 +111,7 @@ export function PublicAnalysisClient({
   likesCount,
   commentsCount,
   sharesCount,
+  bookmarksCount,
   engagementCapturedAt,
 }: PublicAnalysisClientProps) {
   const isImage = inputType === "image";
@@ -227,6 +229,7 @@ export function PublicAnalysisClient({
         likesCount={likesCount}
         commentsCount={commentsCount}
         sharesCount={sharesCount}
+        bookmarksCount={bookmarksCount}
         engagementCapturedAt={engagementCapturedAt}
       />
     </div>

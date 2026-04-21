@@ -13,6 +13,7 @@ export interface PostEngagement {
   likesCount: number | null
   commentsCount: number | null
   sharesCount: number | null
+  bookmarksCount: number | null
   engagementCapturedAt: string | null // ISO timestamp
 }
 
@@ -23,6 +24,7 @@ export interface PostEngagementInput {
   likesCount?: number | null
   commentsCount?: number | null
   sharesCount?: number | null
+  bookmarksCount?: number | null
 }
 
 const PLATFORM_HOSTS: Record<PostedPlatform, RegExp[]> = {
@@ -73,9 +75,10 @@ export function platformIcon(p: PostedPlatform): string {
   }
 }
 
-// YouTube doesn't publicly expose a "shares" count on its UI — hide the field.
-export function platformShowsShares(p: PostedPlatform): boolean {
-  return p !== 'youtube'
+// Shares are shown for every platform. Even YouTube's creator analytics
+// surfaces a share count, so we let users report it regardless of platform.
+export function platformShowsShares(_p: PostedPlatform): boolean {
+  return true
 }
 
 // Instagram labels the play count as "plays"; the others use "views".
@@ -107,6 +110,7 @@ export function validatePostEngagement(input: PostEngagementInput): ValidationRe
         likesCount: null,
         commentsCount: null,
         sharesCount: null,
+        bookmarksCount: null,
         engagementCapturedAt: null,
       },
     }
@@ -147,6 +151,7 @@ export function validatePostEngagement(input: PostEngagementInput): ValidationRe
     ['likesCount', 'Likes'],
     ['commentsCount', 'Comments'],
     ['sharesCount', 'Shares'],
+    ['bookmarksCount', 'Bookmarks'],
   ]
 
   const out: Record<string, number | null> = {}
@@ -179,6 +184,7 @@ export function validatePostEngagement(input: PostEngagementInput): ValidationRe
       likesCount: out.likesCount,
       commentsCount: out.commentsCount,
       sharesCount: out.sharesCount,
+      bookmarksCount: out.bookmarksCount,
       engagementCapturedAt: new Date().toISOString(),
     },
   }

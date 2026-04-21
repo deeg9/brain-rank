@@ -104,6 +104,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
     likes_count: number | null;
     comments_count: number | null;
     shares_count: number | null;
+    bookmarks_count: number | null;
     engagement_captured_at: string | null;
   };
 
@@ -280,6 +281,7 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
         likesCount={jobEngagement.likes_count}
         commentsCount={jobEngagement.comments_count}
         sharesCount={jobEngagement.shares_count}
+        bookmarksCount={jobEngagement.bookmarks_count}
         engagementCapturedAt={jobEngagement.engagement_captured_at}
       />
     </div>

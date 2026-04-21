@@ -15,7 +15,6 @@ import { uploadVideo, uploadImage, uploadText } from "@/lib/upload";
 import {
   detectPlatform,
   platformLabel,
-  platformShowsShares,
   viewsLabel,
   type PostEngagementInput,
 } from "@/lib/post-engagement";
@@ -57,6 +56,7 @@ export default function UploadPage() {
   const [likesCount, setLikesCount] = useState("");
   const [commentsCount, setCommentsCount] = useState("");
   const [sharesCount, setSharesCount] = useState("");
+  const [bookmarksCount, setBookmarksCount] = useState("");
   const detectedPlatform = detectPlatform(postedUrl);
 
   // Roll every createJob call's engagement payload from one helper.
@@ -69,6 +69,7 @@ export default function UploadPage() {
       likesCount: likesCount === "" ? null : Number(likesCount),
       commentsCount: commentsCount === "" ? null : Number(commentsCount),
       sharesCount: sharesCount === "" ? null : Number(sharesCount),
+      bookmarksCount: bookmarksCount === "" ? null : Number(bookmarksCount),
     };
   }
 
@@ -504,23 +505,36 @@ export default function UploadPage() {
                     className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
                   />
                 </div>
-                {(!detectedPlatform || platformShowsShares(detectedPlatform)) && (
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
-                      Shares
-                    </label>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      placeholder="0"
-                      value={sharesCount}
-                      onChange={(e) => setSharesCount(e.target.value)}
-                      disabled={uploading}
-                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                    Shares
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={sharesCount}
+                    onChange={(e) => setSharesCount(e.target.value)}
+                    disabled={uploading}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                    Bookmarks
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={bookmarksCount}
+                    onChange={(e) => setBookmarksCount(e.target.value)}
+                    disabled={uploading}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                </div>
               </div>
 
               <p className="text-[10px] text-on-surface-variant/70 leading-snug">

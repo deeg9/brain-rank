@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
           await resend.emails.send({
             from: FROM_EMAIL,
             to: user.email,
-            subject: 'Your BrainRank analysis is ready',
+            subject: 'Your BRAIN | RANK analysis is ready',
             react: AnalysisCompleteEmail({
               videoFilename: filename,
               resultsUrl: `${baseUrl}/results/${job.id}`,
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
           await resend.emails.send({
             from: FROM_EMAIL,
             to: user.email,
-            subject: "Your BrainRank analysis couldn't be completed",
+            subject: "Your BRAIN | RANK analysis couldn't be completed",
             react: AnalysisFailedEmail({
               videoFilename: filename,
               uploadUrl: `${baseUrl}/upload`,

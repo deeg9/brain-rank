@@ -5,7 +5,6 @@ import {
   detectPlatform,
   platformIcon,
   platformLabel,
-  platformShowsShares,
   viewsLabel,
   formatCount,
   type PostedPlatform,
@@ -22,6 +21,7 @@ interface EngagementCardProps {
   likesCount: number | null;
   commentsCount: number | null;
   sharesCount: number | null;
+  bookmarksCount: number | null;
   engagementCapturedAt: string | null;
 }
 
@@ -39,6 +39,7 @@ export function EngagementCard(props: EngagementCardProps) {
     likesCount: props.likesCount != null ? String(props.likesCount) : "",
     commentsCount: props.commentsCount != null ? String(props.commentsCount) : "",
     sharesCount: props.sharesCount != null ? String(props.sharesCount) : "",
+    bookmarksCount: props.bookmarksCount != null ? String(props.bookmarksCount) : "",
   });
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +53,7 @@ export function EngagementCard(props: EngagementCardProps) {
     likesCount: props.likesCount,
     commentsCount: props.commentsCount,
     sharesCount: props.sharesCount,
+    bookmarksCount: props.bookmarksCount,
     engagementCapturedAt: props.engagementCapturedAt,
   });
 
@@ -72,6 +74,7 @@ export function EngagementCard(props: EngagementCardProps) {
         likesCount: form.likesCount === "" ? null : Number(form.likesCount),
         commentsCount: form.commentsCount === "" ? null : Number(form.commentsCount),
         sharesCount: form.sharesCount === "" ? null : Number(form.sharesCount),
+        bookmarksCount: form.bookmarksCount === "" ? null : Number(form.bookmarksCount),
       };
       const result = await updateJobEngagement(props.jobId, payload);
       if (!result.ok) {
@@ -86,6 +89,7 @@ export function EngagementCard(props: EngagementCardProps) {
         likesCount: payload.likesCount,
         commentsCount: payload.commentsCount,
         sharesCount: payload.sharesCount,
+        bookmarksCount: payload.bookmarksCount,
         engagementCapturedAt: result.capturedAt,
       });
       setEditing(false);
@@ -100,6 +104,7 @@ export function EngagementCard(props: EngagementCardProps) {
       likesCount: saved.likesCount != null ? String(saved.likesCount) : "",
       commentsCount: saved.commentsCount != null ? String(saved.commentsCount) : "",
       sharesCount: saved.sharesCount != null ? String(saved.sharesCount) : "",
+      bookmarksCount: saved.bookmarksCount != null ? String(saved.bookmarksCount) : "",
     });
     setError(null);
     setEditing(false);
@@ -199,23 +204,36 @@ export function EngagementCard(props: EngagementCardProps) {
               className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
             />
           </div>
-          {(!detected || platformShowsShares(detected)) && (
-            <div>
-              <label className="block text-[10px] uppercase tracking-widest font-bold text-gray-500 mb-1">
-                Shares
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                value={form.sharesCount}
-                onChange={(e) => setForm({ ...form, sharesCount: e.target.value })}
-                disabled={pending}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
-              />
-            </div>
-          )}
+          <div>
+            <label className="block text-[10px] uppercase tracking-widest font-bold text-gray-500 mb-1">
+              Shares
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              value={form.sharesCount}
+              onChange={(e) => setForm({ ...form, sharesCount: e.target.value })}
+              disabled={pending}
+              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] uppercase tracking-widest font-bold text-gray-500 mb-1">
+              Bookmarks
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              value={form.bookmarksCount}
+              onChange={(e) => setForm({ ...form, bookmarksCount: e.target.value })}
+              disabled={pending}
+              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+            />
+          </div>
         </div>
 
         {error && <p className="text-xs text-red-600">{error}</p>}
@@ -270,7 +288,8 @@ export function EngagementCard(props: EngagementCardProps) {
     (saved.viewsCount != null ||
       saved.likesCount != null ||
       saved.commentsCount != null ||
-      saved.sharesCount != null);
+      saved.sharesCount != null ||
+      saved.bookmarksCount != null);
 
   return (
     <div className="rounded-xl p-5 border border-gray-200 bg-white space-y-3">
@@ -308,13 +327,12 @@ export function EngagementCard(props: EngagementCardProps) {
       )}
 
       {statsVisible && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
           <Stat label={viewsLabel(platform)} value={saved.viewsCount} />
           <Stat label="Likes" value={saved.likesCount} />
           <Stat label="Comments" value={saved.commentsCount} />
-          {platformShowsShares(platform) && (
-            <Stat label="Shares" value={saved.sharesCount} />
-          )}
+          <Stat label="Shares" value={saved.sharesCount} />
+          <Stat label="Bookmarks" value={saved.bookmarksCount} />
         </div>
       )}
 

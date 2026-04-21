@@ -96,6 +96,7 @@ export async function createJob(
       likes_count: engagementData.likesCount,
       comments_count: engagementData.commentsCount,
       shares_count: engagementData.sharesCount,
+      bookmarks_count: engagementData.bookmarksCount,
       engagement_captured_at: engagementData.engagementCapturedAt,
     } as never)
     .select('id')
@@ -213,6 +214,7 @@ export async function updateJobEngagement(
       likes_count: data.likesCount,
       comments_count: data.commentsCount,
       shares_count: data.sharesCount,
+      bookmarks_count: data.bookmarksCount,
       engagement_captured_at: data.engagementCapturedAt,
     } as never)
     .eq('id', jobId)

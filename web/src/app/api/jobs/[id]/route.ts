@@ -111,7 +111,7 @@ export async function GET(
                 await resend.emails.send({
                   from: FROM_EMAIL,
                   to: owner.email,
-                  subject: 'Your BrainRank analysis is ready',
+                  subject: 'Your BRAIN | RANK analysis is ready',
                   react: AnalysisCompleteEmail({
                     videoFilename: extractFilename(job.video_url),
                     resultsUrl: `${baseUrl}/results/${id}`,
@@ -121,7 +121,7 @@ export async function GET(
                 await resend.emails.send({
                   from: FROM_EMAIL,
                   to: owner.email,
-                  subject: "Your BrainRank analysis couldn't be completed",
+                  subject: "Your BRAIN | RANK analysis couldn't be completed",
                   react: AnalysisFailedEmail({
                     videoFilename: extractFilename(job.video_url),
                     uploadUrl: `${baseUrl}/upload`,
