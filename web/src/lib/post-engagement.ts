@@ -94,9 +94,9 @@ export type ValidationResult =
 // payload to null — safe to always call even when the user hasn't toggled
 // the optional section on.
 export function validatePostEngagement(input: PostEngagementInput): ValidationResult {
-  const trimmedUrl = (input.postedUrl ?? '').trim()
+  const rawUrl = (input.postedUrl ?? '').trim()
 
-  if (!trimmedUrl) {
+  if (!rawUrl) {
     return {
       ok: true,
       value: {
@@ -112,14 +112,16 @@ export function validatePostEngagement(input: PostEngagementInput): ValidationRe
     }
   }
 
-  if (!/^https?:\/\//i.test(trimmedUrl)) {
-    return { ok: false, reason: 'Link must start with http:// or https://.' }
-  }
+  // Users often type "youtube.com/..." without a protocol — normalize to https://.
+  const trimmedUrl = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`
 
   let parsed: URL
   try {
     parsed = new URL(trimmedUrl)
   } catch {
+    return { ok: false, reason: "That link doesn't look valid." }
+  }
+  if (!parsed.hostname.includes('.')) {
     return { ok: false, reason: "That link doesn't look valid." }
   }
 
