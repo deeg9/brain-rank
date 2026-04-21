@@ -90,9 +90,8 @@ export function HeroOdyssey() {
             animate="animate"
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           >
-            Help advance open-source neuroscience. Upload a video, image, or
-            script and see how the brain is predicted to respond — your
-            contribution joins a growing research dataset.
+            Upload a video, image, or script and see how the brain is
+            predicted to respond.
             <br />
             <LinkPreview
               url="https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/"
