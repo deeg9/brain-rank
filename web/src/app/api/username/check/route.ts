@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ available: false, reason: 'Username required' })
     }
 
-    if (username.length < 3 || username.length > 20) {
-      return NextResponse.json({ available: false, reason: 'Must be 3-20 characters' })
+    if (username.length < 3 || username.length > 15) {
+      return NextResponse.json({ available: false, reason: 'Must be 3-15 characters' })
     }
 
     if (!/^[a-z0-9_]+$/.test(username)) {

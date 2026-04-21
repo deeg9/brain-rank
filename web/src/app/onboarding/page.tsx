@@ -228,7 +228,7 @@ export default function OnboardingPage() {
                   onChange={(e) =>
                     setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
                   }
-                  maxLength={20}
+                  maxLength={15}
                   placeholder="yourname"
                   className="w-full pl-8 pr-10 py-3 rounded-xl bg-surface-container-lowest border border-outline-variant/30 text-on-surface font-medium focus:outline-none focus:border-black/30 transition-colors"
                 />

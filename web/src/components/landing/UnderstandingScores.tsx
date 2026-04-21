@@ -64,14 +64,15 @@ export function UnderstandingScores() {
                   Hook Score
                 </h3>
                 <p className="text-on-background/70 md:text-lg">
-                  How hard your content grabs attention in the critical first
-                  three seconds. A weighted combination of Attention, Visual,
-                  and Reward network activation — the same circuits that decide
-                  whether a viewer swipes away or stays.
+                  How strongly your content engages the brain in the opening
+                  10 seconds — the window where viewers on short-form feeds
+                  decide to stay or scroll. We average predicted activation
+                  across all nine networks over the first five 2-second
+                  segments.
                 </p>
                 <p className="text-on-background/70 text-sm">
-                  Higher scores correlate with stronger scroll-stopping power on
-                  short-form platforms.
+                  Above 0.40 is strong. Drops below that range are the most
+                  common weak-hook signal.
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-black/40 p-6 font-mono text-sm text-on-background/80">
@@ -80,19 +81,17 @@ export function UnderstandingScores() {
                 </div>
                 <div className="space-y-2">
                   <div>
-                    <span className="text-on-background">Hook</span> ={" "}
-                    <span className="text-[#3b82f6]">0.45</span> · attention
+                    <span className="text-on-background">Hook</span> = mean
+                    <span className="text-on-background/60">(</span>
+                    <span className="text-[#3b82f6]">all 9 networks</span>
+                    <span className="text-on-background/60">)</span>
                   </div>
-                  <div>
-                    <span className="text-on-background/60 pl-8">+</span>{" "}
-                    <span className="text-[#22c55e]">0.35</span> · visual
-                  </div>
-                  <div>
-                    <span className="text-on-background/60 pl-8">+</span>{" "}
-                    <span className="text-[#8b5cf6]">0.20</span> · reward
+                  <div className="pl-12">
+                    averaged over segments{" "}
+                    <span className="text-[#22c55e]">1&ndash;5</span>
                   </div>
                   <div className="pt-3 text-on-background/50 text-xs">
-                    averaged over the first 3 seconds of content
+                    first five 2-second windows = the first 10 seconds of content
                   </div>
                 </div>
               </div>
@@ -110,34 +109,36 @@ export function UnderstandingScores() {
                   Retention Score
                 </h3>
                 <p className="text-on-background/70 md:text-lg">
-                  Where viewers stay engaged — and where they drop. We track
-                  Default Mode, Language, and Emotional activation segment by
-                  segment. Sustained activation means continued narrative
-                  investment; collapses predict scroll-away moments.
+                  The weakest 10-second stretch across your content. We slide
+                  a 5-segment window over the full timeline and take the
+                  minimum mean activation — so a low retention score points
+                  at the worst-performing section, not an average.
                 </p>
                 <p className="text-on-background/70 text-sm">
-                  Use this to find dead zones and recut them before you publish.
+                  Use it to find the single weakest cut and decide whether to
+                  tighten, replace, or remove it.
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-black/40 p-6 font-mono text-sm text-on-background/80">
                 <div className="text-xs uppercase tracking-wider text-on-background/50 mb-3">
-                  Per-segment formula
+                  Formula
                 </div>
                 <div className="space-y-2">
                   <div>
-                    <span className="text-on-background">Retention(t)</span> ={" "}
-                    <span className="text-[#f43f5e]">0.40</span> · default_mode
+                    <span className="text-on-background">Retention</span> = min
+                    <span className="text-on-background/60">(</span>
+                  </div>
+                  <div className="pl-6">
+                    mean<span className="text-on-background/60">(</span>
+                    <span className="text-[#f43f5e]">segments[i..i+5]</span>
+                    <span className="text-on-background/60">)</span>{" "}
+                    <span className="text-on-background/50">for all i</span>
                   </div>
                   <div>
-                    <span className="text-on-background/60 pl-16">+</span>{" "}
-                    <span className="text-[#06b6d4]">0.35</span> · language
-                  </div>
-                  <div>
-                    <span className="text-on-background/60 pl-16">+</span>{" "}
-                    <span className="text-[#ec4899]">0.25</span> · emotional
+                    <span className="text-on-background/60">)</span>
                   </div>
                   <div className="pt-3 text-on-background/50 text-xs">
-                    a rolling 2-second window flags drops below the clip average
+                    minimum of every rolling 10-second window (5 × 2-second segments)
                   </div>
                 </div>
               </div>

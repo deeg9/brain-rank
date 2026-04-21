@@ -381,7 +381,7 @@ export function SettingsForm({
                       e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
                     )
                   }
-                  maxLength={20}
+                  maxLength={15}
                   placeholder="choose_a_username"
                 />
               </div>

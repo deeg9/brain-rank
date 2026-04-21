@@ -76,7 +76,7 @@ export async function PATCH(request: NextRequest) {
         updateObj.username = null
       } else {
         const normalized = body.username.toLowerCase()
-        if (normalized.length < 3 || normalized.length > 20) {
+        if (normalized.length < 3 || normalized.length > 15) {
           return NextResponse.json({ error: 'Invalid username format' }, { status: 400 })
         }
         if (!/^[a-z0-9_]+$/.test(normalized)) {
