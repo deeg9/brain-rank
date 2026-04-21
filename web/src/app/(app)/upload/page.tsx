@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/ui/PageTransition";
@@ -13,7 +12,13 @@ import {
   type FileItem,
 } from "@/components/upload/AnimatedFileUpload";
 import { uploadVideo, uploadImage, uploadText } from "@/lib/upload";
-import { CONSENT_VERSION } from "@/lib/consent";
+import {
+  detectPlatform,
+  platformLabel,
+  platformShowsShares,
+  viewsLabel,
+  type PostEngagementInput,
+} from "@/lib/post-engagement";
 import { createJob } from "./actions";
 import { InputTypeSelector, type TabType } from "./InputTypeSelector";
 import { ImageUploadZone } from "./ImageUploadZone";
@@ -24,60 +29,6 @@ import {
   validateTextContent,
   maxFilesForTier,
 } from "@/lib/upload-validation";
-
-function ConsentCheckbox({
-  checked,
-  onChange,
-  disabled,
-}: {
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <label className="flex items-start gap-3 cursor-pointer select-none">
-      <div className="relative mt-0.5 shrink-0">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          disabled={disabled}
-          className="peer sr-only"
-          aria-label="I agree to the Contribution Agreement for this non-commercial research beta"
-        />
-        <div className="h-5 w-5 rounded bg-surface-container-lowest border border-outline-variant/30 peer-checked:bg-black peer-checked:border-black transition-colors duration-200 flex items-center justify-center">
-          {checked && (
-            <svg
-              className="h-3.5 w-3.5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          )}
-        </div>
-      </div>
-      <span className="text-xs text-on-surface-variant leading-snug">
-        I agree to contribute my media to this non-commercial research beta
-        under the terms of the{" "}
-        <Link
-          href="/research-agreement"
-          target="_blank"
-          className="text-on-surface font-semibold underline hover:text-on-surface/70 transition-colors"
-        >
-          Contribution Agreement
-        </Link>
-        .
-      </span>
-    </label>
-  );
-}
 
 interface CreditInfo {
   canAnalyze: boolean;
@@ -98,7 +49,28 @@ export default function UploadPage() {
   const [textContent, setTextContent] = useState('');
   const [category, setCategory] = useState("");
   const [credits, setCredits] = useState<CreditInfo | null>(null);
-  const [consentAccepted, setConsentAccepted] = useState(false);
+  // Optional real-world engagement metadata — collapsed by default.
+  const [hasPosted, setHasPosted] = useState(false);
+  const [postedUrl, setPostedUrl] = useState("");
+  const [postedAt, setPostedAt] = useState("");
+  const [viewsCount, setViewsCount] = useState("");
+  const [likesCount, setLikesCount] = useState("");
+  const [commentsCount, setCommentsCount] = useState("");
+  const [sharesCount, setSharesCount] = useState("");
+  const detectedPlatform = detectPlatform(postedUrl);
+
+  // Roll every createJob call's engagement payload from one helper.
+  function buildEngagementPayload(): PostEngagementInput | null {
+    if (!hasPosted || !postedUrl.trim()) return null;
+    return {
+      postedUrl: postedUrl.trim(),
+      postedAt: postedAt || null,
+      viewsCount: viewsCount === "" ? null : Number(viewsCount),
+      likesCount: likesCount === "" ? null : Number(likesCount),
+      commentsCount: commentsCount === "" ? null : Number(commentsCount),
+      sharesCount: sharesCount === "" ? null : Number(sharesCount),
+    };
+  }
 
   useEffect(() => {
     fetch('/api/credits')
@@ -203,7 +175,7 @@ export default function UploadPage() {
         updateFileProgress(item.id, 100);
         updateFileStatus(item.id, "complete");
 
-        const result = await createJob(videoUrl, 'video', null, null, category || null, consentAccepted ? CONSENT_VERSION : null);
+        const result = await createJob(videoUrl, 'video', null, null, category || null, buildEngagementPayload());
         jobIds.push(result.jobId);
       } catch (err) {
         updateFileStatus(
@@ -236,7 +208,7 @@ export default function UploadPage() {
 
     try {
       const imageUrl = await uploadImage(imageFile);
-      const result = await createJob(imageUrl, 'image', null, null, category || null, consentAccepted ? CONSENT_VERSION : null);
+      const result = await createJob(imageUrl, 'image', null, null, category || null, buildEngagementPayload());
       router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -256,7 +228,7 @@ export default function UploadPage() {
 
     try {
       const textUrl = await uploadText(textContent);
-      const result = await createJob(textUrl, 'text_spoken', textContent, null, category || null, consentAccepted ? CONSENT_VERSION : null);
+      const result = await createJob(textUrl, 'text_spoken', textContent, null, category || null, buildEngagementPayload());
       router.push(`/processing?jobId=${result.jobId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
@@ -356,6 +328,210 @@ export default function UploadPage() {
         </motion.section>
       )}
 
+      {/* Text Input */}
+      {inputType === 'text' && (
+        <motion.section
+          className="relative"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+        >
+          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 space-y-4">
+            <p className="text-center text-xs text-on-surface-variant max-w-md mx-auto">
+              Your text will be rendered on screen and spoken aloud, then analyzed for both visual and auditory neural response.
+            </p>
+            <div className="space-y-2">
+              <textarea
+                maxLength={500}
+                rows={6}
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                disabled={uploading}
+                placeholder="Enter your text here — e.g., ad copy, headline, voiceover script..."
+                className="bg-white border border-gray-200 rounded-xl p-4 text-gray-900 font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+              />
+              <p className={`text-right text-sm ${textContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
+                {textContent.length}/500
+              </p>
+            </div>
+          </div>
+        </motion.section>
+      )}
+
+      {/* Error display */}
+      {error && (
+        <motion.p
+          className="text-error text-sm -mt-6"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          {error}
+        </motion.p>
+      )}
+
+      {/* Optional: Real-world Performance */}
+      <motion.section
+        className="flex justify-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.12, ease: "easeOut" }}
+      >
+        <div className="w-full max-w-xl rounded-2xl border border-outline-variant/30 bg-white shadow-sm">
+          {/* Header row: icon + title + toggle switch */}
+          <button
+            type="button"
+            onClick={() => !uploading && setHasPosted((v) => !v)}
+            disabled={uploading}
+            aria-pressed={hasPosted}
+            className="w-full flex items-center gap-4 px-5 py-4 text-left disabled:opacity-50"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-700">
+              <span className="material-symbols-outlined text-[20px]">trending_up</span>
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-headline font-bold text-sm text-on-surface">
+                  Has this been posted publicly?
+                </h3>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500 px-1.5 py-0.5 rounded bg-gray-100">
+                  Optional
+                </span>
+              </div>
+              <p className="text-xs text-on-surface-variant mt-0.5 leading-snug">
+                Share where you posted this and how it performed — helps the research dataset.
+              </p>
+            </div>
+            {/* Toggle switch */}
+            <span
+              className={`relative shrink-0 inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                hasPosted ? "bg-black" : "bg-gray-200"
+              }`}
+              aria-hidden="true"
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  hasPosted ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </span>
+          </button>
+
+          {hasPosted && (
+            <div className="px-5 pb-5 pt-1 space-y-3 border-t border-gray-100">
+              {/* URL + detected platform */}
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                  Link
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    inputMode="url"
+                    placeholder="https://www.tiktok.com/@you/video/..."
+                    value={postedUrl}
+                    onChange={(e) => setPostedUrl(e.target.value)}
+                    disabled={uploading}
+                    className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                  {detectedPlatform && (
+                    <span className="inline-flex items-center gap-1 shrink-0 px-2 py-1 rounded-full border border-outline-variant/30 text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      {platformLabel(detectedPlatform)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Posted date */}
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                  Date posted
+                </label>
+                <input
+                  type="date"
+                  max={new Date().toISOString().slice(0, 10)}
+                  min="2010-01-01"
+                  value={postedAt}
+                  onChange={(e) => setPostedAt(e.target.value)}
+                  disabled={uploading}
+                  className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                />
+              </div>
+
+              {/* Counts */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                    {viewsLabel(detectedPlatform)}
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={viewsCount}
+                    onChange={(e) => setViewsCount(e.target.value)}
+                    disabled={uploading}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                    Likes
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={likesCount}
+                    onChange={(e) => setLikesCount(e.target.value)}
+                    disabled={uploading}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                    Comments
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    placeholder="0"
+                    value={commentsCount}
+                    onChange={(e) => setCommentsCount(e.target.value)}
+                    disabled={uploading}
+                    className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                  />
+                </div>
+                {(!detectedPlatform || platformShowsShares(detectedPlatform)) && (
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-1">
+                      Shares
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      placeholder="0"
+                      value={sharesCount}
+                      onChange={(e) => setSharesCount(e.target.value)}
+                      disabled={uploading}
+                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-black/40 transition-colors disabled:opacity-50"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <p className="text-[10px] text-on-surface-variant/70 leading-snug">
+                Metrics as of {new Date().toLocaleDateString()}. You can update
+                them later from the analysis page.
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.section>
+
       {/* Image Cost Panel + Analyze Button */}
       {inputType === 'image' && (
         <motion.section
@@ -394,7 +570,7 @@ export default function UploadPage() {
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!imageFile || uploading || !category || !consentAccepted}
+              disabled={!imageFile || uploading || !category}
               onClick={handleAnalyzeImage}
               className="!w-auto px-10 py-4"
             >
@@ -402,36 +578,6 @@ export default function UploadPage() {
               <span className="material-symbols-outlined text-lg">bolt</span>
             </Button>
           </GlassPanel>
-        </motion.section>
-      )}
-
-      {/* Text Input */}
-      {inputType === 'text' && (
-        <motion.section
-          className="relative"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-        >
-          <div className="rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 space-y-4">
-            <p className="text-center text-xs text-on-surface-variant max-w-md mx-auto">
-              Your text will be rendered on screen and spoken aloud, then analyzed for both visual and auditory neural response.
-            </p>
-            <div className="space-y-2">
-              <textarea
-                maxLength={500}
-                rows={6}
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-                disabled={uploading}
-                placeholder="Enter your text here — e.g., ad copy, headline, voiceover script..."
-                className="bg-white border border-gray-200 rounded-xl p-4 text-gray-900 font-body resize-none w-full focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
-              />
-              <p className={`text-right text-sm ${textContent.length >= 480 ? 'text-red-400' : 'text-on-surface-variant'}`}>
-                {textContent.length}/500
-              </p>
-            </div>
-          </div>
         </motion.section>
       )}
 
@@ -473,7 +619,7 @@ export default function UploadPage() {
               variant="primary"
               size="lg"
               loading={uploading}
-              disabled={!textContent.trim() || uploading || !category || !consentAccepted}
+              disabled={!textContent.trim() || uploading || !category}
               onClick={handleAnalyzeText}
               className="!w-auto px-10 py-4"
             >
@@ -483,33 +629,6 @@ export default function UploadPage() {
           </GlassPanel>
         </motion.section>
       )}
-
-      {/* Error display */}
-      {error && (
-        <motion.p
-          className="text-error text-sm -mt-6"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          {error}
-        </motion.p>
-      )}
-
-      {/* Research Contribution Consent */}
-      <motion.section
-        className="flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-      >
-        <div className="w-full max-w-xl rounded-2xl border border-outline-variant/20 bg-white/[0.03] px-5 py-4">
-          <ConsentCheckbox
-            checked={consentAccepted}
-            onChange={setConsentAccepted}
-            disabled={uploading}
-          />
-        </div>
-      </motion.section>
 
       {/* Cost Estimate Glass Panel (video only) */}
       {inputType === 'video' && (<motion.section
@@ -550,7 +669,7 @@ export default function UploadPage() {
             variant="primary"
             size="lg"
             loading={uploading}
-            disabled={files.length === 0 || uploading || !category || !consentAccepted}
+            disabled={files.length === 0 || uploading || !category}
             onClick={handleAnalyze}
             className="!w-auto px-10 py-4"
           >

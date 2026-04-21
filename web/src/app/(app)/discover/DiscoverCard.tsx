@@ -9,6 +9,12 @@ import { ScoreBadge } from "@/components/ui/ScoreBadge";
 import { ContentTypeBadge } from "@/components/ui/ContentTypeBadge";
 import type { InputType } from "@/lib/database.types";
 import type { ScoreBreakdown } from "@/lib/results";
+import {
+  detectPlatform,
+  platformIcon,
+  platformLabel,
+  type PostedPlatform,
+} from "@/lib/post-engagement";
 
 export interface DiscoverAnalysis {
   id: string;
@@ -23,6 +29,8 @@ export interface DiscoverAnalysis {
   category?: string | null;
   input_type?: InputType | null;
   text_content?: string | null;
+  posted_url?: string | null;
+  posted_platform?: PostedPlatform | null;
 }
 
 interface DiscoverCardProps {
@@ -148,6 +156,23 @@ export function DiscoverCard({ analysis, isSelected, onCompareSelect, initialBoo
                 {analysis.view_count} views
               </span>
             )}
+            {analysis.posted_url && (() => {
+              const platform = analysis.posted_platform ?? detectPlatform(analysis.posted_url) ?? "other";
+              return (
+                <a
+                  href={analysis.posted_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  title={`View on ${platformLabel(platform)}`}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-black hover:opacity-70 transition-opacity"
+                >
+                  <span className="material-symbols-outlined text-[14px] leading-none">
+                    {platformIcon(platform)}
+                  </span>
+                </a>
+              );
+            })()}
             <ScoreBadge
               value={analysis.overall_score}
               breakdown={analysis.breakdown}

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { resizeToAvatar, uploadAvatar } from "@/lib/avatar";
 import { createClient } from "@/lib/supabase/client";
+import { CONSENT_VERSION } from "@/lib/consent";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -29,6 +31,7 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   // Fetch user on mount
   useEffect(() => {
@@ -108,12 +111,13 @@ export default function OnboardingPage() {
         setAvatarUploading(false);
       }
 
-      // Save profile
+      // Save profile (includes one-time Contribution Agreement consent).
       const res = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username,
+          consent_version_accepted: CONSENT_VERSION,
           ...(bio.trim() ? { bio: bio.trim() } : {}),
           ...(finalAvatarUrl ? { avatar_url: finalAvatarUrl } : {}),
         }),
@@ -140,6 +144,7 @@ export default function OnboardingPage() {
     username.length >= 3 &&
     !checking &&
     (availability === null || availability.available);
+  const canSubmit = isUsernameValid && consentAccepted;
 
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4 md:p-6 relative">
@@ -280,6 +285,37 @@ export default function OnboardingPage() {
               </p>
             </div>
 
+            {/* Contribution Agreement consent — one-time, replaces per-upload prompt */}
+            <label className="flex items-start gap-3 cursor-pointer select-none pt-2 border-t border-outline-variant/10">
+              <div className="relative mt-3 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={consentAccepted}
+                  onChange={(e) => setConsentAccepted(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="h-5 w-5 rounded bg-surface-container-lowest border border-outline-variant/30 peer-checked:bg-black peer-checked:border-black transition-colors duration-200 flex items-center justify-center">
+                  {consentAccepted && (
+                    <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-xs text-on-surface-variant leading-snug pt-2">
+                I agree to the{" "}
+                <Link
+                  href="/research-agreement"
+                  target="_blank"
+                  className="text-on-surface font-semibold underline hover:text-on-surface/70 transition-colors"
+                >
+                  Contribution Agreement
+                </Link>{" "}
+                for this non-commercial research beta. Applies to every upload
+                from this account — you won&apos;t be asked again.
+              </span>
+            </label>
+
             {/* Error */}
             {error && (
               <p className="text-sm text-red-500 text-center">{error}</p>
@@ -288,7 +324,7 @@ export default function OnboardingPage() {
             {/* Submit */}
             <button
               onClick={handleSubmit}
-              disabled={!isUsernameValid || saving}
+              disabled={!canSubmit || saving}
               className="w-full py-3.5 rounded-xl font-bold text-white bg-black hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {saving ? (

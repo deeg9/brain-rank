@@ -9,6 +9,8 @@ import type { SegmentData } from "@/components/results/SegmentTable";
 import type { ZoneMarker, IconMarker } from "@/components/results/NeuralTimeline";
 import type { PeakMarker } from "@/lib/peak-detection";
 import type { InputType } from "@/lib/database.types";
+import type { PostedPlatform } from "@/lib/post-engagement";
+import { EngagementCard } from "@/components/results/EngagementCard";
 
 const VideoPlayer = dynamic(
   () => import("@/components/results/VideoPlayer").then(m => m.VideoPlayer),
@@ -54,6 +56,15 @@ interface PublicAnalysisClientProps {
   iconMarkers: IconMarker[];
   peakMarkers: PeakMarker[];
   inputType: InputType | null;
+  isOwner: boolean;
+  postedUrl: string | null;
+  postedPlatform: PostedPlatform | null;
+  postedAt: string | null;
+  viewsCount: number | null;
+  likesCount: number | null;
+  commentsCount: number | null;
+  sharesCount: number | null;
+  engagementCapturedAt: string | null;
 }
 
 function getSegmentAtTime(
@@ -91,6 +102,15 @@ export function PublicAnalysisClient({
   iconMarkers,
   peakMarkers,
   inputType,
+  isOwner,
+  postedUrl,
+  postedPlatform,
+  postedAt,
+  viewsCount,
+  likesCount,
+  commentsCount,
+  sharesCount,
+  engagementCapturedAt,
 }: PublicAnalysisClientProps) {
   const isImage = inputType === "image";
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -194,6 +214,20 @@ export function PublicAnalysisClient({
         valence={valence}
         cardClassName="p-5 bg-white shadow-sm"
         showPlaybackBadge={false}
+      />
+
+      {/* Real-world performance (owner: link + counts + update; visitor: link only) */}
+      <EngagementCard
+        jobId={jobId}
+        isOwner={isOwner}
+        postedUrl={postedUrl}
+        postedPlatform={postedPlatform}
+        postedAt={postedAt}
+        viewsCount={viewsCount}
+        likesCount={likesCount}
+        commentsCount={commentsCount}
+        sharesCount={sharesCount}
+        engagementCapturedAt={engagementCapturedAt}
       />
     </div>
   );

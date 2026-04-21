@@ -8,6 +8,10 @@ import { trackServer } from '@/lib/analytics.server'
 import { BATCH_LIMITS } from '@/lib/upload-validation'
 import { type InputType } from '@/lib/database.types'
 import { CONSENT_VERSION } from '@/lib/consent'
+import {
+  validatePostEngagement,
+  type PostEngagementInput,
+} from '@/lib/post-engagement'
 import type { BatchItem, CreateJobResult } from './types'
 
 export async function createJob(
@@ -16,22 +20,34 @@ export async function createJob(
   textContent?: string | null,
   textStyle?: string | null,
   category?: string | null,
-  consentVersion?: string | null
+  engagement?: PostEngagementInput | null
 ): Promise<CreateJobResult> {
-  // Research-beta: every upload must ship with an accepted consent version.
-  // The UI gates the Analyze button on the checkbox, but we reject here too
-  // so a malformed client can't bypass it.
-  const acceptedConsent = consentVersion ?? null
-  if (!acceptedConsent) {
-    throw new Error('Consent to the Contribution Agreement is required to analyze content.')
+  // Optional real-world engagement metadata. Null URL = user skipped the section.
+  const engagementResult = validatePostEngagement(engagement ?? {})
+  if (!engagementResult.ok) {
+    throw new Error(engagementResult.reason)
   }
-  if (acceptedConsent !== CONSENT_VERSION) {
-    throw new Error('Contribution Agreement has been updated — please reload and re-accept.')
-  }
+  const engagementData = engagementResult.value
+
   const supabase = await createClient()
 
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) throw new Error('Not authenticated')
+
+  // Research-beta: consent is recorded on the user's profile at onboarding.
+  // Block uploads for anyone whose profile hasn't accepted the current
+  // Contribution Agreement version (legacy users are backfilled by the
+  // 20260421_add_consent_to_profiles.sql migration).
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('consent_version_accepted')
+    .eq('id', user.id)
+    .maybeSingle()
+  const acceptedConsent = (profileRow as { consent_version_accepted: string | null } | null)
+    ?.consent_version_accepted ?? null
+  if (!acceptedConsent || acceptedConsent !== CONSENT_VERSION) {
+    throw new Error('CONSENT_REQUIRED')
+  }
 
   const limitError = await checkJobCreateLimits(supabase, user.id)
   // Rate-limit abuse → still reject (429-equivalent). Concurrent-cap → queue instead.
@@ -71,6 +87,16 @@ export async function createJob(
       // database.types.ts is regenerated.
       consent_version: acceptedConsent,
       consented_at: new Date().toISOString(),
+      // Research-beta engagement snapshot — all nullable, columns added in
+      // 20260421_add_engagement_to_jobs.sql.
+      posted_url: engagementData.postedUrl,
+      posted_platform: engagementData.postedPlatform,
+      posted_at: engagementData.postedAt,
+      views_count: engagementData.viewsCount,
+      likes_count: engagementData.likesCount,
+      comments_count: engagementData.commentsCount,
+      shares_count: engagementData.sharesCount,
+      engagement_captured_at: engagementData.engagementCapturedAt,
     } as never)
     .select('id')
     .single()
@@ -139,7 +165,7 @@ export async function createBatchJobs(
         item.textContent,
         item.textStyle,
         item.category,
-        CONSENT_VERSION
+        null
       )
       results.push(result)
     } catch (err) {
@@ -152,4 +178,47 @@ export async function createBatchJobs(
   }
 
   return { jobs: results }
+}
+
+// Update self-reported engagement for an existing job. Owner-scoped.
+// Pass an empty/cleared input to clear all engagement fields (user unchecks the
+// "posted publicly" toggle post-hoc). Returns the refreshed timestamp so the UI
+// can update the "as of" chip without a full refetch.
+export async function updateJobEngagement(
+  jobId: string,
+  input: PostEngagementInput
+): Promise<{ ok: true; capturedAt: string | null } | { ok: false; error: string }> {
+  if (!jobId) return { ok: false, error: 'Missing job id.' }
+
+  const result = validatePostEngagement(input)
+  if (!result.ok) {
+    return { ok: false, error: result.reason }
+  }
+  const data = result.value
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) return { ok: false, error: 'Not authenticated' }
+
+  const { error } = await supabase
+    .from('jobs')
+    .update({
+      posted_url: data.postedUrl,
+      posted_platform: data.postedPlatform,
+      posted_at: data.postedAt,
+      views_count: data.viewsCount,
+      likes_count: data.likesCount,
+      comments_count: data.commentsCount,
+      shares_count: data.sharesCount,
+      engagement_captured_at: data.engagementCapturedAt,
+    } as never)
+    .eq('id', jobId)
+    .eq('user_id', user.id)
+
+  if (error) return { ok: false, error: error.message }
+
+  return { ok: true, capturedAt: data.engagementCapturedAt }
 }

@@ -269,7 +269,7 @@ const DEFAULT_VISIBLE_COUNT = 3;
 export function NeuralTimeline({ segments, duration, currentTime, onSeek, zones, iconMarkers, peakMarkers, syncId }: NeuralTimelineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   const getTimeFromMouseEvent = useCallback((e: React.MouseEvent | MouseEvent) => {
     const container = containerRef.current;

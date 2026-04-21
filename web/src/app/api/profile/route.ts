@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/lib/database.types'
+import { CONSENT_VERSION } from '@/lib/consent'
 
-type ProfileUpdate = Partial<Pick<Profile, 'username' | 'bio' | 'avatar_url' | 'updated_at'>>
+// Extra consent columns added in 20260421_add_consent_to_profiles.sql.
+type ProfileUpdate = Partial<Pick<Profile, 'username' | 'bio' | 'avatar_url' | 'updated_at'>> & {
+  consent_version_accepted?: string
+  consent_accepted_at?: string
+}
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -18,10 +23,18 @@ export async function PATCH(request: NextRequest) {
       username?: string | null
       bio?: string | null
       avatar_url?: string | null
+      consent_version_accepted?: string | null
+      consent_accepted_at?: string | null
     }
 
     // At least one field must be present
-    if (body.username === undefined && body.bio === undefined && body.avatar_url === undefined) {
+    if (
+      body.username === undefined &&
+      body.bio === undefined &&
+      body.avatar_url === undefined &&
+      body.consent_version_accepted === undefined &&
+      body.consent_accepted_at === undefined
+    ) {
       return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
     }
 
@@ -43,6 +56,20 @@ export async function PATCH(request: NextRequest) {
       updateObj.avatar_url = body.avatar_url
     }
 
+    // Consent fields: only the current Contribution Agreement version is
+    // accepted. The timestamp is server-stamped for integrity, ignoring any
+    // client-supplied value.
+    if (body.consent_version_accepted !== undefined) {
+      if (body.consent_version_accepted !== CONSENT_VERSION) {
+        return NextResponse.json(
+          { error: 'Contribution Agreement version mismatch — please reload.' },
+          { status: 400 }
+        )
+      }
+      updateObj.consent_version_accepted = CONSENT_VERSION
+      updateObj.consent_accepted_at = new Date().toISOString()
+    }
+
     // Handle username with existing validation logic
     if (body.username !== undefined) {
       if (body.username === null) {
@@ -59,9 +86,11 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    // Cast through `unknown` because database.types.ts hasn't been regenerated
+    // since the consent_version_accepted / consent_accepted_at columns were added.
     const { data, error } = await supabase
       .from('profiles')
-      .update(updateObj as ProfileUpdate)
+      .update(updateObj as never)
       .eq('id', user.id)
       .select()
       .single()

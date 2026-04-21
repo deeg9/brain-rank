@@ -87,6 +87,26 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
   const profile = rawProfile as { username: string | null; avatar_url: string | null } | null;
   const username = profile?.username ?? null;
 
+  // Owner check for the engagement card (owner sees metrics + Update button;
+  // non-owner sees the link only, if any).
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+  const isOwner = !!currentUser && currentUser.id === job.user_id;
+
+  // Engagement columns live on the jobs row; cast through unknown because
+  // database.types.ts hasn't been regenerated yet.
+  const jobEngagement = job as unknown as {
+    posted_url: string | null;
+    posted_platform: string | null;
+    posted_at: string | null;
+    views_count: number | null;
+    likes_count: number | null;
+    comments_count: number | null;
+    shares_count: number | null;
+    engagement_captured_at: string | null;
+  };
+
   const results = job.results as unknown as ResultsData;
   const segments = (results.segments ?? []) as unknown as SegmentData[];
   const summary = results.summary ?? {
@@ -245,6 +265,22 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
         iconMarkers={iconMarkers}
         peakMarkers={peakMarkers}
         inputType={job.input_type}
+        isOwner={isOwner}
+        postedUrl={jobEngagement.posted_url}
+        postedPlatform={
+          (jobEngagement.posted_platform as
+            | "youtube"
+            | "tiktok"
+            | "instagram"
+            | "other"
+            | null) ?? null
+        }
+        postedAt={jobEngagement.posted_at}
+        viewsCount={jobEngagement.views_count}
+        likesCount={jobEngagement.likes_count}
+        commentsCount={jobEngagement.comments_count}
+        sharesCount={jobEngagement.shares_count}
+        engagementCapturedAt={jobEngagement.engagement_captured_at}
       />
     </div>
     </main>
