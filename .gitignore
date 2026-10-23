@@ -39,3 +39,6 @@ Thumbs.db
 # Build output & local screenshots
 .next/
 /*.png
+
+# Local tool output
+.playwright-mcp/

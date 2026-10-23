@@ -94,6 +94,10 @@ BRAIN | RANK ran publicly at trybrainrank.com in 2026 and is no longer live. The
 
 TRIBE v2 is released by Meta under **CC BY-NC 4.0**, so any deployment of this project is limited to non-commercial use unless you have other licensing in place. Predictions are model estimates of average brain responses, not measurements of any individual viewer.
 
+## License
+
+The code in this repo is MIT licensed (see [LICENSE](LICENSE)). The TRIBE v2 model it runs is not included and is licensed separately by Meta under CC BY-NC 4.0.
+
 ---
 
 Built by [Diego Fill](https://diegofill.com).
